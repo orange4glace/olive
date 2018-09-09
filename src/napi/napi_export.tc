@@ -100,6 +100,30 @@ napi_value NAPI_Export<T>::NAPI_GetInstanceNamedProperty(const char* name) {
 }
 
 template <class T>
+void NAPI_Export<T>::NAPI_DeleteInstanceNamedProperty(const char* name) {
+  napi_env env = napi::current_env();
+  napi_value napi_name;
+  NAPI_CALL(napi_create_string_utf8(env, name, NAPI_AUTO_LENGTH, &napi_name));
+  NAPI_CALL(napi_delete_property(env, this->napi_instance(), napi_name, NULL));
+}
+
+template <class T>
+void NAPI_Export<T>::NAPI_DeleteNamedProperty(napi_value napi_object, const char* name) {
+  napi_env env = napi::current_env();
+  napi_value napi_name;
+  NAPI_CALL(napi_create_string_utf8(env, name, NAPI_AUTO_LENGTH, &napi_name));
+  NAPI_CALL(napi_delete_property(env, napi_object, napi_name, NULL));
+}
+
+template <class T>
+void NAPI_Export<T>::NAPI_DeleteNamedProperty(napi_ref napi_object_ref, const char* name) {
+  napi_env env = napi::current_env();
+  napi_value napi_object;
+  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &napi_object));
+  NAPI_DeleteNamedProperty(napi_object, name);
+}
+
+template <class T>
 napi_value NAPI_Export<T>::napi_instance() {
   napi_env env = napi::current_env();
   napi_value value;

@@ -3,6 +3,7 @@
 #include "timeline/timeline_item.h"
 
 #include <set>
+#include <string>
 
 namespace {
   timeline_layer_id __next_timeline_layer_id_ = 0;
@@ -24,6 +25,18 @@ void TimelineLayer::AddTimelineJSItem(int start_offset, int end_offset) {
   AddTimelineItem(std::move(item));
 }
 
+void TimelineLayer::RemoveTimelineItem(timeline_item_id id) {
+  timeline_items_.erase(std::remove_if(timeline_items_.begin(), 
+                            timeline_items_.end(),
+                            [&id](auto& x) -> bool {
+                              return id == x->id();
+                            }),
+                        timeline_items_.end());
+
+  // NAPI
+  NAPI_DeleteNamedProperty(napi_items_ref_, std::to_string(id).c_str());
+}
+
 void TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem> item) {
   timeline_items_.emplace_back(std::move(item));
   CommitTimelineItem(item.get());
@@ -39,12 +52,7 @@ void TimelineLayer::CommitTimelineItem(TimelineItem* const item) {
       else it->SetOffset(clamp.start_offset, clamp.end_offset);
     }
   }
-  timeline_items_.erase(std::remove_if(timeline_items_.begin(), 
-                            timeline_items_.end(),
-                            [&erases](auto& x) -> bool {
-                              return erases.count(x->id());
-                            }),
-                        timeline_items_.end());
+  for (auto id : erases) RemoveTimelineItem(id);
 }
 
 timeline_layer_id TimelineLayer::id() const {

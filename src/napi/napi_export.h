@@ -137,6 +137,10 @@ public:
   
   napi_value NAPI_GetInstanceNamedProperty(const char* name);
 
+  void NAPI_DeleteInstanceNamedProperty(const char* name);
+  void NAPI_DeleteNamedProperty(napi_value napi_object, const char* name);
+  void NAPI_DeleteNamedProperty(napi_ref napi_object_ref, const char* name);
+
   napi_value napi_instance();
 
 
