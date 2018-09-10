@@ -5,7 +5,6 @@
 namespace olive {
 
 void napi::set_current_env(napi_env env) {
-  std::cout << "env refresh\n";
   env_ = env;
 }
 

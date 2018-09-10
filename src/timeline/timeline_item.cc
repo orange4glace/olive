@@ -1,5 +1,10 @@
 #include "timeline/timeline_item.h"
 
+#include "timeline/timeline_layer.h"
+
+#include "napi/napi.h"
+#include "napi/napi_encoder.h"
+
 namespace olive {
 
 namespace {
@@ -26,10 +31,19 @@ void TimelineItem::SetOffset(int start_offset, int end_offset) {
   napi_set_named_property(env, js_object, "start_offset", n_start_offset);
   napi_set_named_property(env, js_object, "end_offset", n_end_offset);
   */
+  NAPI_SetInstanceNamedProperty("start_offset", napi_encoder<int32_t>::encode(start_offset));
+  NAPI_SetInstanceNamedProperty("end_offset", napi_encoder<int32_t>::encode(end_offset));
 }
 
 timeline_item_id TimelineItem::id() const {
   return id_;
+}
+
+void TimelineItem::SetTimelineLayer(TimelineLayer* const layer) {
+  timeline_layer_ = layer;
+}
+TimelineLayer* const TimelineItem::GetTimelineLayer() {
+  return timeline_layer_;
 }
 
 // static
@@ -37,5 +51,8 @@ TimelineItemClamp TimelineItem::GetClamped(const TimelineItem* const clamper,
     const TimelineItem* const clampee) {
   return TimelineItemClamp{0, 0, 0};
 }
+
+// NAPI
+NAPI_IMPL_PROPERTIES(TimelineItem)
 
 } // namespace olive

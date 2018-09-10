@@ -21,8 +21,9 @@ public:
   TimelineLayer(timeline_layer_id id);
   ~TimelineLayer();
   TimelineItem* const GetTimelineItemAtOffset(int offset);
-  void AddTimelineMediaItem(Media* const media, int start_offset, int end_offset);
-  void AddTimelineJSItem(int start_offset, int end_offset);
+  TimelineItem* const AddTimelineMediaItem(Media* const media, int start_offset, int end_offset);
+  TimelineItem* const AddTimelineJSItem(int start_offset, int end_offset);
+  void MoveTimelineItem(TimelineItem* const item, int start_offset, int end_offset);
   void RemoveTimelineItem(timeline_item_id id);
 
   timeline_layer_id id() const;
@@ -31,8 +32,8 @@ private:
   // Unfortunatly, current container of timeline items is |std::vector|
   // Todo:: Change the container to Improve performace
   std::vector<std::unique_ptr<TimelineItem>> timeline_items_;
-  void AddTimelineItem(std::unique_ptr<TimelineItem> item);
-  void CommitTimelineItem(TimelineItem* const item);
+  TimelineItem* const AddTimelineItem(std::unique_ptr<TimelineItem> item);
+  TimelineItem* const CommitTimelineItem(TimelineItem* const item);
 
   napi_ref napi_items_ref_;
   timeline_layer_id id_;

@@ -50,7 +50,7 @@ namespace olive {
     napi_value js_obj; \
     napi_value js_this; \
     T* native_this; \
-		NAPI_CALL(napi_get_cb_info(env, cbinfo, &argc, argv, &js_this, NULL)); \
+		NAPI_CALL(napi_get_cb_info(env, cbinfo, &argc, argv, &js_obj, NULL)); \
     NAPI_CALL(napi_get_named_property(env, js_obj, "native", &js_this)); \
     NAPI_CALL(napi_get_value_external(env, js_this, &(void*)native_this)); \
 		CODE \
@@ -121,20 +121,15 @@ public:
   static napi_value NAPI_Constructor(napi_env, napi_callback_info cbinfo);
 
 
-  template <typename U>
-  napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, U value);
-  template <typename U>
-  napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, U value, napi_ref* ref);
-  template <typename U>
-  napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, U value);
-  template <typename U>
-  napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, U value, napi_ref* ref);
-
-  template <typename U>
-  napi_value NAPI_SetInstanceNamedProperty(const char* name, U value);
-  template <typename U>
-  napi_value NAPI_SetInstanceNamedProperty(const char* name, U value, napi_ref* ref);
   
+  napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, napi_value value);
+  napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, napi_value value, napi_ref* ref);
+  napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value);
+  napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref);
+
+  
+  napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value);
+  napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value, napi_ref* ref);
   napi_value NAPI_GetInstanceNamedProperty(const char* name);
 
   void NAPI_DeleteInstanceNamedProperty(const char* name);

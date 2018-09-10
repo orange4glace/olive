@@ -14,6 +14,7 @@ namespace olive {
 class Media;
 
 class TimelineLayer;
+class TimelineItem;
 
 class Timeline : public NAPI_Export<Timeline> {
 NAPI_DEFINE_EXPORT(Timeline, "Timeline")
@@ -29,18 +30,22 @@ public:
   TimelineLayer* const AddTimelineLayer();
   void RemoveTimelineLayer(timeline_layer_id id);
 
-  void AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
+  TimelineItem* const AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
   void RemoveTimelineItem(timeline_item_id id);
-  void MoveTimelineItem(timeline_item_id id, TimelineLayer* const layer,
+  void MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                         int start_offset, int end_offset);
 
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
   napi_value _NAPI_AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
+  napi_value _NAPI_MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
+                                    int start_offset, int end_offset);
   
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_AddTimelineLayer, _NAPI_AddTimelineLayer);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddTimelineItem, _NAPI_AddTimelineItem,
       TimelineLayer* const, int, int);
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_MoveTimelineItem, _NAPI_MoveTimelineItem,
+      TimelineLayer* const, TimelineItem* const, int, int);
 
 private:
   static std::unique_ptr<Timeline> instance_;

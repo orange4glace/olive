@@ -2,6 +2,7 @@
 #define OLIVE_NAPI_H_
 
 #include <assert.h>
+#include <iostream>
 
 #include <node_api.h>
 

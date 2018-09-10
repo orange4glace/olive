@@ -6,6 +6,7 @@
 
 #include "timeline/timeline.h"
 #include "timeline/timeline_layer.h"
+#include "timeline/timeline_item.h"
 
 using namespace olive;
 
@@ -33,6 +34,7 @@ napi_value Init(napi_env env, napi_value exports) {
   Timeline::Initialize();
 
   TimelineLayer::NAPI_Initialize(env);
+  TimelineItem::NAPI_Initialize(env);
 
   napi_set_named_property(env, exports, "sayHello", Timeline::instance()->napi_instance());
 

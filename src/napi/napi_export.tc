@@ -28,7 +28,6 @@ void NAPI_Export<T>::NAPI_CreateInstance(napi_env env, T* native_this) {
   napi_value constructor;
   napi_value extern_this;
   napi_value napi_instance;
-  std::cout << "Create Instance\n";
   NAPI_CALL(napi_get_reference_value(env, __napi_constructor_reference_, &constructor));
   NAPI_CALL(napi_new_instance(env, constructor, 0, NULL, &napi_instance));
   NAPI_CALL(napi_create_external(env, (void*)native_this, NULL, NULL, &extern_this));
@@ -38,55 +37,47 @@ void NAPI_Export<T>::NAPI_CreateInstance(napi_env env, T* native_this) {
 }
 
 template <class T>
-template <class U>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* name, U value) {
+napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* name, napi_value value) {
   napi_env env = napi::current_env();
-  napi_value encoded_value = napi_encoder<U>::encode(env, value);
-  NAPI_CALL(napi_set_named_property(env, object, name, encoded_value));
-  return encoded_value;
+  NAPI_CALL(napi_set_named_property(env, object, name, value));
+  return value;
 }
 
 template <class T>
-template <class U>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* name, U value, napi_ref* ref) {
+napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* name, napi_value value, napi_ref* ref) {
   napi_env env = napi::current_env();
-  napi_value v = NAPI_SetNamedProperty<U>(object, name, value);
+  NAPI_SetNamedProperty(object, name, value);
   NAPI_CALL(napi_create_reference(env, v, 1, ref));
-  return v;
+  return value;
 }
 
 template <class T>
-template <class U>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, U value, napi_ref* ref) {
+napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref) {
   napi_env env = napi::current_env();
   napi_value v;
   NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
-  return NAPI_SetNamedProperty<U>(v, name, value, ref);
+  return NAPI_SetNamedProperty(v, name, value, ref);
 }
 
 template <class T>
-template <class U>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, U value) {
+napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value) {
   napi_env env = napi::current_env();
   napi_value v;
   NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
-  return NAPI_SetNamedProperty<U>(v, name, value);
+  return NAPI_SetNamedProperty(v, name, value);
 }
 
 template <class T>
-template <class U>
-napi_value NAPI_Export<T>::NAPI_SetInstanceNamedProperty(const char* name, U value) {
+napi_value NAPI_Export<T>::NAPI_SetInstanceNamedProperty(const char* name, napi_value value) {
   napi_env env = napi::current_env();
-  napi_value encoded_value = napi_encoder<U>::encode(env, value);
-  NAPI_CALL(napi_set_named_property(env, this->napi_instance(), name, encoded_value)); 
-  return encoded_value;
+  NAPI_CALL(napi_set_named_property(env, this->napi_instance(), name, value)); 
+  return value;
 }
 
 template <class T>
-template <class U>
-napi_value NAPI_Export<T>::NAPI_SetInstanceNamedProperty(const char* name, U value, napi_ref* ref) {
+napi_value NAPI_Export<T>::NAPI_SetInstanceNamedProperty(const char* name, napi_value value, napi_ref* ref) {
   napi_env env = napi::current_env();
-  napi_value v = NAPI_SetInstanceNamedProperty<U>(name, value);
+  napi_value v = NAPI_SetInstanceNamedProperty(name, value);
   NAPI_CALL(napi_create_reference(env, v, 1, ref));
   return v;
 }
@@ -127,7 +118,6 @@ template <class T>
 napi_value NAPI_Export<T>::napi_instance() {
   napi_env env = napi::current_env();
   napi_value value;
-  std::cout << (__napi_instance_ref_ == NULL);
   NAPI_CALL(napi_get_reference_value(env, __napi_instance_ref_, &value));
   return value;
 }

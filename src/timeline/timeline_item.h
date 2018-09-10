@@ -10,6 +10,8 @@
 
 namespace olive {
 
+// Sorry for circular design!
+class TimelineLayer;
 class Media;
 
 struct TimelineItemClamp {
@@ -30,6 +32,8 @@ public:
   TimelineItem();
   ~TimelineItem();
   void SetOffset(int start_offset, int end_offset);
+  void SetTimelineLayer(TimelineLayer* const layer);
+  TimelineLayer* const GetTimelineLayer();
 
   timeline_item_id id() const;
 
@@ -40,6 +44,7 @@ public:
 
 protected:
   timeline_item_id id_;
+  TimelineLayer* timeline_layer_;
   int start_offset_;
   int end_offset_;
 

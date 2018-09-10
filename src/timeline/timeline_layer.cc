@@ -1,7 +1,9 @@
 #include "timeline/timeline_layer.h"
 
 #include "timeline/timeline_item.h"
+#include "napi/napi_encoder.h"
 
+#include <iostream>
 #include <set>
 #include <string>
 
@@ -13,16 +15,25 @@ namespace olive {
 
 TimelineLayer::TimelineLayer(timeline_layer_id id) 
   : id_(__next_timeline_layer_id_++) {
-  NAPI_SetInstanceNamedProperty<napi_value>("items",
+  NAPI_SetInstanceNamedProperty("items",
       napi::create_empty_object(), &napi_items_ref_);
+  NAPI_SetInstanceNamedProperty("id",
+      napi_encoder<uint32_t>::encode(id));
 }
 
 TimelineLayer::~TimelineLayer() {}
 
-void TimelineLayer::AddTimelineJSItem(int start_offset, int end_offset) {
+TimelineItem* const TimelineLayer::AddTimelineJSItem(int start_offset, int end_offset) {
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>();
+  TimelineItem* raw = item.get();
   item->SetOffset(start_offset, end_offset);
   AddTimelineItem(std::move(item));
+  return raw;
+}
+
+void TimelineLayer::MoveTimelineItem(TimelineItem* const item,
+    int start_offset, int end_offset) {
+  item->SetOffset(start_offset, end_offset);
 }
 
 void TimelineLayer::RemoveTimelineItem(timeline_item_id id) {
@@ -37,12 +48,19 @@ void TimelineLayer::RemoveTimelineItem(timeline_item_id id) {
   NAPI_DeleteNamedProperty(napi_items_ref_, std::to_string(id).c_str());
 }
 
-void TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem> item) {
+TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem> item) {
+  item->SetTimelineLayer(this);
+  auto raw = item.get();
   timeline_items_.emplace_back(std::move(item));
-  CommitTimelineItem(item.get());
+
+  // NAPI
+  NAPI_SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+
+  return raw;
 }
 
-void TimelineLayer::CommitTimelineItem(TimelineItem* const item) {
+TimelineItem* const TimelineLayer::CommitTimelineItem(TimelineItem* const item) {
+  assert(item->GetTimelineLayer()->id() == id_);
   std::set<timeline_item_id> erases;
   for (auto& it : timeline_items_) {
     auto el = it.get();
@@ -53,6 +71,7 @@ void TimelineLayer::CommitTimelineItem(TimelineItem* const item) {
     }
   }
   for (auto id : erases) RemoveTimelineItem(id);
+  return item;
 }
 
 timeline_layer_id TimelineLayer::id() const {

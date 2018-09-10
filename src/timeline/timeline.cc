@@ -1,6 +1,7 @@
 #include "timeline/timeline.h"
 
 #include "timeline/timeline_layer.h"
+#include "timeline/timeline_item.h"
 #include "napi/napi.h"
 
 #include <string>
@@ -13,7 +14,7 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 } // namespace
 
 Timeline::Timeline() {
-  NAPI_SetInstanceNamedProperty<napi_value>("layers",
+  NAPI_SetInstanceNamedProperty("layers",
       napi::create_empty_object(), &napi_layers_ref_);
 }
 
@@ -33,10 +34,8 @@ TimelineLayer* const Timeline::GetTimelineLayer(timeline_layer_id id) {
 }
 
 TimelineLayer* const Timeline::AddTimelineLayer() {
-  std::cout << "AddTimelineLayer\n";
   std::unique_ptr<TimelineLayer> timeline_layer(
       std::make_unique<TimelineLayer>(__next_timeline_layer_id_++));
-  std::cout << "# AddTimelineLayer\n";
 
   TimelineLayer* raw = timeline_layer.get();
   
@@ -51,7 +50,7 @@ TimelineLayer* const Timeline::AddTimelineLayer() {
                           timeline_layer->js_object());
   */
 
-  NAPI_SetNamedProperty<napi_value>(napi_layers_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+  NAPI_SetNamedProperty(napi_layers_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
 
   return raw;
 }
@@ -61,22 +60,42 @@ void Timeline::RemoveTimelineLayer(timeline_layer_id id) {
   timeline_layers_.erase(id);
 }
 
-void Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset) {
-  layer->AddTimelineJSItem(start_offset, end_offset);
+void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
+    int start_offset, int end_offset) {
+  if (item->GetTimelineLayer()->id() == layer->id()) {
+    // Same timeline layer
+    layer->MoveTimelineItem(item, start_offset, end_offset);
+  }
+  else {
+    // Move to another timeline layer
+  }
+} 
+
+TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset) {
+  TimelineItem* const item = layer->AddTimelineJSItem(start_offset, end_offset);
+  return item;
 }
 
 // NAPI
 NAPI_IMPL_PROPERTIES(Timeline, 
-    NAPI_METHOD_PROPERTY("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default))
+    NAPI_METHOD_PROPERTY("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
+    NAPI_METHOD_PROPERTY("AddTimelineItem", NAPI_AddTimelineItem, napi_default),
+    NAPI_METHOD_PROPERTY("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
-  AddTimelineLayer();
-  return NULL;
+  TimelineLayer* const layer = AddTimelineLayer();
+  return layer->napi_instance();
 }
 
 napi_value Timeline::_NAPI_AddTimelineItem(TimelineLayer* const layer,
     int start_offset, int end_offset) {
-  AddTimelineItem(layer, start_offset, end_offset);
+  TimelineItem* const item = AddTimelineItem(layer, start_offset, end_offset);
+  return item->napi_instance();
+}
+
+napi_value Timeline::_NAPI_MoveTimelineItem(TimelineLayer* const layer,
+    TimelineItem* const item, int start_offset, int end_offset) {
+  MoveTimelineItem(layer, item, start_offset, end_offset);
   return NULL;
 }
 
