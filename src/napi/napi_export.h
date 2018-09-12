@@ -93,6 +93,36 @@ namespace olive {
 
 
 
+
+
+
+#define EXPAND( x ) x
+#define ESC(...) ESC_(__VA_ARGS__)
+#define ESC_(...) __VA_ARGS__
+
+#define A() 
+
+#define MAC(_, __, PROP) EXPAND(MAC_) ## PROP
+
+#define MAC_(a,b) a b,
+
+#define NAPI_IMPL_PROPERTIES(T, ...) BOOST_PP_SEQ_FOR_EACH(MAC, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
+
+NAPI_IMPL_PROPERTIES(Class, 
+	(a,b),
+	(c,d))
+
+
+
+
+
+
+
+
+
+
+
+
 #define NAPI_METHOD_PROPERTY(NAME, METHOD, ATTRIBUTES) \
   { NAME, NULL, METHOD, NULL, NULL, NULL, ATTRIBUTES, NULL }
 #define NAPI_VALUE_PROPERTY(NAME, VALUE, ATTRIBUTES) \
