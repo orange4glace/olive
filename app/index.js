@@ -1,10 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Timeline from './timeline/timeline.js';
-import TimelineItem from './timeline/timeline-item.js';
+const addon = window.require('C:/Users/Orange/Documents/olive/src/build/Release/module.node');
+console.log(addon);
+const path = window.require('path');
+console.log(path.dirname(__filename))
 
-const item = new TimelineItem();
+import Timeline from 'classes/timeline';
+import TimelineLayer from 'classes/timeline_layer';
+import TimelineItem from 'classes/timeline_item';
 
-window.item = item;
-ReactDOM.render(<Timeline timeline={item}></Timeline>, document.getElementById('app'));
+ReactDOM.render(<div/>, document.getElementById('app'));

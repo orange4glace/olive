@@ -76,7 +76,7 @@ module.exports = {
     },
     devtool: 'source-map',
     resolve: {
-        modules: ['node_modules', 'packages'],
+        modules: ['node_modules', 'app'],
         extensions: ['*', '.js', '.jsx']
     },
     output: {
