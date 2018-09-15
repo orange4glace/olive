@@ -17,7 +17,7 @@ class TimelineLayer;
 class TimelineItem;
 
 class Timeline : public NAPI_Export<Timeline> {
-NAPI_DEFINE_EXPORT(Timeline, "Timeline")
+NAPI_DECLARE_CLASS(Timeline, "Timeline")
 
 public:
   Timeline();

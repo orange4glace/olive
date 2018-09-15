@@ -26,7 +26,7 @@ struct TimelineItemClamp {
 };
 
 class TimelineItem : public NAPI_Export<TimelineItem> {
-NAPI_DEFINE_EXPORT(TimelineItem, "TimelineItem");
+NAPI_DECLARE_CLASS(TimelineItem, "TimelineItem");
 
 public:
   TimelineItem();

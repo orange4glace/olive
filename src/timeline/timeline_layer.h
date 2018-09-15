@@ -15,7 +15,7 @@ class Media;
 class TimelineItem;
 
 class TimelineLayer : public NAPI_Export<TimelineLayer> {
-NAPI_DEFINE_EXPORT(TimelineLayer, "TimelineLayer");
+NAPI_DECLARE_CLASS(TimelineLayer, "TimelineLayer");
 
 public:
   TimelineLayer(timeline_layer_id id);

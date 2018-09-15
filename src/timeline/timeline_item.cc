@@ -53,6 +53,6 @@ TimelineItemClamp TimelineItem::GetClamped(const TimelineItem* const clamper,
 }
 
 // NAPI
-NAPI_IMPL_PROPERTIES(TimelineItem)
+NAPI_DEFINE_CLASS(TimelineItem)
 
 } // namespace olive

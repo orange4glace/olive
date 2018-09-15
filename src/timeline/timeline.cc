@@ -3,6 +3,7 @@
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
 #include "napi/napi.h"
+#include "napi/napi_encoder.h"
 
 #include <string>
 #include <assert.h>
@@ -14,8 +15,8 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 } // namespace
 
 Timeline::Timeline() {
-  NAPI_SetInstanceNamedProperty("layers",
-      napi::create_empty_object(), &napi_layers_ref_);
+  NAPI_SetInstanceNamedProperty("layers", napi::create_object(), &napi_layers_ref_);
+  NAPI_SetNamedProperty(napi_layers_ref_, "fuck", napi_encoder<int32_t>::encode(325));
 }
 
 Timeline::~Timeline() {}
@@ -49,7 +50,7 @@ TimelineLayer* const Timeline::AddTimelineLayer() {
   napi_set_named_property(env, js_object, std::to_string(timeline_layer->id()).c_str(),
                           timeline_layer->js_object());
   */
-
+  std::cout << "## Add timeline layer " << raw->id() << "\n";
   NAPI_SetNamedProperty(napi_layers_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
 
   return raw;
@@ -77,10 +78,11 @@ TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int st
 }
 
 // NAPI
-NAPI_IMPL_PROPERTIES(Timeline, 
-    NAPI_METHOD_PROPERTY("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
-    NAPI_METHOD_PROPERTY("AddTimelineItem", NAPI_AddTimelineItem, napi_default),
-    NAPI_METHOD_PROPERTY("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default))
+NAPI_DEFINE_CLASS(Timeline, 
+    NAPI_PROPERTY_VALUE("layers", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
+    NAPI_PROPERTY_FUNCTION("AddTimelineItem", NAPI_AddTimelineItem, napi_default),
+    NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
   TimelineLayer* const layer = AddTimelineLayer();

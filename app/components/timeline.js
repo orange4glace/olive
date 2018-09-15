@@ -1,8 +1,6 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 
-import TimelineItem from 'timeline/timeline-item.js';
-
 @observer
 class Timeline extends React.Component {
 
@@ -14,7 +12,12 @@ class Timeline extends React.Component {
     const timeline = this.props.timeline;
     return (
       <div>
-        {timeline.title}
+        <button onClick={()=>timeline.AddTimelineLayer()}>ADD LAYER</button>
+        {
+          Object.keys(timeline.layers).map(layer_key => (
+            <div key={layer_key}>{timeline.layers[layer_key].id}</div>
+          ))
+        }
       </div>
     )
   }

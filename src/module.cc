@@ -10,6 +10,14 @@
 
 using namespace olive;
 
+namespace {
+  class K {
+    public:
+    K(int k){a = k;}
+    int a;
+  };
+}
+
 class Native {
 public:
   Native(){}
@@ -27,16 +35,20 @@ void Test(napi_env env) {
   napi_create_reference(env, constructor, 1, &constructor_ref);
 }
 
+napi_value ExternalTest(napi_env env, napi_callback_info cb) {
+  napi_value ex;
+  size_t s = 1;
+  napi_get_cb_info(env, cb, &s, &ex, NULL, NULL);
+  K* res;
+  napi_get_value_external(env, ex, &(void*)res);
+  std::cout << "GOT " << res->a << "\n";
+  return NULL;
+}
+
 napi_value Init(napi_env env, napi_value exports) {
   napi::set_current_env(env);
 
-  Timeline::NAPI_Initialize(env);
-  Timeline::Initialize();
-
-  TimelineLayer::NAPI_Initialize(env);
-  TimelineItem::NAPI_Initialize(env);
-
-  napi_set_named_property(env, exports, "sayHello", Timeline::instance()->napi_instance());
+  napi::Initialize(env, exports);
 
   return exports;
 }

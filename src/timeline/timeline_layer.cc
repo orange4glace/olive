@@ -79,6 +79,6 @@ timeline_layer_id TimelineLayer::id() const {
 }
 
 // NAPI
-NAPI_IMPL_PROPERTIES(TimelineLayer)
+NAPI_DEFINE_CLASS(TimelineLayer)
 
 } // namespace olive

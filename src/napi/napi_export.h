@@ -6,6 +6,19 @@
 #include "napi/napi_wrap.h"
 #include "napi/napi_encoder.h"
 
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/variadic/to_seq.hpp>
+#include <boost/preprocessor/control/expr_if.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/preprocessor/facilities/is_empty.hpp>
+#include <boost/preprocessor/tuple/elem.hpp>
+#include <boost/preprocessor/tuple/enum.hpp>
+#include <boost/preprocessor/facilities/apply.hpp>
+#include <boost/preprocessor/facilities/expand.hpp>
+#include <boost/preprocessor/facilities/identity.hpp>
+#include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/preprocessor/tuple/eat.hpp>
+
 #include <vector>
 #include <utility>
 #include <iostream>
@@ -89,55 +102,54 @@ namespace olive {
 
 
 
+#define NAPI_MOBX_DECORATE (napi::mobx_decorate())
+#define NAPI_MOBX_OBSERVABLE (napi::mobx_observable())
+#define NAPI_MOBX_COMPUTED (napi::mobx_computed())
 
+#define NAPI_DISCOURAGE_CLASS_PROPERTY 1
+#define NAPI_ENCOURAGE_CLASS_PROPERTY 0
 
+#define NAPI_PROPERTY_FUNCTION(NAME, FUNC, ATTR, MOBX) \
+    (NAME, NULL, FUNC, NULL, NULL, NULL, ATTR, NULL, NAPI_ENCOURAGE_CLASS_PROPERTY, MOBX)
+#define NAPI_PROPERTY_GETTER(NAME, FUNC, ATTR, MOBX) \
+    (NAME, NULL, NULL, FUC, NULL, NULL, ATTR, NULL, NAPI_ENCOURAGE_CLASS_PROPERTY, MOBX)
+#define NAPI_PROPERTY_SETTER(NAME, FUNC, ATTR, MOBX) \
+    (NAME, NULL, NULL, NULL, SETTER, NULL, ATTR, NULL, NAPI_ENCOURAGE_CLASS_PROPERTY, MOBX)
+#define NAPI_PROPERTY_VALUE(NAME, ATTR, MOBX) \
+    (NAME, NULL, NULL, NULL, NULL, FUNC, ATTR, NULL, NAPI_DISCOURAGE_CLASS_PROPERTY, MOBX)
 
+#define ___NAPI_DEFINE_PROPERTY_TO_DECORATE_PROPERTY(NAME, MOBX) \
+	{ NAME, NULL, NULL, NULL, NULL, MOBX, napi_default, NULL },
+#define __NAPI_DEFINE_PROPERTY_TO_DECORATE_PROPERTY(NAME, _1, _2, _3, _4, _5, _6, _7, _8, MOBX) \
+    BOOST_PP_IF(BOOST_PP_IS_EMPTY(MOBX), BOOST_PP_TUPLE_EAT(), ___NAPI_DEFINE_PROPERTY_TO_DECORATE_PROPERTY)(NAME, MOBX)
+#define ___NAPI_DEFINE_PROPERTY_TO_CLASS_PROPERTY(NAME, NAPI_NAME, METHOD, GETTER, SETTER, VALUE, ATTR, DATA, DISCOURAGE, _1) \
+    { NAME, NAPI_NAME, METHOD, GETTER, SETTER, VALUE, ATTR, DATA },
+#define __NAPI_DEFINE_PROPERTY_TO_CLASS_PROPERTY(NAME, NAPI_NAME, METHOD, GETTER, SETTER, VALUE, ATTR, DATA, DISCOURAGE, _1) \
+    BOOST_PP_IF(DISCOURAGE, BOOST_PP_TUPLE_EAT(), \
+        ___NAPI_DEFINE_PROPERTY_TO_CLASS_PROPERTY)(NAME, NAPI_NAME, METHOD, GETTER, SETTER, VALUE, ATTR, DATA)
 
+#define __NAPI_IMPL_PROPERTIES1_(PROP) BOOST_PP_EXPAND(__NAPI_DEFINE_PROPERTY_TO_CLASS_PROPERTY(PROP))
+#define __NAPI_IMPL_PROPERTIES1(_, __, PROP) __NAPI_IMPL_PROPERTIES1_ (BOOST_PP_TUPLE_ENUM(PROP))
+#define __NAPI_IMPL_PROPERTIES2_(PROP) BOOST_PP_EXPAND(__NAPI_DEFINE_PROPERTY_TO_DECORATE_PROPERTY(PROP))
+#define __NAPI_IMPL_PROPERTIES2(_, __, PROP) __NAPI_IMPL_PROPERTIES2_ (BOOST_PP_TUPLE_ENUM(PROP))
 
-
-
-#define EXPAND( x ) x
-#define ESC(...) ESC_(__VA_ARGS__)
-#define ESC_(...) __VA_ARGS__
-
-#define A() 
-
-#define MAC(_, __, PROP) EXPAND(MAC_) ## PROP
-
-#define MAC_(a,b) a b,
-
-#define NAPI_IMPL_PROPERTIES(T, ...) BOOST_PP_SEQ_FOR_EACH(MAC, _, BOOST_PP_VARIADIC_TO_SEQ(__VA_ARGS__))
-
-NAPI_IMPL_PROPERTIES(Class, 
-	(a,b),
-	(c,d))
-
-
-
-
-
-
-
-
-
-
-
-
-#define NAPI_METHOD_PROPERTY(NAME, METHOD, ATTRIBUTES) \
-  { NAME, NULL, METHOD, NULL, NULL, NULL, ATTRIBUTES, NULL }
-#define NAPI_VALUE_PROPERTY(NAME, VALUE, ATTRIBUTES) \
-  { NAME, NULL, NULL, NULL, NULL, VALUE, ATTRIBUTES, NULL }
-    
-#define NAPI_DEFINE_EXPORT(T, NAPI_CLASSNAME) \
+#define NAPI_DECLARE_CLASS(T, NAPI_CLASSNAME) \
 private: \
-  friend NAPI_Export<T>; \
-  static inline std::string NAPI_GetClassName() { return NAPI_CLASSNAME; } \
-  static std::vector<napi_property_descriptor> NAPI_GetNapiPropertyDescriptors();
+	friend NAPI_Export<T>; \
+	static inline std::string __NAPI_GetClassName() { return NAPI_CLASSNAME; } \
+	static std::vector<napi_property_descriptor> __NAPI_GetClassPropertyDescriptors(); \
+	static std::vector<napi_property_descriptor> __NAPI_GetDecoratePropertyDescriptors();
 
-#define NAPI_IMPL_PROPERTIES(T, ...) \
-  std::vector<napi_property_descriptor> T::NAPI_GetNapiPropertyDescriptors() { \
-    return std::move( \
-        std::vector<napi_property_descriptor>{__VA_ARGS__});}
+#define NAPI_DEFINE_CLASS_(T, SEQ) \
+	std::vector<napi_property_descriptor> T::__NAPI_GetClassPropertyDescriptors() { \
+		return std::move(std::vector<napi_property_descriptor>{BOOST_PP_SEQ_FOR_EACH(__NAPI_IMPL_PROPERTIES1, _, SEQ)}); \
+	} \
+	std::vector<napi_property_descriptor> T::__NAPI_GetDecoratePropertyDescriptors() { \
+		return std::move(std::vector<napi_property_descriptor>{BOOST_PP_SEQ_FOR_EACH(__NAPI_IMPL_PROPERTIES2, _, SEQ)}); \
+	}
+
+#define NAPI_DEFINE_CLASS(T, ...) \
+	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__))
 
 template <class T>
 class NAPI_Export {
@@ -150,19 +162,20 @@ public:
   static void NAPI_Initialize(napi_env env);
   static napi_value NAPI_Constructor(napi_env, napi_callback_info cbinfo);
 
-
-  
   napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, napi_value value);
   napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, napi_value value, napi_ref* ref);
   napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value);
   napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref);
 
-  
   napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value);
   napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value, napi_ref* ref);
+
+  napi_value NAPI_GetNamedProperty(napi_value object, const char* name);
+
   napi_value NAPI_GetInstanceNamedProperty(const char* name);
 
   void NAPI_DeleteInstanceNamedProperty(const char* name);
+  
   void NAPI_DeleteNamedProperty(napi_value napi_object, const char* name);
   void NAPI_DeleteNamedProperty(napi_ref napi_object_ref, const char* name);
 

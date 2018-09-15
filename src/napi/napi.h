@@ -18,13 +18,40 @@ namespace olive {
 
 class napi {
 public:
+  static void Initialize(napi_env env, napi_value exports);
+  static void ExportNamedProperty(const char* name, napi_value value);
+
+  static napi_ref CreateReference(napi_value value, int initial_refcount = 1);
+  static napi_value GetReferenceValue(napi_ref ref);
+
+  static void log(napi_value value);
+
   static void set_current_env(napi_env env);
   static napi_env current_env();
 
+  static napi_value get_global();
   static napi_value create_empty_object();
+  static napi_value create_object();
+  static napi_value create_array();
+  static napi_value create_undefined();
+
+  static napi_value mobx();
+  static napi_value mobx_decorate();
+  static napi_value mobx_observable();
+  static napi_value mobx_computed();
 
 private:
+  static napi_value NAPI_Initialize(napi_env env, napi_callback_info cb_info);
+
   static napi_env env_;
+  static napi_ref export_ref_;
+
+  static napi_ref mobx_ref_;
+  static napi_ref mobx_decorate_ref_;
+  static napi_ref mobx_observable_ref_;
+  static napi_ref mobx_computed_ref_;
+
+  static napi_ref log_ref_;
 
 };
 
