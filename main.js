@@ -18,12 +18,9 @@ function createWindow() {
   win.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
     event.preventDefault();
     Object.assign(options, {
-      frame: false
     })
     event.newGuest = new BrowserWindow(options);
-    event.newGuest.setIgnoreMouseEvents(true);
-    event.newGuest.setAlwaysOnTop(true);
-    event.newGuest.setOpacity(0.5);
+    event.newGuest.webContents.openDevTools();
   });
 
   // Specify entry point
