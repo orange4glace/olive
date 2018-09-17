@@ -18,11 +18,11 @@ class TimelineLayer extends React.Component {
 
   render() {
     return (
-      <div className='timeline-layer' >
+      <div className='timeline-layer'>
       </div>
     )
   }
 
 }
 
-export default Timeline;
+export default TimelineLayer;
