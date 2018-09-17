@@ -8,12 +8,24 @@ class Timeline extends React.Component {
     super(props);
   }
 
+  moveTimelineItem(timelineItem) {
+    
+  }
+
   render() {
     return (
-      <div className='ruler'>
-      </div>
-      <div className='layers'>
-      </div>
+      <React.Fragment>
+        <div className='ruler'>
+        </div>
+        <div className='layers'>
+        {
+          app.iterateLayers(layer => {
+            <div className='layer'>
+            </div>
+          })
+        }
+        </div>
+      </React.Fragment>
     )
   }
 

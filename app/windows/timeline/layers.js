@@ -10,17 +10,19 @@ class Layers extends React.Component {
 
   render() {
     return (
-      <div className='toolbar'>
-      </div>
-      <div className='layers'>
-        {
-          app.iterateLayers(layer => {
-            <div className='layer'>
-              {layer.id}
-            </div>
-          })
-        }
-      </div>
+      <React.Fragment>
+        <div className='toolbar'>
+        </div>
+        <div className='layers'>
+          {
+            app.iterateLayers(layer => {
+              <div className='layer'>
+                {layer.id}
+              </div>
+            })
+          }
+        </div>
+      </React.Fragment>
     )
   }
 
