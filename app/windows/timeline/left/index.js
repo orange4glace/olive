@@ -13,19 +13,21 @@ class TimelineLeft extends React.Component {
   }
 
   render() {
+    console.log(_.values(timeline.layers));
     return (
       <div className={`${style.component} layers`}>
         <div className='toolbar'>
+          <button onClick={()=>timeline.AddTimelineLayer()}>ADD</button>
         </div>
         <div className='layers'>
           {
-            _.mapValues(timeline.layers, layer => {
-              console.log(layer.id);
-            return (
-              <div className='layer'>
-                {layer.id}
-              </div>
-            )
+            _.values(timeline.layers).map(layer => {
+              console.log("layer",layer);
+              return (
+                <div className='layer'>
+                  {layer.id}
+                </div>
+              )
             })
           }
         </div>

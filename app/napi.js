@@ -1,14 +1,10 @@
 import * as mobx from 'mobx';
 
-console.log("[IMPORT NAPI]");
+const olive_module = window.olive_module;
 
-const module = window.require('C:/Users/orang/Desktop/olive/src/build/Release/module.node');
+const timeline = olive_module.timeline;
 
-const exports = module.initialize(mobx, console.log);
-
-const timeline = exports.timeline;
-
-_.mapValues(timeline.layers, l => console.log(timeline));
+window.olive_module = olive_module;
 
 export {
   timeline

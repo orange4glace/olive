@@ -1,6 +1,5 @@
 // ./main.js
 const {app, BrowserWindow} = require('electron')
-app.commandLine.appendSwitch("enable-javascript-harmony")
 
 const ipcMain = require('electron').ipcMain;
 
@@ -41,10 +40,7 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1000,
     height: 600,
-    show: true,
-    skipTaskbar: false,
     webPreferences: {
-      affinity: "app",
       nativeWindowOpen: true
     }
   });
@@ -62,7 +58,8 @@ function createWindow() {
   */
 
   // Specify entry point
-  win.loadFile('./starter.html');
+  win.loadURL('http://localhost:8080/starter.html');
+  // win.loadFile('./dist/starter.html');
 
   // Show dev tools
   // Remove this line before distributing

@@ -16,7 +16,6 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 
 Timeline::Timeline() {
   NAPI_SetInstanceNamedProperty("layers", napi::create_object(), &napi_layers_ref_);
-  NAPI_SetNamedProperty(napi_layers_ref_, "fuck", napi_encoder<int32_t>::encode(325));
 }
 
 Timeline::~Timeline() {}

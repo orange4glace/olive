@@ -35,9 +35,11 @@ class TimelineRight extends React.Component {
         </div>
         <div className='layers'>
         {
-          _.mapValues(timeline.layers, layer => {
-            <TimelineLayer layer={layer} key={layer.id}
-                           timelineItemMover={timelineItemMover}/>
+          _.values(timeline.layers).map(layer => {
+            return (
+              <TimelineLayer layer={layer} key={layer.id}
+                            timelineItemMover={timelineItemMover}/>
+            )
           })
         }
         </div>
