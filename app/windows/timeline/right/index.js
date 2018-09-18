@@ -1,9 +1,9 @@
 import React from 'react';
 import { observer } from 'mobx-react';
-import { observable } from 'mobx';
+import { action, observable } from 'mobx';
 
 import { timeline } from 'napi';
-import TimelineLayer from "windows/timeline/timeline_layer";
+import TimelineLayer from "windows/timeline/right/timeline_layer";
 
 class TimelineItemMover {
   @observable target = null;
@@ -22,7 +22,7 @@ class TimelineItemMover {
 const timelineItemMover = new TimelineItemMover();
 
 @observer
-class Timeline extends React.Component {
+class TimelineRight extends React.Component {
 
   constructor(props) {
     super(props);
@@ -30,21 +30,21 @@ class Timeline extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div className='timeline'>
         <div className='ruler'>
         </div>
         <div className='layers'>
         {
-          timeline.iterateLayers(layer => {
-            <TimelineLayer layer={layer}
+          _.mapValues(timeline.layers, layer => {
+            <TimelineLayer layer={layer} key={layer.id}
                            timelineItemMover={timelineItemMover}/>
           })
         }
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
 }
 
-export default Timeline;
+export default TimelineRight;

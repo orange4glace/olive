@@ -1,0 +1,16 @@
+@import 'theme-black.scss';
+
+.component {
+  display: flex;
+
+  > .layers {
+    flex-basis: 300px;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  > .timeline {
+    flex: 1;
+    flex-grow: 1;
+  }
+}

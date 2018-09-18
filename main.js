@@ -9,6 +9,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1000,
     height: 600,
+    show: true,
+    skipTaskbar: false,
     webPreferences: {
       affinity: "app",
       nativeWindowOpen: true
@@ -34,20 +36,13 @@ function createWindow() {
   win.on('closed', function () {
     win = null;
   });
+
 }
 
 
 app.on('ready', function () {
-
-  createWindow();
-
+  createWindow()
 });
-
-app.on('activate', () => {
-  if (win === null) {
-    createWindow()
-  }
-})
 
 app.on('window-all-closed', function () {
   if (process.platform != 'darwin') {

@@ -1,0 +1,27 @@
+@import 'theme-black.scss';
+
+@import 'windows/timeline/variable.scss';
+
+.component {
+  display: flex;
+
+  > .toolbar {
+    flex-basis: $timeline-header-height;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+
+  > .layers {
+    display: flex;
+    flex: 1;
+    flex-grow: 1;
+
+    > .layer {
+      box-sizing: border-box;
+      border-bottom: 1px solid $secondary-contrast-color;
+      flex-basis: 30px;
+      flex-grow: 0;
+      flex-shrink: 0;
+    }
+  }
+}

@@ -1,15 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import Timeline from 'components/timeline';
+import Timeline from 'windows/timeline';
 
-import { timeline } from './napi.js';
+import { timeline } from 'napi';
 
 const { BrowserWindow } = window.require('electron').remote;
 
+/*
 console.log(window.open());
 const win = BrowserWindow.getFocusedWindow();
 console.log(win);
 win.webContents.openDevTools();
+*/
 
-ReactDOM.render(<Timeline timeline={timeline}></Timeline>, document.getElementById('app'));
+ReactDOM.render(<Timeline/>, document.getElementById('app'));

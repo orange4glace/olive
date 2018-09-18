@@ -1,8 +1,12 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 
+import { timeline } from 'napi';
+
+import style from './index.scss';
+
 @observer
-class Layers extends React.Component {
+class TimelineLeft extends React.Component {
 
   constructor(props) {
     super(props);
@@ -10,22 +14,25 @@ class Layers extends React.Component {
 
   render() {
     return (
-      <React.Fragment>
+      <div className={`${style.component} layers`}>
         <div className='toolbar'>
         </div>
         <div className='layers'>
           {
-            app.iterateLayers(layer => {
+            _.mapValues(timeline.layers, layer => {
+              console.log(layer.id);
+            return (
               <div className='layer'>
                 {layer.id}
               </div>
+            )
             })
           }
         </div>
-      </React.Fragment>
+      </div>
     )
   }
 
 }
 
-export default Layers;
+export default TimelineLeft;

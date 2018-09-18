@@ -1,7 +1,10 @@
 import React from 'react';
 import { observer } from 'mobx-react';
 
-import Layers from 'windows/timeline/header';
+import TimelineLeft from 'windows/timeline/left';
+import TimelineRight from 'windows/timeline/right';
+
+import style from './index.scss';
 
 @observer
 class Timeline extends React.Component {
@@ -12,9 +15,9 @@ class Timeline extends React.Component {
 
   render() {
     return (
-      <div className='component'>
-        <Layers/>
-        <Timeline/>
+      <div className={style.component}>
+        <TimelineLeft/>
+        <TimelineRight/>
       </div>
     )
   }

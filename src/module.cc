@@ -45,7 +45,14 @@ napi_value ExternalTest(napi_env env, napi_callback_info cb) {
   return NULL;
 }
 
+void CleanUpHook(void* args) {
+  std::cout << "Cleanup Hook\n";
+}
+
 napi_value Init(napi_env env, napi_value exports) {
+  std::cout << "[Native Module] Init\n";
+  napi_add_env_cleanup_hook(env, CleanUpHook, NULL);
+
   napi::set_current_env(env);
 
   napi::Initialize(env, exports);
