@@ -6,6 +6,7 @@
         "module.cc",
 
         "napi/napi.cc",
+        "napi/es6/map.cc",
 
         "timeline/timeline.cc",
         "timeline/timeline_layer.cc",

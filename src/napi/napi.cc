@@ -1,5 +1,8 @@
 #include "napi/napi.h"
 
+#include "napi/napi_encoder.h"
+#include "napi/es6/map.h"
+
 #include <iostream>
 
 #include "timeline/timeline.h"
@@ -10,6 +13,7 @@ namespace olive {
 
 void napi::Initialize(napi_env env, napi_value exports) {
   napi::set_current_env(env);
+
   napi_value fn1;
   NAPI_CALL(napi_create_function(env, NULL, 0, NAPI_Initialize, NULL, &fn1));
   NAPI_CALL(napi_set_named_property(env, exports, "initialize", fn1));
@@ -45,6 +49,13 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
 
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
 
+  
+
+  es6::Map::Initialize();
+  auto map = es6::Map::New();
+  es6::Map::Set(map, napi_encoder<const char*>::encode("MyKey"), napi_encoder<int32_t>::encode(1623));
+  napi::log(map);
+
   return export_;
 }
 
@@ -63,6 +74,56 @@ napi_value napi::GetReferenceValue(napi_ref ref) {
   napi_value value;
   NAPI_CALL(napi_get_reference_value(env_, ref, &value));
   return value;
+}
+
+napi_value napi::SetNamedProperty(napi_value object, const char* name, napi_value value) {
+  napi_env env = napi::current_env();
+  NAPI_CALL(napi_set_named_property(env, object, name, value));
+  napi_value set_value;
+  NAPI_CALL(napi_get_named_property(env, object, name, &set_value));
+  return set_value;
+}
+
+napi_value napi::SetNamedProperty(napi_value object, const char* name, napi_value value, napi_ref* ref) {
+  napi_env env = napi::current_env();
+  napi_value set_value = SetNamedProperty(object, name, value);
+  NAPI_CALL(napi_create_reference(env, set_value, 1, ref));
+  return set_value;
+}
+
+napi_value napi::SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref) {
+  napi_env env = napi::current_env();
+  napi_value v;
+  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
+  return SetNamedProperty(v, name, value, ref);
+}
+
+napi_value napi::SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value) {
+  napi_env env = napi::current_env();
+  napi_value v;
+  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
+  return SetNamedProperty(v, name, value);
+}
+
+napi_value napi::GetNamedProperty(napi_value object, const char* name) {
+  napi_env env = napi::current_env();
+  napi_value value;
+  NAPI_CALL(napi_get_named_property(env, object, name, &value));
+  return value;
+}
+
+void napi::DeleteNamedProperty(napi_value napi_object, const char* name) {
+  napi_env env = napi::current_env();
+  napi_value napi_name;
+  NAPI_CALL(napi_create_string_utf8(env, name, NAPI_AUTO_LENGTH, &napi_name));
+  NAPI_CALL(napi_delete_property(env, napi_object, napi_name, NULL));
+}
+
+void napi::DeleteNamedProperty(napi_ref napi_object_ref, const char* name) {
+  napi_env env = napi::current_env();
+  napi_value napi_object;
+  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &napi_object));
+  DeleteNamedProperty(napi_object, name);
 }
 
 void napi::log(napi_value value) {

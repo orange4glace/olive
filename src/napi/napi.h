@@ -40,6 +40,16 @@ public:
   static napi_value mobx_observable();
   static napi_value mobx_computed();
 
+  static napi_value SetNamedProperty(napi_value napi_object, const char* name, napi_value value);
+  static napi_value SetNamedProperty(napi_value napi_object, const char* name, napi_value value, napi_ref* ref);
+  static napi_value SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value);
+  static napi_value SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref);
+
+  static napi_value GetNamedProperty(napi_value object, const char* name);
+  
+  static void DeleteNamedProperty(napi_value napi_object, const char* name);
+  static void DeleteNamedProperty(napi_ref napi_object_ref, const char* name);
+
 private:
   static napi_value NAPI_Initialize(napi_env env, napi_callback_info cb_info);
 

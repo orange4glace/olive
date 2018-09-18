@@ -71,7 +71,7 @@ napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* 
 template <class T>
 napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref) {
   napi_env env = napi::current_env();
-  napi_value set_value;
+  napi_value v;
   NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
   return NAPI_SetNamedProperty(v, name, value, ref);
 }
