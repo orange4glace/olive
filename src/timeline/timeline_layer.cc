@@ -17,8 +17,10 @@ TimelineLayer::TimelineLayer(timeline_layer_id id)
   : id_(__next_timeline_layer_id_++) {
   NAPI_SetInstanceNamedProperty("items",
       napi::create_empty_object(), &napi_items_ref_);
-  NAPI_SetInstanceNamedProperty("id",
-      napi_encoder<uint32_t>::encode(id));
+  NAPI_SetInstanceNamedProperty("id", napi_encoder<uint32_t>::encode(id));
+  NAPI_SetInstanceNamedProperty("name", napi_encoder<const char*>::encode(
+      "layer" + std::to_string(id_)
+  ));
 }
 
 TimelineLayer::~TimelineLayer() {}
@@ -79,6 +81,8 @@ timeline_layer_id TimelineLayer::id() const {
 }
 
 // NAPI
-NAPI_DEFINE_CLASS(TimelineLayer)
+NAPI_DEFINE_CLASS(TimelineLayer,
+    NAPI_PROPERTY_VALUE("id", napi_default),
+    NAPI_PROPERTY_VALUE("name", napi_configurable, NAPI_MOBX_OBSERVABLE))
 
 } // namespace olive

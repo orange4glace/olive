@@ -36,6 +36,10 @@ void Map::Set(napi_value instance, napi_value key, napi_value value) {
       NULL));
 }
 
+void Map::Set(napi_ref ref, napi_value key, napi_value value) {
+  Set(napi::unref(ref), key, value);
+}
+
 napi_value Map::Get(napi_value instance, napi_value key) {
   napi_value argv[1];
   argv[0] = key;
@@ -47,6 +51,10 @@ napi_value Map::Get(napi_value instance, napi_value key) {
       argv,
       &value));
   return value;
+}
+
+napi_value Map::Get(napi_ref ref, napi_value key) {
+  return Get(napi::unref(ref), key);
 }
 
 napi_value Map::constructor_ = NULL;

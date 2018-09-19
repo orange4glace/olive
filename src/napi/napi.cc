@@ -2,6 +2,7 @@
 
 #include "napi/napi_encoder.h"
 #include "napi/es6/map.h"
+#include "napi/es6/observable_map.h"
 
 #include <iostream>
 
@@ -38,6 +39,12 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   NAPI_CALL(napi_create_reference(env, observable, 1, &mobx_observable_ref_));
   NAPI_CALL(napi_create_reference(env, computed, 1, &mobx_computed_ref_));
 
+  es6::Map::Initialize();
+  es6::ObservableMap::Initialize();
+  auto map = es6::Map::New();
+  es6::Map::Set(map, napi_encoder<const char*>::encode("MyKey"), napi_encoder<int32_t>::encode(1623));
+  napi::log(map);
+
   napi_value export_ = create_empty_object();
   export_ref_ = CreateReference(export_);
 
@@ -48,13 +55,6 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   TimelineItem::NAPI_Initialize(env);
 
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
-
-  
-
-  es6::Map::Initialize();
-  auto map = es6::Map::New();
-  es6::Map::Set(map, napi_encoder<const char*>::encode("MyKey"), napi_encoder<int32_t>::encode(1623));
-  napi::log(map);
 
   return export_;
 }
@@ -127,7 +127,8 @@ void napi::DeleteNamedProperty(napi_ref napi_object_ref, const char* name) {
 }
 
 void napi::log(napi_value value) {
-  napi_call_function(env_, get_global(), GetReferenceValue(log_ref_), 1, &value, NULL);
+  NAPI_CALL(
+      napi_call_function(env_, get_global(), GetReferenceValue(log_ref_), 1, &value, NULL));
 }
 
 void napi::set_current_env(napi_env env) {
@@ -136,6 +137,19 @@ void napi::set_current_env(napi_env env) {
 
 napi_env napi::current_env() {
   return env_;
+}
+
+napi_ref napi::ref(napi_value value, int initial_refcount) {
+  napi_ref ref;
+  NAPI_CALL(napi_create_reference(env_, value, initial_refcount, &ref));
+  return ref;
+}
+
+napi_value napi::unref(napi_ref& ref) {
+  napi_value value;
+  NAPI_CALL(napi_get_reference_value(
+      napi::current_env(), ref, &value));
+  return value;
 }
 
 napi_value napi::get_global() {

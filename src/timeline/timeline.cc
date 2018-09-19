@@ -3,6 +3,8 @@
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
 #include "napi/napi.h"
+#include "napi/es6/map.h"
+#include "napi/es6/observable_map.h"
 #include "napi/napi_encoder.h"
 
 #include <string>
@@ -15,7 +17,9 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 } // namespace
 
 Timeline::Timeline() {
-  NAPI_SetInstanceNamedProperty("layers", napi::create_object(), &napi_layers_ref_);
+  NAPI_SetInstanceNamedProperty("layers", es6::ObservableMap::New(), &napi_layers_ref_);
+  napi::log(napi_encoder<const char*>::encode("Timeline intiailized"));
+  napi::log(napi::unref(napi_layers_ref_));
 }
 
 Timeline::~Timeline() {}
@@ -50,7 +54,8 @@ TimelineLayer* const Timeline::AddTimelineLayer() {
                           timeline_layer->js_object());
   */
   std::cout << "## Add timeline layer " << raw->id() << "\n";
-  NAPI_SetNamedProperty(napi_layers_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+  es6::ObservableMap::Set(napi_layers_ref_, napi_encoder<uint32_t>::encode(raw->id()), raw->napi_instance());
+  //NAPI_SetNamedProperty(napi_layers_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
 
   return raw;
 }

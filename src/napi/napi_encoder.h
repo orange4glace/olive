@@ -3,6 +3,8 @@
 
 #include <node_api.h>
 
+#include <string>
+
 #include "napi/napi.h"
 
 namespace olive {
@@ -50,6 +52,12 @@ struct napi_encoder<const char*> {
     napi_env env = napi::current_env();
     napi_value ret;
     NAPI_CALL(napi_create_string_utf8(env, value, NAPI_AUTO_LENGTH, &ret));
+    return ret;
+  }
+  inline static napi_value encode(std::string& value) {
+    napi_env env = napi::current_env();
+    napi_value ret;
+    NAPI_CALL(napi_create_string_utf8(env, value.c_str(), NAPI_AUTO_LENGTH, &ret));
     return ret;
   }
 };

@@ -7,6 +7,7 @@
 
         "napi/napi.cc",
         "napi/es6/map.cc",
+        "napi/es6/observable_map.cc",
 
         "timeline/timeline.cc",
         "timeline/timeline_layer.cc",
@@ -14,7 +15,7 @@
       ],
       "include_dirs": [
         "./",
-        "D:/cpplib/boost_1_64_0/"
+        "$(BOOST)/"
       ],
       "defines": [
         "__STDC_CONSTANT_MACROS"

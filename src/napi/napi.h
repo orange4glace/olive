@@ -29,6 +29,9 @@ public:
   static void set_current_env(napi_env env);
   static napi_env current_env();
 
+  static napi_ref ref(napi_value value, int initial_refcount = 1);
+  static napi_value unref(napi_ref& ref);
+
   static napi_value get_global();
   static napi_value create_empty_object();
   static napi_value create_object();

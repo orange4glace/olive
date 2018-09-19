@@ -12,7 +12,9 @@ public:
   static void Initialize();
   static napi_value New();
   static void Set(napi_value instance, napi_value key, napi_value object);
+  static void Set(napi_ref ref, napi_value key, napi_value object);
   static napi_value Get(napi_value instance, napi_value key);
+  static napi_value Get(napi_ref ref, napi_value key);
 
 private:
   static napi_value constructor_;
