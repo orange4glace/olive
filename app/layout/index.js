@@ -11,7 +11,6 @@ class Layout extends React.Component {
   constructor(props) {
     this.state = {
       direction: LayoutDirection.VIEW,
-      view: null,
       children: []
     };
   }
@@ -26,7 +25,10 @@ class Layout extends React.Component {
   }
  
   render() {
- 
+    return (
+      this.state.direction == VIEW ?
+        React.cloneElement(this.props.view) :
+    )
   }
  
 }

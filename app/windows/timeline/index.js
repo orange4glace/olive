@@ -1,5 +1,4 @@
 import React from 'react';
-import { observer } from 'mobx-react';
 
 import TimelineLeft from 'windows/timeline/left';
 import TimelineRight from 'windows/timeline/right';

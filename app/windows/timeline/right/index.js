@@ -1,9 +1,10 @@
 import React from 'react';
-import { observer } from 'mobx-react';
 import { action, observable } from 'mobx';
 
 import { timeline } from 'napi';
 import TimelineLayer from "windows/timeline/right/timeline_layer";
+
+import style from './index.scss';
 
 class TimelineItemMover {
   @observable target = null;
@@ -30,12 +31,12 @@ class TimelineRight extends React.Component {
 
   render() {
     return (
-      <div className='timeline'>
+      <div className={`${style.component} timeline`}>
         <div className='ruler'>
         </div>
         <div className='layers'>
         {
-          _.values(timeline.layers).map(layer => {
+          [...timeline.layers].map(([key, layer]) => {
             return (
               <TimelineLayer layer={layer} key={layer.id}
                             timelineItemMover={timelineItemMover}/>

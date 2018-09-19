@@ -9,17 +9,15 @@ class TimelineLayer extends React.Component {
     super(props);
   }
 
-  dragEnterHandler(e) {
-    console.log("Drag enter", e);
-  }
-
-  dragOverHandler(e) {
-    console.log("Drag over", e);
+  dragStartHandler(e) {
   }
 
   render() {
+    const layer = this.props.layer;
     return (
-      <div className={`${style.component} timeline-layer`}> 
+      <div className={`${style.component} timeline-layer`}
+          onDragStart={e=>this.dragStartHandler(e)}>
+          <div className='name'>{layer.name}</div>
       </div>
     )
   }

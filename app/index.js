@@ -1,9 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import { timeline } from 'napi';
+
 import Timeline from 'windows/timeline';
 
-import { timeline } from 'napi';
+import style from './index.scss';
 
 const { BrowserWindow } = window.require('electron').remote;
 

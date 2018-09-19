@@ -1,5 +1,4 @@
 import React from 'react';
-import { observer } from 'mobx-react';
 
 @observer
 class TimelineItem extends React.Component {
@@ -22,4 +21,4 @@ class TimelineItem extends React.Component {
 
 }
 
-export default Timeline;
+export default TimelineItem;

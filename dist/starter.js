@@ -1,6 +1,11 @@
-const olive_module = window.require('C:/Users/orang/Desktop/olive/src/build/Release/module.node');
+const remote = require('electron').remote, 
+      app = remote.app;
+
+var basepath = app.getAppPath();
+const olive_module = window.require(`${basepath}/src/build/Release/module.node`);
 
 const mobx = require('mobx');
+const mobx_react = require('mobx-react');
 
 console.log("[IMPORT NAPI]", olive_module, mobx);
 const olive_module_exports = olive_module.initialize(mobx, console.log);
@@ -46,7 +51,7 @@ class WindowRequest {
 } const windowRequest = new WindowRequest();
 
 window.addEventListener('windowready', e => {
-  e.detail.initialize(olive_module_exports);
+  e.detail.initialize(olive_module_exports, mobx_react);
 });
 
 windowRequest.request({

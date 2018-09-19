@@ -1,0 +1,15 @@
+@import "windows/timeline/variable.scss";
+
+.component {
+  display: flex;
+  flex-direction: column;
+
+  > .ruler {
+    flex-basis: $timeline-header-height;
+  }
+
+  > .layers {
+    display: flex;
+    flex-direction: column;
+  }
+}
