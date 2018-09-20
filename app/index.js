@@ -1,9 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import { timeline } from 'napi';
-
-import Timeline from 'windows/timeline';
+import LayoutRoot from 'layout/layout_root';
 
 import style from './index.scss';
 
@@ -16,4 +14,7 @@ console.log(win);
 win.webContents.openDevTools();
 */
 
-ReactDOM.render(<Timeline/>, document.getElementById('app'));
+ReactDOM.render(<LayoutRoot data={{
+  direction: "VIEW",
+  view: "Timeline"
+}}/>, document.getElementById('app'));

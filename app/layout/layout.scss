@@ -1,0 +1,12 @@
+.component {
+  display: flex;
+
+  &.HORIZONTAL {
+    flex-direction: row;
+  }
+
+  &.VERTICAL {
+    flex-direction: column;
+  }
+
+}
