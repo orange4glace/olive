@@ -1,9 +1,11 @@
 import React from 'react';
 
-import Timeline from 'windows/timeline';
+import TimelineWindow from 'windows/timeline';
+import ResourceWindow from 'windows/resource';
 
 const windows = {
-  "Timeline": <Timeline/>,
+  "Timeline": <TimelineWindow/>,
+  "Resource": <ResourceWindow/>,
 }
 
 const factory = {

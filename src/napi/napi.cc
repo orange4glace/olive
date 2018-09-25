@@ -10,6 +10,8 @@
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
 
+#include "resource/resource_manager.h"
+
 namespace olive {
 
 void napi::Initialize(napi_env env, napi_value exports) {
@@ -41,9 +43,6 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
 
   es6::Map::Initialize();
   es6::ObservableMap::Initialize();
-  auto map = es6::Map::New();
-  es6::Map::Set(map, napi_encoder<const char*>::encode("MyKey"), napi_encoder<int32_t>::encode(1623));
-  napi::log(map);
 
   napi_value export_ = create_empty_object();
   export_ref_ = CreateReference(export_);
@@ -54,7 +53,11 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   TimelineLayer::NAPI_Initialize(env);
   TimelineItem::NAPI_Initialize(env);
 
+  ResourceManager::NAPI_Initialize(env);
+  ResourceManager::Initialize();
+
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
+  ExportNamedProperty("resource", ResourceManager::instance()->napi_instance());
 
   return export_;
 }

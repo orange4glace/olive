@@ -2,6 +2,7 @@
 #define OLIVE_NAPI_NAPI_VALUE_H_
 
 #include <type_traits>
+#include <node_api.h>
 
 namespace olive {
 
@@ -23,6 +24,14 @@ public:
     int ret;
     napi_get_value_int32(env, value, &ret);
     return ret;
+  }
+};
+
+template <>
+class napi_wrap<napi_value> {
+public:
+  static inline napi_value get(napi_env env, napi_value value) {
+    return value;
   }
 };
 

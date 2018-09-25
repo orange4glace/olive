@@ -1,27 +1,40 @@
-const remote = require('electron').remote, 
+const electron = require('electron');
+const remote = electron.remote, 
+      ipcRenderer = electron.ipcRenderer,
+      BrowserWindow = remote.BrowserWindow,
       app = remote.app;
 
 var basepath = app.getAppPath();
+
+// Load native Olive module
 const olive_module = window.require(`${basepath}/src/build/Release/module.node`);
 
 const mobx = require('mobx');
 const mobx_react = require('mobx-react');
 
-console.log("[IMPORT NAPI]", olive_module, mobx);
+// Initialize Olive module
 const olive_module_exports = olive_module.initialize(mobx, console.log);
+console.log("[Olive]", olive_module_exports);
+
+// Start Web worker
+let workerBrowser;
+function workerCreated(e, arg) {
+  console.log("Worker created", e, arg);
+  workerBrowser = BrowserWindow.fromId(arg);
+  window.worker = workerBrowser;
+}
+ipcRenderer.on('worker-created', workerCreated);
 
 class WindowRequest {
 
   constructor() {
     this.promises = {};
-    this.ipcRenderer = require('electron').ipcRenderer;
-    this.BrowserWindow = require('electron').remote.BrowserWindow;
     
-    this.ipcRenderer.on('request-window', (e, arg) => {
+    ipcRenderer.on('request-window', (e, arg) => {
       let promise = this.promises[arg.name];
       delete this.promises[arg.name];
       if (!arg.ok) return promise.reject();
-      let browserWindow = this.BrowserWindow.fromId(arg.id);
+      let browserWindow = BrowserWindow.fromId(arg.id);
       if (!browserWindow) return promise.reject();
       console.log("[WindowRequest] Get BrowserWindow", arg.name, arg.id);
       browserWindow.webContents.openDevTools()
@@ -30,7 +43,7 @@ class WindowRequest {
         nativeWindow: promise.nativeWindow
       });
     })
-    this.ipcRenderer.on('request-window-open', (e, arg) => {
+    ipcRenderer.on('request-window-open', (e, arg) => {
       console.log("[WindowRequest] Open native window",arg);
       let nativeWindow = window.open("http://localhost:8080/app.html", arg);
       this.promises[arg].nativeWindow = nativeWindow;
@@ -45,7 +58,7 @@ class WindowRequest {
     let promise = new Promise((resolve, reject) => {
       this.promises[name] = {resolve: resolve, reject: reject};
     });
-    this.ipcRenderer.send('request-window', options);
+    ipcRenderer.send('request-window', options);
     return promise;
   }
 } const windowRequest = new WindowRequest();

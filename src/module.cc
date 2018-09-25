@@ -8,6 +8,8 @@
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
 
+#include "resource/resource_manager.h"
+
 using namespace olive;
 
 namespace {

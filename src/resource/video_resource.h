@@ -1,15 +1,18 @@
-#ifndef OLIVE_VIDEO_MEDIA_H_
-#define OLIVE_VIDEO_MEDIA_H_
+#ifndef OLIVE_VIDEO_RESOURCE_H_
+#define OLIVE_VIDEO_RESOURCE_H_
+
+#include "resource/resource.h"
 
 namespace olive {
 
-class Media;
-
-class VideoMedia : public Media {
+class VideoResource : public Resource {
 public:
+  VideoResource(std::string path);
+
+  void Initialize() override;
 
 };
 
 }
 
-#endif // OLIVE_VIDEO_MEDIA_H_
+#endif // OLIVE_VIDEO_RESOURCE_H_

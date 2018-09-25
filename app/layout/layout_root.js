@@ -24,7 +24,7 @@ class LayoutRoot extends React.Component {
           ]
         }, {
           direction: 'VIEW',
-          views: ['Timeline']
+          views: ['Resource']
         }
       ]
     })

@@ -11,7 +11,13 @@
 
         "timeline/timeline.cc",
         "timeline/timeline_layer.cc",
-        "timeline/timeline_item.cc"
+        "timeline/timeline_item.cc",
+
+        "resource/resource_manager.cc",
+        "resource/video_resource.cc",
+
+        "resource/resource_manager.cc",
+        "resource/video_resource.cc",
       ],
       "include_dirs": [
         "./",

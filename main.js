@@ -33,6 +33,7 @@ class WindowRequestHost {
 }
 
 let win = null;
+let __worker = null;
 let windowRequestHost = null;
 
 function createWindow() {
@@ -41,10 +42,17 @@ function createWindow() {
     width: 1000,
     height: 600,
     webPreferences: {
-      nativeWindowOpen: true
+      nativeWindowOpen: true,
+      nodeIntegration: true
     }
   });
   windowRequestHost = new WindowRequestHost(win);
+
+  win.webContents.on('did-finish-load', e => {
+    let worker = createWorker();
+    win.webContents.send('worker-created', worker.id);
+    console.log("FINISH LOAD");
+  });
   console.log("Create window");
 
   /*
@@ -71,6 +79,24 @@ function createWindow() {
   });
 
 }
+
+function createWorker() {
+  // Initialize the window to our specified dimensions
+  __worker = new BrowserWindow();
+  __worker.webContents.openDevTools();
+  windowRequestHost = new WindowRequestHost(win);
+  console.log("Create worker window");
+
+  __worker.loadFile('./worker/index.html');
+
+  // Remove window once app is closed
+  __worker.on('closed', function () {
+    win = null;
+  });
+
+  return __worker;
+}
+
 const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
 app.on('ready', function () {
