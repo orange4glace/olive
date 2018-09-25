@@ -11,6 +11,9 @@ class Resource {
 public:
   virtual void Initialize() = 0;
 
+  resource_type type() const;
+  const std::string& path() const;
+
 protected:
   inline Resource(resource_type type, std::string path) :
       type_(type), path_(path) {}

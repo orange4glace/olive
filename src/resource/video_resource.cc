@@ -10,7 +10,7 @@ VideoResource::VideoResource(std::string path) :
 }
 
 void VideoResource::Initialize() {
-  DecoderManager::AddDecoderFromResource(this);
+  DecoderManager::instance()->AddDecoderFromResource(this);
 }
 
 }

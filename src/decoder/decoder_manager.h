@@ -8,15 +8,15 @@ class Resource;
 
 class DecoderManager {
 public:
-  void Initialize();
-  inline DecoderManager* const instance() {
+  static void Initialize();
+  static inline DecoderManager* const instance() {
     return instance_;
   }
 
   void AddDecoderFromResource(const Resource* const resource) throw (const char*);
 
 private:
-  DecoderManager* instance_;
+  static DecoderManager* instance_;
 
 };
 
