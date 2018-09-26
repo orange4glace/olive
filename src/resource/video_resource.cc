@@ -2,6 +2,8 @@
 
 #include "decoder/decoder_manager.h"
 
+#include "logger/logger.h"
+
 namespace olive {
 
 VideoResource::VideoResource(std::string path) :
@@ -9,8 +11,12 @@ VideoResource::VideoResource(std::string path) :
 
 }
 
-void VideoResource::Initialize() {
-  DecoderManager::instance()->AddDecoderFromResource(this);
+bool VideoResource::Initialize() {
+  if (!DecoderManager::instance()->AddDecoderFromResource(this)) {
+    logger::get()->info("[VideoResource] In");
+    return false;
+  }
+  return true;
 }
 
 }

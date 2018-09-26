@@ -36,65 +36,50 @@ let win = null;
 let __worker = null;
 let windowRequestHost = null;
 
-function createWindow() {
-  // Initialize the window to our specified dimensions
-  win = new BrowserWindow({
-    width: 1000,
-    height: 600,
-    webPreferences: {
-      nativeWindowOpen: true,
-      nodeIntegration: true
-    }
-  });
-  windowRequestHost = new WindowRequestHost(win);
+function createStarter() {
+  let promise = new Promise((resolve, reject) => {
+    win = new BrowserWindow({
+      width: 1000,
+      height: 600,
+      webPreferences: {
+        nativeWindowOpen: true,
+        nodeIntegration: true
+      }
+    });
+    windowRequestHost = new WindowRequestHost(win);
 
-  win.webContents.on('did-finish-load', e => {
-    let worker = createWorker();
-    win.webContents.send('worker-created', worker.id);
-    console.log("FINISH LOAD");
-  });
-  console.log("Create window");
+    win.webContents.on('did-finish-load', e => {
+      resolve(win);
+    });
+    win.loadURL('http://localhost:8080/starter.html');
+    win.webContents.openDevTools()
 
-  /*
-  win.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
-    event.preventDefault();
-    Object.assign(options, {
-    })
-    event.newGuest = new BrowserWindow(options);
-    event.newGuest.webContents.openDevTools();
-  });
-  */
-
-  // Specify entry point
-  win.loadURL('http://localhost:8080/starter.html');
-  // win.loadFile('./dist/starter.html');
-
-  // Show dev tools
-  // Remove this line before distributing
-  win.webContents.openDevTools()
-
-  // Remove window once app is closed
-  win.on('closed', function () {
-    win = null;
-  });
-
+    win.on('closed', function () {
+      win = null;
+    });
+  })
+  return promise;
 }
 
 function createWorker() {
-  // Initialize the window to our specified dimensions
-  __worker = new BrowserWindow();
-  __worker.webContents.openDevTools();
-  windowRequestHost = new WindowRequestHost(win);
-  console.log("Create worker window");
-
-  __worker.loadFile('./worker/index.html');
-
-  // Remove window once app is closed
-  __worker.on('closed', function () {
-    win = null;
+  let promise = new Promise((resolve, reject) => {
+    // Initialize the window to our specified dimensions
+    __worker = new BrowserWindow();
+    __worker.webContents.openDevTools();
+    console.log("Create worker window");
+  
+    __worker.webContents.once('did-finish-load', e => {
+      console.log("DID FINISH LOAD");
+      resolve(__worker);
+    });
+    __worker.loadFile('./worker/index.html');
+  
+    // Remove window once app is closed
+    __worker.on('closed', function () {
+      __worker = null;
+    });
   });
-
-  return __worker;
+  return promise;
 }
 
 const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
@@ -105,7 +90,22 @@ app.on('ready', function () {
       .then((name) => console.log(`Added Extension:  ${name}`))
       .catch((err) => console.log('An error occurred: ', err));
   
-  createWindow()
+
+  createStarter().then(starter => {
+    console.log("[Node] Starter created");
+    createWorker().then(worker => {
+      console.log("[Node] Worker created");
+      ipcMain.once('app-window-initiated', (e, appWindowId) => {
+        console.log("[Node] Register main-worker window");
+        let appWindow = BrowserWindow.fromId(appWindowId);
+        worker.webContents.send('register-main-window', appWindow.id);
+        appWindow.webContents.send('register-worker-window', worker.id);
+  
+        appWindow.webContents.send('start');
+      })
+      starter.webContents.send('initiate-app-window');
+    })
+  })
 });
 
 app.on('window-all-closed', function () {

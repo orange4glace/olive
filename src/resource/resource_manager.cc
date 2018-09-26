@@ -17,7 +17,10 @@ Resource* const ResourceManager::LoadResource(resource_type type, std::string pa
       resource = new VideoResource(path);
       break;
   }
-  resource->Initialize();
+  if (!resource->Initialize()) {
+    delete resource;
+    return NULL;
+  }
   return resource;
 }
 

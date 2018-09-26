@@ -9,7 +9,7 @@ class VideoResource : public Resource {
 public:
   VideoResource(std::string path);
 
-  void Initialize() override;
+  bool Initialize() override;
 
 };
 

@@ -6,28 +6,32 @@
 #include "resource/resource.h"
 #include "resource/video_resource.h"
 
+#include "logger/logger.h"
+
 namespace olive {
 
 void DecoderManager::Initialize() {
   instance_ = new DecoderManager();
 }
 
-void DecoderManager::AddDecoderFromResource(const Resource* const resource) {
+bool DecoderManager::AddDecoderFromResource(const Resource* const resource) {
+  logger::get()->info("[DecoderManager] AddDecoderFromResource");
   resource_type rtype = resource->type();
   if (rtype == RESOURCE_VIDEO) {
     auto video_resource = static_cast<const VideoResource* const>(resource);
     VideoDecoder* decoder = new VideoDecoder(video_resource);
+    logger::get()->info("[DecoderManager] New Video Decoder");
     try {
       decoder->Initialize();
     } catch (const char* e) {
-      throw(e);
-      return;
+    logger::get()->info("[DecoderManager] Return false");
+      return false;
     }
   }
   else {
-    throw("Resource type not matched");
-    return;
+    return false;
   }
+  return true;
 }
 
 DecoderManager* DecoderManager::instance_ = NULL;

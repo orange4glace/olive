@@ -1,5 +1,8 @@
 import React from 'react';
 
+import resourceBackground from 'background/resource';
+import { resource } from 'napi';
+
 import style from './index.scss';
 
 @observer
@@ -15,13 +18,17 @@ class ResourceWindow extends React.Component {
 
   dropHandler(e) {
     e.preventDefault();
+    let filePaths = [];
     if (e.dataTransfer.items) {
       for (var i = 0; i < e.dataTransfer.items.length; i ++) {
         if (e.dataTransfer.items[i].kind === 'file') {
           var file = e.dataTransfer.items[i].getAsFile();
-          console.log('... file[' + i + '].name = ' + file.path);
+          filePaths.push(file.path);
         }
       }
+    }
+    if (filePaths.length) {
+      resourceBackground.RequestMetadata(filePaths)
     }
   }
 

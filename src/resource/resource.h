@@ -9,7 +9,7 @@ namespace olive {
 
 class Resource {
 public:
-  virtual void Initialize() = 0;
+  virtual bool Initialize() = 0;
 
   resource_type type() const;
   const std::string& path() const;

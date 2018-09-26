@@ -10,6 +10,8 @@
 
 #include "resource/resource_manager.h"
 
+#include "logger/logger.h"
+
 using namespace olive;
 
 namespace {
@@ -52,7 +54,10 @@ void CleanUpHook(void* args) {
 }
 
 napi_value Init(napi_env env, napi_value exports) {
+  logger::Initialize();
+  
   std::cout << "[Native Module] Init\n";
+  logger::get()->info("[Module] Initialize");
   napi_add_env_cleanup_hook(env, CleanUpHook, NULL);
 
   napi::set_current_env(env);

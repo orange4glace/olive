@@ -3,7 +3,11 @@ const autoprefixer = require('autoprefixer');
 const md5 = require('./md5')
 
 module.exports = {
-    entry: './app/index.js',
+    entry: {
+      starter: './app/starter/index.js',
+      entry: './app/entry/index.js',
+      app: './app/index.js',
+    },
     module: {
         rules: [
             {
@@ -80,9 +84,9 @@ module.exports = {
         extensions: ['*', '.js', '.jsx']
     },
     output: {
-        path: __dirname + '/dist',
-        publicPath: '/',
-        filename: 'bundle.js'
+      path: __dirname + '/dist',
+      publicPath: '/',
+      filename: '[name].js'
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin()
