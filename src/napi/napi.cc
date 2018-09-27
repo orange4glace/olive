@@ -11,6 +11,7 @@
 #include "timeline/timeline_item.h"
 
 #include "resource/resource_manager.h"
+#include "resource/resource.h"
 
 namespace olive {
 
@@ -55,6 +56,8 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
 
   ResourceManager::NAPI_Initialize(env);
   ResourceManager::Initialize();
+
+  Resource::NAPI_Initialize(env);
 
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
   ExportNamedProperty("resource", ResourceManager::instance()->napi_instance());

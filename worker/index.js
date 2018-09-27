@@ -18,6 +18,7 @@ const Path = require('path');
 let mainWindow = null;
 
 const ResourceType = {
+  UNKNOWN: 0,
   VIDEO: 1,
   AUDIO: 2,
 }
@@ -39,7 +40,8 @@ class ResourceMetadata {
   _getType(ext) {
     ext = ext.replace('.', '');
     if (['webm','mkv','flv','ogg','avi','wmv','mp4','m4p','m4v'].indexOf(ext) >= 0)
-    return ResourceType.VIDEO;
+      return ResourceType.VIDEO;
+    return ResourceType.UNKNOWN;
   }
 
 }

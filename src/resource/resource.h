@@ -3,22 +3,26 @@
 
 #include "resource/type.h"
 
+#include "napi/napi_export.h"
+
 #include <string>
 
 namespace olive {
 
-class Resource {
+class Resource : public NAPI_Export<Resource> {
+NAPI_DECLARE_CLASS(Resource, "Resource")
 public:
   virtual bool Initialize() = 0;
 
+  resource_id id() const;
   resource_type type() const;
   const std::string& path() const;
 
 protected:
-  inline Resource(resource_type type, std::string path) :
-      type_(type), path_(path) {}
+  Resource(resource_type type, std::string path);
 
 private:
+  resource_id id_;
   resource_type type_;
   std::string path_;
 

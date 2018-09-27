@@ -14,7 +14,7 @@ namespace olive {
 class Resource;
 
 class ResourceManager : public NAPI_Export<ResourceManager> {
-NAPI_DECLARE_CLASS(ResourceManager, "Resource")
+NAPI_DECLARE_CLASS(ResourceManager, "ResourceManager")
 
 public:
   static void Initialize();
@@ -31,9 +31,13 @@ public:
       napi_value);
 
 private:
+  ResourceManager();
+
   static ResourceManager* instance_;
 
   std::map<resource_id, std::unique_ptr<Resource> > resources_;
+
+  napi_ref napi_resources_ref_;
 
 }; // class ResourceManager
 
