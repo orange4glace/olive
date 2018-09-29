@@ -13,6 +13,8 @@
 #include "resource/resource_manager.h"
 #include "resource/resource.h"
 
+#include "decoder/video_decoder.h"
+
 namespace olive {
 
 void napi::Initialize(napi_env env, napi_value exports) {
@@ -26,12 +28,18 @@ void napi::Initialize(napi_env env, napi_value exports) {
 napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   // Mobx.decorate, Mobx.observe, Mobx.computed
   napi::set_current_env(env);
+  napi_value global = napi::get_global();
+
   size_t argc = 2;
   napi_value argv[2];
   NAPI_CALL(napi_get_cb_info(env, cb_info, &argc, argv, NULL, NULL));
   napi_value mobx_ = argv[0];
   NAPI_CALL(napi_create_reference(env, mobx_, 1, &mobx_ref_));
   NAPI_CALL(napi_create_reference(env, argv[1], 1, &log_ref_));
+
+  napi_value Object;
+  napi::GetNamedProperty(global, "Object");
+  napi::GetNamedProperty(Object, "assign", &object_assign_ref_);
 
   napi_value decorate, observable, computed;
   NAPI_CALL(napi_get_named_property(env, mobx_, "decorate", &decorate));
@@ -58,6 +66,8 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   ResourceManager::Initialize();
 
   Resource::NAPI_Initialize(env);
+
+  VideoDecoder::NAPI_Initialize(env);
 
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
   ExportNamedProperty("resource", ResourceManager::instance()->napi_instance());
@@ -118,6 +128,14 @@ napi_value napi::GetNamedProperty(napi_value object, const char* name) {
   return value;
 }
 
+napi_value napi::GetNamedProperty(napi_value object, const char* name, napi_ref* reff) {
+  napi_env env = napi::current_env();
+  napi_value value;
+  NAPI_CALL(napi_get_named_property(env, object, name, &value));
+  *reff = ref(value);
+  return value;
+}
+
 void napi::DeleteNamedProperty(napi_value napi_object, const char* name) {
   napi_env env = napi::current_env();
   napi_value napi_name;
@@ -130,6 +148,12 @@ void napi::DeleteNamedProperty(napi_ref napi_object_ref, const char* name) {
   napi_value napi_object;
   NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &napi_object));
   DeleteNamedProperty(napi_object, name);
+}
+
+napi_value napi::ObjectAssign(napi_value target, size_t size, napi_value* sources) {
+  NAPI_CALL(
+      napi_call_function(current_env(), get_global(), target, size, sources, NULL));
+  return target;
 }
 
 void napi::log(napi_value value) {
@@ -214,6 +238,7 @@ napi_value napi::mobx_computed() {
 
 napi_env napi::env_ = NULL;
 napi_ref napi::export_ref_ = NULL;
+napi_ref napi::object_assign_ref_ = NULL;
 napi_ref napi::mobx_ref_ = NULL;
 napi_ref napi::mobx_decorate_ref_ = NULL;
 napi_ref napi::mobx_observable_ref_ = NULL;

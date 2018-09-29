@@ -13,7 +13,7 @@ public:
     return instance_;
   }
 
-  bool AddDecoderFromResource(const Resource* const resource);
+  Decoder* AddDecoderFromResource(const Resource* const resource);
 
 private:
   static DecoderManager* instance_;

@@ -138,7 +138,8 @@ private: \
 	friend NAPI_Export<T>; \
 	static inline std::string __NAPI_GetClassName() { return NAPI_CLASSNAME; } \
 	static std::vector<napi_property_descriptor> __NAPI_GetClassPropertyDescriptors(); \
-	static std::vector<napi_property_descriptor> __NAPI_GetDecoratePropertyDescriptors();
+	static std::vector<napi_property_descriptor> __NAPI_GetDecoratePropertyDescriptors(); \
+	static napi_value __NAPI_GetParentConstructor();
 
 #define NAPI_DEFINE_CLASS_(T, SEQ) \
 	std::vector<napi_property_descriptor> T::__NAPI_GetClassPropertyDescriptors() { \
@@ -149,7 +150,12 @@ private: \
 	}
 
 #define NAPI_DEFINE_CLASS(T, ...) \
-	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__))
+	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__)) \
+  napi_value T::__NAPI_GetParentConstructor(){return NULL;}
+
+#define NAPI_DEFINE_CLASS_EXTENDS(T, U, ...) \
+	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__)) \
+  napi_value T::__NAPI_GetParentConstructor(){return napi::unref(U::__napi_constructor_reference_);} \
 
 template <class T>
 class NAPI_Export {
@@ -157,7 +163,7 @@ class NAPI_Export {
 friend T;
 
 public:
-  NAPI_Export();
+  NAPI_Export(bool has_derived = false);
 
   static void NAPI_Initialize(napi_env env);
   static napi_value NAPI_Constructor(napi_env, napi_callback_info cbinfo);

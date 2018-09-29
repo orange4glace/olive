@@ -11,7 +11,8 @@ namespace olive {
 
 template <typename T>
 struct napi_encoder {
-  inline static napi_value encode(napi_env env, T native) {
+  inline static napi_value encode(T native) {
+    napi_env env = napi::current_env();
     napi_value value;
     NAPI_CALL(napi_create_external(env, (void*)native, NULL, NULL, &value));
     return value;

@@ -9,6 +9,8 @@
 
 namespace olive {
 
+class Decoder;
+
 class Resource : public NAPI_Export<Resource> {
 NAPI_DECLARE_CLASS(Resource, "Resource")
 public:
@@ -20,6 +22,8 @@ public:
 
 protected:
   Resource(resource_type type, std::string path);
+
+  Decoder* decoder_;
 
 private:
   resource_id id_;

@@ -49,15 +49,20 @@ public:
   static napi_value SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref);
 
   static napi_value GetNamedProperty(napi_value object, const char* name);
+  static napi_value GetNamedProperty(napi_value object, const char* name, napi_ref* ref);
   
   static void DeleteNamedProperty(napi_value napi_object, const char* name);
   static void DeleteNamedProperty(napi_ref napi_object_ref, const char* name);
+
+  static napi_value ObjectAssign(napi_value target, size_t size, napi_value* sources);
 
 private:
   static napi_value NAPI_Initialize(napi_env env, napi_callback_info cb_info);
 
   static napi_env env_;
   static napi_ref export_ref_;
+
+  static napi_ref object_assign_ref_;
 
   static napi_ref mobx_ref_;
   static napi_ref mobx_decorate_ref_;
