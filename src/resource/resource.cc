@@ -7,7 +7,9 @@ resource_id _next_resource_id_ = 0;
 }
 
 Resource::Resource(resource_type type, std::string path) :
-    id_(_next_resource_id_++), type_(type), path_(path) {}
+    id_(_next_resource_id_++), type_(type), path_(path) {
+  NAPI_CreateInstance();
+}
 
 resource_id Resource::id() const {
   return id_;

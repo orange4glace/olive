@@ -17,6 +17,7 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 } // namespace
 
 Timeline::Timeline() {
+  NAPI_CreateInstance();
   NAPI_SetInstanceNamedProperty("layers", es6::ObservableMap::New(), &napi_layers_ref_);
   napi::log(napi_encoder<const char*>::encode("Timeline intiailized"));
   napi::log(napi::unref(napi_layers_ref_));

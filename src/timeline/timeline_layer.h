@@ -3,6 +3,7 @@
 
 #include <node_api.h>
 #include "napi/napi_export.h"
+#include "napi/napi_instanceable.h"
 #include "timeline/timeline_typedef.h"
 
 #include <memory>
@@ -14,7 +15,7 @@ class Media;
 
 class TimelineItem;
 
-class TimelineLayer : public NAPI_Export<TimelineLayer> {
+class TimelineLayer : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineLayer, "TimelineLayer");
 
 public:

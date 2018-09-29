@@ -13,6 +13,7 @@ namespace {
 
 TimelineItem::TimelineItem()
   : id_(__next_timeline_item_id_++) {
+  NAPI_CreateInstance();
 }
 
 TimelineItem::~TimelineItem() {}

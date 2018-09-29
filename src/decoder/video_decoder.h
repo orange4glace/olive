@@ -4,6 +4,7 @@
 #include "decoder/decoder.h"
 
 #include "napi/napi_export.h"
+#include "napi/napi_instanceable.h"
 
 extern "C" {
 #include <libavutil/imgutils.h>
@@ -20,8 +21,9 @@ namespace olive {
 
 class VideoResource;
 
-class VideoDecoder : public Decoder, public NAPI_Export<VideoDecoder> {
-NAPI_DECLARE_CLASS(VideoDecoder, "VideoDecoder")
+class VideoDecoder : public Decoder {
+NAPI_DECLARE_CLASS_EXTENDS(VideoDecoder, Decoder, "VideoDecoder")
+
 public:
   VideoDecoder(const VideoResource* const resource);
 

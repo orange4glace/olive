@@ -18,6 +18,7 @@ void ResourceManager::Initialize() {
 }
 
 ResourceManager::ResourceManager() {
+  NAPI_CreateInstance();
   NAPI_SetInstanceNamedProperty("resources", es6::ObservableMap::New(), &napi_resources_ref_);
   napi::log(napi_encoder<const char*>::encode("Resource intiailized"));
   napi::log(napi::unref(napi_resources_ref_));

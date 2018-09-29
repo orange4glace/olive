@@ -133,13 +133,25 @@ namespace olive {
 #define __NAPI_IMPL_PROPERTIES2_(PROP) BOOST_PP_EXPAND(__NAPI_DEFINE_PROPERTY_TO_DECORATE_PROPERTY(PROP))
 #define __NAPI_IMPL_PROPERTIES2(_, __, PROP) __NAPI_IMPL_PROPERTIES2_ (BOOST_PP_TUPLE_ENUM(PROP))
 
-#define NAPI_DECLARE_CLASS(T, NAPI_CLASSNAME) \
-private: \
-	friend NAPI_Export<T>; \
-	static inline std::string __NAPI_GetClassName() { return NAPI_CLASSNAME; } \
+#define NAPI_DECLARE_CLASS_BASE(T, NAPI_CLASSNAME) \
+public: \
+  static void NAPI_Initialize(napi_env env); \
 	static std::vector<napi_property_descriptor> __NAPI_GetClassPropertyDescriptors(); \
 	static std::vector<napi_property_descriptor> __NAPI_GetDecoratePropertyDescriptors(); \
-	static napi_value __NAPI_GetParentConstructor();
+  static inline napi_value NAPI_Constructor(napi_env, napi_callback_info cbinfo) { return NULL; } \
+	static inline std::string __NAPI_GetClassName() { return NAPI_CLASSNAME; } \
+  static napi_ref __napi_constructor_reference_; \
+private: \
+  void NAPI_CreateInstance();
+
+#define NAPI_DECLARE_CLASS(T, NAPI_CLASSNAME) \
+  NAPI_DECLARE_CLASS_BASE(T, NAPI_CLASSNAME) \
+  static inline napi_value T::__NAPI_GetParentConstructor(){return NULL;}
+
+#define NAPI_DECLARE_CLASS_EXTENDS(T, U, NAPI_CLASSNAME) \
+  NAPI_DECLARE_CLASS_BASE(T, NAPI_CLASSNAME) \
+  static inline napi_value T::__NAPI_GetParentConstructor(){return napi::unref(U::__napi_constructor_reference_);}
+
 
 #define NAPI_DEFINE_CLASS_(T, SEQ) \
 	std::vector<napi_property_descriptor> T::__NAPI_GetClassPropertyDescriptors() { \
@@ -151,52 +163,17 @@ private: \
 
 #define NAPI_DEFINE_CLASS(T, ...) \
 	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__)) \
-  napi_value T::__NAPI_GetParentConstructor(){return NULL;}
+  DEFINE_NAPI_Initialize(T) \
+  NAPI_DEFINE_CreateInstance(T) \
+  napi_ref T::__napi_constructor_reference_ = NULL;
 
-#define NAPI_DEFINE_CLASS_EXTENDS(T, U, ...) \
-	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__)) \
-  napi_value T::__NAPI_GetParentConstructor(){return napi::unref(U::__napi_constructor_reference_);} \
-
-template <class T>
-class NAPI_Export {
-
-friend T;
-
-public:
-  NAPI_Export(bool has_derived = false);
-
-  static void NAPI_Initialize(napi_env env);
-  static napi_value NAPI_Constructor(napi_env, napi_callback_info cbinfo);
-
-  napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, napi_value value);
-  napi_value NAPI_SetNamedProperty(napi_value napi_object, const char* name, napi_value value, napi_ref* ref);
-  napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value);
-  napi_value NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref);
-
-  napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value);
-  napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value, napi_ref* ref);
-
-  napi_value NAPI_GetNamedProperty(napi_value object, const char* name);
-
-  napi_value NAPI_GetInstanceNamedProperty(const char* name);
-
-  void NAPI_DeleteInstanceNamedProperty(const char* name);
-  
-  void NAPI_DeleteNamedProperty(napi_value napi_object, const char* name);
-  void NAPI_DeleteNamedProperty(napi_ref napi_object_ref, const char* name);
-
-  napi_value napi_instance();
-
-
-private:
-  static void NAPI_CreateInstance(napi_env env, T* native_this);
-
-  napi_ref __napi_instance_ref_;
-  static napi_ref __napi_constructor_reference_;
-};
-
-#include "napi/napi_export.tc"
+#define NAPI_DEFINE_CreateInstance(T) \
+  void T::NAPI_CreateInstance() { \
+    NAPI_Instanceable::__NAPI_CreateInstance((void*)this, napi::unref(T::__napi_constructor_reference_)); \
+  }
 
 }
+
+#include "napi_export.tc"
 
 #endif // OLIVE_NAPI_EXPORT

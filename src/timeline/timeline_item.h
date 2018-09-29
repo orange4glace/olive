@@ -4,6 +4,7 @@
 #include <node_api.h>
 
 #include "napi/napi_export.h"
+#include "napi/napi_instanceable.h"
 #include "timeline/timeline_typedef.h"
 
 #include <algorithm>
@@ -25,7 +26,7 @@ struct TimelineItemClamp {
         length(end_offset_ - start_offset_) {}
 };
 
-class TimelineItem : public NAPI_Export<TimelineItem> {
+class TimelineItem : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineItem, "TimelineItem");
 
 public:

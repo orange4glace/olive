@@ -8,14 +8,27 @@ namespace olive {
 class NAPI_Instanceable {
 
 public:
-  void NAPI_CreateInstance(T* native_this, napi_value constructor);
-  napi_value napi_instance();
+  napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value);
+  napi_value NAPI_SetInstanceNamedProperty(const char* name, napi_value value, napi_ref* ref);
+
+  napi_value NAPI_GetInstanceNamedProperty(const char* name);
+
+  void NAPI_DeleteInstanceNamedProperty(const char* name);
+
+  inline napi_value napi_instance() {
+    return napi::unref(__napi_instance_ref_);
+  }
+
+protected:
+  void __NAPI_CreateInstance(void* native_this, napi_value constructor);
+
+protected:
+  inline NAPI_Instanceable() {}
 
 private:
   napi_ref __napi_instance_ref_;
-  static napi_ref __napi_constructor_reference_;
 
-} // class NAPI_instanceable
+}; // class NAPI_instanceable
 
 } // namespace olive
 

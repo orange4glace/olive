@@ -8,6 +8,7 @@
         "logger/logger.cc",
 
         "napi/napi.cc",
+        "napi/napi_instanceable.cc",
         "napi/es6/map.cc",
         "napi/es6/observable_map.cc",
 
@@ -20,6 +21,7 @@
         "resource/video_resource.cc",
 
         "decoder/decoder_manager.cc",
+        "decoder/decoder.cc",
         "decoder/video_decoder.cc",
       ],
       "include_dirs": [

@@ -1,9 +1,10 @@
 #ifndef OLIVE_RESOURCE_H_
 #define OLIVE_RESOURCE_H_
 
-#include "resource/type.h"
-
 #include "napi/napi_export.h"
+#include "napi/napi_instanceable.h"
+
+#include "resource/type.h"
 
 #include <string>
 
@@ -11,7 +12,7 @@ namespace olive {
 
 class Decoder;
 
-class Resource : public NAPI_Export<Resource> {
+class Resource : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(Resource, "Resource")
 public:
   virtual bool Initialize() = 0;

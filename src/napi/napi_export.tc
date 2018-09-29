@@ -1,160 +1,35 @@
-template <class T>
-napi_ref NAPI_Export<T>::__napi_constructor_reference_ = NULL;
-
-template <class T>
-NAPI_Export<T>::NAPI_Export(bool has_derived) : __napi_instance_ref_(NULL) {
-  if (!has_derived) {
-    napi_env env = napi::current_env();
-    NAPI_CreateInstance(env, static_cast<T*>(this));
-  }
-}
-
-template <class T>
-void NAPI_Export<T>::NAPI_Initialize(napi_env env) {
-  std::vector<napi_property_descriptor> class_descriptors = 
-      T::__NAPI_GetClassPropertyDescriptors();
-  std::vector<napi_property_descriptor> decorate_descriptors = 
-      T::__NAPI_GetDecoratePropertyDescriptors();
-  napi_value constructor;
-
-  NAPI_CALL(napi_define_class(env, T::__NAPI_GetClassName().c_str(), NAPI_AUTO_LENGTH, NAPI_Constructor, NULL,
-                class_descriptors.size(), class_descriptors.data(), &constructor));
-  napi_value decorate = napi::create_empty_object();
-  // For some reason, this not work. instead, iterate over properties
-  // NAPI_CALL(napi_define_properties(env, decorate, decorate_descriptors.size(), decorate_descriptors.data()));
-  for (auto& deco : decorate_descriptors)
-    NAPI_CALL(napi_set_named_property(env, decorate, deco.utf8name, deco.value));
-  napi_value decorator[2];
-  decorator[0] = constructor;
-  decorator[1] = decorate;
-  napi::log(decorator[0]);
-  napi::log(decorator[1]);
-  napi::log(napi::mobx_decorate());
-  NAPI_CALL(napi_call_function(env, napi::mobx(), napi::mobx_decorate(), 2, decorator, &constructor));
-
-  napi_value parent_constructor = T::__NAPI_GetParentConstructor();
-  if (parent_constructor) {
-    napi_value this_prototype = napi::GetNamedProperty(constructor, "prototype");
-    napi_value parent_prototype = napi::GetNamedProperty(parent_constructor, "prototype");
-    napi::ObjectAssign(this_prototype, 1, &parent_prototype);
-  }
-
-  NAPI_CALL(napi_create_reference(env, constructor, 1, &__napi_constructor_reference_));
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_Constructor(napi_env, napi_callback_info cbinfo) {
-  return NULL;
-}
-
-template <class T>
-void NAPI_Export<T>::NAPI_CreateInstance(napi_env env, T* native_this) {
-  
-  napi_value constructor;
-  napi_value extern_this;
-  napi_value napi_instance;
-  NAPI_CALL(napi_get_reference_value(env, __napi_constructor_reference_, &constructor));
-  NAPI_CALL(napi_new_instance(env, constructor, 0, NULL, &napi_instance));
-  NAPI_CALL(napi_create_external(env, (void*)native_this, NULL, NULL, &extern_this));
-  NAPI_CALL(napi_set_named_property(env, napi_instance, "native", extern_this));
-  NAPI_CALL(napi_create_reference(env, napi_instance, 1, &(native_this->__napi_instance_ref_)));
-  
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* name, napi_value value) {
-  napi_env env = napi::current_env();
-  NAPI_CALL(napi_set_named_property(env, object, name, value));
-  napi_value set_value;
-  NAPI_CALL(napi_get_named_property(env, object, name, &set_value));
-  return set_value;
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_value object, const char* name, napi_value value, napi_ref* ref) {
-  napi_env env = napi::current_env();
-  napi_value set_value = NAPI_SetNamedProperty(object, name, value);
-  NAPI_CALL(napi_create_reference(env, set_value, 1, ref));
-  return set_value;
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref) {
-  napi_env env = napi::current_env();
-  napi_value v;
-  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
-  return NAPI_SetNamedProperty(v, name, value, ref);
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value) {
-  napi_env env = napi::current_env();
-  napi_value v;
-  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
-  return NAPI_SetNamedProperty(v, name, value);
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_SetInstanceNamedProperty(const char* name, napi_value value) {
-  napi_env env = napi::current_env();
-  NAPI_CALL(napi_set_named_property(env, this->napi_instance(), name, value)); 
-  napi_value set_value;
-  NAPI_CALL(napi_get_named_property(env, this->napi_instance(), name, &set_value));
-  return set_value;
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_SetInstanceNamedProperty(const char* name, napi_value value, napi_ref* ref) {
-  napi_env env = napi::current_env();
-  napi_value set_value = NAPI_SetInstanceNamedProperty(name, value);
-  NAPI_CALL(napi_create_reference(env, set_value, 1, ref));
-  return set_value;
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_GetInstanceNamedProperty(const char* name) {
-  napi_env env = napi::current_env();
-  napi_value value;
-  NAPI_CALL(napi_get_named_property(env, napi_instance(), name, &value))
-  return value;
-}
-
-template <class T>
-napi_value NAPI_Export<T>::NAPI_GetNamedProperty(napi_value object, const char* name) {
-  napi_env env = napi::current_env();
-  napi_value value;
-  NAPI_CALL(napi_get_named_property(env, object, name, &value));
-  return value;
-}
-
-template <class T>
-void NAPI_Export<T>::NAPI_DeleteInstanceNamedProperty(const char* name) {
-  napi_env env = napi::current_env();
-  napi_value napi_name;
-  NAPI_CALL(napi_create_string_utf8(env, name, NAPI_AUTO_LENGTH, &napi_name));
-  NAPI_CALL(napi_delete_property(env, this->napi_instance(), napi_name, NULL));
-}
-
-template <class T>
-void NAPI_Export<T>::NAPI_DeleteNamedProperty(napi_value napi_object, const char* name) {
-  napi_env env = napi::current_env();
-  napi_value napi_name;
-  NAPI_CALL(napi_create_string_utf8(env, name, NAPI_AUTO_LENGTH, &napi_name));
-  NAPI_CALL(napi_delete_property(env, napi_object, napi_name, NULL));
-}
-
-template <class T>
-void NAPI_Export<T>::NAPI_DeleteNamedProperty(napi_ref napi_object_ref, const char* name) {
-  napi_env env = napi::current_env();
-  napi_value napi_object;
-  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &napi_object));
-  NAPI_DeleteNamedProperty(napi_object, name);
-}
-
-template <class T>
-napi_value NAPI_Export<T>::napi_instance() {
-  napi_env env = napi::current_env();
-  napi_value value;
-  NAPI_CALL(napi_get_reference_value(env, __napi_instance_ref_, &value));
-  return value;
+#define DEFINE_NAPI_Initialize(T) \
+void T::NAPI_Initialize(napi_env env) { \
+  std::vector<napi_property_descriptor> class_descriptors =  \
+      T::__NAPI_GetClassPropertyDescriptors(); \
+  std::vector<napi_property_descriptor> decorate_descriptors =  \
+      T::__NAPI_GetDecoratePropertyDescriptors(); \
+  napi_value constructor; \
+ \
+  NAPI_CALL(napi_define_class(env, T::__NAPI_GetClassName().c_str(), NAPI_AUTO_LENGTH, NAPI_Constructor, NULL, \
+                class_descriptors.size(), class_descriptors.data(), &constructor)); \
+  napi_value decorate = napi::create_empty_object(); \
+  /* For some reason, this not work. instead, iterate over properties */ \
+  /* NAPI_CALL(napi_define_properties(env, decorate, decorate_descriptors.size(), decorate_descriptors.data())) */ \
+  for (auto& deco : decorate_descriptors) \
+    NAPI_CALL(napi_set_named_property(env, decorate, deco.utf8name, deco.value)); \
+  napi_value decorator[2]; \
+  decorator[0] = constructor; \
+  decorator[1] = decorate; \
+  napi::log(decorator[0]); \
+  napi::log(decorator[1]); \
+  napi::log(napi::mobx_decorate()); \
+  NAPI_CALL(napi_call_function(env, napi::mobx(), napi::mobx_decorate(), 2, decorator, &constructor)); \
+ \
+  napi_value parent_constructor = T::__NAPI_GetParentConstructor(); \
+  if (parent_constructor) { \
+    napi_value this_prototype = napi::GetNamedProperty(constructor, "prototype"); \
+    napi_value parent_prototype = napi::GetNamedProperty(parent_constructor, "prototype"); \
+    napi_value target_and_sources[2] = { this_prototype, parent_prototype }; \
+    napi::ObjectAssign(2, target_and_sources); \
+  } \
+  napi::log(napi_encoder<const char*>::encode("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")); \
+  napi::log(constructor); \
+ \
+  NAPI_CALL(napi_create_reference(env, constructor, 1, &__napi_constructor_reference_)); \
 }

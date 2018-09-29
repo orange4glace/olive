@@ -11,6 +11,7 @@ namespace olive {
 VideoDecoder::VideoDecoder(const VideoResource* const resource) :
   resource_(resource),
   fmt_ctx_(NULL), dec_ctx_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL) {
+  NAPI_CreateInstance();
 }
 
 void VideoDecoder::Initialize() {

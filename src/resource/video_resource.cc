@@ -20,7 +20,7 @@ bool VideoResource::Initialize() {
     return false;
   }
   decoder_ = decoder;
-  NAPI_SetInstanceNamedProperty("decoder", napi_encoder<Decoder*>::encode(decoder));
+  NAPI_SetInstanceNamedProperty("decoder", decoder->napi_instance());
   return true;
 }
 

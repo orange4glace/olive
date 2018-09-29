@@ -54,7 +54,7 @@ public:
   static void DeleteNamedProperty(napi_value napi_object, const char* name);
   static void DeleteNamedProperty(napi_ref napi_object_ref, const char* name);
 
-  static napi_value ObjectAssign(napi_value target, size_t size, napi_value* sources);
+  static napi_value ObjectAssign(size_t size, napi_value* target_and_sources);
 
 private:
   static napi_value NAPI_Initialize(napi_env env, napi_callback_info cb_info);

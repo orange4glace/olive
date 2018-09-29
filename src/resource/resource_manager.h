@@ -1,9 +1,10 @@
 #ifndef OLIVE_RESOURCE_MANANGER_H_
 #define OLIVE_RESOURCE_MANANGER_H_
 
-#include "resource/type.h"
-
 #include "napi/napi_export.h"
+#include "napi/napi_instanceable.h"
+
+#include "resource/type.h"
 
 #include <memory>
 #include <map>
@@ -13,7 +14,7 @@ namespace olive {
 
 class Resource;
 
-class ResourceManager : public NAPI_Export<ResourceManager> {
+class ResourceManager : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(ResourceManager, "ResourceManager")
 
 public:

@@ -15,6 +15,7 @@ namespace olive {
 
 TimelineLayer::TimelineLayer(timeline_layer_id id) 
   : id_(__next_timeline_layer_id_++) {
+  NAPI_CreateInstance();
   NAPI_SetInstanceNamedProperty("items",
       napi::create_empty_object(), &napi_items_ref_);
   NAPI_SetInstanceNamedProperty("id", napi_encoder<uint32_t>::encode(id));
@@ -47,7 +48,7 @@ void TimelineLayer::RemoveTimelineItem(timeline_item_id id) {
                         timeline_items_.end());
 
   // NAPI
-  NAPI_DeleteNamedProperty(napi_items_ref_, std::to_string(id).c_str());
+  napi::DeleteNamedProperty(napi_items_ref_, std::to_string(id).c_str());
 }
 
 TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem> item) {
@@ -56,7 +57,7 @@ TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem>
   timeline_items_.emplace_back(std::move(item));
 
   // NAPI
-  NAPI_SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+  napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
 
   return raw;
 }
