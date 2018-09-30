@@ -1,11 +1,9 @@
 #ifndef OLIVE_NAPI_ENCODER_H_
 #define OLIVE_NAPI_ENCODER_H_
 
-#include <node_api.h>
+#include "napi/napi.h"
 
 #include <string>
-
-#include "napi/napi.h"
 
 namespace olive {
 

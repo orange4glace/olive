@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <iostream>
 
+#define NAPI_EXPERIMENTAL
 #include <node_api.h>
 
 namespace olive {

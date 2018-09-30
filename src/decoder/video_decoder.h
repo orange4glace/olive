@@ -31,9 +31,7 @@ public:
   void Initialize() throw (const char*);
   int Decode(int64_t timestamp);
 
-  void decode(void* arg) {
-
-  }
+  void decode();
 
 private:
   const VideoResource* const resource_;
@@ -51,7 +49,7 @@ private:
   int width_, height_;
   enum AVPixelFormat pix_fmt_;
 
-  napi_threadsafe_function napi_ts_fn_;
+  napi_threadsafe_function ts_fn_;
 
   // NAPI
   napi_value _NAPI_Decode(int64_t timestamp);

@@ -1,7 +1,6 @@
 #ifndef OLIVE_NAPI_EXPORT
 #define OLIVE_NAPI_EXPORT
 
-#include <node_api.h>
 #include "napi/napi.h"
 #include "napi/napi_decoder.h"
 #include "napi/napi_encoder.h"
