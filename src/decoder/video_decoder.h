@@ -10,6 +10,7 @@ extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/samplefmt.h>
 #include <libavutil/timestamp.h>
+#include <libavutil/avutil.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 }
@@ -30,6 +31,10 @@ public:
   void Initialize() throw (const char*);
   int Decode(int64_t timestamp);
 
+  void decode(void* arg) {
+
+  }
+
 private:
   const VideoResource* const resource_;
   AVFormatContext* fmt_ctx_;
@@ -45,6 +50,14 @@ private:
 
   int width_, height_;
   enum AVPixelFormat pix_fmt_;
+
+  napi_threadsafe_function napi_ts_fn_;
+
+  // NAPI
+  napi_value _NAPI_Decode(int64_t timestamp);
+  
+  NAPI_EXPORT_FUNCTION(VideoDecoder, NAPI_Decode, _NAPI_Decode,
+      int64_t);
 
 };
 

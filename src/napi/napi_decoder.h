@@ -33,6 +33,18 @@ public:
 };
 
 template <>
+class napi_decoder<int64_t> {
+public:
+  static inline int64_t decode(napi_value value) {
+    napi_env env = napi::current_env();
+    int64_t ret;
+    NAPI_CALL(napi_get_value_int64(env, value, &ret));
+    std::cout << "Decode int64_t " << ret << "\n";
+    return ret;
+  }
+};
+
+template <>
 class napi_decoder<uint32_t> {
 public:
   static inline uint32_t decode(napi_value value) {

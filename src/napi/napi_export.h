@@ -3,7 +3,7 @@
 
 #include <node_api.h>
 #include "napi/napi.h"
-#include "napi/napi_wrap.h"
+#include "napi/napi_decoder.h"
 #include "napi/napi_encoder.h"
 
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -83,7 +83,7 @@ namespace olive {
 
 #define GET_MACRO(_1,_2,_3,_4,_5,_6,_7,NAME, ...) NAME
 
-#define UNWRAP(T, n) T v##n = napi_wrap<T>::get(env, argv[n]);
+#define UNWRAP(T, n) T v##n = napi_decoder<T>::decode(argv[n]);
 #define MAC_0() 
 #define MAC_1(T1) UNWRAP(T1, 0)
 #define MAC_2(T1, T2) MAC_1(T1) UNWRAP(T2, 1)

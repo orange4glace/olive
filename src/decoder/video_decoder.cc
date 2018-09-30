@@ -4,6 +4,8 @@
 
 #include "logger/logger.h"
 
+#include "uv.h"
+
 #include <iostream>
 
 namespace olive {
@@ -45,35 +47,72 @@ void VideoDecoder::Initialize() {
   frame_ = av_frame_alloc();
   AV_THROW(pkt_, "AV_FRAME_ALLOC");
 
-  sws_ctx_ = sws_getContext(width_, height_, AV_PIX_FMT_YUV420P, width_, height_, AV_PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+  sws_ctx_ = sws_getContext(width_, height_, AV_PIX_FMT_YUV420P, width_, height_, AV_PIX_FMT_RGB24, SWS_BILINEAR, NULL, NULL, NULL);
+  AV_THROW(sws_ctx_, "SWS_GET_CONTEXT");
 
   std::cout << width_ << " " << height_ << "\n";
-  data_rgb_[0] = new uint8_t[width_ * height_];
-  data_rgb_[1] = new uint8_t[width_ * height_];
-  data_rgb_[2] = new uint8_t[width_ * height_];
-  linesize_rgb_[0] = width_;
-  linesize_rgb_[1] = width_;
-  linesize_rgb_[2] = width_;
-  linesize_rgb_[3] = 0;
   AV_THROW(av_image_fill_arrays(data_rgb_, linesize_rgb_, NULL, AV_PIX_FMT_RGB24, width_, height_, 32) >= 0, "AV_IMAGE_FILL_ARRAYS");
+  AV_THROW(av_image_alloc(data_rgb_, linesize_rgb_, width_, height_, AV_PIX_FMT_RGB24, 1) >= 0, "AV_IMAGE_ALLOC");
 
   // NAPI
   napi_value napi_data_rgb[3];
-  NAPI_CALL(napi_create_buffer(
-      napi::current_env(), width_ * height_ / 4, &(void*)data_rgb_[0], &napi_data_rgb[0]));
-  NAPI_CALL(napi_create_buffer(
-      napi::current_env(), width_ * height_ / 4, &(void*)data_rgb_[1], &napi_data_rgb[1]));
-  NAPI_CALL(napi_create_buffer(
-      napi::current_env(), width_ * height_ / 4, &(void*)data_rgb_[2], &napi_data_rgb[2]));
+  NAPI_CALL(napi_create_external_arraybuffer(
+      napi::current_env(), (void*)data_rgb_[0], width_ * height_ * 3, NULL, NULL, &napi_data_rgb[0]));
 
   NAPI_SetInstanceNamedProperty("data_rgb0", napi_data_rgb[0]);
-  NAPI_SetInstanceNamedProperty("data_rgb1", napi_data_rgb[1]);
-  NAPI_SetInstanceNamedProperty("data_rgb2", napi_data_rgb[2]);
+
+
+
+
+
+  napi_value ts_fn = napi::GetNamedProperty(napi::get_global(), "decode_callback");
+  NAPI_CALL(napi_create_threadsafe_function(napi::current_env(),
+      ts_fn, NULL, NULL, 0, 1, NULL, NULL, NULL, NULL, &ts_fn_));
 }
 
 int VideoDecoder::Decode(int64_t timestamp) {
-  AV_RETURN(av_seek_frame(fmt_ctx_, stream_index_, timestamp, 0) >= 0, -1);
 
+  uv_thread_t t_id;
+  uv_thread_create(&t_id, decode);
+  return 0;
+  /*
+  int64_t seek_target = timestamp;
+  // av_rescale_q(timestamp, AV_TIME_BASE_Q, fmt_ctx_->streams[stream_index_]->time_base);
+  std::cout << "SEEK " << timestamp << " " << seek_target << " " << fmt_ctx_->streams[stream_index_]->time_base.den << " " << 
+  fmt_ctx_->streams[stream_index_]->time_base.num << "\n";
+  AV_RETURN(av_seek_frame(fmt_ctx_, -1, seek_target, AVSEEK_FLAG_FRAME ) >= 0, -1);
+  std::cout << "OK\n";
+
+  avcodec_flush_buffers(dec_ctx_);
+  while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
+    // AVPacket orig_pkt = *pkt_;
+
+    int ret = 0;
+    int decoded = pkt_->size;
+    if (pkt_->stream_index == stream_index_) {
+      ret = avcodec_send_packet(dec_ctx_, pkt_);
+      if (ret < 0) return -2;
+  std::cout << "SEND\n";
+
+      while (ret >= 0) {
+        ret = avcodec_receive_frame(dec_ctx_, frame_);
+        if (ret == AVERROR(EAGAIN)) break;
+        if (ret == AVERROR_EOF) return -5;
+        else if (ret < 0) return -3;
+  std::cout << "SCALE " << linesize_rgb_[0] << " " << linesize_rgb_[1] << " " << linesize_rgb_[2] << " " << linesize_rgb_[3] << "\n";
+  for (int i = 0; i < 60; i ++) std::cout << (int)frame_->data[0][i] << " ";
+
+        sws_scale(sws_ctx_, frame_->data, frame_->linesize, 0, height_, data_rgb_, linesize_rgb_);
+        break;
+      }
+      if (ret == 0) break;
+    }
+  }
+  return 0;
+  */
+}
+
+void VideoDecoder::decode() {
   while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
     // AVPacket orig_pkt = *pkt_;
 
@@ -85,19 +124,28 @@ int VideoDecoder::Decode(int64_t timestamp) {
 
       while (ret >= 0) {
         ret = avcodec_receive_frame(dec_ctx_, frame_);
-        if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) return 0;
+        if (ret == AVERROR(EAGAIN)) break;
+        if (ret == AVERROR_EOF) return -5;
         else if (ret < 0) return -3;
+  std::cout << "SCALE " << linesize_rgb_[0] << " " << linesize_rgb_[1] << " " << linesize_rgb_[2] << " " << linesize_rgb_[3] << "\n";
+  for (int i = 0; i < 60; i ++) std::cout << (int)frame_->data[0][i] << " ";
 
         sws_scale(sws_ctx_, frame_->data, frame_->linesize, 0, height_, data_rgb_, linesize_rgb_);
+        NAPI_CALL(napi_call_threadsafe_function(napi_ts_fn_, NULL, napi_tsfn_blocking));
+        break;
       }
-      break;
+      if (ret == 0) break;
     }
   }
   return 0;
-
 }
 
 // NAPI
-NAPI_DEFINE_CLASS(VideoDecoder)
+NAPI_DEFINE_CLASS(VideoDecoder,
+    NAPI_PROPERTY_FUNCTION("Decode", NAPI_Decode, napi_default))
+
+napi_value VideoDecoder::_NAPI_Decode(int64_t timestamp) {
+  return napi_encoder<int32_t>::encode(Decode(timestamp));
+}
 
 }
