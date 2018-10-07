@@ -1,9 +1,13 @@
 #ifndef OLIVE_DECODER_MANAGER_H_
 #define OLIVE_DECODER_MANAGER_H_
 
+#include "resource/type.h"
+
+#include <stdint.h>
+
 namespace olive {
 
-class Decoder;
+class VideoDecoderHost;
 class Resource;
 
 class DecoderManager {
@@ -13,10 +17,15 @@ public:
     return instance_;
   }
 
-  Decoder* AddDecoderFromResource(const Resource* const resource);
+  void AddDecoderHostFromResource(const Resource* const resource);
+
+  void Decode(int64_t timestamp);
 
 private:
   static DecoderManager* instance_;
+
+  std::map<resource_id, VideoDecoderHost*> decoder_hosts_;
+
 
 };
 

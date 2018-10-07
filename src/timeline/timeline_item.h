@@ -13,7 +13,7 @@ namespace olive {
 
 // Sorry for circular design!
 class TimelineLayer;
-class Media;
+class Resource;
 
 struct TimelineItemClamp {
   bool is_clamped;
@@ -30,9 +30,10 @@ class TimelineItem : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineItem, "TimelineItem");
 
 public:
-  TimelineItem();
+  TimelineItem(Resource* resource = NULL);
   ~TimelineItem();
   void SetOffset(int start_offset, int end_offset);
+  void SetFormatOffset(int fmt_offset);
   void SetTimelineLayer(TimelineLayer* const layer);
   TimelineLayer* const GetTimelineLayer();
 
@@ -43,11 +44,20 @@ public:
   static TimelineItemClamp GetClamped(const TimelineItem* const clamper,
                                    const TimelineItem* const clampee);
 
+  inline int format_offset() const { return format_offset_; }
+  inline int start_offset() const { return start_offset_; }
+  inline int end_offset() const { return end_offset_; }
+
+  inline Resource* const resource() const { return resource_; }
+
 protected:
   timeline_item_id id_;
   TimelineLayer* timeline_layer_;
+  int format_offset_;
   int start_offset_;
   int end_offset_;
+
+  Resource* resource_;
 
 };
 

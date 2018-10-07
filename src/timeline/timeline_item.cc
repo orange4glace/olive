@@ -2,6 +2,8 @@
 
 #include "timeline/timeline_layer.h"
 
+#include "resource/reousrce.h"
+
 #include "napi/napi.h"
 #include "napi/napi_encoder.h"
 
@@ -11,8 +13,8 @@ namespace {
   timeline_item_id __next_timeline_item_id_ = 0;
 } // namespace
 
-TimelineItem::TimelineItem()
-  : id_(__next_timeline_item_id_++) {
+TimelineItem::TimelineItem(Resource* resource)
+  : id_(__next_timeline_item_id_++), resource_(resource) {
   NAPI_CreateInstance();
 }
 
@@ -34,6 +36,10 @@ void TimelineItem::SetOffset(int start_offset, int end_offset) {
   */
   NAPI_SetInstanceNamedProperty("start_offset", napi_encoder<int32_t>::encode(start_offset));
   NAPI_SetInstanceNamedProperty("end_offset", napi_encoder<int32_t>::encode(end_offset));
+}
+
+void TimelineItem::SetFormatOffset(int fmt_offset) {
+  format_offset_ = fmt_offset;
 }
 
 timeline_item_id TimelineItem::id() const {

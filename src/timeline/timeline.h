@@ -36,6 +36,8 @@ public:
   void MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                         int start_offset, int end_offset);
 
+  std::vector<TimelineItem* const> GetCurrentTimestampTimelineItems();
+
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
   napi_value _NAPI_AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
@@ -50,6 +52,8 @@ public:
 
 private:
   static std::unique_ptr<Timeline> instance_;
+
+  int64_t timestamp_;
 
   std::map<timeline_layer_id, std::unique_ptr<TimelineLayer>> timeline_layers_;
 

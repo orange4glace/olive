@@ -15,26 +15,38 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <thread>
+
 #define AV_THROW(COND, ERR) if (!(COND)) throw (ERR);
 #define AV_RETURN(COND, RETURN) if (!(COND)) return (RETURN);
 
 namespace olive {
 
+struct TimestampRequest {
+  int64_t timestamp;
+  std::mutex* m;
+  int* counter;
+}
+
 class VideoResource;
 
 class VideoDecoder : public Decoder {
-NAPI_DECLARE_CLASS_EXTENDS(VideoDecoder, Decoder, "VideoDecoder")
 
 public:
   VideoDecoder(const VideoResource* const resource);
 
   void Initialize() throw (const char*);
-  int Decode(int64_t timestamp);
-  int Seek(int64_t timestamp);
 
-  void decode();
+  void RequestTimestamp(int64_t timestamp, std::mutex& m, int& counter);
 
 private:
+  int Seek(int64_t timestamp);
+  void Decode();
+
+  void loop();
+
+  std::thread thread_;
+
   const VideoResource* const resource_;
   AVFormatContext* fmt_ctx_;
   AVCodec* dec_;
@@ -52,16 +64,14 @@ private:
   int width_, height_;
   enum AVPixelFormat pix_fmt_;
 
-  napi_threadsafe_function ts_fn_;
+  std::mutex m_;
+  std::condition_variable cv_;
+  bool has_request_;
+  TimestampRequest request_;
+  int64_t last_keyframe_timestamp_;
+  int64_t current_timestamp_;
 
-  // NAPI
-  napi_value _NAPI_Decode(int64_t timestamp);
-  napi_value _NAPI_Seek(int64_t timestamp);
-  
-  NAPI_EXPORT_FUNCTION(VideoDecoder, NAPI_Decode, _NAPI_Decode,
-      int64_t);
-  NAPI_EXPORT_FUNCTION(VideoDecoder, NAPI_Seek, _NAPI_Seek,
-      int64_t);
+  uint8_t* rgb_;
 
 };
 
