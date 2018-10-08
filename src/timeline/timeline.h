@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <map>
+#include <mutex>
 
 #include "timeline/timeline_typedef.h"
 
@@ -16,6 +17,7 @@ class Media;
 
 class TimelineLayer;
 class TimelineItem;
+class TimelineItemSnapshot;
 
 class Timeline : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(Timeline, "Timeline")
@@ -38,6 +40,13 @@ public:
 
   std::vector<TimelineItem* const> GetCurrentTimestampTimelineItems();
 
+  std::vector<TimelineItemSnapshot> GetCurrentTimestampTimelineItemSnapshots() const;
+
+  void Invalidate(TimelineItem* const timeline_item);
+  inline std::unique_lock<std::mutex> unique_lock() {
+    return std::move(std::unique_lock<std::mutex>(m_));
+  }
+
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
   napi_value _NAPI_AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
@@ -58,6 +67,9 @@ private:
   std::map<timeline_layer_id, std::unique_ptr<TimelineLayer>> timeline_layers_;
 
   napi_ref napi_layers_ref_;
+  
+  bool dirty_;
+  std::mutex m_;
 
 };
 

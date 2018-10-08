@@ -2,6 +2,7 @@
 
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
+#include "timeline/timeline_item_snapshot.h"
 #include "napi/napi.h"
 #include "napi/es6/map.h"
 #include "napi/es6/observable_map.h"
@@ -16,7 +17,8 @@ namespace {
 timeline_layer_id __next_timeline_layer_id_ = 0;
 } // namespace
 
-Timeline::Timeline() {
+Timeline::Timeline() :
+    dirty_(false) {
   NAPI_CreateInstance();
   NAPI_SetInstanceNamedProperty("layers", es6::ObservableMap::New(), &napi_layers_ref_);
   napi::log(napi_encoder<const char*>::encode("Timeline intiailized"));
@@ -80,6 +82,22 @@ void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const 
 TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset) {
   TimelineItem* const item = layer->AddTimelineJSItem(start_offset, end_offset);
   return item;
+}
+
+std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnapshots() {
+  std::vector<TimelineItemSnapshot> snapshots;
+  for (auto& kv : timeline_layers_) {
+    auto& timeline_layer = kv.second;
+    std::vector<TimelineItemSnapshot> _snapshots = timeline_layer->GetTimelineLayerSnapshotsAt(timestamp_);
+    for (auto& snapshot : _snapshots) snapshots.emplace_back(std::move(snapshot));
+  }
+  return std::move(snapshots);
+}
+
+// Todo: Set dirty if only timeline item affects to current rendering state
+void Timeline::Invalidate(TimelineItem* const timeline_item) {
+  unique_lock();
+  dirty_ = true;
 }
 
 // NAPI

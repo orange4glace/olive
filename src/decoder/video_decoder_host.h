@@ -10,7 +10,7 @@
 namespace olive {
 
 class Decoder;
-class TimelineItem;
+class TimelineItemSnapshot;
 
 class VideoDecoderHost {
 
@@ -19,7 +19,7 @@ class VideoResource;
 public:
   VideoDecoderHost(const VideoResource* const resource);
 
-  void Decode(std::vector<TimelineItem*> items);
+  void Decode(std::vector<TimelineItemSnapshot> snapshots);
 
 private:
   Decoder* const AssignDecoder(timeline_item_id item_id);

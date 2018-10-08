@@ -1,6 +1,8 @@
 #include "timeline/timeline_layer.h"
 
 #include "timeline/timeline_item.h"
+#include "timeline/timeline_item_snapshot.h"
+
 #include "napi/napi_encoder.h"
 
 #include <iostream>
@@ -56,8 +58,17 @@ TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem>
   auto raw = item.get();
   timeline_items_.emplace_back(std::move(item));
 
+std::vector<TimelineItemSnapshot> Timeline::GetTimelineItemSnapshotsAt(int64_t timestamp) const {
+  std::vector<TimelineItemSnapshot> snapshots;
+  for (auto& timeline_item : timeline_items_) {
+    TimelineItemSnapshot snapshot = timeline_item->GetSnapshotAt(timestamp);
+    snapshots.emplace_back(std::move(snapshot));
+  }
+  return std::move(snapshots);
+}
+
   // NAPI
-  napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
 
   return raw;
 }

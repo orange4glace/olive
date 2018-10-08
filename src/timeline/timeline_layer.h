@@ -14,6 +14,7 @@ namespace olive {
 class Media;
 
 class TimelineItem;
+class TimelineItemSnapshot;
 
 class TimelineLayer : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineLayer, "TimelineLayer");
@@ -26,6 +27,8 @@ public:
   TimelineItem* const AddTimelineJSItem(int start_offset, int end_offset);
   void MoveTimelineItem(TimelineItem* const item, int start_offset, int end_offset);
   void RemoveTimelineItem(timeline_item_id id);
+
+  std::vector<TimelineItemSnapshot> GetTimelineItemSnapshotsAt(int64_t timestamp) const;
 
   timeline_layer_id id() const;
 

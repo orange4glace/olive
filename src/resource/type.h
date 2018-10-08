@@ -8,6 +8,9 @@
 #define RESOURCE_IMAGE 3
 
 using resource_id = uint32_t;
+using ResourceID = uint32_t;
+
 using resource_type = uint32_t;
+using ResourceType = uint32_t;
 
 #endif // OLIVE_TYPE_H_

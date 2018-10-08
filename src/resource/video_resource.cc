@@ -9,18 +9,12 @@
 namespace olive {
 
 VideoResource::VideoResource(std::string path) :
-    Resource(RESOURCE_VIDEO, path) {
+    Resource(RESOURCE_VIDEO, path),
+    video_decoder_host_(this) {
 
 }
 
 bool VideoResource::Initialize() {
-  Decoder* decoder = DecoderManager::instance()->AddDecoderFromResource(this);
-  if (!decoder) {
-    logger::get()->info("[VideoResource] In");
-    return false;
-  }
-  decoder_ = decoder;
-  NAPI_SetInstanceNamedProperty("decoder", decoder->napi_instance());
   return true;
 }
 

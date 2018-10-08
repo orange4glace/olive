@@ -1,5 +1,6 @@
 #include "timeline/timeline_item.h"
 
+#include "timeline/timeline_item_snapshot.h"
 #include "timeline/timeline_layer.h"
 
 #include "resource/reousrce.h"
@@ -42,8 +43,13 @@ void TimelineItem::SetFormatOffset(int fmt_offset) {
   format_offset_ = fmt_offset;
 }
 
-timeline_item_id TimelineItem::id() const {
-  return id_;
+TimelineItemSnapshot TimelineItem::GetSnapshotAt(int64_t timestamp) const {
+  int64_t target = format_offset_ + (timestamp - start_offset_);
+  TimelineItemSnapshot snapshot;
+  snapshot.timeline_item_id = id_;
+  snapshot.resource_id = resource_->id();
+  snapshot.decoding_timestamp = target;
+  return std::move(snapshot);
 }
 
 void TimelineItem::SetTimelineLayer(TimelineLayer* const layer) {
@@ -57,6 +63,10 @@ TimelineLayer* const TimelineItem::GetTimelineLayer() {
 TimelineItemClamp TimelineItem::GetClamped(const TimelineItem* const clamper,
     const TimelineItem* const clampee) {
   return TimelineItemClamp{0, 0, 0};
+}
+
+timeline_item_id TimelineItem::id() const {
+  return id_;
 }
 
 // NAPI

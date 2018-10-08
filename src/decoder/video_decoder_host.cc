@@ -1,5 +1,11 @@
 #include "decoder/video_decoder_host.h"
 
+#include "napi/napi.h"
+#include "napi/napi_encoder.h"
+#include "napi/napi_decoder.h"
+
+#include "timeline/timeline_item_snapshot.h"
+
 #include <mutex>
 #include <condition_variable>
 
@@ -9,15 +15,20 @@ VideoDecoderHost::VideoDecoderHost(const VideoResource* const resource) :
   resource_(resource) {
 }
 
-void VideoDecoderHost::Decode(std::vector<TimelineItem*> items) {
+void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots) {
   std::vector<Decoder*> target_decoders;
+  napi_value NAPI_STRING_ID = napi_encoder<const char*>::encode("id");
+  napi_value NAPI_STRING_TIMESTAMP = napi_encoder<const char*>::encode("timestamp");
   for (auto item : items) {
-    Decoder* decoder = decoders_[item->id()];
+    napi_decoder<timeline_id> timeline_item_id = NAPI_GetProperty(item, NAPI_STRING_ID);
+    napi_decoder<int64_t> timeline_timestamp = NAPI_GetProperty(item, NAPI_STRING_TIMESTAMP);
+    Decoder* decoder = decoders_[timeline_item_id];
     if (!decoder)  {
       decoder = AssignDecoder(item->id());
       target_decoders.emplace_back(decoder);
     }
     else target_decoders.emplace_back(decoder);
+    
   }
   assert(target_decoders.size() == items.size());
 

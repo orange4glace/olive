@@ -11,6 +11,7 @@
 
 namespace olive {
 
+class TimelineItemSnapshot;
 // Sorry for circular design!
 class TimelineLayer;
 class Resource;
@@ -37,13 +38,14 @@ public:
   void SetTimelineLayer(TimelineLayer* const layer);
   TimelineLayer* const GetTimelineLayer();
 
-  timeline_item_id id() const;
+  TimelineItemSnapshot GetSnapshotAt(int64_t timestamp) const;
 
   // Get Clamped area of clampee clamped by clamper.
   // return pair<start_offset, end_offset>
   static TimelineItemClamp GetClamped(const TimelineItem* const clamper,
                                    const TimelineItem* const clampee);
 
+  timeline_item_id id() const;
   inline int format_offset() const { return format_offset_; }
   inline int start_offset() const { return start_offset_; }
   inline int end_offset() const { return end_offset_; }

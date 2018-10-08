@@ -3,6 +3,8 @@
 
 #include "resource/resource.h"
 
+#include "decoder/video_decoder_host.h"
+
 namespace olive {
 
 class VideoResource : public Resource {
@@ -10,6 +12,9 @@ public:
   VideoResource(std::string path);
 
   bool Initialize() override;
+
+private:
+  VideoDecoderHost* video_decoder_host_;
 
 };
 
