@@ -51,25 +51,14 @@ void DecoderManager::Initialize() {
   instance_ = new DecoderManager();
 }
 
-void DecoderManager::AddDecoderHostFromResource(const Resource* const resource) {
-  logger::get()->info("[DecoderManager] AddDecoderFromResource");
-  VideoDecoderHost* ret;
-  resource_type rtype = resource->type();
-  if (rtype == RESOURCE_VIDEO) {
-    auto video_resource = static_cast<const VideoResource* const>(resource);
-    VideoDecoderHost* decoder_host = new VideoDecoderHost(video_resource);
-    ret = decoder_host;
-    logger::get()->info("[DecoderManager] New Video Decoder Host");
+void DecoderManager::loop() {
+  while (true) {
+    std::unique_lock<std::mutex> lock(Timeline::instance()->m);
+    // Wait for dirty
+    Timeline::instance()->cv.wait(lock, [] {return Timeline::instance()->dirty(); });
+    // Decode
+    
   }
-  decoder_hosts_[resource->id()] = ret;
-  else {
-    return NULL;
-  }
-  return ret;
-}
-
-void DecoderManager::Decode(int64_t timestamp) {
-  std::vector<TimelineItem*> items = Timeline::instance()->GetCurrentTimestampTimelineItems();
 }
 
 DecoderManager* DecoderManager::instance_ = NULL;

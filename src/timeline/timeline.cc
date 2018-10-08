@@ -96,7 +96,7 @@ std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnaps
 
 // Todo: Set dirty if only timeline item affects to current rendering state
 void Timeline::Invalidate(TimelineItem* const timeline_item) {
-  unique_lock();
+  std::unique_lock<std::mutex> lock(m);
   dirty_ = true;
 }
 

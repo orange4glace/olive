@@ -17,15 +17,11 @@ public:
     return instance_;
   }
 
-  void AddDecoderHostFromResource(const Resource* const resource);
-
-  void Decode(int64_t timestamp);
-
 private:
   static DecoderManager* instance_;
 
-  std::map<resource_id, VideoDecoderHost*> decoder_hosts_;
-
+  // Run on a separate thread
+  void loop();
 
 };
 

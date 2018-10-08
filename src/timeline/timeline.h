@@ -8,6 +8,7 @@
 #include <memory>
 #include <map>
 #include <mutex>
+#include <condition_variable>
 
 #include "timeline/timeline_typedef.h"
 
@@ -43,9 +44,11 @@ public:
   std::vector<TimelineItemSnapshot> GetCurrentTimestampTimelineItemSnapshots() const;
 
   void Invalidate(TimelineItem* const timeline_item);
-  inline std::unique_lock<std::mutex> unique_lock() {
-    return std::move(std::unique_lock<std::mutex>(m_));
-  }
+
+  bool dirty() const { return dirty_; }
+
+  std::mutex m;
+  std::condition_variable cv;
 
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
@@ -69,7 +72,6 @@ private:
   napi_ref napi_layers_ref_;
   
   bool dirty_;
-  std::mutex m_;
 
 };
 
