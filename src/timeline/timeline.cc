@@ -80,15 +80,15 @@ void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const 
 } 
 
 TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset) {
-  TimelineItem* const item = layer->AddTimelineJSItem(start_offset, end_offset);
-  return item;
+  // Todo: implement
+  return NULL;
 }
 
-std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnapshots() {
+std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnapshots() const {
   std::vector<TimelineItemSnapshot> snapshots;
   for (auto& kv : timeline_layers_) {
     auto& timeline_layer = kv.second;
-    std::vector<TimelineItemSnapshot> _snapshots = timeline_layer->GetTimelineLayerSnapshotsAt(timestamp_);
+    std::vector<TimelineItemSnapshot> _snapshots = timeline_layer->GetTimelineItemSnapshotsAt(timestamp_);
     for (auto& snapshot : _snapshots) snapshots.emplace_back(std::move(snapshot));
   }
   return std::move(snapshots);

@@ -4,6 +4,8 @@
 #include <node_api.h>
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
+
+#include "timeline/timeline_item_snapshot.h"
 #include "timeline/timeline_typedef.h"
 
 #include <memory>
@@ -11,10 +13,7 @@
 
 namespace olive {
 
-class Media;
-
 class TimelineItem;
-class TimelineItemSnapshot;
 
 class TimelineLayer : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineLayer, "TimelineLayer");
@@ -23,8 +22,8 @@ public:
   TimelineLayer(timeline_layer_id id);
   ~TimelineLayer();
   TimelineItem* const GetTimelineItemAtOffset(int offset);
-  TimelineItem* const AddTimelineMediaItem(Media* const media, int start_offset, int end_offset);
-  TimelineItem* const AddTimelineJSItem(int start_offset, int end_offset);
+  // TimelineItem* const AddTimelineMediaItem(Media* const media, int start_offset, int end_offset);
+  // TimelineItem* const AddTimelineJSItem(int start_offset, int end_offset);
   void MoveTimelineItem(TimelineItem* const item, int start_offset, int end_offset);
   void RemoveTimelineItem(timeline_item_id id);
 

@@ -16,7 +16,7 @@ private:
   static std::mutex m_;
   static std::map<size_t, std::vector<void*> > pool_;
 
-}
+};
 
 } //namespace olive
 

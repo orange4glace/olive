@@ -2,50 +2,16 @@
 
 #include "decoder/video_decoder_host.h"
 
+#include "resource/resource_manager.h"
 #include "resource/resource.h"
 #include "resource/video_resource.h"
 
-#include "timleine/timeline.h"
+#include "timeline/timeline.h"
+#include "timeline/timeline_item_snapshot.h"
 
 #include "logger/logger.h"
 
 namespace olive {
-
-namespace {
-
-  struct DecodeRequest {
-    resource_id resource;
-    int64_t timestamp;
-  }
-
-  std::mutex m_video_;
-  std::vector<DecodeRequest> video_decode_requests_;
-  
-  // Called from main thread
-  void RequestVideoDecode(int64_t timeline_timestamp) {
-    std::unique_lock<std::mutex> lock(m_video_);
-    std::vector<TimelineItem*> items = Timeline::instance()->GetCurrentTimestampTimelineItems();
-    std::vector<DecodeRequest> requests;
-    for (auto item : items) {
-      int64_t timestamp = timeline_timestamp - item->start_offset() + item->format_offset();
-      requests.emplace_back({ item->resource()->id(), timestamp });
-    }
-    video_decode_requests_.swap(requests);
-  }
-
-  void RunVideoDecoder() {
-    std::vector<DecodeRequest> requests;
-    {
-      std::unique_lock<std::mutex> lock(m_video_);
-      requests.swap(video_decode_requests_);
-    }
-    
-  }
-
-  void RunAudioDecoder() {
-
-  }
-}
 
 void DecoderManager::Initialize() {
   instance_ = new DecoderManager();
@@ -54,12 +20,41 @@ void DecoderManager::Initialize() {
 void DecoderManager::loop() {
   while (true) {
     std::unique_lock<std::mutex> lock(Timeline::instance()->m);
+
     // Wait for dirty
     Timeline::instance()->cv.wait(lock, [] {return Timeline::instance()->dirty(); });
-    // Decode
-    
+
+    // Get TimelineItem snapshots
+    std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetCurrentTimestampTimelineItemSnapshots();
+    lock.unlock();
+
+    // Call VideoDecoderHosts
+    DecodeVideo(std::move(snapshots));
   }
 }
+  
+// Called from Decoder thread
+void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
+  std::map< resource_id, std::vector<TimelineItemSnapshot> > snapshot_map;
+  for (auto& snapshot : snapshots)
+    snapshot_map[snapshot.resource_id].emplace_back(std::move(snapshot));
+
+  size_t counter = snapshot_map.size();
+  std::unique_lock<std::mutex> lock(m);
+
+  for (auto& kv : snapshot_map) {
+    // Todo : Generalize
+    auto resource = (VideoResource*)ResourceManager::instance()->GetResource(kv.first);
+    auto decoder_host = resource->decoder_host();
+    // Non-blocking, separate thread
+    decoder_host->Decode(std::move(kv.second), &counter);
+  }
+
+  // Wait for all of VideoDecoderHost to be finished
+  for (int i = 0; i < counter; i ++)
+    cv.wait(lock, [] { return !counter; });
+}
+
 
 DecoderManager* DecoderManager::instance_ = NULL;
 

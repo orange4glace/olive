@@ -20,8 +20,10 @@
         "resource/resource.cc",
         "resource/video_resource.cc",
 
+        "decoder/memory_pool.cc",
         "decoder/decoder_manager.cc",
         "decoder/decoder.cc",
+        "decoder/video_decoder_host.cc",
         "decoder/video_decoder.cc",
       ],
       "include_dirs": [

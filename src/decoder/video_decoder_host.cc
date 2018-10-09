@@ -4,6 +4,9 @@
 #include "napi/napi_encoder.h"
 #include "napi/napi_decoder.h"
 
+#include "decoder/decoder_manager.h"
+#include "decoder/video_decoder.h"
+
 #include "timeline/timeline_item_snapshot.h"
 
 #include <mutex>
@@ -11,37 +14,39 @@
 
 namespace olive {
 
-VideoDecoderHost::VideoDecoderHost(const VideoResource* const resource) :
+VideoDecoderHost::VideoDecoderHost(VideoResource* const resource) :
   resource_(resource) {
 }
 
-void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots) {
-  std::vector<Decoder*> target_decoders;
-  napi_value NAPI_STRING_ID = napi_encoder<const char*>::encode("id");
-  napi_value NAPI_STRING_TIMESTAMP = napi_encoder<const char*>::encode("timestamp");
-  for (auto item : items) {
-    napi_decoder<timeline_id> timeline_item_id = NAPI_GetProperty(item, NAPI_STRING_ID);
-    napi_decoder<int64_t> timeline_timestamp = NAPI_GetProperty(item, NAPI_STRING_TIMESTAMP);
-    Decoder* decoder = decoders_[timeline_item_id];
-    if (!decoder)  {
-      decoder = AssignDecoder(item->id());
-      target_decoders.emplace_back(decoder);
-    }
-    else target_decoders.emplace_back(decoder);
-    
-  }
-  assert(target_decoders.size() == items.size());
+void VideoDecoderHost::loop() {
+  while (true) {
+    std::unique_lock<std::mutex> this_thread_lock(m);
 
-  std::mutex m;
-  std::condition_variable cond;
-  int awaitings = items.size();
+    // Wait for work
+    bool& _has_work = has_work;
+    cv.wait(this_thread_lock, [&_has_work] {return _has_work; });
+
+    // Decode
+    decode();
+
+    // Notify to DecoderManager
+    std::unique_lock<std::mutex> decoder_manager_lock(DecoderManager::instance()->m);
+    *work_counter --;
+    decoder_manager_lock.unlock();
+    DecoderManager::instance()->cv.notify_one();
+  }
+}
+
+void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_t* counter) {
   std::unique_lock<std::mutex> lock(m);
-  for (auto decoder : target_decoders) {
-    decoder->RequestTimestamp(0, m, awaitings);
-  }
-  for (int i = 0; i < awaitings; i ++) {
-    cond.wait(lock, [] { return !awaitings; });
-  }
+  has_work = true;
+  work_snapshots = snapshots;
+  work_counter = counter;
+  lock.unlock();
+}
+
+void VideoDecoderHost::decode() {
+  // Todo: implement
 }
 
 Decoder* const VideoDecoderHost::AssignDecoder(timeline_item_id item_id) {

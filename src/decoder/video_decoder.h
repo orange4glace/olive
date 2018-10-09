@@ -22,22 +22,14 @@ extern "C" {
 
 namespace olive {
 
-struct TimestampRequest {
-  int64_t timestamp;
-  std::mutex* m;
-  int* counter;
-}
-
 class VideoResource;
 
 class VideoDecoder : public Decoder {
 
 public:
-  VideoDecoder(const VideoResource* const resource);
+  VideoDecoder(VideoResource* const resource);
 
   void Initialize() throw (const char*);
-
-  void RequestTimestamp(int64_t timestamp, std::mutex& m, int& counter);
 
 private:
   int Seek(int64_t timestamp);
@@ -47,7 +39,7 @@ private:
 
   std::thread thread_;
 
-  const VideoResource* const resource_;
+  VideoResource* const resource_;
   AVFormatContext* fmt_ctx_;
   AVCodec* dec_;
   AVCodecContext* dec_ctx_;
@@ -64,10 +56,6 @@ private:
   int width_, height_;
   enum AVPixelFormat pix_fmt_;
 
-  std::mutex m_;
-  std::condition_variable cv_;
-  bool has_request_;
-  TimestampRequest request_;
   int64_t last_keyframe_timestamp_;
   int64_t current_timestamp_;
 

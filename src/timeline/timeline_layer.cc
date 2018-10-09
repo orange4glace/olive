@@ -28,6 +28,7 @@ TimelineLayer::TimelineLayer(timeline_layer_id id)
 
 TimelineLayer::~TimelineLayer() {}
 
+/*
 TimelineItem* const TimelineLayer::AddTimelineJSItem(int start_offset, int end_offset) {
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>();
   TimelineItem* raw = item.get();
@@ -35,6 +36,7 @@ TimelineItem* const TimelineLayer::AddTimelineJSItem(int start_offset, int end_o
   AddTimelineItem(std::move(item));
   return raw;
 }
+*/
 
 void TimelineLayer::MoveTimelineItem(TimelineItem* const item,
     int start_offset, int end_offset) {
@@ -58,19 +60,18 @@ TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem>
   auto raw = item.get();
   timeline_items_.emplace_back(std::move(item));
 
-std::vector<TimelineItemSnapshot> Timeline::GetTimelineItemSnapshotsAt(int64_t timestamp) const {
+  // NAPI
+  napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+  return raw;
+}
+
+std::vector<TimelineItemSnapshot> TimelineLayer::GetTimelineItemSnapshotsAt(int64_t timestamp) const {
   std::vector<TimelineItemSnapshot> snapshots;
   for (auto& timeline_item : timeline_items_) {
     TimelineItemSnapshot snapshot = timeline_item->GetSnapshotAt(timestamp);
     snapshots.emplace_back(std::move(snapshot));
   }
   return std::move(snapshots);
-}
-
-  // NAPI
-napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
-
-  return raw;
 }
 
 TimelineItem* const TimelineLayer::CommitTimelineItem(TimelineItem* const item) {

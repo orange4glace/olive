@@ -24,6 +24,7 @@ public:
   }
 
   Resource* const LoadResource(resource_type type, std::string path);
+  Resource* const GetResource(ResourceID resource_id) const;
 
   // NAPI
   napi_value _NAPI_LoadResource(napi_value resource_metadata);

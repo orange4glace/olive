@@ -11,30 +11,20 @@
 
 namespace olive {
 
-VideoDecoder::VideoDecoder(const VideoResource* const resource) :
+VideoDecoder::VideoDecoder(VideoResource* const resource) :
   resource_(resource),
-  fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL),
-  has_request_(false) {
+  fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL) {
 }
 
 void VideoDecoder::loop() {
+  /*
   while (true) {
     std::unique_lock<std::mutex> lock(m_);
     cv_.wait(m_, [] { has_request_; });
     has_request_ = false;
     Decode();
   }
-}
-
-void VideoDecoder::RequestTimestamp(int64_t timestamp, std::mutex& m, int& counter) {
-  {
-    std::unique_lock<std::mutex> lock(m_);
-    request_.timestamp = timestamp;
-    request_.m = &m;
-    request_.counter = &counter;
-    has_request_ = true;
-  }
-  cv_.noitfy_one();
+  */
 }
 
 void VideoDecoder::Initialize() {

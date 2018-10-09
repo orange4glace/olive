@@ -3,6 +3,11 @@
 
 #include "resource/type.h"
 
+#include "timeline/timeline_item_snapshot.h"
+
+#include <vector>
+#include <mutex>
+#include <condition_variable>
 #include <stdint.h>
 
 namespace olive {
@@ -17,11 +22,16 @@ public:
     return instance_;
   }
 
+  std::mutex m;
+  std::condition_variable cv;
+
 private:
   static DecoderManager* instance_;
 
   // Run on a separate thread
   void loop();
+
+  void DecodeVideo(std::vector<TimelineItemSnapshot> snapshots);
 
 };
 

@@ -3,7 +3,7 @@
 #include "timeline/timeline_item_snapshot.h"
 #include "timeline/timeline_layer.h"
 
-#include "resource/reousrce.h"
+#include "resource/resource.h"
 
 #include "napi/napi.h"
 #include "napi/napi_encoder.h"

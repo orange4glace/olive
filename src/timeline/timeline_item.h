@@ -5,13 +5,14 @@
 
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
+
+#include "timeline/timeline_item_snapshot.h"
 #include "timeline/timeline_typedef.h"
 
 #include <algorithm>
 
 namespace olive {
 
-class TimelineItemSnapshot;
 // Sorry for circular design!
 class TimelineLayer;
 class Resource;
