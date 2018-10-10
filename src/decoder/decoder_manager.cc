@@ -51,8 +51,7 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
   }
 
   // Wait for all of VideoDecoderHost to be finished
-  for (int i = 0; i < counter; i ++)
-    cv.wait(lock, [] { return !counter; });
+  cv.wait(lock, [&counter] { return !counter; });
 }
 
 

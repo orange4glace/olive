@@ -22,5 +22,6 @@ void MemoryPool::Free(void* ptr, size_t byte) {
 }
 
 std::mutex MemoryPool::m_;
+std::map<size_t, std::vector<void*> > MemoryPool::pool_;
 
 }

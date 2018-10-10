@@ -64,7 +64,7 @@ void VideoDecoder::Initialize() {
   AV_THROW(av_image_fill_arrays(data_rgb_, linesize_rgb_, NULL, AV_PIX_FMT_RGB32, width_, height_, 32) >= 0, "AV_IMAGE_FILL_ARRAYS");
   AV_THROW(av_image_alloc(data_rgb_, linesize_rgb_, width_, height_, AV_PIX_FMT_RGB32, 1) >= 0, "AV_IMAGE_ALLOC");
 
-  thread_ = std::thread(VideoDecoder::loop);
+  thread_ = std::thread(&VideoDecoder::loop, this);
 }
 
 int VideoDecoder::Seek(int64_t timestamp) {
@@ -80,6 +80,7 @@ int VideoDecoder::Seek(int64_t timestamp) {
 }
 
 void VideoDecoder::Decode() {
+  /*
   if (current_timestamp_ >= request_.timestamp) {
     return;
   }
@@ -115,7 +116,7 @@ void VideoDecoder::Decode() {
       }
     }
   }
-  return;
+  */
 }
 
 }

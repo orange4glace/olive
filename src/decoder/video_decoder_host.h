@@ -12,12 +12,12 @@
 
 namespace olive {
 
+class VideoResource;
+
 class Decoder;
 class VideoDecoder;
 
 class VideoDecoderHost {
-
-class VideoResource;
 
 public:
   VideoDecoderHost(VideoResource* const resource);

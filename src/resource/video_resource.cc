@@ -10,17 +10,16 @@
 namespace olive {
 
 VideoResource::VideoResource(std::string path) :
-    Resource(RESOURCE_VIDEO, path),
-    video_decoder_host_(this) {
+    Resource(RESOURCE_VIDEO, path) {
 
-}
-
-VideoDecoderHost* const VideoResource::decoder_host() const {
-  return video_decoder_host_;
 }
 
 bool VideoResource::Initialize() {
   return true;
+}
+
+VideoDecoderHost* const VideoResource::decoder_host() {
+  return video_decoder_host_;
 }
 
 }

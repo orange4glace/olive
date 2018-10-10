@@ -5,12 +5,13 @@
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
 
+#include "timeline/timeline_typedef.h"
+#include "timeline/timeline_item_snapshot.h"
+
 #include <memory>
 #include <map>
 #include <mutex>
 #include <condition_variable>
-
-#include "timeline/timeline_typedef.h"
 
 namespace olive {
 
@@ -18,7 +19,6 @@ class Media;
 
 class TimelineLayer;
 class TimelineItem;
-class TimelineItemSnapshot;
 
 class Timeline : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(Timeline, "Timeline")

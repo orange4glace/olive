@@ -4,7 +4,11 @@
 #include "napi/napi_encoder.h"
 #include "napi/napi_decoder.h"
 
+#include "resource/resource.h"
+#include "resource/video_resource.h"
+
 #include "decoder/decoder_manager.h"
+#include "decoder/decoder.h"
 #include "decoder/video_decoder.h"
 
 #include "timeline/timeline_item_snapshot.h"

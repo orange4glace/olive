@@ -13,7 +13,7 @@ public:
 
   bool Initialize() override;
 
-  VideoDecoderHost* const decoder_host() const;
+  VideoDecoderHost* const decoder_host();
 
 private:
   VideoDecoderHost* video_decoder_host_;

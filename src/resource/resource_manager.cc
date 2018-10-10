@@ -46,9 +46,9 @@ Resource* const ResourceManager::LoadResource(resource_type type, std::string pa
   return resource;
 }
 
-Resource* const ResourceManager::GetResource(ResourceID resource_id) const {
+Resource* const ResourceManager::GetResource(ResourceID resource_id) {
   auto& resource = resources_[resource_id];
-  auto raw = resource->get();
+  auto raw = resource.get();
   assert(raw);
   return raw;
 }
