@@ -11,7 +11,7 @@ namespace olive {
 
 VideoResource::VideoResource(std::string path) :
     Resource(RESOURCE_VIDEO, path) {
-
+  video_decoder_host_ = new VideoDecoderHost(this);
 }
 
 bool VideoResource::Initialize() {

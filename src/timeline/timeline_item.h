@@ -51,7 +51,7 @@ public:
   inline int start_offset() const { return start_offset_; }
   inline int end_offset() const { return end_offset_; }
 
-  inline Resource* const resource() const { return resource_; }
+  inline Resource* const resource() { return resource_; }
 
 protected:
   timeline_item_id id_;

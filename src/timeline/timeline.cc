@@ -3,10 +3,17 @@
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
 #include "timeline/timeline_item_snapshot.h"
+
+#include "resource/resource.h"
+
+#include "decoder/decoder_manager.h"
+
 #include "napi/napi.h"
 #include "napi/es6/map.h"
 #include "napi/es6/observable_map.h"
 #include "napi/napi_encoder.h"
+
+#include "logger/logger.h"
 
 #include <string>
 #include <assert.h>
@@ -79,9 +86,8 @@ void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const 
   }
 } 
 
-TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset) {
-  // Todo: implement
-  return NULL;
+TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset, Resource* const resource) {
+  return layer->AddTimelineItem(start_offset, end_offset, resource);
 }
 
 std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnapshots() const {
@@ -98,29 +104,41 @@ std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnaps
 void Timeline::Invalidate(TimelineItem* const timeline_item) {
   std::unique_lock<std::mutex> lock(m);
   dirty_ = true;
+  lock.unlock();
+  cv.notify_one();
+}
+
+void Timeline::Validate() {
+  dirty_ = false;
 }
 
 // NAPI
 NAPI_DEFINE_CLASS(Timeline, 
     NAPI_PROPERTY_VALUE("layers", napi_configurable, NAPI_MOBX_OBSERVABLE),
     NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
-    NAPI_PROPERTY_FUNCTION("AddTimelineItem", NAPI_AddTimelineItem, napi_default),
-    NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default))
+    NAPI_PROPERTY_FUNCTION("AddResourceTimelineItem", NAPI_AddResourceTimelineItem, napi_default),
+    NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default),
+    NAPI_PROPERTY_FUNCTION("Dirty", NAPI_Dirty, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
   TimelineLayer* const layer = AddTimelineLayer();
   return layer->napi_instance();
 }
 
-napi_value Timeline::_NAPI_AddTimelineItem(TimelineLayer* const layer,
-    int start_offset, int end_offset) {
-  TimelineItem* const item = AddTimelineItem(layer, start_offset, end_offset);
+napi_value Timeline::_NAPI_AddResourceTimelineItem(TimelineLayer* const layer,
+    int start_offset, int end_offset, Resource* const resource) {
+  TimelineItem* const item = AddTimelineItem(layer, start_offset, end_offset, resource);
   return item->napi_instance();
 }
 
 napi_value Timeline::_NAPI_MoveTimelineItem(TimelineLayer* const layer,
     TimelineItem* const item, int start_offset, int end_offset) {
   MoveTimelineItem(layer, item, start_offset, end_offset);
+  return NULL;
+}
+
+napi_value Timeline::_NAPI_Dirty() {
+  Invalidate(NULL);
   return NULL;
 }
 

@@ -15,7 +15,7 @@
 
 namespace olive {
 
-class Media;
+class Resource;
 
 class TimelineLayer;
 class TimelineItem;
@@ -34,7 +34,7 @@ public:
   TimelineLayer* const AddTimelineLayer();
   void RemoveTimelineLayer(timeline_layer_id id);
 
-  TimelineItem* const AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
+  TimelineItem* const AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset, Resource* const resource);
   void RemoveTimelineItem(timeline_item_id id);
   void MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                         int start_offset, int end_offset);
@@ -44,6 +44,7 @@ public:
   std::vector<TimelineItemSnapshot> GetCurrentTimestampTimelineItemSnapshots() const;
 
   void Invalidate(TimelineItem* const timeline_item);
+  void Validate();
 
   bool dirty() const { return dirty_; }
 
@@ -52,15 +53,20 @@ public:
 
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
-  napi_value _NAPI_AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset);
+  napi_value _NAPI_AddResourceTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset, Resource* const resource);
   napi_value _NAPI_MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                                     int start_offset, int end_offset);
+
+  napi_value _NAPI_Dirty();
   
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_AddTimelineLayer, _NAPI_AddTimelineLayer);
-  NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddTimelineItem, _NAPI_AddTimelineItem,
-      TimelineLayer* const, int, int);
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddResourceTimelineItem, _NAPI_AddResourceTimelineItem,
+      TimelineLayer* const, int, int, Resource* const);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_MoveTimelineItem, _NAPI_MoveTimelineItem,
       TimelineLayer* const, TimelineItem* const, int, int);
+
+  // Temporary for test
+  NAPI_EXPORT_FUNCTION0(Timeline, NAPI_Dirty, _NAPI_Dirty);
 
 private:
   static std::unique_ptr<Timeline> instance_;

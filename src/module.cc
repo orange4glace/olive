@@ -10,6 +10,8 @@
 
 #include "resource/resource_manager.h"
 
+#include "decoder/decoder_manager.h"
+
 #include "logger/logger.h"
 
 using namespace olive;

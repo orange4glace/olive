@@ -1,5 +1,7 @@
 #include "decoder/video_decoder.h"
 
+#include "decoder/video_decoder_host.h"
+
 #include "decoder/memory_pool.h"
 #include "resource/video_resource.h"
 
@@ -11,23 +13,33 @@
 
 namespace olive {
 
-VideoDecoder::VideoDecoder(VideoResource* const resource) :
-  resource_(resource),
+VideoDecoder::VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* const resource) :
+  decoder_host_(decoder_host), resource_(resource), has_work_(false),
   fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL) {
 }
 
 void VideoDecoder::loop() {
-  /*
   while (true) {
-    std::unique_lock<std::mutex> lock(m_);
-    cv_.wait(m_, [] { has_request_; });
-    has_request_ = false;
-    Decode();
+    std::unique_lock<std::mutex> loop_lock(m);
+    bool& has_work = this->has_work_;
+    logger::get()->info("[VideoDecoder] Loop {}", has_work);
+    cv.wait(loop_lock, [&has_work] { return has_work; });
+    has_work  = false;
+
+    logger::get()->info("[VideoDecoder] Internal decode");
+    decode();
+
+    std::unique_lock<std::mutex> host_lock(decoder_host_->decoder_waiter_mutex);
+    decoder_host_->decoder_waiter_counter--;
+    logger::get()->info("[VideoDecoder] Internal decode done. counter : {}", decoder_host_->decoder_waiter_counter);
+    host_lock.unlock();
+    decoder_host_->decoder_waiter_cv.notify_one();
   }
-  */
 }
 
 void VideoDecoder::Initialize() {
+  thread_ = std::thread(&VideoDecoder::loop, this);
+  /*
   logger::get()->info("[DecoderManager] " + resource_->path());
   AV_THROW(avformat_open_input(&fmt_ctx_, resource_->path().c_str(), NULL, NULL) == 0, "AVFORMAT_OPEN_INPUT");
   AV_THROW(avformat_find_stream_info(fmt_ctx_, NULL) == 0, "AVFORMAT_INPUT_STREAM_INFO");
@@ -65,6 +77,15 @@ void VideoDecoder::Initialize() {
   AV_THROW(av_image_alloc(data_rgb_, linesize_rgb_, width_, height_, AV_PIX_FMT_RGB32, 1) >= 0, "AV_IMAGE_ALLOC");
 
   thread_ = std::thread(&VideoDecoder::loop, this);
+  */
+}
+
+void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
+  logger::get()->info("[VideoDecoder] Decode request, item_id : {}, resource_id : {}", snapshot.timeline_item_id, snapshot.resource_id);
+  std::unique_lock<std::mutex> lock(m);
+  decoding_snapshot_ = snapshot;
+  has_work_ = true;
+  cv.notify_one();
 }
 
 int VideoDecoder::Seek(int64_t timestamp) {
@@ -79,7 +100,7 @@ int VideoDecoder::Seek(int64_t timestamp) {
   return 0;
 }
 
-void VideoDecoder::Decode() {
+void VideoDecoder::decode() {
   /*
   if (current_timestamp_ >= request_.timestamp) {
     return;

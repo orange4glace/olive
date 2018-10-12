@@ -3,7 +3,11 @@
 #include "timeline/timeline_item.h"
 #include "timeline/timeline_item_snapshot.h"
 
+#include "resource/resource.h"
+
 #include "napi/napi_encoder.h"
+
+#include "logger/logger.h"
 
 #include <iostream>
 #include <set>
@@ -28,6 +32,14 @@ TimelineLayer::TimelineLayer(timeline_layer_id id)
 
 TimelineLayer::~TimelineLayer() {}
 
+TimelineItem* const TimelineLayer::AddTimelineItem(int start_offset, int end_offset, Resource* const resource) {
+  logger::get()->info("[TimelineLayer] AddTimelineItem {} {} {}", start_offset, end_offset, resource->id());
+  std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>(resource);
+  TimelineItem* raw = item.get();
+  item->SetOffset(start_offset, end_offset);
+  AddTimelineItem(std::move(item));
+  return raw;
+}
 /*
 TimelineItem* const TimelineLayer::AddTimelineJSItem(int start_offset, int end_offset) {
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>();
@@ -58,7 +70,7 @@ void TimelineLayer::RemoveTimelineItem(timeline_item_id id) {
 TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem> item) {
   item->SetTimelineLayer(this);
   auto raw = item.get();
-  timeline_items_.emplace_back(std::move(item));
+  timeline_items_.push_back(std::move(item));
 
   // NAPI
   napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());

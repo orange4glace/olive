@@ -14,6 +14,7 @@
 namespace olive {
 
 class TimelineItem;
+class Resource;
 
 class TimelineLayer : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineLayer, "TimelineLayer");
@@ -22,6 +23,7 @@ public:
   TimelineLayer(timeline_layer_id id);
   ~TimelineLayer();
   TimelineItem* const GetTimelineItemAtOffset(int offset);
+  TimelineItem* const AddTimelineItem(int start_offset, int end_offset, Resource* const resource);
   // TimelineItem* const AddTimelineMediaItem(Media* const media, int start_offset, int end_offset);
   // TimelineItem* const AddTimelineJSItem(int start_offset, int end_offset);
   void MoveTimelineItem(TimelineItem* const item, int start_offset, int end_offset);

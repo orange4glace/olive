@@ -6,6 +6,7 @@
 #include "timeline/timeline_item_snapshot.h"
 
 #include <vector>
+#include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <stdint.h>
@@ -32,6 +33,8 @@ private:
   void loop();
 
   void DecodeVideo(std::vector<TimelineItemSnapshot> snapshots);
+
+  std::thread loop_thread_;
 
 };
 

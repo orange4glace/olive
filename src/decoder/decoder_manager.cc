@@ -15,21 +15,31 @@ namespace olive {
 
 void DecoderManager::Initialize() {
   instance_ = new DecoderManager();
+
+  // Start loop thread
+  instance_->loop_thread_ = std::thread(&DecoderManager::loop, instance_);
 }
 
 void DecoderManager::loop() {
   while (true) {
-    std::unique_lock<std::mutex> lock(Timeline::instance()->m);
+    // Lock Timeline
+    std::unique_lock<std::mutex> timeline_lock(Timeline::instance()->m);
 
     // Wait for dirty
-    Timeline::instance()->cv.wait(lock, [] {return Timeline::instance()->dirty(); });
+    logger::get()->info("[DecoderManager] Waiting for dirty");
+    Timeline::instance()->cv.wait(timeline_lock, [] { return Timeline::instance()->dirty(); });
 
+    logger::get()->info("[DecoderManager] Timeline dirty, rendering");
+    // Validate Timeline
+    Timeline::instance()->Validate();
     // Get TimelineItem snapshots
     std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetCurrentTimestampTimelineItemSnapshots();
-    lock.unlock();
+    timeline_lock.unlock();
 
     // Call VideoDecoderHosts
     DecodeVideo(std::move(snapshots));
+
+    logger::get()->info("[DecoderManager] Decoding done");
   }
 }
   
@@ -42,6 +52,8 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
   size_t counter = snapshot_map.size();
   std::unique_lock<std::mutex> lock(m);
 
+  logger::get()->info("[DecoderManager] Counter : {}", counter);
+
   for (auto& kv : snapshot_map) {
     // Todo : Generalize
     auto resource = (VideoResource*)ResourceManager::instance()->GetResource(kv.first);
@@ -51,7 +63,8 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
   }
 
   // Wait for all of VideoDecoderHost to be finished
-  cv.wait(lock, [&counter] { return !counter; });
+  logger::get()->info("[DecoderManager] Pending for DecoderHosts, counter : {}", counter);
+  cv.wait(lock, [&counter] { return counter == 0; });
 }
 
 

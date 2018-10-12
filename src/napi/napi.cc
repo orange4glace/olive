@@ -13,6 +13,7 @@
 #include "resource/resource_manager.h"
 #include "resource/resource.h"
 
+#include "decoder/decoder_manager.h"
 #include "decoder/decoder.h"
 #include "decoder/video_decoder.h"
 
@@ -60,24 +61,27 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
 
   std::cout << "Timeline Initialize\n";
   Timeline::NAPI_Initialize(env);
+  std::cout << "Timeline NAPI Initialize\n";
   Timeline::Initialize();
 
-  std::cout << "TimelineLayer Initialize\n";
+  std::cout << "TimelineLayer NAPI Initialize\n";
   TimelineLayer::NAPI_Initialize(env);
+  std::cout << "TimelineItem NAPI Initialize\n";
   TimelineItem::NAPI_Initialize(env);
 
   std::cout << "ResourceManager Initialize\n";
   ResourceManager::NAPI_Initialize(env);
+  std::cout << "ResourceManager Initialize\n";
   ResourceManager::Initialize();
 
-  std::cout << "Resource Initialize\n";
+  std::cout << "Resource NAPI Initialize\n";
   Resource::NAPI_Initialize(env);
 
-  std::cout << "Decoder Initialize\n";
-  Decoder::NAPI_Initialize(env);
+  std::cout << "DecoderManager Initialize\n";
+  DecoderManager::Initialize();
 
-  std::cout << "VideoDecoder Initialize\n";
-  VideoDecoder::NAPI_Initialize(env);
+  std::cout << "Decoder NAPI Initialize\n";
+  Decoder::NAPI_Initialize(env);
 
   std::cout << "Export..\n";
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());

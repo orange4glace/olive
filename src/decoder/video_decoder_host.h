@@ -5,6 +5,7 @@
 
 #include "timeline/timeline_typedef.h"
 
+#include <thread>
 #include <vector>
 #include <queue>
 #include <map>
@@ -27,7 +28,11 @@ public:
 // Some of these are directly called from DecoderManager
   std::mutex m;
   std::condition_variable cv;
-  bool has_work;
+
+  std::mutex decoder_waiter_mutex;
+  std::condition_variable decoder_waiter_cv;
+  int decoder_waiter_counter;
+
   std::vector<TimelineItemSnapshot> work_snapshots;
   size_t* work_counter;
 
@@ -35,8 +40,11 @@ private:
   void loop();
 
   void decode();
-  Decoder* const AssignDecoder(timeline_item_id item_id);
+  VideoDecoder* const AssignDecoder(timeline_item_id item_id);
   void FreeDecoder(timeline_item_id item_id);
+
+  std::thread loop_thread_;
+  bool has_work_;
 
   VideoResource* const resource_;
 

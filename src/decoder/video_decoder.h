@@ -3,6 +3,8 @@
 
 #include "decoder/decoder.h"
 
+#include "timeline/timeline_item_snapshot.h"
+
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
 
@@ -15,6 +17,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <mutex>
+#include <condition_variable>
 #include <thread>
 
 #define AV_THROW(COND, ERR) if (!(COND)) throw (ERR);
@@ -22,20 +26,31 @@ extern "C" {
 
 namespace olive {
 
+class VideoDecoderHost;
+
 class VideoResource;
 
 class VideoDecoder : public Decoder {
 
 public:
-  VideoDecoder(VideoResource* const resource);
+  VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* const resource);
 
   void Initialize() throw (const char*);
+  void Decode(TimelineItemSnapshot snapshot);
+
+  std::mutex m;
+  std::condition_variable cv;
 
 private:
   int Seek(int64_t timestamp);
-  void Decode();
+  void decode();
 
   void loop();
+
+  VideoDecoderHost* decoder_host_;
+  
+  TimelineItemSnapshot decoding_snapshot_;
+  bool has_work_;
 
   std::thread thread_;
 
