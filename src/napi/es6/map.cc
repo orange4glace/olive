@@ -1,6 +1,5 @@
 #include "napi/es6/map.h"
 
-#include "napi/napi.h"
 #include "napi/napi_encoder.h"
 
 namespace olive {

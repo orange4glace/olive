@@ -32,6 +32,7 @@ public:
   std::mutex decoder_waiter_mutex;
   std::condition_variable decoder_waiter_cv;
   int decoder_waiter_counter;
+  std::vector<TimelineItemSnapshot> decoder_waiter_result;
 
   std::vector<TimelineItemSnapshot> work_snapshots;
   size_t* work_counter;

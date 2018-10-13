@@ -1,7 +1,7 @@
 #ifndef OLIVE_NAPI_ES6_MAP_H_
 #define OLIVE_NAPI_MAP_H_
 
-#include <node_api.h>
+#include "napi/napi.h"
 
 namespace olive {
 

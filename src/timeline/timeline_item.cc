@@ -5,7 +5,6 @@
 
 #include "resource/resource.h"
 
-#include "napi/napi.h"
 #include "napi/napi_encoder.h"
 
 namespace olive {

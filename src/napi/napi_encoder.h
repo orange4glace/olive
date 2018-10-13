@@ -26,6 +26,16 @@ struct napi_encoder<napi_value> {
 };
 
 template <>
+struct napi_encoder<int32_t> {
+  inline static napi_value encode(int32_t value) {
+    napi_env env = napi::current_env();
+    napi_value ret;
+    NAPI_CALL(napi_create_int32(env, value, &ret));
+    return ret;
+  }
+};
+
+template <>
 struct napi_encoder<uint32_t> {
   inline static napi_value encode(uint32_t value) {
     napi_env env = napi::current_env();
@@ -36,11 +46,11 @@ struct napi_encoder<uint32_t> {
 };
 
 template <>
-struct napi_encoder<int32_t> {
-  inline static napi_value encode(int32_t value) {
+struct napi_encoder<uint64_t> {
+  inline static napi_value encode(uint64_t value) {
     napi_env env = napi::current_env();
     napi_value ret;
-    NAPI_CALL(napi_create_int32(env, value, &ret));
+    NAPI_CALL(napi_create_bigint_uint64(env, value, &ret));
     return ret;
   }
 };

@@ -7,13 +7,15 @@
 #define NAPI_EXPERIMENTAL
 #include <node_api.h>
 
+#include "logger/logger.h"
+
 namespace olive {
 
 #define NAPI_CALL(CALL) \
  {napi_status status; \
   status = CALL; \
   if (status != napi_ok) { \
-    std::cout << "ASSERTING.. " << status; \
+    logger::get()->critical("[NAPI] Assert! {}", status); \
     assert(false); \
   }}
 
@@ -48,6 +50,11 @@ public:
   static napi_value SetNamedProperty(napi_value napi_object, const char* name, napi_value value, napi_ref* ref);
   static napi_value SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value);
   static napi_value SetNamedProperty(napi_ref napi_object_ref, const char* name, napi_value value, napi_ref* ref);
+
+  static napi_value SetProperty(napi_value napi_object, napi_value name, napi_value value);
+  static napi_value SetProperty(napi_value napi_object, napi_value name, napi_value value, napi_ref* ref);
+  static napi_value SetProperty(napi_ref napi_object_ref, napi_value name, napi_value value);
+  static napi_value SetProperty(napi_ref napi_object_ref, napi_value name, napi_value value, napi_ref* ref);
 
   static napi_value GetNamedProperty(napi_value object, const char* name);
   static napi_value GetNamedProperty(napi_value object, const char* name, napi_ref* ref);

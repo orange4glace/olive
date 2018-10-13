@@ -10,7 +10,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "css-loader": "^1.0.0",
-    "electron": "^4.0.0-nightly.20180929",
+    "electron": "^4.0.0-beta.3",
     "electron-devtools-installer": "^2.2.4",
     "file-loader": "^1.1.11",
     "node-sass": "^4.9.2",

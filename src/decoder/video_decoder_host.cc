@@ -44,7 +44,11 @@ void VideoDecoderHost::loop() {
 
     // Notify to DecoderManager
     std::unique_lock<std::mutex> decoder_manager_lock(DecoderManager::instance()->m);
+    // Decrease DM counter
     *work_counter = *work_counter - 1;
+    // Pass result to DM
+    for (auto& snapshot : decoder_waiter_result)
+      DecoderManager::instance()->host_waiter_result.emplace_back(std::move(snapshot));
     decoder_manager_lock.unlock();
     DecoderManager::instance()->cv.notify_one();
   }
@@ -63,7 +67,9 @@ void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_
 void VideoDecoderHost::decode() {
   std::unique_lock<std::mutex> decoder_waiter_lock(decoder_waiter_mutex);
   int& decoder_waiter_counter = this->decoder_waiter_counter;
+  // Reset waiter
   decoder_waiter_counter = 0;
+  decoder_waiter_result.clear();
   logger::get()->info("[VideoDecoderHost] decode() snapshots : {}", work_snapshots.size());
   for (auto& snapshot : work_snapshots) {
     TimelineItemID timeline_item_id = snapshot.timeline_item_id;

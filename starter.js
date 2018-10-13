@@ -43,3 +43,7 @@ function guid() {
   }
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
+
+function requestRendering(snapshots) {
+  console.log(snapshots);
+}

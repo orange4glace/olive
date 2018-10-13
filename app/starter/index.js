@@ -4,6 +4,10 @@ const remote = electron.remote,
       BrowserWindow = remote.BrowserWindow,
       app = remote.app;
 
+window.requestRendering = (snapshots) => {
+  console.log("HELLO", snapshots);
+}
+
 import _ from 'test';
 
 var basepath = app.getAppPath();

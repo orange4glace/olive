@@ -8,7 +8,6 @@
 
 #include "decoder/decoder_manager.h"
 
-#include "napi/napi.h"
 #include "napi/es6/map.h"
 #include "napi/es6/observable_map.h"
 #include "napi/napi_encoder.h"

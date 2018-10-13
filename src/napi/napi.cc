@@ -136,6 +136,35 @@ napi_value napi::SetNamedProperty(napi_ref napi_object_ref, const char* name, na
   return SetNamedProperty(v, name, value);
 }
 
+napi_value napi::SetProperty(napi_value object, napi_value name, napi_value value) {
+  napi_env env = napi::current_env();
+  NAPI_CALL(napi_set_property(env, object, name, value));
+  napi_value set_value;
+  NAPI_CALL(napi_get_property(env, object, name, &set_value));
+  return set_value;
+}
+
+napi_value napi::SetProperty(napi_value object, napi_value name, napi_value value, napi_ref* ref) {
+  napi_env env = napi::current_env();
+  napi_value set_value = SetProperty(object, name, value);
+  NAPI_CALL(napi_create_reference(env, set_value, 1, ref));
+  return set_value;
+}
+
+napi_value napi::SetProperty(napi_ref napi_object_ref, napi_value name, napi_value value, napi_ref* ref) {
+  napi_env env = napi::current_env();
+  napi_value v;
+  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
+  return SetProperty(v, name, value, ref);
+}
+
+napi_value napi::SetProperty(napi_ref napi_object_ref, napi_value name, napi_value value) {
+  napi_env env = napi::current_env();
+  napi_value v;
+  NAPI_CALL(napi_get_reference_value(env, napi_object_ref, &v));
+  return SetProperty(v, name, value);
+}
+
 napi_value napi::GetNamedProperty(napi_value object, const char* name) {
   napi_env env = napi::current_env();
   napi_value value;

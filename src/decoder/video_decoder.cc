@@ -30,7 +30,10 @@ void VideoDecoder::loop() {
     decode();
 
     std::unique_lock<std::mutex> host_lock(decoder_host_->decoder_waiter_mutex);
+    // Decrease host counter
     decoder_host_->decoder_waiter_counter--;
+    // Pass result to host
+    decoder_host_->decoder_waiter_result.emplace_back(std::move(decoding_snapshot_));
     logger::get()->info("[VideoDecoder] Internal decode done. counter : {}", decoder_host_->decoder_waiter_counter);
     host_lock.unlock();
     decoder_host_->decoder_waiter_cv.notify_one();
@@ -101,6 +104,12 @@ int VideoDecoder::Seek(int64_t timestamp) {
 }
 
 void VideoDecoder::decode() {
+    using namespace std::chrono_literals;
+    auto start = std::chrono::high_resolution_clock::now();
+    std::this_thread::sleep_for(2s);
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end-start;
+    decoding_snapshot_.opt = "hello world";
   /*
   if (current_timestamp_ >= request_.timestamp) {
     return;

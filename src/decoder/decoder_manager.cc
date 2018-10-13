@@ -9,12 +9,35 @@
 #include "timeline/timeline.h"
 #include "timeline/timeline_item_snapshot.h"
 
+#include "napi/napi_encoder.h"
+
 #include "logger/logger.h"
 
 namespace olive {
 
+namespace {
+  void __finalize(napi_env env, void* finalize_data, void* finalize_int) {
+    logger::get()->critical("[DecoderManager] Finalize tsfn");
+  }
+
+  void tsfn_call_js(napi_env env, napi_value js_callback, void* context, void* data) {
+    logger::get()->info("call!!!");
+  }
+} // namespace
+
 void DecoderManager::Initialize() {
   instance_ = new DecoderManager();
+
+  NAPI_CALL(napi_create_threadsafe_function(
+    napi::current_env(),
+    napi::GetNamedProperty(napi::get_global(), "requestRendering"),
+    NULL,
+    napi_encoder<const char*>::encode("arised"),
+    0,
+    1,
+    NULL,
+    __finalize,
+    NULL, NULL, &instance_->tsfn_callback_));
 
   // Start loop thread
   instance_->loop_thread_ = std::thread(&DecoderManager::loop, instance_);
@@ -38,8 +61,9 @@ void DecoderManager::loop() {
 
     // Call VideoDecoderHosts
     DecodeVideo(std::move(snapshots));
-
     logger::get()->info("[DecoderManager] Decoding done");
+
+    NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_nonblocking));
   }
 }
   
@@ -51,6 +75,9 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
 
   size_t counter = snapshot_map.size();
   std::unique_lock<std::mutex> lock(m);
+
+  // Clear waiter
+  host_waiter_result.clear();
 
   logger::get()->info("[DecoderManager] Counter : {}", counter);
 

@@ -1,7 +1,7 @@
 #ifndef OLIVE_TIMELINE_LAYER_H_
 #define OLIVE_TIMELINE_LAYER_H_
 
-#include <node_api.h>
+#include "napi/napi.h"
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
 
