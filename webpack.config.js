@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const md5 = require('./md5')
 
 module.exports = {
@@ -89,7 +90,13 @@ module.exports = {
       filename: '[name].js'
     },
     plugins: [
-        new webpack.HotModuleReplacementPlugin()
+        new webpack.HotModuleReplacementPlugin(),
+        new CopyWebpackPlugin([
+          {
+            from: './renderer/worker.js',
+            to: './renderer/'
+          }
+        ])
     ],
     devServer: {
         contentBase: './dist',

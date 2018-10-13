@@ -43,13 +43,18 @@ function createStarter() {
       height: 600,
       webPreferences: {
         nativeWindowOpen: true,
-        nodeIntegration: true
+        nodeIntegrationInWorker: true
       }
     });
     windowRequestHost = new WindowRequestHost(win);
 
-    win.webContents.on('did-finish-load', e => {
-      resolve(win);
+    // I don't know but because of some bug of electron, 
+    // napi_threadsafe_function works properly when page is reloaded at least once.
+    win.webContents.once('did-finish-load', () => {
+      win.webContents.once('did-finish-load', () => {
+        resolve(win);
+      });
+      win.webContents.reload();
     });
     win.loadURL('http://localhost:8080/starter.html');
     win.webContents.openDevTools()

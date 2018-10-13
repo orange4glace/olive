@@ -9,6 +9,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^1.0.0",
     "electron": "^4.0.0-beta.3",
     "electron-devtools-installer": "^2.2.4",

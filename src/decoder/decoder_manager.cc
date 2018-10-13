@@ -21,26 +21,39 @@ namespace {
   }
 
   void tsfn_call_js(napi_env env, napi_value js_callback, void* context, void* data) {
-    logger::get()->info("call!!!");
+    DecoderManager* this_dm = static_cast<DecoderManager*>(context);
+    napi_value js_object_array;
+    NAPI_CALL(napi_create_array_with_length(
+      napi::current_env(),
+      this_dm->host_waiter_result.size(),
+      &js_object_array
+    ));
+    int i = 0;
+    for (auto& snapshot : this_dm->host_waiter_result) {
+      napi::SetProperty(js_object_array, napi_encoder<int32_t>::encode(i), snapshot.ToJSObject());
+      i++;
+    }
+    napi::set_current_env(env);
+    NAPI_CALL(napi_call_function(env, napi::get_global(), js_callback, 1, &js_object_array, NULL));
   }
 } // namespace
 
 void DecoderManager::Initialize() {
   instance_ = new DecoderManager();
 
+  // Start loop thread
+  instance_->loop_thread_ = std::thread(&DecoderManager::loop, instance_);
+
   NAPI_CALL(napi_create_threadsafe_function(
     napi::current_env(),
     napi::GetNamedProperty(napi::get_global(), "requestRendering"),
     NULL,
-    napi_encoder<const char*>::encode("arised"),
-    0,
+    napi_encoder<const char*>::encode("NA"),
+    1,
     1,
     NULL,
     __finalize,
-    NULL, NULL, &instance_->tsfn_callback_));
-
-  // Start loop thread
-  instance_->loop_thread_ = std::thread(&DecoderManager::loop, instance_);
+    (void*)instance_, tsfn_call_js, &instance_->tsfn_callback_));
 }
 
 void DecoderManager::loop() {
@@ -63,7 +76,7 @@ void DecoderManager::loop() {
     DecodeVideo(std::move(snapshots));
     logger::get()->info("[DecoderManager] Decoding done");
 
-    NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_nonblocking));
+    NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_blocking));
   }
 }
   

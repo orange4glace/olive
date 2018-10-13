@@ -18,6 +18,7 @@ struct TimelineItemSnapshot {
   int64_t decoding_timestamp;
 
   void* data;
+  int size;
 
   std::string opt;
 
@@ -25,6 +26,7 @@ struct TimelineItemSnapshot {
     napi_value object = napi::create_object();
     uint64_t data_addr = reinterpret_cast<uint64_t>(data);
     napi::SetNamedProperty(object, "data", napi_encoder<uint64_t>::encode(data_addr));
+    napi::SetNamedProperty(object, "size", napi_encoder<int32_t>::encode(size));
     return object;
   }
 };

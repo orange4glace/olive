@@ -4,8 +4,13 @@ const remote = electron.remote,
       BrowserWindow = remote.BrowserWindow,
       app = remote.app;
 
+let renderer_worker;
 window.requestRendering = (snapshots) => {
   console.log("HELLO", snapshots);
+  renderer_worker.postMessage({
+    type: 'render',
+    snapshots: snapshots
+  })
 }
 
 import _ from 'test';
@@ -23,6 +28,12 @@ const mobx_react = require('mobx-react');
 // Initialize Olive module
 const olive_module_exports = olive_module.initialize(mobx, console.log);
 console.log("[Olive]", olive_module_exports);
+
+renderer_worker = new Worker("/renderer/worker.js");
+renderer_worker.postMessage({
+  type: 'init',
+  basepath: basepath
+})
 
 class WindowRequest {
 

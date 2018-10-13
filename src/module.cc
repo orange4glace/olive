@@ -1,7 +1,5 @@
 #include <iostream>
 
-#include <node_api.h>
-
 #include "napi/napi.h"
 
 #include "timeline/timeline.h"

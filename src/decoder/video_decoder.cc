@@ -106,10 +106,14 @@ int VideoDecoder::Seek(int64_t timestamp) {
 void VideoDecoder::decode() {
     using namespace std::chrono_literals;
     auto start = std::chrono::high_resolution_clock::now();
-    std::this_thread::sleep_for(2s);
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end-start;
     decoding_snapshot_.opt = "hello world";
+    decoding_snapshot_.data = MemoryPool::Allocate(1920 * 1080 * 4);
+    decoding_snapshot_.size = 1920 * 1080 * 4;
+    for (int i = 0; i < 1920 * 1080; i ++) {
+      ((uint8_t*)decoding_snapshot_.data)[i] = 221;
+    }
   /*
   if (current_timestamp_ >= request_.timestamp) {
     return;
