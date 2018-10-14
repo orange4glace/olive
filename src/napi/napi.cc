@@ -4,8 +4,6 @@
 #include "napi/es6/map.h"
 #include "napi/es6/observable_map.h"
 
-#include <iostream>
-
 #include "timeline/timeline.h"
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
@@ -13,11 +11,46 @@
 #include "resource/resource_manager.h"
 #include "resource/resource.h"
 
+#include "decoder/memory_pool.h"
 #include "decoder/decoder_manager.h"
 #include "decoder/decoder.h"
 #include "decoder/video_decoder.h"
 
+#include <iostream>
+#include <muteX>
+
 namespace olive {
+
+namespace {
+
+napi_value FreeMemory(napi_env env, napi_callback_info cbinfo) {
+  napi_value argv[2];
+  size_t argc = 2;
+  uint64_t addr;
+  int size;
+  bool lossess;
+
+  napi_get_cb_info(env, cbinfo, &argc, argv, NULL, NULL);
+  
+  NAPI_CALL(napi_get_value_bigint_uint64(env, argv[0], &addr, &lossess));
+  NAPI_CALL(napi_get_value_int32(env, argv[1], &size));
+
+  uintptr_t ptr = (uintptr_t)addr;
+  MemoryPool::Free(ptr, size);
+
+  return NULL;
+}
+
+napi_value Rendered(napi_env env, napi_callback_info cbinfo) {
+  std::unique_lock<std::mutex> dm_lock(DecoderManager::instance()->m);
+  DecoderManager::instance()->rendered = true;
+  dm_lock.unlock();
+  DecoderManager::instance()->cv.notify_one();
+
+  return NULL;
+}
+
+}
 
 void napi::Initialize(napi_env env, napi_value exports) {
   napi::set_current_env(env);
@@ -86,6 +119,14 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   std::cout << "Export..\n";
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
   ExportNamedProperty("resource", ResourceManager::instance()->napi_instance());
+
+  napi_value freefn;
+  NAPI_CALL(napi_create_function(env, "Free", NAPI_AUTO_LENGTH, FreeMemory, NULL, &freefn));
+  ExportNamedProperty("Free", freefn);
+
+  napi_value renderedfn;
+  NAPI_CALL(napi_create_function(env, "Rendered", NAPI_AUTO_LENGTH, Rendered, NULL, &renderedfn));
+  ExportNamedProperty("Rendered", renderedfn);
 
   return export_;
 }

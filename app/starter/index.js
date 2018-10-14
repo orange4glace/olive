@@ -6,12 +6,34 @@ const remote = electron.remote,
 
 let renderer_worker;
 window.requestRendering = (snapshots) => {
-  console.log("HELLO", snapshots);
   renderer_worker.postMessage({
     type: 'render',
     snapshots: snapshots
   })
 }
+
+function InitRendererWorker() {
+  var canvas = document.getElementById('canvas');
+  var offscreen = canvas.transferControlToOffscreen();
+  renderer_worker = new Worker("/renderer/worker.js");
+  renderer_worker.postMessage({
+    type: 'init',
+    basepath: basepath,
+    canvas: offscreen
+  }, [offscreen]);
+  renderer_worker.addEventListener('message', e => {
+    var type = e.data.type;
+    if (type == 'rendered') {
+      var address = e.data.address;
+      var size = e.data.size;
+      olive_module_exports.Free(address, size);
+      olive_module_exports.Rendered();
+    }
+    if (type == 'free-memory') {
+    }
+  });
+}
+
 
 import _ from 'test';
 
@@ -29,11 +51,7 @@ const mobx_react = require('mobx-react');
 const olive_module_exports = olive_module.initialize(mobx, console.log);
 console.log("[Olive]", olive_module_exports);
 
-renderer_worker = new Worker("/renderer/worker.js");
-renderer_worker.postMessage({
-  type: 'init',
-  basepath: basepath
-})
+InitRendererWorker();
 
 class WindowRequest {
 

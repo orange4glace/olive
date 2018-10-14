@@ -76,7 +76,10 @@ void DecoderManager::loop() {
     DecodeVideo(std::move(snapshots));
     logger::get()->info("[DecoderManager] Decoding done");
 
+    std::unique_lock<std::mutex> render_wait_lock(m);
     NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_blocking));
+    bool& rendered = this->rendered;
+    cv.wait(render_wait_lock, [&rendered] { return rendered; });
   }
 }
   

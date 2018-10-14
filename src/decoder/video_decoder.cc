@@ -10,6 +10,8 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <stdlib.h>
+#include <time.h>
 
 namespace olive {
 
@@ -111,8 +113,9 @@ void VideoDecoder::decode() {
     decoding_snapshot_.opt = "hello world";
     decoding_snapshot_.data = MemoryPool::Allocate(1920 * 1080 * 4);
     decoding_snapshot_.size = 1920 * 1080 * 4;
+    srand(time(NULL));
     for (int i = 0; i < 1920 * 1080; i ++) {
-      ((uint8_t*)decoding_snapshot_.data)[i] = 221;
+      ((uint8_t*)decoding_snapshot_.data)[i] = (rand() % static_cast<int>(255 + 1));
     }
   /*
   if (current_timestamp_ >= request_.timestamp) {

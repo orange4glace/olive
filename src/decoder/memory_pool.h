@@ -10,11 +10,11 @@ namespace olive {
 class MemoryPool {
 public:
   static void* Allocate(size_t byte);
-  static void Free(void* addr, size_t byte);
+  static void Free(uintptr_t addr, size_t byte);
 
 private:
   static std::mutex m_;
-  static std::map<size_t, std::vector<void*> > pool_;
+  static std::map<size_t, std::vector<uintptr_t> > pool_;
 
 };
 

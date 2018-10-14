@@ -27,6 +27,7 @@ public:
 
   std::mutex m;
   std::condition_variable cv;
+  bool rendered;
 
   std::vector<TimelineItemSnapshot> host_waiter_result;
 
