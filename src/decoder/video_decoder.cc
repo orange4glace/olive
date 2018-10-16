@@ -43,8 +43,6 @@ void VideoDecoder::loop() {
 }
 
 void VideoDecoder::Initialize() {
-  thread_ = std::thread(&VideoDecoder::loop, this);
-  /*
   logger::get()->info("[DecoderManager] " + resource_->path());
   AV_THROW(avformat_open_input(&fmt_ctx_, resource_->path().c_str(), NULL, NULL) == 0, "AVFORMAT_OPEN_INPUT");
   AV_THROW(avformat_find_stream_info(fmt_ctx_, NULL) == 0, "AVFORMAT_INPUT_STREAM_INFO");
@@ -82,7 +80,6 @@ void VideoDecoder::Initialize() {
   AV_THROW(av_image_alloc(data_rgb_, linesize_rgb_, width_, height_, AV_PIX_FMT_RGB32, 1) >= 0, "AV_IMAGE_ALLOC");
 
   thread_ = std::thread(&VideoDecoder::loop, this);
-  */
 }
 
 void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
@@ -106,22 +103,21 @@ int VideoDecoder::Seek(int64_t timestamp) {
 }
 
 void VideoDecoder::decode() {
-    using namespace std::chrono_literals;
-    auto start = std::chrono::high_resolution_clock::now();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end-start;
-    decoding_snapshot_.opt = "hello world";
-    decoding_snapshot_.data = MemoryPool::Allocate(1920 * 1080 * 4);
-    decoding_snapshot_.size = 1920 * 1080 * 4;
-    srand(time(NULL));
-    for (int i = 0; i < 1920 * 1080; i ++) {
-      ((uint8_t*)decoding_snapshot_.data)[i] = (rand() % static_cast<int>(255 + 1));
-    }
   /*
-  if (current_timestamp_ >= request_.timestamp) {
-    return;
+  using namespace std::chrono_literals;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double, std::milli> elapsed = end-start;
+  decoding_snapshot_.opt = "hello world";
+  decoding_snapshot_.data = MemoryPool::Allocate(1920 * 1080 * 4);
+  decoding_snapshot_.size = 1920 * 1080 * 4;
+  srand(time(NULL));
+  for (int i = 0; i < 1920 * 1080; i ++) {
+    ((uint8_t*)decoding_snapshot_.data)[i] = (rand() % static_cast<int>(255 + 1));
   }
-  Seek(request_.timestamp);
+  */
+  
+
   while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
     // AVPacket orig_pkt = *pkt_;
 
@@ -131,29 +127,22 @@ void VideoDecoder::decode() {
       ret = avcodec_send_packet(dec_ctx_, pkt_);
       if (ret < 0) return;
 
-      while (ret >= 0) {
-        ret = avcodec_receive_frame(dec_ctx_, frame_);
-        if (ret == AVERROR(EAGAIN)) {
-          break;
-        }
-        if (ret == AVERROR_EOF) {
-          break;
-        }
-        else if (ret < 0) {
-          std::cout << ret << "\n";
-          break;
-        }
-      }
+      ret = avcodec_receive_frame(dec_ctx_, frame_);
+      logger::get()->info("[Dec] {} {} {} {}",ret,AVERROR(EAGAIN),AVERROR_EOF,linesize_rgb_[0]);
       current_timestamp_ = pkt_->dts;
-      if (current_timestamp >= request_.timestamp) {
+
+      if (ret >= 0) {
         rgb_ = (uint8_t*)MemoryPool::Allocate(width_ * height_ * 4);
         sws_scale(sws_ctx_, frame_->data, frame_->linesize, 0, height_, data_rgb_, linesize_rgb_);
-        memcpy(rgb_, data_rgb_, width_ * height_ * 4);
+        memcpy(rgb_, data_rgb_[0], width_ * height_ * 4);
+        decoding_snapshot_.opt = "hello world";
+        decoding_snapshot_.data = rgb_;
+        decoding_snapshot_.size = 1920 * 1080 * 4;
         return;
       }
+
     }
   }
-  */
 }
 
 }
