@@ -15,6 +15,7 @@
         "timeline/timeline.cc",
         "timeline/timeline_layer.cc",
         "timeline/timeline_item.cc",
+        "timeline/timeline_item_snapshot.cc",
 
         "resource/resource_manager.cc",
         "resource/resource.cc",
@@ -25,6 +26,8 @@
         "decoder/decoder.cc",
         "decoder/video_decoder_host.cc",
         "decoder/video_decoder.cc",
+        "decoder/frame_queue.cc",
+        "decoder/frame.cc",
       ],
       "include_dirs": [
         "./",
@@ -33,7 +36,8 @@
         "../spdlog/include/",
       ],
       "defines": [
-        "__STDC_CONSTANT_MACROS"
+        "__STDC_CONSTANT_MACROS",
+        "LOGGER_SINK_NULL"
       ],
       "libraries": [
         "$(FFMPEG)/lib/avcodec",

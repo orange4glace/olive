@@ -3,6 +3,9 @@
 
 #include "decoder/decoder.h"
 
+#include "decoder/frame.h"
+#include "decoder/frame_queue.h"
+
 #include "timeline/timeline_item_snapshot.h"
 
 #include "napi/napi_export.h"
@@ -43,7 +46,8 @@ public:
 
 private:
   int Seek(int64_t timestamp);
-  void decode();
+  Frame* decode();
+  bool PeekQueueTo(int64_t pts);
 
   void loop();
 
@@ -64,6 +68,11 @@ private:
   AVPacket* pkt_;
   SwsContext* sws_ctx_;
   int stream_index_;
+
+  FrameQueue frame_queue_;
+  Frame current_frame_;
+  // int64_t start_pts_;
+  // int64_t end_pts_;
 
   uint8_t* data_rgb_[4];
   int linesize_rgb_[4];

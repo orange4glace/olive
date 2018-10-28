@@ -43,6 +43,7 @@ public:
 
   std::vector<TimelineItemSnapshot> GetCurrentTimestampTimelineItemSnapshots() const;
 
+  void SetTimestamp(int64_t timestamp);
   void Invalidate(TimelineItem* const timeline_item);
   void Validate();
 
@@ -58,6 +59,7 @@ public:
                                     int start_offset, int end_offset);
 
   napi_value _NAPI_Dirty();
+  napi_value _NAPI_SetTimestamp(int64_t timestamp);
   
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_AddTimelineLayer, _NAPI_AddTimelineLayer);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddResourceTimelineItem, _NAPI_AddResourceTimelineItem,
@@ -67,6 +69,8 @@ public:
 
   // Temporary for test
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_Dirty, _NAPI_Dirty);
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_SetTimestamp, _NAPI_SetTimestamp,
+      int64_t);
 
 private:
   static std::unique_ptr<Timeline> instance_;

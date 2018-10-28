@@ -11,6 +11,7 @@ class MemoryPool {
 public:
   static void* Allocate(size_t byte);
   static void Free(uintptr_t addr, size_t byte);
+  static void Free(void* addr, size_t byte);
 
 private:
   static std::mutex m_;

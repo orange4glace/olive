@@ -11,24 +11,24 @@
 
 namespace olive {
 
+struct Frame;
+
 struct TimelineItemSnapshot {
+
+  TimelineItemSnapshot();
+
+  napi_value ToJSObject();
+
   TimelineItemID timeline_item_id;
   ResourceID resource_id;
 
-  int64_t decoding_timestamp;
+  int64_t timestamp;
+  int64_t pts;
+  bool recognized;
 
-  void* data;
-  int size;
+  Frame* frame;
 
   std::string opt;
-
-  inline napi_value ToJSObject() {
-    napi_value object = napi::create_object();
-    uint64_t data_addr = reinterpret_cast<uint64_t>(data);
-    napi::SetNamedProperty(object, "data", napi_encoder<uint64_t>::encode(data_addr));
-    napi::SetNamedProperty(object, "size", napi_encoder<int32_t>::encode(size));
-    return object;
-  }
 };
 
 }

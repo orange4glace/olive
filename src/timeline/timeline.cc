@@ -99,6 +99,10 @@ std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnaps
   return std::move(snapshots);
 }
 
+void Timeline::SetTimestamp(int64_t timestamp) {
+  timestamp_ = timestamp;
+}
+
 // Todo: Set dirty if only timeline item affects to current rendering state
 void Timeline::Invalidate(TimelineItem* const timeline_item) {
   std::unique_lock<std::mutex> lock(m);
@@ -117,27 +121,37 @@ NAPI_DEFINE_CLASS(Timeline,
     NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
     NAPI_PROPERTY_FUNCTION("AddResourceTimelineItem", NAPI_AddResourceTimelineItem, napi_default),
     NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default),
-    NAPI_PROPERTY_FUNCTION("Dirty", NAPI_Dirty, napi_default))
+    NAPI_PROPERTY_FUNCTION("Dirty", NAPI_Dirty, napi_default),
+    NAPI_PROPERTY_FUNCTION("SetTimestamp", NAPI_SetTimestamp, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
+  std::unique_lock<std::mutex> lock(m);
   TimelineLayer* const layer = AddTimelineLayer();
   return layer->napi_instance();
 }
 
 napi_value Timeline::_NAPI_AddResourceTimelineItem(TimelineLayer* const layer,
     int start_offset, int end_offset, Resource* const resource) {
+  std::unique_lock<std::mutex> lock(m);
   TimelineItem* const item = AddTimelineItem(layer, start_offset, end_offset, resource);
   return item->napi_instance();
 }
 
 napi_value Timeline::_NAPI_MoveTimelineItem(TimelineLayer* const layer,
     TimelineItem* const item, int start_offset, int end_offset) {
+  std::unique_lock<std::mutex> lock(m);
   MoveTimelineItem(layer, item, start_offset, end_offset);
   return NULL;
 }
 
 napi_value Timeline::_NAPI_Dirty() {
   Invalidate(NULL);
+  return NULL;
+}
+
+napi_value Timeline::_NAPI_SetTimestamp(int64_t timestamp) {
+  std::unique_lock<std::mutex> lock(m);
+  SetTimestamp(timestamp);
   return NULL;
 }
 

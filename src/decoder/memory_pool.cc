@@ -15,6 +15,7 @@ void* MemoryPool::Allocate(size_t byte) {
     logger::get()->info("[MemoryPool] Allocate {} from pool, remains : {}", byte, vec.size());
   }
   else {
+    lock.unlock();
     memory = (void*)(new uint8_t[byte]);
     logger::get()->warn("[MemoryPool] Allocate {} from malloc", byte);
   }
@@ -24,6 +25,11 @@ void* MemoryPool::Allocate(size_t byte) {
 void MemoryPool::Free(uintptr_t ptr, size_t byte) {
   std::unique_lock<std::mutex> lock(m_);
   pool_[byte].push_back(ptr);
+}
+
+void MemoryPool::Free(void* ptr, size_t byte) {
+  uint64_t data_addr = reinterpret_cast<uint64_t>(ptr);
+  MemoryPool::Free(data_addr, byte);
 }
 
 std::mutex MemoryPool::m_;

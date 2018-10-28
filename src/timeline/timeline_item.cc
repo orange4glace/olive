@@ -14,7 +14,7 @@ namespace {
 } // namespace
 
 TimelineItem::TimelineItem(Resource* resource)
-  : id_(__next_timeline_item_id_++), resource_(resource) {
+  : id_(__next_timeline_item_id_++), resource_(resource), format_offset_(0) {
   NAPI_CreateInstance();
 }
 
@@ -47,7 +47,7 @@ TimelineItemSnapshot TimelineItem::GetSnapshotAt(int64_t timestamp) const {
   TimelineItemSnapshot snapshot;
   snapshot.timeline_item_id = id_;
   snapshot.resource_id = resource_->id();
-  snapshot.decoding_timestamp = target;
+  snapshot.timestamp = target;
   return std::move(snapshot);
 }
 

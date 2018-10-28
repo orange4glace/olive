@@ -30,7 +30,6 @@ onmessage = function(e) {
     var dataView = new Uint8Array(buffer);
     renderBuffer = new Uint8Array(dataView);
     setTexture(renderBuffer);
-    console.log(renderBuffer[0]);
     drawScene();
     postMessage({
       type: 'rendered',
