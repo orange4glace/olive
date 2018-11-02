@@ -23,6 +23,9 @@ class WindowRequest {
     options = options || {};
     let name = (options && options.name) || guid();
     options.name = name;
+    options.webPreferences = {
+      nodeIntegration: true
+    }
     console.log("[WindowRequest] Request new window",options);
     let promise = new Promise((resolve, reject) => {
       this.promises[name] = {resolve: resolve, reject: reject};

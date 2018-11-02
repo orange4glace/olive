@@ -28,7 +28,7 @@ class ResourceWindow extends React.Component {
       }
     }
     if (filePaths.length) {
-      resourceBackground.RequestMetadata(filePaths)
+      resourceBackground.requestMetadata(filePaths)
     }
   }
 

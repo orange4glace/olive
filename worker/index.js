@@ -15,7 +15,7 @@ const remote = electron.remote,
 const fs = require('fs');
 const Path = require('path');
 
-let mainWindow = null;
+let appWindow = null;
 
 const ResourceType = {
   UNKNOWN: 0,
@@ -46,9 +46,10 @@ class ResourceMetadata {
 
 }
 
-ipcRenderer.on('register-main-window', (e, arg) => {
-  mainWindow = BrowserWindow.fromId(arg);
-  console.log("[Worker] Register App Window", mainWindow);
+ipcRenderer.on('start-worker', (e, data) => {
+  appWindow = BrowserWindow.fromId(data.appWindowID);
+  console.log("[Worker] Register App Window", appWindow);
+  ipcRenderer.send('worker-started');
 });
 
 ipcRenderer.on('request-metadata', (e, arg) => {
@@ -59,15 +60,14 @@ function RequestResourceMetadata(paths) {
   for (var i = 0; i < paths.length; i ++) {
     let path = paths[i];
     LoadResourceMetadata(path).then(rm => {
-      console.log(rm);
-      console.log("RequestResourceMetadata", rm, mainWindow.webContents);
-      mainWindow.webContents.send('resource-metadata', {
+      console.log("RequestResourceMetadata", rm, appWindow.webContents);
+      appWindow.webContents.send('resource-metadata', {
         status: 'ok',
         data: rm
       });
     }).catch(err => {
       console.log("RequestResourceMetadata", err);
-      mainWindow.webContents.send('resource-metadata', {
+      appWindow.webContents.send('resource-metadata', {
         status: 'err',
         error: err
       })

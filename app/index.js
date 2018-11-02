@@ -5,8 +5,6 @@ import LayoutRoot from 'layout/layout_root';
 
 import style from './index.scss';
 
-const { BrowserWindow } = window.require('electron').remote;
-
 /*
 console.log(window.open());
 const win = BrowserWindow.getFocusedWindow();

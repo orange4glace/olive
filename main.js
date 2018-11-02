@@ -36,7 +36,7 @@ let win = null;
 let __worker = null;
 let windowRequestHost = null;
 
-function createStarter() {
+function createApp() {
   let promise = new Promise((resolve, reject) => {
     win = new BrowserWindow({
       width: 1000,
@@ -66,7 +66,7 @@ function createStarter() {
   return promise;
 }
 
-function createWorker() {
+function createWorker(appWindow) {
   let promise = new Promise((resolve, reject) => {
     // Initialize the window to our specified dimensions
     __worker = new BrowserWindow();
@@ -74,7 +74,11 @@ function createWorker() {
     console.log("Create worker window");
   
     __worker.webContents.once('did-finish-load', e => {
-      console.log("DID FINISH LOAD");
+      __worker.webContents.send('start-worker', {
+        appWindowID: appWindow.id
+      });
+    });
+    ipcMain.once('worker-started', (e, arg) => {
       resolve(__worker);
     });
     __worker.loadFile('./worker/index.html');
@@ -96,9 +100,10 @@ app.on('ready', function () {
       .catch((err) => console.log('An error occurred: ', err));
   
 
-  createStarter().then(starter => {
-    console.log("[Node] Starter created");
-    createWorker().then(worker => {
+  createApp().then(appWindow => {
+    console.log("[Node] App Window created");
+    createWorker(appWindow).then(worker => {
+      /*
       console.log("[Node] Worker created");
       ipcMain.once('app-window-initiated', (e, appWindowId) => {
         console.log("[Node] Register main-worker window");
@@ -108,7 +113,10 @@ app.on('ready', function () {
   
         appWindow.webContents.send('start');
       })
-      starter.webContents.send('initiate-app-window');
+      */
+      appWindow.webContents.send('start-app', {
+        resourceWorkerWindowID: worker.id
+      });
     })
   })
 });

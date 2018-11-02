@@ -5,6 +5,8 @@ const remote = electron.remote,
       app = remote.app;
 
 let renderer_worker;
+let resourceWorkerWindow;
+
 window.requestRendering = (snapshots) => {
   renderer_worker.postMessage({
     type: 'render',
@@ -53,6 +55,17 @@ console.log("[Olive]", olive_module_exports);
 
 InitRendererWorker();
 
+const ResourceRequest = {
+  requestMetadata: function(paths) {
+    resourceWorkerWindow.webContents.send('request-metadata', paths);
+  }
+}
+ipcRenderer.on('resource-metadata', (e, result) => {
+  if (result.status == 'ok') {
+    olive_module_exports.resource.LoadResource(result.data);
+  }
+});
+
 class WindowRequest {
 
   constructor() {
@@ -92,21 +105,24 @@ class WindowRequest {
 } const windowRequest = new WindowRequest();
 
 window.addEventListener('start-app-window', e => {
-  e.detail.start({
+  e.detail.setupWindow({
     olive_module: olive_module_exports,
-    mobx_react: mobx_react
+    mobx_react: mobx_react,
+    ResourceRequest: ResourceRequest,
   });
 });
 
 // All initialization jobs on Main Process are done and ready to do its own jobs
-ipcRenderer.on('initiate-app-window', e => {
+ipcRenderer.on('start-app', (e, data) => {
+  resourceWorkerWindow = BrowserWindow.fromId(data.resourceWorkerWindowID);
   windowRequest.request({
-    name: 'app'
+    name: 'app',
+    webPreferences: {
+      nodeIntegration: true,
+      sandbox: false
+    }
   }).then(entryWindow => {
     console.log("[Starter] App window created");
-    entryWindow.browserWindow.webContents.once('did-finish-load', () => {
-      ipcRenderer.send('app-window-initiated', entryWindow.browserWindow.id);
-    })
     entryWindow.browserWindow.loadURL("http://localhost:8080/app.html");
   });
 });

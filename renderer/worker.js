@@ -27,8 +27,8 @@ onmessage = function(e) {
       var snapshot = snapshots[i];
       buffer = module.AsArrayBuffer(snapshot.data, snapshot.size);
     }
-    var dataView = new Uint8Array(buffer);
-    renderBuffer = new Uint8Array(dataView);
+    renderBuffer = new Uint8Array(buffer);
+    // renderBuffer = new Uint8Array(renderBuffer);
     setTexture(renderBuffer);
     drawScene();
     postMessage({

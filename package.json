@@ -11,7 +11,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^1.0.0",
-    "electron": "^4.0.0-beta.3",
+    "electron": "^4.0.0-nightly.20181010",
     "electron-devtools-installer": "^2.2.4",
     "file-loader": "^1.1.11",
     "node-sass": "^4.9.2",
@@ -46,6 +46,7 @@
   "scripts": {
     "start": "webpack-dev-server --config ./webpack.config.js --mode development",
     "electron": "electron .",
+    "electron-debug": "G:/electron/src/out/Release/electron.exe .",
     "build": "./build.sh"
   }
 }
