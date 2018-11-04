@@ -7,11 +7,34 @@ const remote = electron.remote,
 let renderer_worker;
 let resourceWorkerWindow;
 
-window.requestRendering = (snapshots) => {
+let renderSnapshot = null;
+let isRendererFree = false;
+
+function postSnapshotsToRenderer() {
   renderer_worker.postMessage({
     type: 'render',
-    snapshots: snapshots
-  })
+    snapshots: renderSnapshot
+  });
+  isRendererFree = false;
+  renderSnapshot = null;
+}
+
+function freeSnapshot(snapshot) {
+  olive_module_exports.Free(snapshot.data, snapshot.size);
+}
+
+window.requestRendering = (snapshots) => {
+  if (renderSnapshot != null) {
+    console.log("Snapshot is skipped");
+    for (var i = 0; i < snapshots.length; i ++) {
+      var snapshot = snapshots[i];
+      freeSnapshot(snapshot);
+    }
+  }
+  renderSnapshot = snapshots;
+  if (isRendererFree) {
+    postSnapshotsToRenderer();
+  }
 }
 
 function InitRendererWorker() {
@@ -26,12 +49,17 @@ function InitRendererWorker() {
   renderer_worker.addEventListener('message', e => {
     var type = e.data.type;
     if (type == 'rendered') {
-      var address = e.data.address;
-      var size = e.data.size;
-      olive_module_exports.Free(address, size);
-      olive_module_exports.Rendered();
-    }
-    if (type == 'free-memory') {
+      var snapshots = e.data.snapshots;
+      for (var i = 0; i < snapshots.length; i ++) {
+        var snapshot = snapshots[i];
+        freeSnapshot(snapshot);
+      }
+      if (renderSnapshot != null) {
+        postSnapshotsToRenderer();
+      }
+      else {
+        isRendererFree = true;
+      }
     }
   });
 }

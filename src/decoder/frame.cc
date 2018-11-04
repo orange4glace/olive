@@ -2,10 +2,12 @@
 
 #include "decoder/memory_pool.h"
 
+#include <iostream>
+
 namespace olive {
 
 Frame::Frame() :
-    scaled(false) {
+    scaled(false), transferred(false) {
   pts = AV_NOPTS_VALUE;
   ref_count = 1;
 }
@@ -20,7 +22,7 @@ Frame::Frame(AVFrame* f) : Frame() {
 
 Frame::~Frame() {
   av_frame_free(&frame);
-  // if (scaled) MemoryPool::Free(scaled_data, width * height);
+  if (scaled && !transferred) MemoryPool::Free(scaled_data, width * height);
 }
 
 void Frame::ref() {
@@ -30,7 +32,7 @@ void Frame::ref() {
 
 void Frame::unref() {
   std::unique_lock<std::mutex> lock(m);
-  ref_count++;
+  ref_count--;
   if (ref_count == 0) {
     delete this;
   }

@@ -16,6 +16,7 @@ struct Frame;
 struct TimelineItemSnapshot {
 
   TimelineItemSnapshot();
+  ~TimelineItemSnapshot();
 
   napi_value ToJSObject();
 

@@ -28,6 +28,7 @@
         "decoder/video_decoder.cc",
         "decoder/frame_queue.cc",
         "decoder/frame.cc",
+        "decoder/snapshot_queue.cc",
       ],
       "include_dirs": [
         "./",
@@ -37,7 +38,6 @@
       ],
       "defines": [
         "__STDC_CONSTANT_MACROS",
-        "LOGGER_SINK_NULL"
       ],
       "libraries": [
         "$(FFMPEG)/lib/avcodec",

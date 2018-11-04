@@ -40,7 +40,6 @@ void VideoDecoderHost::loop() {
     logger::get()->info("[VideoDecoderHost] Internal decode");
     // Decode
     decode();
-    logger::get()->info("[VideoDecoderHost] Internal decode done");
 
     // Notify to DecoderManager
     std::unique_lock<std::mutex> decoder_manager_lock(DecoderManager::instance()->m);
@@ -76,13 +75,15 @@ void VideoDecoderHost::decode() {
     logger::get()->info("[VideoDecoderHost] Pass snapshot TimelineItemID : {}", timeline_item_id);
     if (decoders_.count(timeline_item_id)) {
       VideoDecoder* decoder = decoders_[timeline_item_id];
-      decoder->Decode(std::move(snapshot));
       decoder_waiter_counter++;
+  logger::get()->info("[VideoDecoderHost] Single GO");
+      decoder->Decode(std::move(snapshot));
+  logger::get()->info("[VideoDecoderHost] Single OK");
     }
     else {
       VideoDecoder* decoder = AssignDecoder(timeline_item_id);
-      decoder->Decode(std::move(snapshot));
       decoder_waiter_counter++;
+      decoder->Decode(std::move(snapshot));
     }
   }
   logger::get()->info("[VideoDecoderHost] Pending for decoders, counter : {}", decoder_waiter_counter);

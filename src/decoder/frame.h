@@ -31,6 +31,7 @@ struct Frame {
 
   uint8_t* scaled_data;
   bool scaled;
+  bool transferred;
 
   int ref_count;
 

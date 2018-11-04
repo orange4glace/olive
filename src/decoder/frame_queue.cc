@@ -24,6 +24,8 @@ Frame*& FrameQueue::Peek() {
 }
 
 void FrameQueue::Clear() {
+  for (size_t i = 0; i < queue.size(); i ++)
+    queue[i]->unref();
   queue.clear();
 }
 

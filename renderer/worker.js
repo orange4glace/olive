@@ -21,6 +21,7 @@ onmessage = function(e) {
     webGLStart();
   }
   if (data.type == 'render') {
+    console.log(data.type, data.snapshot);
     var snapshots = data.snapshots;
     var buffer;
     for (var i = 0; i < snapshots.length; i ++) {
@@ -33,8 +34,7 @@ onmessage = function(e) {
     drawScene();
     postMessage({
       type: 'rendered',
-      size: snapshot.size,
-      address: snapshot.data
+      snapshots: snapshots
     });
   }
 }
@@ -189,3 +189,9 @@ function getShader(gl, shaderType, shaderString) {
 
   return shader;
 }
+
+
+postMessage({
+  type: 'rendered',
+  snapshots: []
+});

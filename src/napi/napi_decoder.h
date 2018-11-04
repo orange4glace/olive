@@ -39,7 +39,6 @@ public:
     napi_env env = napi::current_env();
     int64_t ret;
     NAPI_CALL(napi_get_value_int64(env, value, &ret));
-    std::cout << "Decode int64_t " << ret << "\n";
     return ret;
   }
 };

@@ -17,44 +17,70 @@
 namespace olive {
 
 VideoDecoder::VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* const resource) :
-  decoder_host_(decoder_host), resource_(resource), has_work_(false),
+  decoder_host_(decoder_host), resource_(resource), has_decode_request_(false), decode_request_resolved_(false),
   // start_pts_(AV_NOPTS_VALUE), end_pts_(AV_NOPTS_VALUE),
   fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL) {
 }
 
 void VideoDecoder::loop() {
+  std::unique_lock<std::mutex> loop_lock(m, std::defer_lock);
+  loop_lock.lock();
   while (true) {
-    Frame* frame = decode();
-    std::unique_lock<std::mutex> loop_lock(m);
-    if (frame == NULL) {
-      // Not receiving frame
-    }
-    else {
-      frame_queue_.Push(frame);
-      logger::get()->info("[VideoDecoder] Has work {}", has_work_);
-      if (has_work_) {
-        bool got_frame = PeekQueueTo(decoding_snapshot_.pts);
-      logger::get()->info("[VideoDecoder] Got frame");
-        if (got_frame) {
-          decoding_snapshot_.frame = frame_queue_.Peek();
-          has_work_ = false;
+    bool has_work = false;
+    bool need_seek = false;
 
-          std::unique_lock<std::mutex> host_lock(decoder_host_->decoder_waiter_mutex);
-          // Decrease host counter
-          decoder_host_->decoder_waiter_counter--;
-          // Pass result to host
-          decoder_host_->decoder_waiter_result.emplace_back(std::move(decoding_snapshot_));
-          logger::get()->info("[VideoDecoder] Internal decode done. counter : {}", decoder_host_->decoder_waiter_counter);
-          host_lock.unlock();
-          decoder_host_->decoder_waiter_cv.notify_one();
-        }
+    logger::get()->info("[VideoDecoder] Single Loop {} {}", has_decode_request_, frame_queue_.size());
+
+    if (has_decode_request_) {
+      has_decode_request_ = false;
+      decoding_snapshot_ = decoding_snapshot_req_;
+      int64_t target_pts = decoding_snapshot_.pts;
+
+      // Check if seek needed
+      int64_t start_pts = AV_NOPTS_VALUE;
+      int64_t end_pts = AV_NOPTS_VALUE;
+      if (!frame_queue_.size()) {
+        need_seek = true;
+      }
+      else {
+        start_pts = frame_queue_.front()->pts;
+        end_pts = frame_queue_.back()->pts;
+        if (start_pts > target_pts) need_seek = true;
+        if (end_pts + 50000 < target_pts) need_seek = true;
+      }
+      if (need_seek) {
+        // Clear the queue
+        frame_queue_.clear();
       }
     }
-    while (frame_queue_.Size() >= 5 && !has_work_) {
-      
-      logger::get()->info("[VideoDecoder] CV Check {} {} ", frame_queue_.Size(), has_work_);
-      cv.wait(loop_lock);
+
+    loop_lock.unlock();
+    if (need_seek) {
+      int64_t target_pts = decoding_snapshot_.pts;
+      Seek(target_pts);
     }
+
+    decode();
+
+    loop_lock.lock();
+    if (!decode_request_resolved_) {
+      logger::get()->info("[VideoDecoder] Decode Requeset Not Resolved {}", decoding_snapshot_.pts);
+      Frame* target_frame = PeekQueueTo(decoding_snapshot_.pts);
+      if (target_frame) {
+        decoding_snapshot_.frame = target_frame;
+        target_frame->ref();
+        std::unique_lock<std::mutex> host_lock(decoder_host_->decoder_waiter_mutex);
+        // Decrease host counter
+        decoder_host_->decoder_waiter_counter--;
+        // Pass result to host
+        decoder_host_->decoder_waiter_result.emplace_back(std::move(decoding_snapshot_));
+        decode_request_resolved_ = true;
+        logger::get()->info("[VideoDecoder] External decode done. counter : {}", decoder_host_->decoder_waiter_counter);
+        host_lock.unlock();
+        decoder_host_->decoder_waiter_cv.notify_one();
+      }
+    }
+    // while (frame_queue_.size() >= 5 && !has_decode_request_) cv.wait(loop_lock);
   }
 }
 
@@ -90,7 +116,6 @@ void VideoDecoder::Initialize() {
   sws_ctx_ = sws_getContext(width_, height_, AV_PIX_FMT_YUV420P, width_, height_, AV_PIX_FMT_RGB32, SWS_BILINEAR, NULL, NULL, NULL);
   AV_THROW(sws_ctx_, "SWS_GET_CONTEXT");
 
-  std::cout << width_ << " " << height_ << "\n";
   AV_THROW(av_image_fill_arrays(data_rgb_, linesize_rgb_, NULL, AV_PIX_FMT_RGB32, width_, height_, 32) >= 0, "AV_IMAGE_FILL_ARRAYS");
   AV_THROW(av_image_alloc(data_rgb_, linesize_rgb_, width_, height_, AV_PIX_FMT_RGB32, 1) >= 0, "AV_IMAGE_ALLOC");
 
@@ -103,22 +128,26 @@ void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
 
   snapshot.pts = av_rescale_q(snapshot.timestamp, AVRational{1, 1000}, fmt_ctx_->streams[stream_index_]->time_base);
   if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
-  logger::get()->info("[VideoDecoder] Decode request Rescale timestamp = {} pts = {}", snapshot.timestamp, snapshot.pts);
-  bool found_frame = PeekQueueTo(snapshot.pts);
-  logger::get()->info("[VideoDecoder] Decode request, Lock pass, found frame = {} pts = {} ", found_frame, snapshot.pts);
-  if (found_frame) {
+  Frame* target_frame = PeekQueueTo(snapshot.pts);
+  logger::get()->info("[VideoDecoder] Decode request Rescale timestamp = {} pts = {} found = {}", snapshot.timestamp, snapshot.pts, target_frame ? true : false);
+  if (target_frame) {
+    snapshot.frame = target_frame;
+    target_frame->ref();
     // Decrease host counter
     decoder_host_->decoder_waiter_counter--;
     // Pass result to host
-    decoder_host_->decoder_waiter_result.emplace_back(std::move(decoding_snapshot_));
+    decoder_host_->decoder_waiter_result.emplace_back(std::move(snapshot));
     logger::get()->info("[VideoDecoder] Internal decode done. counter : {}", decoder_host_->decoder_waiter_counter);
   }
   else {
-    decoding_snapshot_ = snapshot;
-    has_work_ = true;
+    decoding_snapshot_req_ = snapshot;
+    has_decode_request_ = true;
+    decode_request_resolved_ = false;
   }
   loop_lock.unlock();
+  logger::get()->info("[VideoDecoder] Decode Request unlock");
   cv.notify_one();
+  logger::get()->info("[VideoDecoder] Decode Request Notify");
 }
 
 int VideoDecoder::Seek(int64_t pts) {
@@ -130,61 +159,7 @@ int VideoDecoder::Seek(int64_t pts) {
   return 0;
 }
 
-Frame* VideoDecoder::decode() {
-  /*
-  using namespace std::chrono_literals;
-  auto start = std::chrono::high_resolution_clock::now();
-  auto end = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double, std::milli> elapsed = end-start;
-  decoding_snapshot_.opt = "hello world";
-  decoding_snapshot_.data = MemoryPool::Allocate(1920 * 1080 * 4);
-  decoding_snapshot_.size = 1920 * 1080 * 4;
-  srand(time(NULL));
-  for (int i = 0; i < 1920 * 1080; i ++) {
-    ((uint8_t*)decoding_snapshot_.data)[i] = (rand() % static_cast<int>(255 + 1));
-  }
-  */
-
-  // Check pts
-  int64_t start_pts, end_pts;
-  int64_t seek_to;
-  bool seek_flag = false;
-  bool queue_full = false;
-  {
-    std::unique_lock<std::mutex> loop_lock(m);
-    seek_to = decoding_snapshot_.pts;
-    if (frame_queue_.queue.size() == 0) {
-      start_pts = AV_NOPTS_VALUE;
-      end_pts = AV_NOPTS_VALUE;
-    }
-    else {
-      start_pts = frame_queue_.queue.front()->pts;
-      end_pts = frame_queue_.queue.back()->pts;
-    }
-    if (decoding_snapshot_.pts != AV_NOPTS_VALUE && (
-      (start_pts == AV_NOPTS_VALUE || end_pts == AV_NOPTS_VALUE) ||
-      (start_pts > decoding_snapshot_.pts || end_pts + 20000 < decoding_snapshot_.pts))
-    ) {
-      // Need seek
-      seek_flag = (true & !decoding_snapshot_.recognized);
-    }
-    else {
-
-    }
-    decoding_snapshot_.recognized = true;
-  }
-  logger::get()->info("[VideoDecoder] decode() start_time = {} end_time = {} pts = {} seek_to = {} seek_flag = {}",
-      start_pts, end_pts, decoding_snapshot_.pts, seek_to, seek_flag);
-  if (seek_to == AV_NOPTS_VALUE) {
-    return NULL;
-  }
-  else if (seek_flag) {
-    logger::get()->info("[Decoder] Seek to {}", seek_to);
-    Seek(seek_to);
-    // Flush queue
-    frame_queue_.Clear();
-  }
-
+void VideoDecoder::decode() {
   while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
     // AVPacket orig_pkt = *pkt_;
 
@@ -192,45 +167,46 @@ Frame* VideoDecoder::decode() {
     int decoded = pkt_->size;
     if (pkt_->stream_index == stream_index_) {
       ret = avcodec_send_packet(dec_ctx_, pkt_);
-      if (ret < 0) return NULL;
+      av_free_packet(pkt_);
+      if (ret < 0) return;
 
       ret = avcodec_receive_frame(dec_ctx_, frame_);
-      logger::get()->info("[Dec] {}", frame_->best_effort_timestamp);
+      logger::get()->info("[Dec] {} {} {}", frame_->best_effort_timestamp, frame_->pts, ret);
 
       if (ret >= 0) {
-        return new Frame(frame_);
+        std::unique_lock<std::mutex> loop_lock(m);
+        logger::get()->info("[VideoDecoder] FrameQueue Push {}", frame_->pts);
+        frame_queue_.emplace_back(new Frame(frame_));
       }
-
+      return;
     }
   }
 }
 
-bool VideoDecoder::PeekQueueTo(int64_t pts) {
-  logger::get()->info("[VideoDecoder] PeekQueueTo {}, queue size = {}", pts, frame_queue_.Size());
-  while (true) {
-    if (frame_queue_.Size() == 0) break;
-    if (frame_queue_.Size() == 1) break;
-    if (frame_queue_.Size() > 1) {
-      if (frame_queue_.queue[1]->pts <= pts) {
-        Frame* frame = frame_queue_.Pop();
-        frame->unref();
-      }
-      else break;
+Frame* VideoDecoder::PeekQueueTo(int64_t pts) {
+  logger::get()->info("[VideoDecoder] PeekQueueTo {}, queue size = {}", pts, frame_queue_.size());
+  while (frame_queue_.size() >= 2) {
+    if (frame_queue_[1]->pts <= pts) {
+      Frame* front = frame_queue_.front();
+      logger::get()->info("[VideoDecoder] Pop {}", front->pts);
+      front->unref();
+      frame_queue_.pop_front();
     }
+    else break;
   }
-  if (frame_queue_.Size() < 2) return false;
-  if (frame_queue_.queue[0]->pts <= pts) {
-    Frame*& frame = frame_queue_.Peek();
-    logger::get()->info("[VideoDecoder] PeekQueueTo {}", frame->scaled);
-    if (!frame->scaled) {
+  if (frame_queue_.size() < 2) return NULL;
+  if (frame_queue_[0]->pts <= pts) {
+    Frame* front = frame_queue_.front();
+    logger::get()->info("[VideoDecoder] PeekQueueTo {}", front->scaled);
+    if (!front->scaled) {
       rgb_ = (uint8_t*)MemoryPool::Allocate(width_ * height_ * 4);
-      sws_scale(sws_ctx_, frame->frame->data, frame->frame->linesize, 0, height_, data_rgb_, linesize_rgb_);
+      sws_scale(sws_ctx_, front->frame->data, front->frame->linesize, 0, height_, data_rgb_, linesize_rgb_);
       memcpy(rgb_, data_rgb_[0], width_ * height_ * 4);
-      frame->scaled_data = rgb_;
+      front->scaled_data = rgb_;
     }
-    return true;
+    return front;
   }
-  return false;
+  return NULL;
 }
 
 }

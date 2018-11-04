@@ -46,14 +46,17 @@ public:
 
 private:
   int Seek(int64_t timestamp);
-  Frame* decode();
-  bool PeekQueueTo(int64_t pts);
+  void decode();
+  Frame* PeekQueueTo(int64_t pts);
 
   void loop();
 
   VideoDecoderHost* decoder_host_;
   
+  TimelineItemSnapshot decoding_snapshot_req_;
   TimelineItemSnapshot decoding_snapshot_;
+  bool has_decode_request_;
+  bool decode_request_resolved_;
   bool has_work_;
 
   std::thread thread_;
@@ -69,7 +72,7 @@ private:
   SwsContext* sws_ctx_;
   int stream_index_;
 
-  FrameQueue frame_queue_;
+  std::deque<Frame*> frame_queue_;
   Frame current_frame_;
   // int64_t start_pts_;
   // int64_t end_pts_;

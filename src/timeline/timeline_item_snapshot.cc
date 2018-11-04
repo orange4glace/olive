@@ -7,7 +7,11 @@
 namespace olive {
 
 TimelineItemSnapshot::TimelineItemSnapshot() :
-    recognized(false) {
+    recognized(false), frame(NULL) {
+}
+
+TimelineItemSnapshot::~TimelineItemSnapshot() {
+  if (frame != NULL) frame->unref();
 }
 
 napi_value TimelineItemSnapshot::ToJSObject() {

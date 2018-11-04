@@ -1,6 +1,8 @@
 #ifndef OLIVE_DECODER_MANAGER_H_
 #define OLIVE_DECODER_MANAGER_H_
 
+#include "decoder/snapshot_queue.h"
+
 #include "resource/type.h"
 
 #include "timeline/timeline_item_snapshot.h"
@@ -41,7 +43,7 @@ private:
 
   std::thread loop_thread_;
 
-  napi_threadsafe_function tsfn_callback_;
+  SnapshotQueue render_queue_;
   
 
 };
