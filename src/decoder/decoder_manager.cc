@@ -59,7 +59,7 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
   for (auto& snapshot : snapshots)
     snapshot_map[snapshot.resource_id].emplace_back(std::move(snapshot));
 
-  size_t counter = snapshot_map.size();
+  size_t counter = snapshots.size();
   std::unique_lock<std::mutex> lock(m);
 
   // Clear waiter

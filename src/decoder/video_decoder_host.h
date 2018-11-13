@@ -44,8 +44,12 @@ private:
   VideoDecoder* const AssignDecoder(timeline_item_id item_id);
   void FreeDecoder(timeline_item_id item_id);
 
+public:
+  void DecoderCallback(TimelineItemSnapshot snapshot);
+
   std::thread loop_thread_;
   bool has_work_;
+  size_t* manager_work_counter_;
 
   VideoResource* const resource_;
 

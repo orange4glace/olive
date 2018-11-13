@@ -69,15 +69,9 @@ void VideoDecoder::loop() {
       if (target_frame) {
         decoding_snapshot_.frame = target_frame;
         target_frame->ref();
-        std::unique_lock<std::mutex> host_lock(decoder_host_->decoder_waiter_mutex);
-        // Decrease host counter
-        decoder_host_->decoder_waiter_counter--;
-        // Pass result to host
-        decoder_host_->decoder_waiter_result.emplace_back(std::move(decoding_snapshot_));
-        decode_request_resolved_ = true;
-        logger::get()->info("[VideoDecoder] External decode done. counter : {}", decoder_host_->decoder_waiter_counter);
-        host_lock.unlock();
-        decoder_host_->decoder_waiter_cv.notify_one();
+        // Decode done, callback to VideoDecoderHost
+        decoder_host_->DecoderCallback(decoding_snapshot_);
+        logger::get()->info("[VideoDecoder] External decode done. counter");
       }
     }
     // while (frame_queue_.size() >= 5 && !has_decode_request_) cv.wait(loop_lock);
@@ -133,11 +127,9 @@ void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
   if (target_frame) {
     snapshot.frame = target_frame;
     target_frame->ref();
-    // Decrease host counter
-    decoder_host_->decoder_waiter_counter--;
-    // Pass result to host
-    decoder_host_->decoder_waiter_result.emplace_back(std::move(snapshot));
-    logger::get()->info("[VideoDecoder] Internal decode done. counter : {}", decoder_host_->decoder_waiter_counter);
+    // Decode done, callback to VideoDecoderHost
+    decoder_host_->DecoderCallback(snapshot);
+    logger::get()->info("[VideoDecoder] Internal decode done. counter");
   }
   else {
     decoding_snapshot_req_ = snapshot;
