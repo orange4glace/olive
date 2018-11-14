@@ -35,11 +35,13 @@ void DecoderManager::loop() {
     logger::get()->info("[DecoderManager] Timeline dirty, rendering");
     // Validate Timeline
     Timeline::instance()->Validate();
+    logger::get()->info("[DecoderManager] Timeline validated");
     // Get TimelineItem snapshots
     std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetCurrentTimestampTimelineItemSnapshots();
     timeline_lock.unlock();
 
     // Call VideoDecoderHosts
+    logger::get()->info("[DecoderManager] Start Decoding");
     DecodeVideo(std::move(snapshots));
     logger::get()->info("[DecoderManager] Decoding done");
 
@@ -60,10 +62,14 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
     snapshot_map[snapshot.resource_id].emplace_back(std::move(snapshot));
 
   size_t counter = snapshot_map.size();
+  logger::get()->info("[DecoderManager] Try lock");
   std::unique_lock<std::mutex> lock(m);
+  logger::get()->info("[DecoderManager] Try lock OK");
 
   // Clear waiter
+  logger::get()->info("[DecoderManager] Clear result {}", host_waiter_result.size());
   host_waiter_result.clear();
+  logger::get()->info("[DecoderManager] Clear result OK");
 
   logger::get()->info("[DecoderManager] Counter : {}", counter);
 

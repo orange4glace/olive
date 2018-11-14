@@ -47,7 +47,7 @@ void VideoDecoderHost::loop() {
     *work_counter = *work_counter - 1;
     // Pass result to DM
     for (auto& snapshot : decoder_waiter_result)
-      DecoderManager::instance()->host_waiter_result.emplace_back(std::move(snapshot));
+      DecoderManager::instance()->host_waiter_result.emplace_back(snapshot);
     decoder_manager_lock.unlock();
     DecoderManager::instance()->cv.notify_one();
   }
@@ -88,6 +88,7 @@ void VideoDecoderHost::decode() {
   }
   logger::get()->info("[VideoDecoderHost] Pending for decoders, counter : {}", decoder_waiter_counter);
   decoder_waiter_cv.wait(decoder_waiter_lock, [&decoder_waiter_counter] { return decoder_waiter_counter == 0; });
+  logger::get()->info("[VideoDecoderHost] Pending OK");
 }
 
 VideoDecoder* const VideoDecoderHost::AssignDecoder(timeline_item_id item_id) {

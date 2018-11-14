@@ -73,7 +73,7 @@ void VideoDecoder::loop() {
         // Decrease host counter
         decoder_host_->decoder_waiter_counter--;
         // Pass result to host
-        decoder_host_->decoder_waiter_result.emplace_back(std::move(decoding_snapshot_));
+        decoder_host_->decoder_waiter_result.emplace_back(decoding_snapshot_);
         decode_request_resolved_ = true;
         logger::get()->info("[VideoDecoder] External decode done. counter : {}", decoder_host_->decoder_waiter_counter);
         host_lock.unlock();
@@ -130,13 +130,13 @@ void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
   if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
   Frame* target_frame = PeekQueueTo(snapshot.pts);
   logger::get()->info("[VideoDecoder] Decode request Rescale timestamp = {} pts = {} found = {}", snapshot.timestamp, snapshot.pts, target_frame ? true : false);
-  if (target_frame) {
+  if (0) {
     snapshot.frame = target_frame;
     target_frame->ref();
     // Decrease host counter
     decoder_host_->decoder_waiter_counter--;
     // Pass result to host
-    decoder_host_->decoder_waiter_result.emplace_back(std::move(snapshot));
+    decoder_host_->decoder_waiter_result.emplace_back(snapshot);
     logger::get()->info("[VideoDecoder] Internal decode done. counter : {}", decoder_host_->decoder_waiter_counter);
   }
   else {
