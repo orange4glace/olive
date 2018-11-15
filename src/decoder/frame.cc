@@ -6,13 +6,8 @@
 
 namespace olive {
 
-Frame::Frame() :
-    scaled(false), transferred(false) {
-  pts = AV_NOPTS_VALUE;
-  ref_count = 1;
-}
-
-Frame::Frame(AVFrame* f) : Frame() {
+Frame::Frame(AVFrame* f) :
+    scaled(false), transferred(false), pts(AV_NOPTS_VALUE), ref_count(1) {
   frame = av_frame_alloc();
   av_frame_move_ref(frame, f);
   pts = frame->best_effort_timestamp;
@@ -21,8 +16,10 @@ Frame::Frame(AVFrame* f) : Frame() {
 }
 
 Frame::~Frame() {
+  /*
   av_frame_free(&frame);
   if (scaled && !transferred) MemoryPool::Free(scaled_data, width * height);
+  */
 }
 
 void Frame::ref() {

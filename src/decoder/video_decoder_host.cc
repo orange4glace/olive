@@ -36,7 +36,7 @@ void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_
     else
       decoder = AssignDecoder(timeline_item_id);
     assert(decoder);
-    decoder->Decode(std::move(snapshot));
+    decoder->Decode(snapshot);
   }
 }
 
@@ -59,8 +59,10 @@ VideoDecoder* const VideoDecoderHost::AssignDecoder(timeline_item_id item_id) {
 void VideoDecoderHost::DecoderCallback(TimelineItemSnapshot snapshot) {
   DecoderManager* decoder_manager = DecoderManager::instance();
   {
+    logger::get()->info("[CALLBACK] {}", snapshot.pts);
     std::unique_lock<std::mutex> manager_lock(decoder_manager->m);
     manager_work_counter_ -= 1;
+    snapshot.frame->frame = NULL;
     decoder_manager->host_waiter_result.emplace_back(snapshot);
   }
   decoder_manager->cv.notify_one();

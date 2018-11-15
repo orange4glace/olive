@@ -73,7 +73,6 @@ private:
   int stream_index_;
 
   std::deque<Frame*> frame_queue_;
-  Frame current_frame_;
   // int64_t start_pts_;
   // int64_t end_pts_;
 

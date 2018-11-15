@@ -40,10 +40,10 @@ void DecoderManager::loop() {
     timeline_lock.unlock();
 
     // Call VideoDecoderHosts
-    DecodeVideo(std::move(snapshots));
+    DecodeVideo(snapshots);
     logger::get()->info("[DecoderManager] Decoding done");
 
-    // render_queue_.Push(std::move(host_waiter_result));
+    render_queue_.Push(std::move(host_waiter_result));
     /*
     std::unique_lock<std::mutex> render_wait_lock(m);
     NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_blocking));
@@ -57,7 +57,7 @@ void DecoderManager::loop() {
 void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
   std::map< resource_id, std::vector<TimelineItemSnapshot> > snapshot_map;
   for (auto& snapshot : snapshots)
-    snapshot_map[snapshot.resource_id].emplace_back(std::move(snapshot));
+    snapshot_map[snapshot.resource_id].emplace_back(snapshot);
 
   size_t counter = snapshots.size();
   std::unique_lock<std::mutex> lock(m);
@@ -72,7 +72,7 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
     auto resource = (VideoResource*)ResourceManager::instance()->GetResource(kv.first);
     auto decoder_host = resource->decoder_host();
     // Non-blocking, separate thread
-    decoder_host->Decode(std::move(kv.second), &counter);
+    decoder_host->Decode(kv.second, &counter);
   }
 
   // Wait for all of VideoDecoderHost to be finished

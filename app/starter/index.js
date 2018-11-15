@@ -33,6 +33,7 @@ window.requestRendering = (snapshots) => {
   }
   renderSnapshot = snapshots;
   if (isRendererFree) {
+    console.log("Post Snapshot to Renderer");
     postSnapshotsToRenderer();
   }
 }

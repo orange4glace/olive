@@ -16,7 +16,6 @@ namespace olive {
 
 struct Frame {
 
-  Frame();
   Frame(AVFrame* frame);
   ~Frame();
 

@@ -169,6 +169,7 @@ void VideoDecoder::decode() {
         std::unique_lock<std::mutex> loop_lock(m);
         logger::get()->info("[VideoDecoder] FrameQueue Push {}", frame_->pts);
         frame_queue_.emplace_back(new Frame(frame_));
+        av_frame_unref(frame_);
       }
       return;
     }
