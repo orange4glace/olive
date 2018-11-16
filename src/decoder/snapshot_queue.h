@@ -9,18 +9,32 @@
 #include <mutex>
 #include <condition_variable>
 
+extern "C" {
+#include <libswscale/swscale.h>
+}
+
 namespace olive {
+
+  struct Frame;
 
   struct SnapshotQueue {
 
     void Initialize(napi_env env);
     void Push(std::vector<TimelineItemSnapshot> s);
+    void Rendered();
+    void Render();
+
+    void ScaleFrame(Frame* frame);
 
     std::mutex m;
-    std::vector<TimelineItemSnapshot> snapshots;
+    std::vector<TimelineItemSnapshot> pending_snapshots;
+    std::vector<TimelineItemSnapshot> rendering_snapshots;
     napi_threadsafe_function tsfn_render;
 
-    bool tsfn_flag;
+    SwsContext* sws_ctx_;
+
+    bool pending;
+    bool rendering;
 
   };
 

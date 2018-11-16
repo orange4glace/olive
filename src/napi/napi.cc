@@ -42,10 +42,7 @@ napi_value FreeMemory(napi_env env, napi_callback_info cbinfo) {
 }
 
 napi_value Rendered(napi_env env, napi_callback_info cbinfo) {
-  std::unique_lock<std::mutex> dm_lock(DecoderManager::instance()->m);
-  DecoderManager::instance()->rendered = true;
-  dm_lock.unlock();
-  DecoderManager::instance()->cv.notify_one();
+  DecoderManager::instance()->Rendered();
 
   return NULL;
 }

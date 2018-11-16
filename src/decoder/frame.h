@@ -16,7 +16,6 @@ namespace olive {
 
 struct Frame {
 
-  Frame();
   Frame(AVFrame* frame);
   ~Frame();
 
@@ -32,6 +31,8 @@ struct Frame {
   uint8_t* scaled_data;
   bool scaled;
   bool transferred;
+
+  int id;
 
   int ref_count;
 

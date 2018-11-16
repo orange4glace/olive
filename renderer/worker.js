@@ -21,7 +21,7 @@ onmessage = function(e) {
     webGLStart();
   }
   if (data.type == 'render') {
-    console.log(data.type, data.snapshot);
+    console.log(data.type, data.snapshots);
     var snapshots = data.snapshots;
     var buffer;
     for (var i = 0; i < snapshots.length; i ++) {

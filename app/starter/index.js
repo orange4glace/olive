@@ -24,6 +24,7 @@ function freeSnapshot(snapshot) {
 }
 
 window.requestRendering = (snapshots) => {
+  console.log("RequestRendering",renderSnapshot,isRendererFree);
   if (renderSnapshot != null) {
     console.log("Snapshot is skipped");
     for (var i = 0; i < snapshots.length; i ++) {
@@ -33,6 +34,7 @@ window.requestRendering = (snapshots) => {
   }
   renderSnapshot = snapshots;
   if (isRendererFree) {
+    console.log("Post Snapshot to Renderer");
     postSnapshotsToRenderer();
   }
 }
@@ -47,12 +49,13 @@ function InitRendererWorker() {
     canvas: offscreen
   }, [offscreen]);
   renderer_worker.addEventListener('message', e => {
+
     var type = e.data.type;
     if (type == 'rendered') {
       var snapshots = e.data.snapshots;
       for (var i = 0; i < snapshots.length; i ++) {
         var snapshot = snapshots[i];
-        freeSnapshot(snapshot);
+        // freeSnapshot(snapshot);
       }
       if (renderSnapshot != null) {
         postSnapshotsToRenderer();
@@ -60,6 +63,7 @@ function InitRendererWorker() {
       else {
         isRendererFree = true;
       }
+      olive_module_exports.Rendered();
     }
   });
 }

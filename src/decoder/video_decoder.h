@@ -4,7 +4,6 @@
 #include "decoder/decoder.h"
 
 #include "decoder/frame.h"
-#include "decoder/frame_queue.h"
 
 #include "timeline/timeline_item_snapshot.h"
 
@@ -23,6 +22,7 @@ extern "C" {
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include <deque>
 
 #define AV_THROW(COND, ERR) if (!(COND)) throw (ERR);
 #define AV_RETURN(COND, RETURN) if (!(COND)) return (RETURN);
@@ -73,7 +73,6 @@ private:
   int stream_index_;
 
   std::deque<Frame*> frame_queue_;
-  Frame current_frame_;
   // int64_t start_pts_;
   // int64_t end_pts_;
 

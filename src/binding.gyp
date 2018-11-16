@@ -26,7 +26,6 @@
         "decoder/decoder.cc",
         "decoder/video_decoder_host.cc",
         "decoder/video_decoder.cc",
-        "decoder/frame_queue.cc",
         "decoder/frame.cc",
         "decoder/snapshot_queue.cc",
       ],
