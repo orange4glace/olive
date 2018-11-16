@@ -32,6 +32,8 @@ struct Frame {
   bool scaled;
   bool transferred;
 
+  int id;
+
   int ref_count;
 
   std::mutex m;

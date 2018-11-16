@@ -16,8 +16,10 @@ struct Frame;
 struct TimelineItemSnapshot {
 
   TimelineItemSnapshot();
-  TimelineItemSnapshot(TimelineItemSnapshot& rhs);
-  TimelineItemSnapshot(const TimelineItemSnapshot& rhs);
+  TimelineItemSnapshot(const TimelineItemSnapshot& rhs); // copy constructor
+  TimelineItemSnapshot& operator=(const TimelineItemSnapshot& other); // copy assignment
+  TimelineItemSnapshot(TimelineItemSnapshot&& rhs) noexcept; // move constructor
+  TimelineItemSnapshot& operator=(TimelineItemSnapshot&& other) noexcept; // move assignment
   ~TimelineItemSnapshot();
 
   napi_value ToJSObject();

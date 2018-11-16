@@ -11,24 +11,38 @@ TimelineItemSnapshot::TimelineItemSnapshot() :
     recognized(false), frame(NULL) {
 }
 
-TimelineItemSnapshot::TimelineItemSnapshot(TimelineItemSnapshot& rhs)
-  : timeline_item_id(rhs.timeline_item_id),
-    resource_id(rhs.resource_id), timestamp(rhs.timestamp), pts(rhs.pts),
-    recognized(rhs.recognized), frame(rhs.frame), opt(rhs.opt) {
-  logger::get()->info("[TimelineItemSnapshot] Copy Constructor");
-  if (frame != NULL) frame->ref();
-}
-
 TimelineItemSnapshot::TimelineItemSnapshot(const TimelineItemSnapshot& rhs)
   : timeline_item_id(rhs.timeline_item_id),
     resource_id(rhs.resource_id), timestamp(rhs.timestamp), pts(rhs.pts),
     recognized(rhs.recognized), frame(rhs.frame), opt(rhs.opt) {
-  logger::get()->info("[TimelineItemSnapshot] Move Constructor");
-  if (frame != NULL) frame->ref();
+  if (frame) frame->ref();
+}
+
+TimelineItemSnapshot& TimelineItemSnapshot::operator=(const TimelineItemSnapshot& rhs) {
+  return *this = TimelineItemSnapshot(rhs);
+}
+
+TimelineItemSnapshot::TimelineItemSnapshot(TimelineItemSnapshot&& rhs) noexcept
+  : timeline_item_id(rhs.timeline_item_id),
+    resource_id(rhs.resource_id), timestamp(rhs.timestamp), pts(rhs.pts),
+    recognized(rhs.recognized), frame(rhs.frame), opt(rhs.opt) {
+  rhs.frame = NULL;
+}
+
+TimelineItemSnapshot& TimelineItemSnapshot::operator=(TimelineItemSnapshot&& rhs) noexcept {
+  timeline_item_id = rhs.timeline_item_id;
+  resource_id = rhs.resource_id;
+  timestamp = rhs.timestamp;
+  pts = rhs.pts;
+  recognized = rhs.recognized;
+  frame = rhs.frame;
+  opt = rhs.opt;
+
+  rhs.frame = NULL;
+  return *this;
 }
 
 TimelineItemSnapshot::~TimelineItemSnapshot() {
-  logger::get()->info("[TimelineItemSnapshot] Destructor");
   if (frame != NULL) frame->unref();
 }
 

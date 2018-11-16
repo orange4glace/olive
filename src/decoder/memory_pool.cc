@@ -8,6 +8,7 @@ namespace olive {
 
 namespace {
   int s = 0;
+  int f = 0;
 }
 
 void* MemoryPool::Allocate(size_t byte) {
@@ -21,17 +22,16 @@ void* MemoryPool::Allocate(size_t byte) {
     logger::get()->info("[MemoryPool] Allocate {} from pool, remains : {}", byte, vec.size());
   }
   else {
-    int g = ++s;
+    logger::get()->warn("[MemoryPool] Malloc {} {}", byte, ++s);
     lock.unlock();
     memory = (void*)(new uint8_t[byte]);
-    std::cout << "[MemoryPool] Allocate {} from malloc " << g << "\n";
-    logger::get()->warn("[MemoryPool] Allocate {} from malloc", byte);
   }
   return memory;
 }
 
 void MemoryPool::Free(uintptr_t ptr, size_t byte) {
   std::unique_lock<std::mutex> lock(m_);
+  logger::get()->warn("[MemoryPool] Free {} {}", byte, ++f);
   pool_[byte].push_back(ptr);
 }
 

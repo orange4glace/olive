@@ -3,7 +3,6 @@
 #include "decoder/video_decoder_host.h"
 
 #include "decoder/memory_pool.h"
-#include "decoder/frame_queue.h"
 #include "resource/video_resource.h"
 
 #include "logger/logger.h"
@@ -33,7 +32,7 @@ void VideoDecoder::loop() {
 
     if (has_decode_request_) {
       has_decode_request_ = false;
-      decoding_snapshot_ = decoding_snapshot_req_;
+      decoding_snapshot_ = std::move(decoding_snapshot_req_);
       int64_t target_pts = decoding_snapshot_.pts;
 
       // Check if seek needed
@@ -70,11 +69,12 @@ void VideoDecoder::loop() {
         decoding_snapshot_.frame = target_frame;
         target_frame->ref();
         // Decode done, callback to VideoDecoderHost
-        decoder_host_->DecoderCallback(decoding_snapshot_);
+        decoder_host_->DecoderCallbackBlocking(std::move(decoding_snapshot_));
+        decode_request_resolved_ = true;
         logger::get()->info("[VideoDecoder] External decode done. counter");
       }
     }
-    // while (frame_queue_.size() >= 5 && !has_decode_request_) cv.wait(loop_lock);
+    while (frame_queue_.size() >= 5 && !has_decode_request_) cv.wait(loop_lock);
   }
 }
 
@@ -118,7 +118,10 @@ void VideoDecoder::Initialize() {
 
 void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
   logger::get()->info("[VideoDecoder] Decode request, item_id : {}, resource_id : {}", snapshot.timeline_item_id, snapshot.resource_id);
-  std::unique_lock<std::mutex> loop_lock(m);
+  std::unique_lock<std::mutex> loop_lock(m, std::defer_lock);
+  logger::get()->info("[VideoDecoder] Lock pass1");
+  loop_lock.lock();
+  logger::get()->info("[VideoDecoder] Lock pass2");
 
   snapshot.pts = av_rescale_q(snapshot.timestamp, AVRational{1, 1000}, fmt_ctx_->streams[stream_index_]->time_base);
   if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
@@ -128,11 +131,11 @@ void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
     snapshot.frame = target_frame;
     target_frame->ref();
     // Decode done, callback to VideoDecoderHost
-    decoder_host_->DecoderCallback(snapshot);
+    decoder_host_->DecoderCallbackNonBlocking(std::move(snapshot));
     logger::get()->info("[VideoDecoder] Internal decode done. counter");
   }
   else {
-    decoding_snapshot_req_ = snapshot;
+    decoding_snapshot_req_ = std::move(snapshot);
     has_decode_request_ = true;
     decode_request_resolved_ = false;
   }
@@ -167,8 +170,9 @@ void VideoDecoder::decode() {
 
       if (ret >= 0) {
         std::unique_lock<std::mutex> loop_lock(m);
-        logger::get()->info("[VideoDecoder] FrameQueue Push {}", frame_->pts);
-        frame_queue_.emplace_back(new Frame(frame_));
+        Frame* frame = new Frame(frame_);
+        logger::get()->info("[VideoDecoder] FrameQueue Push {} {}", frame->pts, frame->id);
+        frame_queue_.emplace_back(frame);
         av_frame_unref(frame_);
       }
       return;
@@ -181,9 +185,9 @@ Frame* VideoDecoder::PeekQueueTo(int64_t pts) {
   while (frame_queue_.size() >= 2) {
     if (frame_queue_[1]->pts <= pts) {
       Frame* front = frame_queue_.front();
-      logger::get()->info("[VideoDecoder] Pop {}", front->pts);
-      front->unref();
+      logger::get()->info("[VideoDecoder] Pop {} {}", front->pts, front->id);
       frame_queue_.pop_front();
+      front->unref();
     }
     else break;
   }
@@ -191,12 +195,6 @@ Frame* VideoDecoder::PeekQueueTo(int64_t pts) {
   if (frame_queue_[0]->pts <= pts) {
     Frame* front = frame_queue_.front();
     logger::get()->info("[VideoDecoder] PeekQueueTo {}", front->scaled);
-    if (!front->scaled) {
-      rgb_ = (uint8_t*)MemoryPool::Allocate(width_ * height_ * 4);
-      sws_scale(sws_ctx_, front->frame->data, front->frame->linesize, 0, height_, data_rgb_, linesize_rgb_);
-      memcpy(rgb_, data_rgb_[0], width_ * height_ * 4);
-      front->scaled_data = rgb_;
-    }
     return front;
   }
   return NULL;

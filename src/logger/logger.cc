@@ -7,6 +7,7 @@ namespace olive {
 #ifndef LOGGER_SINK_NULL
 void logger::Initialize() {
   logger_ = spdlog::stdout_color_mt("console");
+  logger_->set_level(spdlog::level::warn);
 }
 
 spdlog::logger* logger::get() {

@@ -40,6 +40,7 @@ void DecoderManager::loop() {
     timeline_lock.unlock();
 
     // Call VideoDecoderHosts
+    logger::get()->info("[DecoderManager] Got snapshots {}", snapshots.size());
     DecodeVideo(snapshots);
     logger::get()->info("[DecoderManager] Decoding done");
 
@@ -78,6 +79,10 @@ void DecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
   // Wait for all of VideoDecoderHost to be finished
   logger::get()->info("[DecoderManager] Pending for DecoderHosts, counter : {}", counter);
   cv.wait(lock, [&counter] { return counter == 0; });
+}
+
+void DecoderManager::Rendered() {
+  render_queue_.Rendered();
 }
 
 

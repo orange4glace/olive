@@ -45,7 +45,8 @@ private:
   void FreeDecoder(timeline_item_id item_id);
 
 public:
-  void DecoderCallback(TimelineItemSnapshot snapshot);
+  void DecoderCallbackNonBlocking(TimelineItemSnapshot snapshot);
+  void DecoderCallbackBlocking(TimelineItemSnapshot snapshot);
 
   std::thread loop_thread_;
   bool has_work_;
