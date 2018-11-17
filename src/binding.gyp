@@ -22,11 +22,11 @@
         "resource/video_resource.cc",
 
         "decoder/memory_pool.cc",
-        "decoder/decoder_manager.cc",
-        "decoder/decoder.cc",
-        "decoder/video_decoder_host.cc",
-        "decoder/video_decoder.cc",
         "decoder/frame.cc",
+        "decoder/video_decoder_manager.cc",
+        "decoder/video_decoder.cc",
+        "decoder/video_decoder_host.cc",
+        "decoder/video_frame.cc",
         "decoder/snapshot_queue.cc",
       ],
       "include_dirs": [

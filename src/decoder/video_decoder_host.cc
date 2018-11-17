@@ -7,7 +7,7 @@
 #include "resource/resource.h"
 #include "resource/video_resource.h"
 
-#include "decoder/decoder_manager.h"
+#include "decoder/video_decoder_manager.h"
 #include "decoder/decoder.h"
 #include "decoder/video_decoder.h"
 
@@ -21,16 +21,16 @@
 namespace olive {
 
 VideoDecoderHost::VideoDecoderHost(VideoResource* const resource) :
-  resource_(resource), has_work_(false) {
-  logger::get()->info("[VideoDecoderHost] Construct from Resource ID : {}", resource->id());
+  resource_(resource) {
+  logger::get()->info("[VideoDecoder] Construct from Resource ID : {}", resource->id());
 }
 
 void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_t* counter) {
   manager_work_counter_ = counter;
   for (auto& snapshot : snapshots) {
     TimelineItemID timeline_item_id = snapshot.timeline_item_id;
-    VideoDecoder* decoder = NULL;
-    logger::get()->info("[VideoDecoderHost] Pass snapshot TimelineItemID : {}", timeline_item_id);
+    Decoder* decoder = NULL;
+    logger::get()->info("[DecoderHost] Pass snapshot TimelineItemID : {}", timeline_item_id);
     if (decoders_.count(timeline_item_id))
       decoder = decoders_[timeline_item_id];
     else
@@ -57,7 +57,7 @@ VideoDecoder* const VideoDecoderHost::AssignDecoder(timeline_item_id item_id) {
 }
 
 void VideoDecoderHost::DecoderCallbackBlocking(TimelineItemSnapshot snapshot) {
-  DecoderManager* decoder_manager = DecoderManager::instance();
+  VideoDecoderManager* decoder_manager = VideoDecoderManager::instance();
   {
     std::unique_lock<std::mutex> manager_lock(decoder_manager->m);
     *manager_work_counter_ -= 1;
@@ -68,7 +68,7 @@ void VideoDecoderHost::DecoderCallbackBlocking(TimelineItemSnapshot snapshot) {
 }
 
 void VideoDecoderHost::DecoderCallbackNonBlocking(TimelineItemSnapshot snapshot) {
-  DecoderManager* decoder_manager = DecoderManager::instance();
+  VideoDecoderManager* decoder_manager = VideoDecoderManager::instance();
   *manager_work_counter_ -= 1;
   logger::get()->info("[CALLBACK] {} {}", snapshot.pts, *manager_work_counter_);
   decoder_manager->host_waiter_result.emplace_back(snapshot);

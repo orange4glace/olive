@@ -1,20 +1,41 @@
 #ifndef OLIVE_DECODER_H_
 #define OLIVE_DECODER_H_
 
+#include "timeline/timeline_item_snapshot.h"
+
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
 
+extern "C" {
+#include <libavutil/imgutils.h>
+#include <libavutil/samplefmt.h>
+#include <libavutil/timestamp.h>
+#include <libavutil/avutil.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+}
+
+#include <mutex>
+#include <condition_variable>
+#include <thread>
+#include <deque>
+
+#define AV_THROW(COND, ERR) if (!(COND)) throw (ERR);
+#define AV_RETURN(COND, RETURN) if (!(COND)) return (RETURN);
+
 namespace olive {
 
-class Resource;
+class DecoderHost;
 
-class Decoder : public NAPI_Instanceable {
-NAPI_DECLARE_CLASS(Decoder, "Decoder")
+class VideoResource;
 
-protected:
-  inline Decoder() {}
+class Decoder {
 
 public:
+  inline Decoder() {};
+
+  virtual void Initialize() throw (const char*) = 0;
+  virtual void Decode(TimelineItemSnapshot snapshot) = 0;
 
 };
 

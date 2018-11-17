@@ -3,6 +3,7 @@
 #include "decoder/video_decoder_host.h"
 
 #include "decoder/memory_pool.h"
+#include "decoder/video_frame.h"
 #include "resource/video_resource.h"
 
 #include "logger/logger.h"
@@ -21,9 +22,90 @@ VideoDecoder::VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* 
   fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL) {
 }
 
+void VideoDecoder::Initialize() {
+  AV_THROW(avformat_open_input(&fmt_ctx_, resource_->path().c_str(), NULL, NULL) == 0, "AVFORMAT_OPEN_INPUT");
+  AV_THROW(avformat_find_stream_info(fmt_ctx_, NULL) == 0, "AVFORMAT_INPUT_STREAM_INFO");
+  AVDictionary* opts_ = NULL;
+  int refcount = 0;
+
+  stream_index_ = av_find_best_stream(fmt_ctx_, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
+  AV_THROW(stream_index_ >= 0, "AV_FIND_BEST_STREAM");
+
+  stream_ = fmt_ctx_->streams[stream_index_];
+  dec_ = avcodec_find_decoder(stream_->codecpar->codec_id);
+  AV_THROW(dec_, "AV_CODEC_FIND_DECODER");
+  dec_ctx_ = avcodec_alloc_context3(dec_);
+
+  AV_THROW(avcodec_parameters_to_context(dec_ctx_, stream_->codecpar) >= 0, "AVCODEC_PARAMETERS_TO_CONTEXT");
+
+  av_dict_set(&opts_, "refcounted_frames", refcount ? "1" : "0", 0);
+  AV_THROW(avcodec_open2(dec_ctx_, dec_, &opts_) >= 0, "AVCODEC_OPEN2");
+
+  width_ = dec_ctx_->width;
+  height_ = dec_ctx_->height;
+  pix_fmt_ = dec_ctx_->pix_fmt;
+
+  pkt_ = av_packet_alloc();
+  AV_THROW(pkt_, "AV_PACKET_ALLOC");
+
+  frame_ = av_frame_alloc();
+  AV_THROW(pkt_, "AV_FRAME_ALLOC");
+
+  thread_ = std::thread(&VideoDecoder::loop, this);
+}
+
+void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
+  logger::get()->info("[Decoder] Decode request, item_id : {}, resource_id : {}", snapshot.timeline_item_id, snapshot.resource_id);
+  std::unique_lock<std::mutex> loop_lock(m);
+
+  snapshot.pts = av_rescale_q(snapshot.timestamp, AVRational{1, 1000}, fmt_ctx_->streams[stream_index_]->time_base);
+  if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
+  VideoFrame* target_frame = PeekQueueTo(snapshot.pts);
+  logger::get()->info("[Decoder] Decode request Rescale timestamp = {} pts = {} found = {}", snapshot.timestamp, snapshot.pts, target_frame ? true : false);
+  if (target_frame) {
+    snapshot.frame = static_cast<Frame*>(target_frame);
+    target_frame->ref();
+    // Decode done, callback to VideoDecoderHost
+    decoder_host_->DecoderCallbackNonBlocking(std::move(snapshot));
+    logger::get()->info("[VideoDecoder] Internal decode done. counter");
+  }
+  else {
+    decoding_snapshot_req_ = std::move(snapshot);
+    has_decode_request_ = true;
+    decode_request_resolved_ = false;
+  }
+  loop_lock.unlock();
+  cv.notify_one();
+}
+
+void VideoDecoder::decode() {
+  while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
+    // AVPacket orig_pkt = *pkt_;
+
+    int ret = 0;
+    int decoded = pkt_->size;
+    if (pkt_->stream_index == stream_index_) {
+      ret = avcodec_send_packet(dec_ctx_, pkt_);
+      av_free_packet(pkt_);
+      if (ret < 0) return;
+
+      ret = avcodec_receive_frame(dec_ctx_, frame_);
+      logger::get()->info("[Dec] {} {} {}", frame_->best_effort_timestamp, frame_->pts, ret);
+
+      if (ret >= 0) {
+        std::unique_lock<std::mutex> loop_lock(m);
+        VideoFrame* frame = new VideoFrame(frame_);
+        logger::get()->info("[VideoDecoder] FrameQueue Push {} {}", frame->pts, frame->id);
+        frame_queue_.emplace_back(frame);
+        av_frame_unref(frame_);
+      }
+      return;
+    }
+  }
+}
+
 void VideoDecoder::loop() {
-  std::unique_lock<std::mutex> loop_lock(m, std::defer_lock);
-  loop_lock.lock();
+  std::unique_lock<std::mutex> loop_lock(m);
   while (true) {
     bool has_work = false;
     bool need_seek = false;
@@ -64,9 +146,9 @@ void VideoDecoder::loop() {
     loop_lock.lock();
     if (!decode_request_resolved_) {
       logger::get()->info("[VideoDecoder] Decode Requeset Not Resolved {}", decoding_snapshot_.pts);
-      Frame* target_frame = PeekQueueTo(decoding_snapshot_.pts);
+      VideoFrame* target_frame = PeekQueueTo(decoding_snapshot_.pts);
       if (target_frame) {
-        decoding_snapshot_.frame = target_frame;
+        decoding_snapshot_.frame = static_cast<Frame*>(target_frame);
         target_frame->ref();
         // Decode done, callback to VideoDecoderHost
         decoder_host_->DecoderCallbackBlocking(std::move(decoding_snapshot_));
@@ -78,75 +160,8 @@ void VideoDecoder::loop() {
   }
 }
 
-void VideoDecoder::Initialize() {
-  AV_THROW(avformat_open_input(&fmt_ctx_, resource_->path().c_str(), NULL, NULL) == 0, "AVFORMAT_OPEN_INPUT");
-  AV_THROW(avformat_find_stream_info(fmt_ctx_, NULL) == 0, "AVFORMAT_INPUT_STREAM_INFO");
-  AVDictionary* opts_ = NULL;
-  int refcount = 0;
-
-  stream_index_ = av_find_best_stream(fmt_ctx_, AVMEDIA_TYPE_VIDEO, -1, -1, NULL, 0);
-  AV_THROW(stream_index_ >= 0, "AV_FIND_BEST_STREAM");
-
-  stream_ = fmt_ctx_->streams[stream_index_];
-  dec_ = avcodec_find_decoder(stream_->codecpar->codec_id);
-  AV_THROW(dec_, "AV_CODEC_FIND_DECODER");
-  dec_ctx_ = avcodec_alloc_context3(dec_);
-
-  AV_THROW(avcodec_parameters_to_context(dec_ctx_, stream_->codecpar) >= 0, "AVCODEC_PARAMETERS_TO_CONTEXT");
-
-  av_dict_set(&opts_, "refcounted_frames", refcount ? "1" : "0", 0);
-  AV_THROW(avcodec_open2(dec_ctx_, dec_, &opts_) >= 0, "AVCODEC_OPEN2");
-
-  width_ = dec_ctx_->width;
-  height_ = dec_ctx_->height;
-  pix_fmt_ = dec_ctx_->pix_fmt;
-
-  pkt_ = av_packet_alloc();
-  AV_THROW(pkt_, "AV_PACKET_ALLOC");
-
-  frame_ = av_frame_alloc();
-  AV_THROW(pkt_, "AV_FRAME_ALLOC");
-
-  sws_ctx_ = sws_getContext(width_, height_, AV_PIX_FMT_YUV420P, width_, height_, AV_PIX_FMT_RGB32, SWS_BILINEAR, NULL, NULL, NULL);
-  AV_THROW(sws_ctx_, "SWS_GET_CONTEXT");
-
-  AV_THROW(av_image_fill_arrays(data_rgb_, linesize_rgb_, NULL, AV_PIX_FMT_RGB32, width_, height_, 32) >= 0, "AV_IMAGE_FILL_ARRAYS");
-  AV_THROW(av_image_alloc(data_rgb_, linesize_rgb_, width_, height_, AV_PIX_FMT_RGB32, 1) >= 0, "AV_IMAGE_ALLOC");
-
-  thread_ = std::thread(&VideoDecoder::loop, this);
-}
-
-void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
-  logger::get()->info("[VideoDecoder] Decode request, item_id : {}, resource_id : {}", snapshot.timeline_item_id, snapshot.resource_id);
-  std::unique_lock<std::mutex> loop_lock(m, std::defer_lock);
-  logger::get()->info("[VideoDecoder] Lock pass1");
-  loop_lock.lock();
-  logger::get()->info("[VideoDecoder] Lock pass2");
-
-  snapshot.pts = av_rescale_q(snapshot.timestamp, AVRational{1, 1000}, fmt_ctx_->streams[stream_index_]->time_base);
-  if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
-  Frame* target_frame = PeekQueueTo(snapshot.pts);
-  logger::get()->info("[VideoDecoder] Decode request Rescale timestamp = {} pts = {} found = {}", snapshot.timestamp, snapshot.pts, target_frame ? true : false);
-  if (0) {
-    snapshot.frame = target_frame;
-    target_frame->ref();
-    // Decode done, callback to VideoDecoderHost
-    decoder_host_->DecoderCallbackNonBlocking(std::move(snapshot));
-    logger::get()->info("[VideoDecoder] Internal decode done. counter");
-  }
-  else {
-    decoding_snapshot_req_ = std::move(snapshot);
-    has_decode_request_ = true;
-    decode_request_resolved_ = false;
-  }
-  loop_lock.unlock();
-  logger::get()->info("[VideoDecoder] Decode Request unlock");
-  cv.notify_one();
-  logger::get()->info("[VideoDecoder] Decode Request Notify");
-}
-
 int VideoDecoder::Seek(int64_t pts) {
-  int result = av_seek_frame(fmt_ctx_, stream_index_, pts, AVSEEK_FLAG_BACKWARD );
+  int result = av_seek_frame(fmt_ctx_, stream_index_, pts, AVSEEK_FLAG_BACKWARD);
   logger::get()->info("[VideoDecoder] Seek {} {}", pts, result);
   if (result < 0) return result;
 
@@ -154,38 +169,12 @@ int VideoDecoder::Seek(int64_t pts) {
   return 0;
 }
 
-void VideoDecoder::decode() {
-  while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
-    // AVPacket orig_pkt = *pkt_;
-
-    int ret = 0;
-    int decoded = pkt_->size;
-    if (pkt_->stream_index == stream_index_) {
-      ret = avcodec_send_packet(dec_ctx_, pkt_);
-      av_free_packet(pkt_);
-      if (ret < 0) return;
-
-      ret = avcodec_receive_frame(dec_ctx_, frame_);
-      logger::get()->info("[Dec] {} {} {}", frame_->best_effort_timestamp, frame_->pts, ret);
-
-      if (ret >= 0) {
-        std::unique_lock<std::mutex> loop_lock(m);
-        Frame* frame = new Frame(frame_);
-        logger::get()->info("[VideoDecoder] FrameQueue Push {} {}", frame->pts, frame->id);
-        frame_queue_.emplace_back(frame);
-        av_frame_unref(frame_);
-      }
-      return;
-    }
-  }
-}
-
-Frame* VideoDecoder::PeekQueueTo(int64_t pts) {
-  logger::get()->info("[VideoDecoder] PeekQueueTo {}, queue size = {}", pts, frame_queue_.size());
+VideoFrame* VideoDecoder::PeekQueueTo(int64_t pts) {
+  logger::get()->info("[Decoder] PeekQueueTo {}, queue size = {}", pts, frame_queue_.size());
   while (frame_queue_.size() >= 2) {
     if (frame_queue_[1]->pts <= pts) {
-      Frame* front = frame_queue_.front();
-      logger::get()->info("[VideoDecoder] Pop {} {}", front->pts, front->id);
+      VideoFrame* front = frame_queue_.front();
+      logger::get()->info("[Decoder] Pop {} {}", front->pts, front->id);
       frame_queue_.pop_front();
       front->unref();
     }
@@ -193,8 +182,8 @@ Frame* VideoDecoder::PeekQueueTo(int64_t pts) {
   }
   if (frame_queue_.size() < 2) return NULL;
   if (frame_queue_[0]->pts <= pts) {
-    Frame* front = frame_queue_.front();
-    logger::get()->info("[VideoDecoder] PeekQueueTo {}", front->scaled);
+    VideoFrame* front = frame_queue_.front();
+    logger::get()->info("[Decoder] PeekQueueTo {}");
     return front;
   }
   return NULL;

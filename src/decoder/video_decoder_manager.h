@@ -1,5 +1,5 @@
-#ifndef OLIVE_DECODER_MANAGER_H_
-#define OLIVE_DECODER_MANAGER_H_
+#ifndef OLIVE_VIDEO_DECODER_MANAGER_H_
+#define OLIVE_VIDEO_DECODER_MANAGER_H_
 
 #include "decoder/snapshot_queue.h"
 
@@ -20,10 +20,10 @@ namespace olive {
 class VideoDecoderHost;
 class Resource;
 
-class DecoderManager {
+class VideoDecoderManager {
 public:
   static void Initialize();
-  static inline DecoderManager* const instance() {
+  static inline VideoDecoderManager* const instance() {
     return instance_;
   }
 
@@ -35,7 +35,7 @@ public:
   std::vector<TimelineItemSnapshot> host_waiter_result;
 
 private:
-  static DecoderManager* instance_;
+  static VideoDecoderManager* instance_;
 
   // Run on a separate thread
   void loop();

@@ -22,7 +22,7 @@ namespace {
     ));
     int i = 0;
     for (auto& snapshot : self->rendering_snapshots) {
-      self->ScaleFrame(snapshot.frame);
+      snapshot.frame->TransferToRenderer();
       napi::SetProperty(js_object_array, napi_encoder<int32_t>::encode(i), snapshot.ToJSObject());
       i++;
     }
@@ -36,7 +36,6 @@ namespace {
 void SnapshotQueue::Initialize(napi_env env) {
   rendering = false;
   pending = false;
-  sws_ctx_ = sws_getContext(1920, 1080, AV_PIX_FMT_YUV420P, 1920, 1080, AV_PIX_FMT_RGB32, SWS_BILINEAR, NULL, NULL, NULL);
   NAPI_CALL(napi_create_threadsafe_function(
     env,
     napi::GetNamedProperty(napi::get_global(), "requestRendering"),
@@ -74,15 +73,6 @@ void SnapshotQueue::Render() {
   logger::get()->warn("[SnapshotQueue] Render {} {}", rendering_snapshots.size(), pending_snapshots.size());
   pending_snapshots.swap(rendering_snapshots);
   NAPI_CALL(napi_call_threadsafe_function(tsfn_render, NULL, napi_tsfn_nonblocking));
-}
-
-void SnapshotQueue::ScaleFrame(Frame* frame) {
-  if (frame->scaled) return;
-  int linesize[4] = { frame->width * 4, 0, 0, 0 };
-  frame->scaled_data = (uint8_t*)MemoryPool::Allocate(frame->width * frame->height * 4);
-  frame->scaled = true;
-  uint8_t* data[4] = { frame->scaled_data, 0, 0, 0 };
-  sws_scale(sws_ctx_, frame->frame->data, frame->frame->linesize, 0, frame->height, data, linesize);
 }
 
 }

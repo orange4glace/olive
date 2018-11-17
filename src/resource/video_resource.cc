@@ -1,7 +1,5 @@
 #include "resource/video_resource.h"
 
-#include "decoder/decoder_manager.h"
-#include "decoder/decoder.h"
 #include "decoder/video_decoder_host.h"
 #include "napi/napi_encoder.h"
 
@@ -18,7 +16,7 @@ bool VideoResource::Initialize() {
   return true;
 }
 
-VideoDecoderHost* const VideoResource::decoder_host() {
+VideoDecoderHost* const VideoResource::video_decoder_host() {
   return video_decoder_host_;
 }
 

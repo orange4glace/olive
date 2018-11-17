@@ -9,10 +9,6 @@
 #include <mutex>
 #include <condition_variable>
 
-extern "C" {
-#include <libswscale/swscale.h>
-}
-
 namespace olive {
 
   struct Frame;
@@ -30,8 +26,6 @@ namespace olive {
     std::vector<TimelineItemSnapshot> pending_snapshots;
     std::vector<TimelineItemSnapshot> rendering_snapshots;
     napi_threadsafe_function tsfn_render;
-
-    SwsContext* sws_ctx_;
 
     bool pending;
     bool rendering;

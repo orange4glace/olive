@@ -12,9 +12,7 @@
 #include "resource/resource.h"
 
 #include "decoder/memory_pool.h"
-#include "decoder/decoder_manager.h"
-#include "decoder/decoder.h"
-#include "decoder/video_decoder.h"
+#include "decoder/video_decoder_manager.h"
 
 #include <iostream>
 #include <muteX>
@@ -42,7 +40,7 @@ napi_value FreeMemory(napi_env env, napi_callback_info cbinfo) {
 }
 
 napi_value Rendered(napi_env env, napi_callback_info cbinfo) {
-  DecoderManager::instance()->Rendered();
+  VideoDecoderManager::instance()->Rendered();
 
   return NULL;
 }
@@ -108,10 +106,7 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   Resource::NAPI_Initialize(env);
 
   std::cout << "DecoderManager Initialize\n";
-  DecoderManager::Initialize();
-
-  std::cout << "Decoder NAPI Initialize\n";
-  Decoder::NAPI_Initialize(env);
+  VideoDecoderManager::Initialize();
 
   std::cout << "Export..\n";
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());

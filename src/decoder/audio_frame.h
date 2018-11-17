@@ -1,5 +1,5 @@
-#ifndef OLIVE_FRAME_H_
-#define OLIVE_FRAME_H_
+#ifndef OLIVE_AUDIO_FRAME_H_
+#define OLIVE_AUDIO_FRAME_H_
 
 extern "C" {
 #include <libavutil/imgutils.h>
@@ -14,13 +14,10 @@ extern "C" {
 
 namespace olive {
 
-struct Frame {
+struct AudioFrame {
 
-  Frame(AVFrame* frame);
-
-  virtual inline void TransferToRenderer() {}
-  virtual uint64_t GetDataAddress() = 0;
-  virtual int32_t GetDataSize() = 0;
+  AudioFrame(AVFrame* frame);
+  ~AudioFrame();
 
   void ref();
   void unref();
@@ -32,10 +29,11 @@ struct Frame {
   int id;
 
   int ref_count;
+
   std::mutex m;
 
-}; // struct Frame
+}; // struct AudioFrame
 
 } // namespace olive
 
-#endif // OLIVE_FRAME_H_
+#endif // OLIVE_AUDIO_FRAME_H_
