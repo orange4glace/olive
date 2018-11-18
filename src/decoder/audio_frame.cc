@@ -5,37 +5,37 @@
 
 #include <iostream>
 
-namespace olive {
-
-namespace {
-  int next_frame_id = 0;
+extern "C" {
+#include <libswscale/swscale.h>
 }
 
-AudioFrame::AudioFrame(AVFrame* f) :
-    pts(AV_NOPTS_VALUE), ref_count(1) {
-  frame = av_frame_alloc();
-  av_frame_move_ref(frame, f);
+namespace olive {
 
-  id = next_frame_id++;
+AudioFrame::AudioFrame(AVFrame* f) :
+    Frame(f) {
+  data.data = f->data[0];
+  data.size = f->linesize[0];
+  data.sample_rate = f->sample_rate;
 }
 
 AudioFrame::~AudioFrame() {
-  logger::get()->info("[AudioFrame] Free frame {}", id);
+  logger::get()->critical("[AudioFrame] Free frame {}", id);
   av_frame_free(&frame);
 }
 
-void AudioFrame::ref() {
-  std::unique_lock<std::mutex> lock(m);
-  ref_count++;
+void DeleteMe() {
+  
 }
 
-void AudioFrame::unref() {
-  std::unique_lock<std::mutex> lock(m);
-  ref_count--;
-  assert(ref_count >= 0);
-  if (ref_count == 0) {
-    delete this;
-  }
+void AudioFrame::TransferToRenderer() {
+}
+
+uint64_t AudioFrame::GetDataAddress() {
+  return reinterpret_cast<uint64_t>(&this->data);
+}
+
+int32_t AudioFrame::GetDataSize() {
+  return 0;
 }
 
 } // namespace olive

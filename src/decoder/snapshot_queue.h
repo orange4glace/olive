@@ -15,12 +15,10 @@ namespace olive {
 
   struct SnapshotQueue {
 
-    void Initialize(napi_env env);
+    void Initialize(napi_env env, char* tsfn_function, char* tsfn_resource_name);
     void Push(std::vector<TimelineItemSnapshot> s);
     void Rendered();
     void Render();
-
-    void ScaleFrame(Frame* frame);
 
     std::mutex m;
     std::vector<TimelineItemSnapshot> pending_snapshots;
@@ -29,6 +27,8 @@ namespace olive {
 
     bool pending;
     bool rendering;
+
+    std::string name;
 
   };
 

@@ -17,6 +17,8 @@ namespace olive {
 struct Frame {
 
   Frame(AVFrame* frame);
+  inline virtual ~Frame() {};
+  virtual inline void DeleteMe() { delete this; }
 
   virtual inline void TransferToRenderer() {}
   virtual uint64_t GetDataAddress() = 0;

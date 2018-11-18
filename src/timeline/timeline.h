@@ -45,9 +45,11 @@ public:
 
   void SetTimestamp(int64_t timestamp);
   void Invalidate(TimelineItem* const timeline_item);
-  void Validate();
+  void ValidateVideo();
+  void ValidateAudio();
 
-  bool dirty() const { return dirty_; }
+  bool dirty_video() const { return dirty_video_; }
+  bool dirty_audio() const { return dirty_audio_; }
 
   std::mutex m;
   std::condition_variable cv;
@@ -58,7 +60,8 @@ public:
   napi_value _NAPI_MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                                     int start_offset, int end_offset);
 
-  napi_value _NAPI_Dirty();
+  napi_value _NAPI_DirtyVideo();
+  napi_value _NAPI_DirtyAudio();
   napi_value _NAPI_SetTimestamp(int64_t timestamp);
   
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_AddTimelineLayer, _NAPI_AddTimelineLayer);
@@ -68,7 +71,8 @@ public:
       TimelineLayer* const, TimelineItem* const, int, int);
 
   // Temporary for test
-  NAPI_EXPORT_FUNCTION0(Timeline, NAPI_Dirty, _NAPI_Dirty);
+  NAPI_EXPORT_FUNCTION0(Timeline, NAPI_DirtyVideo, _NAPI_DirtyVideo);
+  NAPI_EXPORT_FUNCTION0(Timeline, NAPI_DirtyAudio, _NAPI_DirtyAudio);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_SetTimestamp, _NAPI_SetTimestamp,
       int64_t);
 
@@ -81,7 +85,8 @@ private:
 
   napi_ref napi_layers_ref_;
   
-  bool dirty_;
+  bool dirty_video_;
+  bool dirty_audio_;
 
 };
 

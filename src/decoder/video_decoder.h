@@ -48,9 +48,6 @@ private:
 
   std::deque<VideoFrame*> frame_queue_;
 
-  int64_t last_keyframe_timestamp_;
-  int64_t current_timestamp_;
-
   int width_, height_;
   enum AVPixelFormat pix_fmt_;
 

@@ -19,7 +19,7 @@ namespace olive {
 struct VideoFrame : Frame {
 
   VideoFrame(AVFrame* frame);
-  ~VideoFrame();
+  ~VideoFrame() override;
 
   void TransferToRenderer() override;
   uint64_t GetDataAddress() override;

@@ -29,9 +29,7 @@ void Frame::unref() {
   std::unique_lock<std::mutex> lock(m);
   ref_count--;
   assert(ref_count >= 0);
-  if (ref_count == 0) {
-    delete this;
-  }
+  if (ref_count == 0) DeleteMe();
 }
 
 } // namespace olive

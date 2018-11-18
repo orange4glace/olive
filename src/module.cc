@@ -4,10 +4,6 @@
 #include "timeline/timeline_layer.h"
 #include "timeline/timeline_item.h"
 
-#include "resource/resource_manager.h"
-
-#include "decoder/decoder_manager.h"
-
 #include "logger/logger.h"
 
 #include <iostream>

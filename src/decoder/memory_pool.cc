@@ -22,7 +22,7 @@ void* MemoryPool::Allocate(size_t byte) {
     logger::get()->info("[MemoryPool] Allocate {} from pool, remains : {}", byte, vec.size());
   }
   else {
-    logger::get()->warn("[MemoryPool] Malloc {} {}", byte, ++s);
+    logger::get()->critical("[MemoryPool] Malloc {} {}", byte, ++s);
     lock.unlock();
     memory = (void*)(new uint8_t[byte]);
   }

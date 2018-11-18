@@ -28,19 +28,19 @@ namespace {
     }
     lock.unlock();
     napi::set_current_env(env);
-    logger::get()->warn("[SnapshotQueue] Render");
+    logger::get()->critical("[SnapshotQueue] {} Render", self->name);
     NAPI_CALL(napi_call_function(env, napi::get_global(), js_callback, 1, &js_object_array, NULL));
   }
 }
 
-void SnapshotQueue::Initialize(napi_env env) {
+void SnapshotQueue::Initialize(napi_env env, char* tsfn_function, char* tsfn_resource_name) {
   rendering = false;
   pending = false;
   NAPI_CALL(napi_create_threadsafe_function(
     env,
-    napi::GetNamedProperty(napi::get_global(), "requestRendering"),
+    napi::GetNamedProperty(napi::get_global(), tsfn_function),
     NULL,
-    napi_encoder<const char*>::encode("NA"),
+    napi_encoder<const char*>::encode(tsfn_resource_name),
     1,
     1,
     NULL,

@@ -24,7 +24,6 @@ function freeSnapshot(snapshot) {
 }
 
 window.requestRendering = (snapshots) => {
-  console.log("RequestRendering",renderSnapshot,isRendererFree);
   if (renderSnapshot != null) {
     console.log("Snapshot is skipped");
     for (var i = 0; i < snapshots.length; i ++) {
@@ -34,8 +33,17 @@ window.requestRendering = (snapshots) => {
   }
   renderSnapshot = snapshots;
   if (isRendererFree) {
-    console.log("Post Snapshot to Renderer");
     postSnapshotsToRenderer();
+  }
+}
+
+window.requestAudioRendering = (snapshots) => {
+  return;
+  console.log("RequestAudioRendering",snapshots);
+  for (var i = 0; i < snapshots.length; i ++) {
+    var snapshot = snapshots[i];
+    console.log(snapshot.data);
+    console.log(olive_module_exports.AsAudioFrameData(snapshot.data));
   }
 }
 

@@ -1,6 +1,6 @@
-#include "decoder/video_decoder_manager.h"
+#include "decoder/audio_decoder_manager.h"
 
-#include "decoder/video_decoder_host.h"
+#include "decoder/audio_decoder_host.h"
 
 #include "resource/resource_manager.h"
 #include "resource/resource.h"
@@ -15,36 +15,36 @@
 
 namespace olive {
 
-void VideoDecoderManager::Initialize() {
-  instance_ = new VideoDecoderManager();
+void AudioDecoderManager::Initialize() {
+  instance_ = new AudioDecoderManager();
 
   // Start loop thread
-  instance_->loop_thread_ = std::thread(&VideoDecoderManager::loop, instance_);
-  instance_->render_queue_.Initialize(napi::current_env(), "requestRendering", "requestRendering");
+  instance_->loop_thread_ = std::thread(&AudioDecoderManager::loop, instance_);
+  instance_->render_queue_.Initialize(napi::current_env(), "requestAudioRendering", "requestAudioRendering");
   instance_->render_queue_.name = "video";
 }
 
-void VideoDecoderManager::loop() {
+void AudioDecoderManager::loop() {
   while (true) {
     // Lock Timeline
     std::unique_lock<std::mutex> timeline_lock(Timeline::instance()->m);
 
     // Wait for dirty
-    logger::get()->info("[VideoDecoderManager] Waiting for dirty");
-    Timeline::instance()->cv.wait(timeline_lock, [] { return Timeline::instance()->dirty_video(); });
+    logger::get()->info("[AudioDecoderManager] Waiting for dirty");
+    Timeline::instance()->cv.wait(timeline_lock, [] { return Timeline::instance()->dirty_audio(); });
 
-    logger::get()->info("[VideoDecoderManager] Timeline dirty, rendering");
+    logger::get()->critical("[AudioDecoderManager] Timeline dirty, rendering");
     // Validate Timeline
-    Timeline::instance()->ValidateVideo();
-    logger::get()->info("[VideoDecoderManager] Timeline validated");
+    Timeline::instance()->ValidateAudio();
+    logger::get()->info("[AudioDecoderManager] Timeline validated");
     // Get TimelineItem snapshots
     std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetCurrentTimestampTimelineItemSnapshots();
     timeline_lock.unlock();
 
-    // Call VideoDecoderHosts
-    logger::get()->info("[VideoDecoderManager] Got snapshots {}", snapshots.size());
-    DecodeVideo(snapshots);
-    logger::get()->info("[VideoDecoderManager] Decoding done");
+    // Call AudioDecoderHosts
+    logger::get()->info("[AudioDecoderManager] Got snapshots {}", snapshots.size());
+    Decode(snapshots);
+    logger::get()->info("[AudioDecoderManager] Decoding done");
 
     render_queue_.Push(std::move(host_waiter_result));
     /*
@@ -57,40 +57,40 @@ void VideoDecoderManager::loop() {
 }
   
 // Called from Decoder thread
-void VideoDecoderManager::DecodeVideo(std::vector<TimelineItemSnapshot> snapshots) {
+void AudioDecoderManager::Decode(std::vector<TimelineItemSnapshot> snapshots) {
   std::map< resource_id, std::vector<TimelineItemSnapshot> > snapshot_map;
   for (auto& snapshot : snapshots)
     snapshot_map[snapshot.resource_id].emplace_back(snapshot);
 
   size_t counter = snapshots.size();
   std::unique_lock<std::mutex> lock(m);
-  logger::get()->info("[VideoDecoderManager] Try lock OK");
+  logger::get()->info("[AudioDecoderManager] Try lock OK");
 
   // Clear waiter
-  logger::get()->info("[VideoDecoderManager] Clear result {}", host_waiter_result.size());
+  logger::get()->info("[AudioDecoderManager] Clear result {}", host_waiter_result.size());
   host_waiter_result.clear();
-  logger::get()->info("[VideoDecoderManager] Clear result OK");
+  logger::get()->info("[AudioDecoderManager] Clear result OK");
 
-  logger::get()->info("[VideoDecoderManager] Counter : {}", counter);
+  logger::get()->info("[AudioDecoderManager] Counter : {}", counter);
 
   for (auto& kv : snapshot_map) {
     // Todo : Generalize
     auto resource = (VideoResource*)ResourceManager::instance()->GetResource(kv.first);
-    auto decoder_host = resource->video_decoder_host();
+    auto decoder_host = resource->audio_decoder_host();
     // Non-blocking, separate thread
     decoder_host->Decode(kv.second, &counter);
   }
 
   // Wait for all of VideoDecoderHost to be finished
-  logger::get()->info("[VideoDecoderManager] Pending for DecoderHosts, counter : {}", counter);
+  logger::get()->info("[AudioDecoderManager] Pending for DecoderHosts, counter : {}", counter);
   cv.wait(lock, [&counter] { return counter == 0; });
 }
 
-void VideoDecoderManager::Rendered() {
+void AudioDecoderManager::Rendered() {
   render_queue_.Rendered();
 }
 
 
-VideoDecoderManager* VideoDecoderManager::instance_ = NULL;
+AudioDecoderManager* AudioDecoderManager::instance_ = NULL;
 
 } // namespace olvie

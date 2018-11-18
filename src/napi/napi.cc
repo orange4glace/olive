@@ -13,6 +13,7 @@
 
 #include "decoder/memory_pool.h"
 #include "decoder/video_decoder_manager.h"
+#include "decoder/audio_decoder_manager.h"
 
 #include <iostream>
 #include <muteX>
@@ -105,8 +106,11 @@ napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
   std::cout << "Resource NAPI Initialize\n";
   Resource::NAPI_Initialize(env);
 
-  std::cout << "DecoderManager Initialize\n";
+  std::cout << "VideoDecoderManager Initialize\n";
   VideoDecoderManager::Initialize();
+
+  std::cout << "AudioDecoderManager Initialize\n";
+  AudioDecoderManager::Initialize();
 
   std::cout << "Export..\n";
   ExportNamedProperty("timeline", Timeline::instance()->napi_instance());

@@ -6,8 +6,6 @@
 
 #include "resource/resource.h"
 
-#include "decoder/decoder_manager.h"
-
 #include "napi/es6/map.h"
 #include "napi/es6/observable_map.h"
 #include "napi/napi_encoder.h"
@@ -24,7 +22,7 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 } // namespace
 
 Timeline::Timeline() :
-    dirty_(false) {
+    dirty_video_(false), dirty_audio_(false) {
   NAPI_CreateInstance();
   NAPI_SetInstanceNamedProperty("layers", es6::ObservableMap::New(), &napi_layers_ref_);
   napi::log(napi_encoder<const char*>::encode("Timeline intiailized"));
@@ -106,13 +104,18 @@ void Timeline::SetTimestamp(int64_t timestamp) {
 // Todo: Set dirty if only timeline item affects to current rendering state
 void Timeline::Invalidate(TimelineItem* const timeline_item) {
   std::unique_lock<std::mutex> lock(m);
-  dirty_ = true;
+  dirty_video_ = true;
+  dirty_audio_ = true;
   lock.unlock();
   cv.notify_one();
 }
 
-void Timeline::Validate() {
-  dirty_ = false;
+void Timeline::ValidateVideo() {
+  dirty_video_ = false;
+}
+
+void Timeline::ValidateAudio() {
+  dirty_audio_ = false;
 }
 
 // NAPI
@@ -121,7 +124,8 @@ NAPI_DEFINE_CLASS(Timeline,
     NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
     NAPI_PROPERTY_FUNCTION("AddResourceTimelineItem", NAPI_AddResourceTimelineItem, napi_default),
     NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default),
-    NAPI_PROPERTY_FUNCTION("Dirty", NAPI_Dirty, napi_default),
+    NAPI_PROPERTY_FUNCTION("DirtyVideo", NAPI_DirtyVideo, napi_default),
+    NAPI_PROPERTY_FUNCTION("DirtyAudio", NAPI_DirtyAudio, napi_default),
     NAPI_PROPERTY_FUNCTION("SetTimestamp", NAPI_SetTimestamp, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
@@ -144,8 +148,13 @@ napi_value Timeline::_NAPI_MoveTimelineItem(TimelineLayer* const layer,
   return NULL;
 }
 
-napi_value Timeline::_NAPI_Dirty() {
-  Invalidate(NULL);
+napi_value Timeline::_NAPI_DirtyVideo() {
+  Invalidate(0);
+  return NULL;
+}
+
+napi_value Timeline::_NAPI_DirtyAudio() {
+  Invalidate(0);
   return NULL;
 }
 

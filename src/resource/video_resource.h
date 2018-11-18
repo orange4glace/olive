@@ -3,9 +3,10 @@
 
 #include "resource/resource.h"
 
-#include "decoder/video_decoder_host.h"
-
 namespace olive {
+
+class VideoDecoderHost;
+class AudioDecoderHost;
 
 class VideoResource : public Resource {
 public:
@@ -14,9 +15,11 @@ public:
   bool Initialize() override;
 
   VideoDecoderHost* const video_decoder_host();
+  AudioDecoderHost* const audio_decoder_host();
 
 private:
   VideoDecoderHost* video_decoder_host_;
+  AudioDecoderHost* audio_decoder_host_;
 
 };
 

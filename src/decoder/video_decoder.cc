@@ -86,7 +86,6 @@ void VideoDecoder::decode() {
     int decoded = pkt_->size;
     if (pkt_->stream_index == stream_index_) {
       ret = avcodec_send_packet(dec_ctx_, pkt_);
-      av_free_packet(pkt_);
       if (ret < 0) return;
 
       ret = avcodec_receive_frame(dec_ctx_, frame_);
@@ -101,6 +100,7 @@ void VideoDecoder::decode() {
       }
       return;
     }
+    else av_free_packet(pkt_);
   }
 }
 

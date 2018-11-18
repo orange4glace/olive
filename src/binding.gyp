@@ -23,11 +23,17 @@
 
         "decoder/memory_pool.cc",
         "decoder/frame.cc",
-        "decoder/video_decoder_manager.cc",
-        "decoder/video_decoder.cc",
-        "decoder/video_decoder_host.cc",
-        "decoder/video_frame.cc",
         "decoder/snapshot_queue.cc",
+
+        "decoder/video_decoder_manager.cc",
+        "decoder/video_decoder_host.cc",
+        "decoder/video_decoder.cc",
+        "decoder/video_frame.cc",
+
+        "decoder/audio_decoder_manager.cc",
+        "decoder/audio_decoder_host.cc",
+        "decoder/audio_decoder.cc",
+        "decoder/audio_frame.cc",
       ],
       "include_dirs": [
         "./",
