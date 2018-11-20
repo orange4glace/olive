@@ -3,6 +3,8 @@
 
 #include "decoder/frame.h"
 
+#include "util/object_pool.h"
+
 extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/samplefmt.h>
@@ -16,30 +18,43 @@ extern "C" {
 
 namespace olive {
 
-class AudioFrame : Frame {
+class AudioFrame : public Frame {
+
+friend class ObjectPool<AudioFrame>;
 
 public:
+
   struct Data {
     uint8_t* data;
-    int size;
+    int byte_capacity;
+    int byte_current_size;
     int sample_rate;
+    int64_t pts;
   };
 
-private:
-  AudioFrame(AVFrame* frame);
-  ~AudioFrame();
-  void DeleteMe() override;
+  bool Append(AVFrame* frame);
 
   void TransferToRenderer() override;
   uint64_t GetDataAddress() override;
   int32_t GetDataSize() override;
 
-  AudioFrame::Data data;
-
-  static ObjectPool<AudioFrame> object_pool;
-  inline static AudioFrame* Allocate(AVFrame* frame) {
-    return object_pool
+  inline static AudioFrame* Allocate(int sample_rate, int sample_size, int byte_per_sample) {
+    return AudioFrame::frame_pool.Allocate(sample_rate, sample_size, byte_per_sample);
   }
+  static ObjectPool<AudioFrame> frame_pool;
+
+private:
+  AudioFrame(int sample_rate, int sample_size, int byte_per_sample);
+  AudioFrame& operator=(const AudioFrame& other);
+  ~AudioFrame() override;
+  inline void DeleteMe() override {
+    AudioFrame::frame_pool.Free(this);
+  }
+
+  int sample_rate_;
+  int byte_per_sample_;
+  int sample_size_;
+  AudioFrame::Data data_;
 
 }; // struct AudioFrame
 

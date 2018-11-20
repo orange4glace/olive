@@ -2,6 +2,7 @@
 #define OLIVE_OBJECT_POOL_H_
 
 #include <set>
+#include <vector>
 #include <mutex>
 
 namespace olive {
@@ -19,11 +20,11 @@ public:
     if (pool_.size()) {
       ret = pool_.back();
       pool_.pop_back();
-      ret = T(args);
+      *ret = T(args...);
     }
     else {
       lock.unlock();
-      ret = new T(args);
+      ret = new T(args...);
     }
     return ret;
   }

@@ -33,7 +33,7 @@ void AudioDecoderManager::loop() {
     logger::get()->info("[AudioDecoderManager] Waiting for dirty");
     Timeline::instance()->cv.wait(timeline_lock, [] { return Timeline::instance()->dirty_audio(); });
 
-    logger::get()->critical("[AudioDecoderManager] Timeline dirty, rendering");
+    logger::get()->info("[AudioDecoderManager] Timeline dirty, rendering");
     // Validate Timeline
     Timeline::instance()->ValidateAudio();
     logger::get()->info("[AudioDecoderManager] Timeline validated");

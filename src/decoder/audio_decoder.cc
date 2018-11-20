@@ -1,6 +1,5 @@
 #include "decoder/audio_decoder.h"
 
-#include "decoder/audio_decoder_manager.h"
 #include "decoder/audio_decoder_host.h"
 
 #include "decoder/memory_pool.h"
@@ -20,7 +19,7 @@ namespace olive {
 AudioDecoder::AudioDecoder(AudioDecoderHost* const decoder_host, VideoResource* const resource) :
   decoder_host_(decoder_host), resource_(resource), has_decode_request_(false), decode_request_resolved_(false),
   // start_pts_(AV_NOPTS_VALUE), end_pts_(AV_NOPTS_VALUE),
-  fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL) {
+  fmt_ctx_(NULL), dec_(NULL), dec_ctx_(NULL), opts_(NULL), stream_(NULL), frame_(NULL), pkt_(NULL), current_audio_frame_(NULL) {
 }
 
 void AudioDecoder::Initialize() {
@@ -45,12 +44,17 @@ void AudioDecoder::Initialize() {
   sample_rate_ = dec_ctx_->sample_rate;
   nb_channels_ = dec_ctx_->channels;
   channel_layout_ = dec_ctx_->channel_layout;
+  frame_size_ = dec_ctx_->frame_size;
+  frames_per_audio_frame_ = dec_ctx_->sample_rate / dec_ctx_->frame_size;
+  audio_frame_byte_capacity_ = dec_ctx_->frame_size * frames_per_audio_frame_;
 
   pkt_ = av_packet_alloc();
   AV_THROW(pkt_, "AV_PACKET_ALLOC");
 
   frame_ = av_frame_alloc();
   AV_THROW(pkt_, "AV_FRAME_ALLOC");
+  
+  current_audio_frame_ = AudioFrame::frame_pool.Allocate(sample_rate_, audio_frame_byte_capacity_, 4);
 
   thread_ = std::thread(&AudioDecoder::loop, this);
 }
@@ -80,12 +84,12 @@ void AudioDecoder::Decode(TimelineItemSnapshot snapshot) {
 }
 
 void AudioDecoder::decode() {
-  ObjectPool<AudioFrame*> frame_pool = AudioDecoderManager::instance()->frame_pool;
   while (av_read_frame(fmt_ctx_, pkt_) >= 0) {
     // AVPacket orig_pkt = *pkt_;
 
     int ret = 0;
     int decoded = pkt_->size;
+    bool has_audio_frame_pushed = false;
     if (pkt_->stream_index == stream_index_) {
       ret = avcodec_send_packet(dec_ctx_, pkt_);
       
@@ -94,18 +98,29 @@ void AudioDecoder::decode() {
         logger::get()->info("[Dec] {} {} {}", frame_->best_effort_timestamp, frame_->pts, ret);
 
         if (ret >= 0) {
-          std::unique_lock<std::mutex> loop_lock(m);
-          // AudioFrame* frame = new AudioFrame(frame_);
-          AudioFrame* frame = frame_pool.Allocate(frame_);
-          logger::get()->info("[AudioDecoder] FrameQueue Push {} {}", frame->pts, frame->id);
-          frame_queue_.emplace_back(frame);
-          av_frame_unref(frame_);
+          bool is_free = current_audio_frame_->Append(frame_);
+          if (!is_free) {
+            std::unique_lock<std::mutex> loop_lock(m);
+            // AudioFrame* frame = new AudioFrame(frame_);
+            frame_queue_.emplace_back(current_audio_frame_);
+            has_audio_frame_pushed = true;
+            logger::get()->info("[AudioDecoder] FrameQueue Push {} {}", current_audio_frame_->pts, current_audio_frame_->id);
+
+            // Allocate new AudioFrame
+            current_audio_frame_ = AudioFrame::frame_pool.Allocate(sample_rate_, audio_frame_byte_capacity_, 4);
+            is_free = current_audio_frame_->Append(frame_);
+            assert(is_free);
+
+            av_frame_unref(frame_);
+          }
         }
         else break;
       }
       av_packet_unref(pkt_);
     }
     else av_packet_unref(pkt_);
+
+    if (has_audio_frame_pushed) break;
   }
 }
 
@@ -167,7 +182,7 @@ void AudioDecoder::loop() {
 
 int AudioDecoder::Seek(int64_t pts) {
   int result = av_seek_frame(fmt_ctx_, stream_index_, pts, AVSEEK_FLAG_BACKWARD);
-  logger::get()->info("[AudioDecoder] Seek {} {}", pts, result);
+  logger::get()->critical("[AudioDecoder] Seek {} {}", pts, result);
   if (result < 0) return result;
 
   avcodec_flush_buffers(dec_ctx_);

@@ -49,8 +49,13 @@ private:
   int sample_rate_;
   int nb_channels_;
   uint64_t channel_layout_;
+  int frame_size_;
+  int audio_frame_byte_capacity_;
+  int frames_per_audio_frame_;
 
+  AudioFrame* current_audio_frame_;
   std::deque<AudioFrame*> frame_queue_;
+
 
 };
 

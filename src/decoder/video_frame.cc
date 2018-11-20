@@ -29,8 +29,12 @@ namespace {
 }
 
 VideoFrame::VideoFrame(AVFrame* f) :
-    Frame(f),
+    Frame(),
     scaled(false), scaled_data(NULL) {
+  frame = av_frame_alloc();
+  av_frame_move_ref(frame, f);
+  pts = frame->pts;
+
   width = frame->width;
   height = frame->height;
 }

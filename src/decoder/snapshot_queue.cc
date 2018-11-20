@@ -28,7 +28,7 @@ namespace {
     }
     lock.unlock();
     napi::set_current_env(env);
-    logger::get()->critical("[SnapshotQueue] {} Render", self->name);
+    logger::get()->info("[SnapshotQueue] {} Render", self->name);
     NAPI_CALL(napi_call_function(env, napi::get_global(), js_callback, 1, &js_object_array, NULL));
   }
 }

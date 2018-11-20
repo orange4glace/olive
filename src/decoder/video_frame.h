@@ -20,10 +20,15 @@ struct VideoFrame : Frame {
 
   VideoFrame(AVFrame* frame);
   ~VideoFrame() override;
+  inline void DeleteMe() override {
+    delete this;
+  }
 
   void TransferToRenderer() override;
   uint64_t GetDataAddress() override;
   int32_t GetDataSize() override;
+
+  AVFrame* frame;
 
   int width;
   int height;

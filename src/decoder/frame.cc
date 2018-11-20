@@ -11,13 +11,12 @@ namespace {
   int next_frame_id = 0;
 }
 
-Frame::Frame(AVFrame* f) :
-    pts(AV_NOPTS_VALUE), ref_count(1) {
-  frame = av_frame_alloc();
-  av_frame_move_ref(frame, f);
-  pts = frame->pts;
+Frame::Frame() :
+    ref_count(1) {
+}
 
-  id = next_frame_id++;
+void Frame::Clear() {
+  ref_count = 1;
 }
 
 void Frame::ref() {

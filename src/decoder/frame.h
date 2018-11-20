@@ -16,9 +16,10 @@ namespace olive {
 
 struct Frame {
 
-  Frame(AVFrame* frame);
+  Frame();
   inline virtual ~Frame() {};
-  virtual inline void DeleteMe() { delete this; }
+  virtual inline void DeleteMe() = 0;
+  void Clear();
 
   virtual inline void TransferToRenderer() {}
   virtual uint64_t GetDataAddress() = 0;
@@ -27,11 +28,8 @@ struct Frame {
   void ref();
   void unref();
 
-  AVFrame* frame;
-
-  int64_t pts;
-
   int id;
+  int64_t pts;
 
   int ref_count;
   std::mutex m;
