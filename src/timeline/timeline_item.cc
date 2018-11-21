@@ -14,8 +14,10 @@ namespace {
 } // namespace
 
 TimelineItem::TimelineItem(Resource* resource)
-  : id_(__next_timeline_item_id_++), resource_(resource), format_offset_(0) {
-  NAPI_CreateInstance();
+  : NAPI_Instanceable_Initializer(TimelineItem),
+    id_(__next_timeline_item_id_++), resource_(resource), format_offset_(0),
+    start_offset_(napi_instance_ref(), "start_offset", 0),
+    end_offset_(napi_instance_ref(), "end_offset", 0) {
 }
 
 TimelineItem::~TimelineItem() {}
@@ -34,8 +36,8 @@ void TimelineItem::SetOffset(int start_offset, int end_offset) {
   napi_set_named_property(env, js_object, "start_offset", n_start_offset);
   napi_set_named_property(env, js_object, "end_offset", n_end_offset);
   */
-  NAPI_SetInstanceNamedProperty("start_offset", napi_encoder<int32_t>::encode(start_offset));
-  NAPI_SetInstanceNamedProperty("end_offset", napi_encoder<int32_t>::encode(end_offset));
+  // NAPI_SetInstanceNamedProperty("start_offset", napi_encoder<int32_t>::encode(start_offset));
+  // NAPI_SetInstanceNamedProperty("end_offset", napi_encoder<int32_t>::encode(end_offset));
 }
 
 void TimelineItem::SetFormatOffset(int fmt_offset) {

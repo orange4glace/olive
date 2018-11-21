@@ -3,6 +3,7 @@
 
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
+#include "napi/napi_sync_property.h"
 
 #include "resource/type.h"
 
@@ -27,9 +28,10 @@ protected:
   Decoder* decoder_;
 
 private:
-  resource_id id_;
+  NAPISyncProperty<resource_id> id_;
+  // resource_id id_;
   resource_type type_;
-  std::string path_;
+  NAPISyncProperty<std::string> path_;
 
 }; // class Media
 

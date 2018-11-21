@@ -5,6 +5,7 @@
 
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
+#include "napi/napi_sync_property.h"
 
 #include "timeline/timeline_item_snapshot.h"
 #include "timeline/timeline_typedef.h"
@@ -57,8 +58,8 @@ protected:
   timeline_item_id id_;
   TimelineLayer* timeline_layer_;
   int format_offset_;
-  int start_offset_;
-  int end_offset_;
+  NAPISyncProperty<int> start_offset_;
+  NAPISyncProperty<int> end_offset_;
 
   Resource* resource_;
 

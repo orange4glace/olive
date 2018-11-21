@@ -24,6 +24,13 @@
 
 namespace olive {
 
+class NAPI_Instanceable;
+
+class NAPI_InstanceableHelper {
+public:
+  virtual void NAPI_CreateInstance(NAPI_Instanceable* self) = 0;
+};
+
 #define EXPAND( x ) x
 
 #define PP_NARG(...) \
@@ -132,6 +139,14 @@ namespace olive {
 #define __NAPI_IMPL_PROPERTIES2_(PROP) BOOST_PP_EXPAND(__NAPI_DEFINE_PROPERTY_TO_DECORATE_PROPERTY(PROP))
 #define __NAPI_IMPL_PROPERTIES2(_, __, PROP) __NAPI_IMPL_PROPERTIES2_ (BOOST_PP_TUPLE_ENUM(PROP))
 
+#define NAPI_DECLARE_INSTANCEABLE_HELPER(T) \
+  class BOOST_PP_CAT(NAPI_InstanceableHelper_, T) : public NAPI_InstanceableHelper { \
+  public: \
+    inline void NAPI_CreateInstance(NAPI_Instanceable* self) override { \
+      self->__NAPI_CreateInstance(self, napi::unref(T::__napi_constructor_reference_)); \
+    } \
+  };
+
 #define NAPI_DECLARE_CLASS_BASE(T, NAPI_CLASSNAME) \
 public: \
   static void NAPI_Initialize(napi_env env); \
@@ -140,8 +155,8 @@ public: \
   static inline napi_value NAPI_Constructor(napi_env, napi_callback_info cbinfo) { return NULL; } \
 	static inline std::string __NAPI_GetClassName() { return NAPI_CLASSNAME; } \
   static napi_ref __napi_constructor_reference_; \
-private: \
-  void NAPI_CreateInstance();
+  NAPI_DECLARE_INSTANCEABLE_HELPER(T)
+  // void NAPI_CreateInstance() override;
 
 #define NAPI_DECLARE_CLASS(T, NAPI_CLASSNAME) \
   NAPI_DECLARE_CLASS_BASE(T, NAPI_CLASSNAME) \
@@ -152,27 +167,65 @@ private: \
   static inline napi_value T::__NAPI_GetParentConstructor(){return napi::unref(U::__napi_constructor_reference_);}
 
 
-#define NAPI_DEFINE_CLASS_(T, SEQ) \
+#define DEFINE_NAPI_CLASS_(T, SEQ) \
 	std::vector<napi_property_descriptor> T::__NAPI_GetClassPropertyDescriptors() { \
 		return std::move(std::vector<napi_property_descriptor>{BOOST_PP_SEQ_FOR_EACH(__NAPI_IMPL_PROPERTIES1, _, SEQ)}); \
 	} \
 	std::vector<napi_property_descriptor> T::__NAPI_GetDecoratePropertyDescriptors() { \
 		return std::move(std::vector<napi_property_descriptor>{BOOST_PP_SEQ_FOR_EACH(__NAPI_IMPL_PROPERTIES2, _, SEQ)}); \
 	}
-
-#define NAPI_DEFINE_CLASS(T, ...) \
-	NAPI_DEFINE_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__)) \
-  DEFINE_NAPI_Initialize(T) \
-  NAPI_DEFINE_CreateInstance(T) \
-  napi_ref T::__napi_constructor_reference_ = NULL;
-
-#define NAPI_DEFINE_CreateInstance(T) \
+/*
+#define DEFINE_NAPI_CreateInstance(T) \
   void T::NAPI_CreateInstance() { \
     NAPI_Instanceable::__NAPI_CreateInstance((void*)this, napi::unref(T::__napi_constructor_reference_)); \
   }
+*/
 
+#define DEFINE_NAPI_Initialize(T) \
+void T::NAPI_Initialize(napi_env env) { \
+  std::vector<napi_property_descriptor> class_descriptors =  \
+      T::__NAPI_GetClassPropertyDescriptors(); \
+  std::vector<napi_property_descriptor> decorate_descriptors =  \
+      T::__NAPI_GetDecoratePropertyDescriptors(); \
+  napi_value constructor; \
+ \
+  NAPI_CALL(napi_define_class(env, T::__NAPI_GetClassName().c_str(), NAPI_AUTO_LENGTH, NAPI_Constructor, NULL, \
+                class_descriptors.size(), class_descriptors.data(), &constructor)); \
+  napi_value decorate = napi::create_empty_object(); \
+  /* For some reason, this not work. instead, iterate over properties */ \
+  /* NAPI_CALL(napi_define_properties(env, decorate, decorate_descriptors.size(), decorate_descriptors.data())) */ \
+  for (auto& deco : decorate_descriptors) \
+    NAPI_CALL(napi_set_named_property(env, decorate, deco.utf8name, deco.value)); \
+  napi_value decorator[2]; \
+  decorator[0] = constructor; \
+  decorator[1] = decorate; \
+  napi::log(decorator[0]); \
+  napi::log(decorator[1]); \
+  napi::log(napi::mobx_decorate()); \
+  NAPI_CALL(napi_call_function(env, napi::mobx(), napi::mobx_decorate(), 2, decorator, &constructor)); \
+ \
+  napi_value parent_constructor = T::__NAPI_GetParentConstructor(); \
+  if (parent_constructor) { \
+    napi_value this_prototype = napi::GetNamedProperty(constructor, "prototype"); \
+    napi_value parent_prototype = napi::GetNamedProperty(parent_constructor, "prototype"); \
+    napi_value target_and_sources[2] = { this_prototype, parent_prototype }; \
+    napi::ObjectAssign(2, target_and_sources); \
+  } \
+  napi::log(napi_encoder<const char*>::encode("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")); \
+  napi::log(constructor); \
+ \
+  NAPI_CALL(napi_create_reference(env, constructor, 1, &__napi_constructor_reference_)); \
 }
 
-#include "napi_export.tc"
+#define NAPI_DEFINE_CLASS(T, ...) \
+	DEFINE_NAPI_CLASS_(T, BOOST_PP_IF(BOOST_PP_IS_EMPTY(__VA_ARGS__), BOOST_PP_TUPLE_EAT(),BOOST_PP_VARIADIC_TO_SEQ)(__VA_ARGS__)) \
+  DEFINE_NAPI_Initialize(T) \
+  napi_ref T::__napi_constructor_reference_ = NULL;
+  /* DEFINE_NAPI_CreateInstance(T) \ */
+
+#define NAPI_Instanceable_Initializer(T) \
+  NAPI_Instanceable(BOOST_PP_CAT(NAPI_InstanceableHelper_, T)())
+
+}
 
 #endif // OLIVE_NAPI_EXPORT

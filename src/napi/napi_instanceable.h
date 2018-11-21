@@ -2,6 +2,7 @@
 #define OLIVE_NAPI_INSTANCEABLE_H_
 
 #include "napi/napi.h"
+#include "napi/napi_export.h"
 
 namespace olive {
 
@@ -15,15 +16,19 @@ public:
 
   void NAPI_DeleteInstanceNamedProperty(const char* name);
 
+  void __NAPI_CreateInstance(void* native_this, napi_value constructor);
+
   inline napi_value napi_instance() {
     return napi::unref(__napi_instance_ref_);
   }
 
-protected:
-  void __NAPI_CreateInstance(void* native_this, napi_value constructor);
+  inline napi_ref napi_instance_ref() {
+    return __napi_instance_ref_;
+  }
 
 protected:
-  inline NAPI_Instanceable() {}
+  NAPI_Instanceable(NAPI_InstanceableHelper& helper);
+  // virtual void NAPI_CreateInstance() = 0;
 
 private:
   napi_ref __napi_instance_ref_;

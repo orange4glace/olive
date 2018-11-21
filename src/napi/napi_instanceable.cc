@@ -2,6 +2,10 @@
 
 namespace olive {
 
+NAPI_Instanceable::NAPI_Instanceable(NAPI_InstanceableHelper& helper) {
+  helper.NAPI_CreateInstance(this);
+}
+
 void NAPI_Instanceable::__NAPI_CreateInstance(void* native_this, napi_value constructor) {
   napi_env env = napi::current_env();
   napi_value extern_this;

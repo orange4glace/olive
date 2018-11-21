@@ -3,6 +3,8 @@ import React from 'react';
 import resourceBackground from 'background/resource';
 import { resource } from 'napi';
 
+import ResourceItem from 'windows/resource/resource-item';
+
 import style from './index.scss';
 
 @observer
@@ -39,6 +41,15 @@ class ResourceWindow extends React.Component {
           onClick={e=>this.dragHandler(e)}
           onDrag={e=>this.dragHandler(e)}
           onDrop={e=>this.dropHandler(e)}>
+        <div className="resource-items">
+        {
+          [...resource.resources].map(([key, resource]) => {
+            return (
+              <ResourceItem resource={resource} key={resource.id}/>
+            )
+          })
+        }
+        </div>
       </div>
     )
   }

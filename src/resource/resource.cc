@@ -7,8 +7,10 @@ resource_id _next_resource_id_ = 0;
 }
 
 Resource::Resource(resource_type type, std::string path) :
-    id_(_next_resource_id_++), type_(type), path_(path) {
-  NAPI_CreateInstance();
+    NAPI_Instanceable_Initializer(Resource),
+    id_(napi_instance_ref(), "id", _next_resource_id_++),
+    type_(type),
+    path_(napi_instance_ref(), "path", path) {
 }
 
 resource_id Resource::id() const {
@@ -24,6 +26,8 @@ const std::string& Resource::path() const {
 }
 
 // NAPI
-NAPI_DEFINE_CLASS(Resource)
+NAPI_DEFINE_CLASS(Resource,
+    NAPI_PROPERTY_VALUE("id", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("path", napi_configurable, NAPI_MOBX_OBSERVABLE));
 
 } // olive

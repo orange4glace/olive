@@ -20,14 +20,12 @@ namespace {
 namespace olive {
 
 TimelineLayer::TimelineLayer(timeline_layer_id id) 
-  : id_(__next_timeline_layer_id_++) {
-  NAPI_CreateInstance();
+  : NAPI_Instanceable_Initializer(TimelineLayer),
+    id_(__next_timeline_layer_id_++),
+    name_(napi_instance_ref(), "name", "layer" + std::to_string(id_)) {
   NAPI_SetInstanceNamedProperty("items",
       napi::create_empty_object(), &napi_items_ref_);
   NAPI_SetInstanceNamedProperty("id", napi_encoder<uint32_t>::encode(id));
-  NAPI_SetInstanceNamedProperty("name", napi_encoder<const char*>::encode(
-      "layer" + std::to_string(id_)
-  ));
 }
 
 TimelineLayer::~TimelineLayer() {}

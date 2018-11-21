@@ -4,6 +4,7 @@
 #include "napi/napi.h"
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
+#include "napi/napi_sync_property.h"
 
 #include "timeline/timeline_item_snapshot.h"
 #include "timeline/timeline_typedef.h"
@@ -42,6 +43,7 @@ private:
 
   napi_ref napi_items_ref_;
   timeline_layer_id id_;
+  NAPISyncProperty<std::string> name_;
   
 };
 

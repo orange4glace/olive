@@ -71,6 +71,16 @@ struct napi_encoder<const char*> {
   }
 };
 
+template <>
+struct napi_encoder<std::string> {
+  inline static napi_value encode(std::string& value) {
+    napi_env env = napi::current_env();
+    napi_value ret;
+    NAPI_CALL(napi_create_string_utf8(env, value.c_str(), NAPI_AUTO_LENGTH, &ret));
+    return ret;
+  }
+};
+
 }
 
 #endif // OLIVE_NAPI_ENCODER_H_

@@ -294,6 +294,12 @@ napi_value napi::create_undefined() {
   return undefined;
 }
 
+napi_value napi::create_string(const char* str) {
+  napi_value nv;
+  NAPI_CALL(napi_create_string_utf8(napi::current_env(), str, NAPI_AUTO_LENGTH, &nv));
+  return nv;
+}
+
 napi_value napi::mobx() {
   napi_value mobx;
   NAPI_CALL(napi_get_reference_value(env_, mobx_ref_, &mobx));

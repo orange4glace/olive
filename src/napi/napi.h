@@ -40,6 +40,7 @@ public:
   static napi_value create_object();
   static napi_value create_array();
   static napi_value create_undefined();
+  static napi_value create_string(const char* str);
 
   static napi_value mobx();
   static napi_value mobx_decorate();
