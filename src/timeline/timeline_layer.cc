@@ -32,6 +32,7 @@ TimelineLayer::~TimelineLayer() {}
 
 TimelineItem* const TimelineLayer::AddTimelineItem(int start_offset, int end_offset, Resource* const resource) {
   logger::get()->info("[TimelineLayer] AddTimelineItem {} {} {}", start_offset, end_offset, resource->id());
+  
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>(resource);
   TimelineItem* raw = item.get();
   item->SetOffset(start_offset, end_offset);

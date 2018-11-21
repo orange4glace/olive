@@ -143,7 +143,7 @@ public:
   class BOOST_PP_CAT(NAPI_InstanceableHelper_, T) : public NAPI_InstanceableHelper { \
   public: \
     inline void NAPI_CreateInstance(NAPI_Instanceable* self) override { \
-      self->__NAPI_CreateInstance(self, napi::unref(T::__napi_constructor_reference_)); \
+      self->__NAPI_CreateInstance(static_cast<T*>(self), napi::unref(T::__napi_constructor_reference_)); \
     } \
   };
 

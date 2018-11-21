@@ -1,5 +1,7 @@
 #include "resource/resource.h"
 
+#include "logger/logger.h"
+
 namespace olive {
 
 namespace {
@@ -27,7 +29,7 @@ const std::string& Resource::path() const {
 
 // NAPI
 NAPI_DEFINE_CLASS(Resource,
-    NAPI_PROPERTY_VALUE("id", napi_configurable, NAPI_MOBX_OBSERVABLE),
-    NAPI_PROPERTY_VALUE("path", napi_configurable, NAPI_MOBX_OBSERVABLE));
+    NAPI_PROPERTY_VALUE("id", napi_default),
+    NAPI_PROPERTY_VALUE("path", napi_default));
 
 } // olive
