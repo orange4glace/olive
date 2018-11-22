@@ -18,6 +18,15 @@ namespace olive {
 
 struct VideoFrame : Frame {
 
+  struct Data {
+    Data() : data(NULL) {}
+
+    uint8_t* data;
+    int width;
+    int height;
+    int64_t pts;
+  };
+
   VideoFrame(AVFrame* frame);
   ~VideoFrame() override;
   inline void DeleteMe() override {
@@ -30,10 +39,7 @@ struct VideoFrame : Frame {
 
   AVFrame* frame;
 
-  int width;
-  int height;
-
-  uint8_t* scaled_data;
+  VideoFrame::Data data;
   bool scaled;
   bool transferred;
 

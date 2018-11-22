@@ -21,16 +21,20 @@ onmessage = function(e) {
     webGLStart();
   }
   if (data.type == 'render') {
+    var t1 = Date.now();
     var snapshots = data.snapshots;
     var buffer;
     for (var i = 0; i < snapshots.length; i ++) {
       var snapshot = snapshots[i];
-      buffer = module.AsArrayBuffer(snapshot.data, snapshot.size);
+      videoFrameData = module.AsVideoFrameData(snapshot.data);
     }
-    renderBuffer = new Uint8Array(buffer);
+    renderBuffer = new Uint8Array(videoFrameData.data);
     // renderBuffer = new Uint8Array(renderBuffer);
+    console.log("Draw scene AFTER DATA ", Date.now() - t1, videoFrameData.pts);
     setTexture(renderBuffer);
+    console.log("Draw scene AFTER SET TEXTURE ", Date.now() - t1, videoFrameData.pts);
     drawScene();
+    console.log("Draw scene AFTER DRAW", Date.now() - t1, videoFrameData.pts);
     postMessage({
       type: 'rendered',
       snapshots: snapshots
