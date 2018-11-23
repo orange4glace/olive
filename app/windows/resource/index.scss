@@ -1,3 +1,10 @@
+@import "theme-black.scss";
+
 .component {
-  background: #eee;
+  background: $primary-color;
+
+  > .resource-items {
+    display: flex;
+    flex-wrap: wrap;
+  }
 }

@@ -8,6 +8,7 @@
 .component {
   display: flex;
   flex-direction: column;
+  border-right: 1px solid $tertiary-color;
 
   > .toolbar {
     flex-basis: $timeline-header-height;

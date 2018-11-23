@@ -20,13 +20,13 @@ class Resource;
 
 struct TimelineItemClamp {
   bool is_clamped;
-  int start_offset, end_offset;
+  int start_timecode, end_timecode;
   int length;
 
   TimelineItemClamp(bool is_clamped_,
-                    int start_offset_, int end_offset_) 
-      : is_clamped(is_clamped_), start_offset(start_offset_), end_offset(end_offset_),
-        length(end_offset_ - start_offset_) {}
+                    int start_timecode_, int end_timecode_) 
+      : is_clamped(is_clamped_), start_timecode(start_timecode_), end_timecode(end_timecode_),
+        length(end_timecode_ - start_timecode_) {}
 };
 
 class TimelineItem : public NAPI_Instanceable {
@@ -35,31 +35,31 @@ NAPI_DECLARE_CLASS(TimelineItem, "TimelineItem");
 public:
   TimelineItem(Resource* resource = NULL);
   ~TimelineItem();
-  void SetOffset(int start_offset, int end_offset);
-  void SetFormatOffset(int fmt_offset);
+  void SetTimecode(int start_timecode, int end_timecode);
+  void SetFormatTimecode(int fmt_timecode);
   void SetTimelineLayer(TimelineLayer* const layer);
   TimelineLayer* const GetTimelineLayer();
 
   TimelineItemSnapshot GetSnapshotAt(int64_t timestamp) const;
 
   // Get Clamped area of clampee clamped by clamper.
-  // return pair<start_offset, end_offset>
+  // return pair<start_timecode, end_timecode>
   static TimelineItemClamp GetClamped(const TimelineItem* const clamper,
                                    const TimelineItem* const clampee);
 
   timeline_item_id id() const;
-  inline int format_offset() const { return format_offset_; }
-  inline int start_offset() const { return start_offset_; }
-  inline int end_offset() const { return end_offset_; }
+  inline int format_timecode() const { return format_timecode_; }
+  inline int start_timecode() const { return start_timecode_; }
+  inline int end_timecode() const { return end_timecode_; }
 
   inline Resource* const resource() { return resource_; }
 
 protected:
-  timeline_item_id id_;
+  NAPISyncProperty<timeline_item_id> id_;
   TimelineLayer* timeline_layer_;
-  int format_offset_;
-  NAPISyncProperty<int> start_offset_;
-  NAPISyncProperty<int> end_offset_;
+  int format_timecode_;
+  NAPISyncProperty<int> start_timecode_;
+  NAPISyncProperty<int> end_timecode_;
 
   Resource* resource_;
 

@@ -8,7 +8,7 @@
 namespace olive {
 
 TimelineItemSnapshot::TimelineItemSnapshot() :
-    recognized(false), frame(NULL) {
+    pts(AV_NOPTS_VALUE), recognized(false), frame(NULL) {
 }
 
 TimelineItemSnapshot::TimelineItemSnapshot(const TimelineItemSnapshot& rhs)

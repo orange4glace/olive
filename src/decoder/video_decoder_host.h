@@ -18,6 +18,9 @@ public:
   void DecoderCallbackNonBlocking(TimelineItemSnapshot snapshot);
   void DecoderCallbackBlocking(TimelineItemSnapshot snapshot);
 
+  // Duration in microseconds
+  int64_t duration() const;
+
 protected:
   VideoDecoder* const AssignDecoder(timeline_item_id item_id);
   void FreeDecoder(timeline_item_id item_id);
@@ -28,6 +31,9 @@ private:
 
   size_t* manager_work_counter_;
   VideoResource* const resource_;
+
+  // Decoder for gathering information like duration, frame rate...
+  VideoDecoder* decoder_;
 
 }; // class VideoDecoderHost
 

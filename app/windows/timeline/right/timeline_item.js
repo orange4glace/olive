@@ -1,5 +1,7 @@
 import React from 'react';
 
+import style from './timeline_item.scss';
+
 @observer
 class TimelineItem extends React.Component {
 
@@ -13,7 +15,7 @@ class TimelineItem extends React.Component {
 
   render() {
     return (
-      <div className='timeline-item'
+      <div className={style.component} style={this.props.st}
           onDragStart={e=>this.dragStartHandler(e)}>
       </div>
     )

@@ -4,6 +4,7 @@
 #include "napi/napi.h"
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
+#include "napi/napi_sync_property.h"
 
 #include "timeline/timeline_typedef.h"
 #include "timeline/timeline_item_snapshot.h"
@@ -34,10 +35,10 @@ public:
   TimelineLayer* const AddTimelineLayer();
   void RemoveTimelineLayer(timeline_layer_id id);
 
-  TimelineItem* const AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset, Resource* const resource);
+  TimelineItem* const AddTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource);
   void RemoveTimelineItem(timeline_item_id id);
   void MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
-                        int start_offset, int end_offset);
+                        int start_timecode, int end_timecode);
 
   std::vector<TimelineItem* const> GetCurrentTimestampTimelineItems();
 
@@ -48,6 +49,9 @@ public:
   void ValidateVideo();
   void ValidateAudio();
 
+  int64_t ConvertTimecodeToMicrosecond(timecode_t timecode) const;
+  timecode_t ConvertMicrosecondToTimecode(int64_t micro) const;
+
   bool dirty_video() const { return dirty_video_; }
   bool dirty_audio() const { return dirty_audio_; }
 
@@ -56,9 +60,9 @@ public:
 
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
-  napi_value _NAPI_AddResourceTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset, Resource* const resource);
+  napi_value _NAPI_AddResourceTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource);
   napi_value _NAPI_MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
-                                    int start_offset, int end_offset);
+                                    int start_timecode, int end_timecode);
 
   napi_value _NAPI_DirtyVideo();
   napi_value _NAPI_DirtyAudio();
@@ -84,6 +88,8 @@ private:
   std::map<timeline_layer_id, std::unique_ptr<TimelineLayer>> timeline_layers_;
 
   napi_ref napi_layers_ref_;
+
+  NAPISyncProperty<int> total_timecode_;
   
   bool dirty_video_;
   bool dirty_audio_;

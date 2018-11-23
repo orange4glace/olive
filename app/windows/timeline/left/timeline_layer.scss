@@ -12,6 +12,12 @@
   box-sizing: border-box;
   border-bottom: 1px solid $secondary-contrast-color;
 
+  background: $secondary-color;
+
+  &:first-child {
+    border-top: 1px solid $secondary-contrast-color;
+  }
+
   > .name {
     color: $primary-text-color;
     font-size: 12px;

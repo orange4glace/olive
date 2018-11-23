@@ -1,5 +1,14 @@
+@import "theme-black.scss";
 @import "windows/timeline/variable.scss";
 
 .component {
+  position: relative;
   flex-basis: $timeline-layer-height;
+  box-sizing: border-box;
+  border-bottom: 1px solid $secondary-contrast-color;
+  width: 100%;
+
+  &:first-child {
+    border-top: 1px solid $secondary-contrast-color;
+  }
 }

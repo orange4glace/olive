@@ -9,4 +9,6 @@ using TimelineLayerID = uint32_t;
 using timeline_item_id = uint32_t;
 using TimelineItemID = uint32_t;
 
+using timecode_t = int;
+
 #endif // OLIVE_TIMELINE_TYPEDEF_H_

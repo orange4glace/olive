@@ -17,6 +17,8 @@ public:
   VideoDecoderHost* const video_decoder_host();
   AudioDecoderHost* const audio_decoder_host();
 
+  int64_t duration() const;
+
 private:
   VideoDecoderHost* video_decoder_host_;
   AudioDecoderHost* audio_decoder_host_;

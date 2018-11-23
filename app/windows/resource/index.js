@@ -38,8 +38,6 @@ class ResourceWindow extends React.Component {
     return (
       <div className={style.component}
           onDragOver={e=>this.dragOverHandler(e)}
-          onClick={e=>this.dragHandler(e)}
-          onDrag={e=>this.dragHandler(e)}
           onDrop={e=>this.dropHandler(e)}>
         <div className="resource-items">
         {

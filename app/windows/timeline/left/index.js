@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { timeline } from 'napi';
+import { Timeline } from 'napi';
 
 import TimelineLayer from "windows/timeline/left/timeline_layer";
 
@@ -17,11 +17,11 @@ class TimelineLeft extends React.Component {
     return (
       <div className={`${style.component} layers`}>
         <div className='toolbar'>
-          <div className='btn-add-layer' onClick={()=>timeline.AddTimelineLayer()}/>
+          <div className='btn-add-layer' onClick={()=>Timeline.AddTimelineLayer()}/>
         </div>
         <div className='layers'>
           {
-            [...timeline.layers].map(([key, layer]) => {
+            [...Timeline.layers].map(([key, layer]) => {
               return (
                 <TimelineLayer key={layer.id} layer={layer}/>
               )

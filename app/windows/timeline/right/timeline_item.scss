@@ -1,0 +1,9 @@
+@import "theme-black.scss";
+@import "windows/timeline/variable.scss";
+
+.component {
+  position: absolute;
+  height: 100%;
+
+  background: $secondary-color;
+}

@@ -26,4 +26,8 @@ AudioDecoderHost* const VideoResource::audio_decoder_host() {
   return audio_decoder_host_;
 }
 
+int64_t VideoResource::duration() const {
+  return video_decoder_host_->duration();
+}
+
 }

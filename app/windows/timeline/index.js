@@ -6,7 +6,7 @@ import TimelineRight from 'windows/timeline/right';
 import style from './index.scss';
 
 @observer
-class Timeline extends React.Component {
+class TimelineWindow extends React.Component {
 
   constructor(props) {
     super(props);
@@ -23,4 +23,4 @@ class Timeline extends React.Component {
 
 }
 
-export default Timeline;
+export default TimelineWindow;

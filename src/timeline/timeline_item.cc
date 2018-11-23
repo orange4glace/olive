@@ -15,37 +15,38 @@ namespace {
 
 TimelineItem::TimelineItem(Resource* resource)
   : NAPI_Instanceable_Initializer(TimelineItem),
-    id_(__next_timeline_item_id_++), resource_(resource), format_offset_(0),
-    start_offset_(napi_instance_ref(), "start_offset", 0),
-    end_offset_(napi_instance_ref(), "end_offset", 0) {
+    id_(napi_instance_ref(), "id", __next_timeline_item_id_++),
+    resource_(resource), format_timecode_(0),
+    start_timecode_(napi_instance_ref(), "start_timecode", 0),
+    end_timecode_(napi_instance_ref(), "end_timecode", 0) {
 }
 
 TimelineItem::~TimelineItem() {}
 
-void TimelineItem::SetOffset(int start_offset, int end_offset) {
-  start_offset_ = start_offset;
-  end_offset_ = end_offset;
+void TimelineItem::SetTimecode(int start_timecode, int end_timecode) {
+  start_timecode_ = start_timecode;
+  end_timecode_ = end_timecode;
   // NAPI
   /*
   napi_env = NAPI::GetCurrentEnv();
   napi_value js_object;
   napi_get_refernece_value(env, js_object_ref_, &js_object);
-  napi_value n_start_offset, n_end_offset;
-  napi_create_int32(env, start_offset_, &n_start_offset);
-  napi_create_int32(env, end_offset_, &n_end_offset);
-  napi_set_named_property(env, js_object, "start_offset", n_start_offset);
-  napi_set_named_property(env, js_object, "end_offset", n_end_offset);
+  napi_value n_start_timecode, n_end_timecode;
+  napi_create_int32(env, start_timecode_, &n_start_timecode);
+  napi_create_int32(env, end_timecode_, &n_end_timecode);
+  napi_set_named_property(env, js_object, "start_timecode", n_start_timecode);
+  napi_set_named_property(env, js_object, "end_timecode", n_end_timecode);
   */
-  // NAPI_SetInstanceNamedProperty("start_offset", napi_encoder<int32_t>::encode(start_offset));
-  // NAPI_SetInstanceNamedProperty("end_offset", napi_encoder<int32_t>::encode(end_offset));
+  // NAPI_SetInstanceNamedProperty("start_timecode", napi_encoder<int32_t>::encode(start_timecode));
+  // NAPI_SetInstanceNamedProperty("end_timecode", napi_encoder<int32_t>::encode(end_timecode));
 }
 
-void TimelineItem::SetFormatOffset(int fmt_offset) {
-  format_offset_ = fmt_offset;
+void TimelineItem::SetFormatTimecode(int fmt_timecode) {
+  format_timecode_ = fmt_timecode;
 }
 
 TimelineItemSnapshot TimelineItem::GetSnapshotAt(int64_t timestamp) const {
-  int64_t target = format_offset_ + (timestamp - start_offset_);
+  int64_t target = format_timecode_ + (timestamp - start_timecode_);
   TimelineItemSnapshot snapshot;
   snapshot.timeline_item_id = id_;
   snapshot.resource_id = resource_->id();
@@ -71,6 +72,9 @@ timeline_item_id TimelineItem::id() const {
 }
 
 // NAPI
-NAPI_DEFINE_CLASS(TimelineItem)
+NAPI_DEFINE_CLASS(TimelineItem,
+    NAPI_PROPERTY_VALUE("id", napi_default),
+    NAPI_PROPERTY_VALUE("start_timecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("end_timecode", napi_configurable, NAPI_MOBX_OBSERVABLE))
 
 } // namespace olive

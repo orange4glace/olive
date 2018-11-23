@@ -23,11 +23,11 @@ NAPI_DECLARE_CLASS(TimelineLayer, "TimelineLayer");
 public:
   TimelineLayer(timeline_layer_id id);
   ~TimelineLayer();
-  TimelineItem* const GetTimelineItemAtOffset(int offset);
-  TimelineItem* const AddTimelineItem(int start_offset, int end_offset, Resource* const resource);
-  // TimelineItem* const AddTimelineMediaItem(Media* const media, int start_offset, int end_offset);
-  // TimelineItem* const AddTimelineJSItem(int start_offset, int end_offset);
-  void MoveTimelineItem(TimelineItem* const item, int start_offset, int end_offset);
+  TimelineItem* const GetTimelineItemAtTimecode(int timecode);
+  TimelineItem* const AddTimelineItem(int start_timecode, int end_timecode, Resource* const resource);
+  // TimelineItem* const AddTimelineMediaItem(Media* const media, int start_timecode, int end_timecode);
+  // TimelineItem* const AddTimelineJSItem(int start_timecode, int end_timecode);
+  void MoveTimelineItem(TimelineItem* const item, int start_timecode, int end_timecode);
   void RemoveTimelineItem(timeline_item_id id);
 
   std::vector<TimelineItemSnapshot> GetTimelineItemSnapshotsAt(int64_t timestamp) const;

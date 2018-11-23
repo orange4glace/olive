@@ -23,6 +23,11 @@ namespace olive {
 VideoDecoderHost::VideoDecoderHost(VideoResource* const resource) :
   resource_(resource) {
   logger::get()->info("[VideoDecoder] Construct from Resource ID : {}", resource->id());
+  
+  // Prepare a decoder for giving informations to VideoResource
+  decoder_ = new VideoDecoder(this, resource_);
+  decoder_->Initialize();
+  // decoders_.insert({-1, decoder_});
 }
 
 void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_t* counter) {
@@ -72,6 +77,10 @@ void VideoDecoderHost::DecoderCallbackNonBlocking(TimelineItemSnapshot snapshot)
   *manager_work_counter_ -= 1;
   logger::get()->info("[CALLBACK] {} {}", snapshot.pts, *manager_work_counter_);
   decoder_manager->host_waiter_result.emplace_back(snapshot);
+}
+
+int64_t VideoDecoderHost::duration() const {
+  return decoder_->fmt_ctx_->duration;
 }
 
 } // namespace olive

@@ -10,6 +10,8 @@ class VideoDecoderHost;
 
 class VideoDecoder : public Decoder {
 
+friend class VideoDecoderHost;
+
 public:
   VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* const resource);
 

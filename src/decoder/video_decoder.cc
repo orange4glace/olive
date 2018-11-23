@@ -86,15 +86,17 @@ void VideoDecoder::decode() {
     int decoded = pkt_->size;
     if (pkt_->stream_index == stream_index_) {
       ret = avcodec_send_packet(dec_ctx_, pkt_);
+    logger::get()->critical("[VideoDecoder] RET ? {}", ret);
       if (ret < 0) return;
 
       ret = avcodec_receive_frame(dec_ctx_, frame_);
       logger::get()->info("[Dec] {} {} {}", frame_->best_effort_timestamp, frame_->pts, ret);
 
+    logger::get()->critical("[VideoDecoder] RET2 ? {}", ret);
       if (ret >= 0) {
         std::unique_lock<std::mutex> loop_lock(m);
         VideoFrame* frame = new VideoFrame(frame_);
-        logger::get()->info("[VideoDecoder] FrameQueue Push {} {}", frame->pts, frame->id);
+        logger::get()->critical("[VideoDecoder] FrameQueue Push {} {} {}", frame->pts, frame_queue_.size(), frame->id);
         frame_queue_.emplace_back(frame);
         av_frame_unref(frame_);
       }
@@ -106,6 +108,8 @@ void VideoDecoder::decode() {
 
 void VideoDecoder::loop() {
   std::unique_lock<std::mutex> loop_lock(m);
+  // Falling into loop if any request is arrived
+  while (decoding_snapshot_.pts == AV_NOPTS_VALUE || !has_decode_request_) cv.wait(loop_lock);
   while (true) {
     bool has_work = false;
     bool need_seek = false;
@@ -156,7 +160,8 @@ void VideoDecoder::loop() {
         logger::get()->info("[VideoDecoder] External decode done. counter");
       }
     }
-    while (frame_queue_.size() >= 5 && !has_decode_request_) cv.wait(loop_lock);
+    while (decoding_snapshot_.pts == AV_NOPTS_VALUE ||
+           (frame_queue_.size() >= 5 && !has_decode_request_)) cv.wait(loop_lock);
   }
 }
 

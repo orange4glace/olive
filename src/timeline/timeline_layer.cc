@@ -1,10 +1,14 @@
 #include "timeline/timeline_layer.h"
 
+#include "timeline/timeline.h"
 #include "timeline/timeline_item.h"
 #include "timeline/timeline_item_snapshot.h"
 
 #include "resource/resource.h"
+#include "resource/video_resource.h"
 
+#include "napi/es6/map.h"
+#include "napi/es6/observable_map.h"
 #include "napi/napi_encoder.h"
 
 #include "logger/logger.h"
@@ -24,34 +28,38 @@ TimelineLayer::TimelineLayer(timeline_layer_id id)
     id_(__next_timeline_layer_id_++),
     name_(napi_instance_ref(), "name", "layer" + std::to_string(id_)) {
   NAPI_SetInstanceNamedProperty("items",
-      napi::create_empty_object(), &napi_items_ref_);
+      es6::ObservableMap::New(), &napi_items_ref_);
   NAPI_SetInstanceNamedProperty("id", napi_encoder<uint32_t>::encode(id));
 }
 
 TimelineLayer::~TimelineLayer() {}
 
-TimelineItem* const TimelineLayer::AddTimelineItem(int start_offset, int end_offset, Resource* const resource) {
-  logger::get()->info("[TimelineLayer] AddTimelineItem {} {} {}", start_offset, end_offset, resource->id());
+TimelineItem* const TimelineLayer::AddTimelineItem(int start_timecode, int end_timecode, Resource* const resource) {
+  if (end_timecode == -1) {
+    int64_t duration = static_cast<VideoResource*>(resource)->duration();
+    end_timecode = Timeline::instance()->ConvertMicrosecondToTimecode(duration);
+  }
+  logger::get()->info("[TimelineLayer] AddTimelineItem {} {} {}", start_timecode, end_timecode, resource->id());
   
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>(resource);
   TimelineItem* raw = item.get();
-  item->SetOffset(start_offset, end_offset);
+  item->SetTimecode(start_timecode, end_timecode);
   AddTimelineItem(std::move(item));
   return raw;
 }
 /*
-TimelineItem* const TimelineLayer::AddTimelineJSItem(int start_offset, int end_offset) {
+TimelineItem* const TimelineLayer::AddTimelineJSItem(int start_timecode, int end_timecode) {
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>();
   TimelineItem* raw = item.get();
-  item->SetOffset(start_offset, end_offset);
+  item->Settimecode(start_timecode, end_timecode);
   AddTimelineItem(std::move(item));
   return raw;
 }
 */
 
 void TimelineLayer::MoveTimelineItem(TimelineItem* const item,
-    int start_offset, int end_offset) {
-  item->SetOffset(start_offset, end_offset);
+    int start_timecode, int end_timecode) {
+  item->SetTimecode(start_timecode, end_timecode);
 }
 
 void TimelineLayer::RemoveTimelineItem(timeline_item_id id) {
@@ -72,7 +80,7 @@ TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem>
   timeline_items_.push_back(std::move(item));
 
   // NAPI
-  napi::SetNamedProperty(napi_items_ref_, std::to_string(raw->id()).c_str(), raw->napi_instance());
+  es6::ObservableMap::Set(napi_items_ref_, napi_encoder<uint32_t>::encode(raw->id()), raw->napi_instance());
   return raw;
 }
 
@@ -93,7 +101,7 @@ TimelineItem* const TimelineLayer::CommitTimelineItem(TimelineItem* const item) 
     TimelineItemClamp clamp = TimelineItem::GetClamped(item, el);
     if (clamp.is_clamped) {
       if (clamp.length == 0) erases.emplace(it->id());
-      else it->SetOffset(clamp.start_offset, clamp.end_offset);
+      else it->SetTimecode(clamp.start_timecode, clamp.end_timecode);
     }
   }
   for (auto id : erases) RemoveTimelineItem(id);
@@ -107,6 +115,7 @@ timeline_layer_id TimelineLayer::id() const {
 // NAPI
 NAPI_DEFINE_CLASS(TimelineLayer,
     NAPI_PROPERTY_VALUE("id", napi_default),
-    NAPI_PROPERTY_VALUE("name", napi_configurable, NAPI_MOBX_OBSERVABLE))
+    NAPI_PROPERTY_VALUE("name", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("items", napi_configurable, NAPI_MOBX_OBSERVABLE))
 
 } // namespace olive

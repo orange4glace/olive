@@ -23,6 +23,7 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 
 Timeline::Timeline()
   : NAPI_Instanceable_Initializer(Timeline),
+    total_timecode_(napi_instance_ref(), "totalTimecode", 60),
     dirty_video_(false), dirty_audio_(false) {
   NAPI_SetInstanceNamedProperty("layers", es6::ObservableMap::New(), &napi_layers_ref_);
   napi::log(napi_encoder<const char*>::encode("Timeline intiailized"));
@@ -73,18 +74,19 @@ void Timeline::RemoveTimelineLayer(timeline_layer_id id) {
 }
 
 void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
-    int start_offset, int end_offset) {
+    int start_timecode, int end_timecode) {
   if (item->GetTimelineLayer()->id() == layer->id()) {
     // Same timeline layer
-    layer->MoveTimelineItem(item, start_offset, end_offset);
+    layer->MoveTimelineItem(item, start_timecode, end_timecode);
   }
   else {
     // Move to another timeline layer
   }
 } 
 
-TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_offset, int end_offset, Resource* const resource) {
-  return layer->AddTimelineItem(start_offset, end_offset, resource);
+TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource) {
+  logger::get()->critical("AddTimelineItem {} {} {} {}", layer->id(), start_timecode, end_timecode, resource->id());
+  return layer->AddTimelineItem(start_timecode, end_timecode, resource);
 }
 
 std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnapshots() const {
@@ -118,9 +120,19 @@ void Timeline::ValidateAudio() {
   dirty_audio_ = false;
 }
 
+int64_t Timeline::ConvertTimecodeToMicrosecond(timecode_t timecode) const {
+  // Currently 29.97 non-drop frame
+  return 1000000 * (int64_t)timecode / 30;
+}
+timecode_t Timeline::ConvertMicrosecondToTimecode(int64_t micro) const {
+  // Currently 29.97 non-drop frame
+  return 30 * micro / 1000000;
+}
+
 // NAPI
 NAPI_DEFINE_CLASS(Timeline, 
     NAPI_PROPERTY_VALUE("layers", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("totalTimecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
     NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
     NAPI_PROPERTY_FUNCTION("AddResourceTimelineItem", NAPI_AddResourceTimelineItem, napi_default),
     NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default),
@@ -135,16 +147,16 @@ napi_value Timeline::_NAPI_AddTimelineLayer() {
 }
 
 napi_value Timeline::_NAPI_AddResourceTimelineItem(TimelineLayer* const layer,
-    int start_offset, int end_offset, Resource* const resource) {
+    int start_timecode, int end_timecode, Resource* const resource) {
   std::unique_lock<std::mutex> lock(m);
-  TimelineItem* const item = AddTimelineItem(layer, start_offset, end_offset, resource);
+  TimelineItem* const item = AddTimelineItem(layer, start_timecode, end_timecode, resource);
   return item->napi_instance();
 }
 
 napi_value Timeline::_NAPI_MoveTimelineItem(TimelineLayer* const layer,
-    TimelineItem* const item, int start_offset, int end_offset) {
+    TimelineItem* const item, int start_timecode, int end_timecode) {
   std::unique_lock<std::mutex> lock(m);
-  MoveTimelineItem(layer, item, start_offset, end_offset);
+  MoveTimelineItem(layer, item, start_timecode, end_timecode);
   return NULL;
 }
 
