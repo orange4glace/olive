@@ -27,7 +27,7 @@ struct TimelineItemSnapshot {
   TimelineItemID timeline_item_id;
   ResourceID resource_id;
 
-  int64_t timestamp;
+  timecode_t timecode;
   int64_t pts;
   bool recognized;
 

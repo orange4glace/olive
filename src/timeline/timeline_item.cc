@@ -45,12 +45,12 @@ void TimelineItem::SetFormatTimecode(int fmt_timecode) {
   format_timecode_ = fmt_timecode;
 }
 
-TimelineItemSnapshot TimelineItem::GetSnapshotAt(int64_t timestamp) const {
-  int64_t target = format_timecode_ + (timestamp - start_timecode_);
+TimelineItemSnapshot TimelineItem::GetSnapshotAtTimecode(timecode_t timecode) const {
+  timecode_t target = format_timecode_ + (timecode - start_timecode_);
   TimelineItemSnapshot snapshot;
   snapshot.timeline_item_id = id_;
   snapshot.resource_id = resource_->id();
-  snapshot.timestamp = target;
+  snapshot.timecode = target;
   return std::move(snapshot);
 }
 

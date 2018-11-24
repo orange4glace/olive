@@ -6,6 +6,8 @@
 #include "decoder/audio_frame.h"
 #include "resource/video_resource.h"
 
+#include "timeline/timeline.h"
+
 #include "logger/logger.h"
 
 #include <iostream>
@@ -63,10 +65,10 @@ void AudioDecoder::Decode(TimelineItemSnapshot snapshot) {
   logger::get()->info("[Decoder] Decode request, item_id : {}, resource_id : {}", snapshot.timeline_item_id, snapshot.resource_id);
   std::unique_lock<std::mutex> loop_lock(m);
 
-  snapshot.pts = av_rescale_q(snapshot.timestamp, AVRational{1, 1000}, fmt_ctx_->streams[stream_index_]->time_base);
+  snapshot.pts = av_rescale_q(snapshot.timecode, AVRational{1, Timeline::instance()->timecode_timebase()}, fmt_ctx_->streams[stream_index_]->time_base);
   if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
   AudioFrame* target_frame = PeekQueueTo(snapshot.pts);
-  logger::get()->info("[Decoder] Decode request Rescale timestamp = {} pts = {} found = {}", snapshot.timestamp, snapshot.pts, target_frame ? true : false);
+  logger::get()->info("[Decoder] Decode request Rescale timecode = {} pts = {} found = {}", snapshot.timecode, snapshot.pts, target_frame ? true : false);
   if (target_frame) {
     snapshot.frame = static_cast<Frame*>(target_frame);
     target_frame->ref();

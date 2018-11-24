@@ -12,6 +12,11 @@
 
 #include "logger/logger.h"
 
+extern "C" {
+#include <libavutil/avutil.h>
+}
+
+
 #include <string>
 #include <assert.h>
 
@@ -23,7 +28,9 @@ timeline_layer_id __next_timeline_layer_id_ = 0;
 
 Timeline::Timeline()
   : NAPI_Instanceable_Initializer(Timeline),
-    total_timecode_(napi_instance_ref(), "totalTimecode", 60),
+    timecode_timebase_(napi_instance_ref(), "timecode_timebase", 30),
+    total_timecode_(napi_instance_ref(), "total_timecode", 60),
+    current_timecode_(napi_instance_ref(), "current_timecode", 0),
     dirty_video_(false), dirty_audio_(false) {
   NAPI_SetInstanceNamedProperty("layers", es6::ObservableMap::New(), &napi_layers_ref_);
   napi::log(napi_encoder<const char*>::encode("Timeline intiailized"));
@@ -75,6 +82,7 @@ void Timeline::RemoveTimelineLayer(timeline_layer_id id) {
 
 void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
     int start_timecode, int end_timecode) {
+  logger::get()->critical("{} {} {} {}", layer->id(), item->id(), start_timecode, end_timecode);
   if (item->GetTimelineLayer()->id() == layer->id()) {
     // Same timeline layer
     layer->MoveTimelineItem(item, start_timecode, end_timecode);
@@ -89,18 +97,18 @@ TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int st
   return layer->AddTimelineItem(start_timecode, end_timecode, resource);
 }
 
-std::vector<TimelineItemSnapshot> Timeline::GetCurrentTimestampTimelineItemSnapshots() const {
+std::vector<TimelineItemSnapshot> Timeline::GetTimelineItemSnapshotsAtCurrentTimecode() const {
   std::vector<TimelineItemSnapshot> snapshots;
   for (auto& kv : timeline_layers_) {
     auto& timeline_layer = kv.second;
-    std::vector<TimelineItemSnapshot> _snapshots = timeline_layer->GetTimelineItemSnapshotsAt(timestamp_);
+    std::vector<TimelineItemSnapshot> _snapshots = timeline_layer->GetTimelineItemSnapshotsAtTimecode(current_timecode_);
     for (auto& snapshot : _snapshots) snapshots.emplace_back(std::move(snapshot));
   }
   return std::move(snapshots);
 }
 
-void Timeline::SetTimestamp(int64_t timestamp) {
-  timestamp_ = timestamp;
+void Timeline::SetCurrentTimecode(int timecode) {
+  current_timecode_ = timecode;
 }
 
 // Todo: Set dirty if only timeline item affects to current rendering state
@@ -109,7 +117,7 @@ void Timeline::Invalidate(TimelineItem* const timeline_item) {
   dirty_video_ = true;
   dirty_audio_ = true;
   lock.unlock();
-  cv.notify_one();
+  cv.notify_all();
 }
 
 void Timeline::ValidateVideo() {
@@ -129,16 +137,32 @@ timecode_t Timeline::ConvertMicrosecondToTimecode(int64_t micro) const {
   return 30 * micro / 1000000;
 }
 
+timecode_t Timeline::RescaleToTimecode(int value, int timebase) const {
+  return av_rescale_q(value, AVRational{1, timebase}, AVRational{1, 30});
+}
+int64_t Timeline::RescaleFromTimecode(int value, int timebase) const {
+  return av_rescale_q(value, AVRational{1, 30}, AVRational{1, timebase});
+}
+
+int Timeline::timecode_timebase() const {
+  return timecode_timebase_;
+}
+
 // NAPI
 NAPI_DEFINE_CLASS(Timeline, 
     NAPI_PROPERTY_VALUE("layers", napi_configurable, NAPI_MOBX_OBSERVABLE),
-    NAPI_PROPERTY_VALUE("totalTimecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("timecode_timebase", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("total_timecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("current_timecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
     NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
     NAPI_PROPERTY_FUNCTION("AddResourceTimelineItem", NAPI_AddResourceTimelineItem, napi_default),
     NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default),
+    
     NAPI_PROPERTY_FUNCTION("DirtyVideo", NAPI_DirtyVideo, napi_default),
     NAPI_PROPERTY_FUNCTION("DirtyAudio", NAPI_DirtyAudio, napi_default),
-    NAPI_PROPERTY_FUNCTION("SetTimestamp", NAPI_SetTimestamp, napi_default))
+
+    NAPI_PROPERTY_FUNCTION("SetCurrentTimecode", NAPI_SetCurrentTimecode, napi_default),
+    NAPI_PROPERTY_FUNCTION("IncreaseCurrentTimecodeInMillisecond", NAPI_IncreaseCurrentTimecodeInMillisecond, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
   std::unique_lock<std::mutex> lock(m);
@@ -170,9 +194,16 @@ napi_value Timeline::_NAPI_DirtyAudio() {
   return NULL;
 }
 
-napi_value Timeline::_NAPI_SetTimestamp(int64_t timestamp) {
+napi_value Timeline::_NAPI_SetCurrentTimecode(int timecode) {
   std::unique_lock<std::mutex> lock(m);
-  SetTimestamp(timestamp);
+  SetCurrentTimecode(timecode);
+  return NULL;
+}
+
+napi_value Timeline::_NAPI_IncreaseCurrentTimecodeInMillisecond(int milli) {
+  int timecode = RescaleToTimecode(milli, 1000);
+  std::unique_lock<std::mutex> lock(m);
+  SetCurrentTimecode(current_timecode_ + timecode);
   return NULL;
 }
 

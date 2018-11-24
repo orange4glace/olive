@@ -40,7 +40,7 @@ public:
   void SetTimelineLayer(TimelineLayer* const layer);
   TimelineLayer* const GetTimelineLayer();
 
-  TimelineItemSnapshot GetSnapshotAt(int64_t timestamp) const;
+  TimelineItemSnapshot GetSnapshotAtTimecode(timecode_t timecode) const;
 
   // Get Clamped area of clampee clamped by clamper.
   // return pair<start_timecode, end_timecode>

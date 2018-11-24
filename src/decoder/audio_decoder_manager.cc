@@ -38,7 +38,7 @@ void AudioDecoderManager::loop() {
     Timeline::instance()->ValidateAudio();
     logger::get()->info("[AudioDecoderManager] Timeline validated");
     // Get TimelineItem snapshots
-    std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetCurrentTimestampTimelineItemSnapshots();
+    std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetTimelineItemSnapshotsAtCurrentTimecode();
     timeline_lock.unlock();
 
     // Call AudioDecoderHosts

@@ -40,11 +40,10 @@ public:
   void MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                         int start_timecode, int end_timecode);
 
-  std::vector<TimelineItem* const> GetCurrentTimestampTimelineItems();
+  std::vector<TimelineItemSnapshot> GetTimelineItemSnapshotsAtCurrentTimecode() const;
 
-  std::vector<TimelineItemSnapshot> GetCurrentTimestampTimelineItemSnapshots() const;
+  void SetCurrentTimecode(int timecode);
 
-  void SetTimestamp(int64_t timestamp);
   void Invalidate(TimelineItem* const timeline_item);
   void ValidateVideo();
   void ValidateAudio();
@@ -52,8 +51,13 @@ public:
   int64_t ConvertTimecodeToMicrosecond(timecode_t timecode) const;
   timecode_t ConvertMicrosecondToTimecode(int64_t micro) const;
 
-  bool dirty_video() const { return dirty_video_; }
-  bool dirty_audio() const { return dirty_audio_; }
+  timecode_t RescaleToTimecode(int value, int timebase) const;
+  int64_t RescaleFromTimecode(int value, int timebase) const;
+
+  inline bool dirty_video() const { return dirty_video_; }
+  inline bool dirty_audio() const { return dirty_audio_; }
+
+  int timecode_timebase() const;
 
   std::mutex m;
   std::condition_variable cv;
@@ -64,9 +68,11 @@ public:
   napi_value _NAPI_MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                                     int start_timecode, int end_timecode);
 
+  napi_value _NAPI_SetCurrentTimecode(int timecode);
+  napi_value _NAPI_IncreaseCurrentTimecodeInMillisecond(int milli);
+
   napi_value _NAPI_DirtyVideo();
   napi_value _NAPI_DirtyAudio();
-  napi_value _NAPI_SetTimestamp(int64_t timestamp);
   
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_AddTimelineLayer, _NAPI_AddTimelineLayer);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddResourceTimelineItem, _NAPI_AddResourceTimelineItem,
@@ -77,19 +83,22 @@ public:
   // Temporary for test
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_DirtyVideo, _NAPI_DirtyVideo);
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_DirtyAudio, _NAPI_DirtyAudio);
-  NAPI_EXPORT_FUNCTION(Timeline, NAPI_SetTimestamp, _NAPI_SetTimestamp,
-      int64_t);
+      
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_SetCurrentTimecode, _NAPI_SetCurrentTimecode,
+      int);
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_IncreaseCurrentTimecodeInMillisecond, _NAPI_IncreaseCurrentTimecodeInMillisecond,
+      int);
 
 private:
   static std::unique_ptr<Timeline> instance_;
-
-  int64_t timestamp_;
 
   std::map<timeline_layer_id, std::unique_ptr<TimelineLayer>> timeline_layers_;
 
   napi_ref napi_layers_ref_;
 
+  NAPISyncProperty<int> timecode_timebase_;
   NAPISyncProperty<int> total_timecode_;
+  NAPISyncProperty<int> current_timecode_;
   
   bool dirty_video_;
   bool dirty_audio_;

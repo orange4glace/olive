@@ -38,7 +38,7 @@ void VideoDecoderManager::loop() {
     Timeline::instance()->ValidateVideo();
     logger::get()->info("[VideoDecoderManager] Timeline validated");
     // Get TimelineItem snapshots
-    std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetCurrentTimestampTimelineItemSnapshots();
+    std::vector<TimelineItemSnapshot> snapshots = Timeline::instance()->GetTimelineItemSnapshotsAtCurrentTimecode();
     timeline_lock.unlock();
 
     // Call VideoDecoderHosts

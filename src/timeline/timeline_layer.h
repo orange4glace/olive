@@ -30,7 +30,7 @@ public:
   void MoveTimelineItem(TimelineItem* const item, int start_timecode, int end_timecode);
   void RemoveTimelineItem(timeline_item_id id);
 
-  std::vector<TimelineItemSnapshot> GetTimelineItemSnapshotsAt(int64_t timestamp) const;
+  std::vector<TimelineItemSnapshot> GetTimelineItemSnapshotsAtTimecode(timecode_t timecode) const;
 
   timeline_layer_id id() const;
 

@@ -147,6 +147,7 @@ class WindowRequest {
 window.addEventListener('start-app-window', e => {
   e.detail.setupWindow({
     olive_module: olive_module_exports,
+    mobx: mobx,
     mobx_react: mobx_react,
     ResourceRequest: ResourceRequest,
   });

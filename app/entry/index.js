@@ -1,6 +1,7 @@
 window.setupWindow = function(data) {
   console.log("[Entry] Initialize",data);
   window.olive_module = data.olive_module;
+  window.mobx = data.mobx;
   window.observer = data.mobx_react.observer;
   window.ResourceRequest = data.ResourceRequest
   

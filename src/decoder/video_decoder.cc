@@ -6,6 +6,8 @@
 #include "decoder/video_frame.h"
 #include "resource/video_resource.h"
 
+#include "timeline/timeline.h"
+
 #include "logger/logger.h"
 
 #include <iostream>
@@ -58,10 +60,10 @@ void VideoDecoder::Decode(TimelineItemSnapshot snapshot) {
   logger::get()->info("[Decoder] Decode request, item_id : {}, resource_id : {}", snapshot.timeline_item_id, snapshot.resource_id);
   std::unique_lock<std::mutex> loop_lock(m);
 
-  snapshot.pts = av_rescale_q(snapshot.timestamp, AVRational{1, 1000}, fmt_ctx_->streams[stream_index_]->time_base);
+  snapshot.pts = av_rescale_q(snapshot.timecode, AVRational{1, Timeline::instance()->timecode_timebase()}, fmt_ctx_->streams[stream_index_]->time_base);
   if (snapshot.pts < fmt_ctx_->streams[stream_index_]->start_time) snapshot.pts = fmt_ctx_->streams[stream_index_]->start_time;
   VideoFrame* target_frame = PeekQueueTo(snapshot.pts);
-  logger::get()->info("[Decoder] Decode request Rescale timestamp = {} pts = {} found = {}", snapshot.timestamp, snapshot.pts, target_frame ? true : false);
+  logger::get()->info("[Decoder] Decode request Rescale timecode = {} pts = {} found = {}", snapshot.timecode, snapshot.pts, target_frame ? true : false);
   if (target_frame) {
     snapshot.frame = static_cast<Frame*>(target_frame);
     target_frame->ref();
@@ -86,13 +88,11 @@ void VideoDecoder::decode() {
     int decoded = pkt_->size;
     if (pkt_->stream_index == stream_index_) {
       ret = avcodec_send_packet(dec_ctx_, pkt_);
-    logger::get()->critical("[VideoDecoder] RET ? {}", ret);
       if (ret < 0) return;
 
       ret = avcodec_receive_frame(dec_ctx_, frame_);
       logger::get()->info("[Dec] {} {} {}", frame_->best_effort_timestamp, frame_->pts, ret);
 
-    logger::get()->critical("[VideoDecoder] RET2 ? {}", ret);
       if (ret >= 0) {
         std::unique_lock<std::mutex> loop_lock(m);
         VideoFrame* frame = new VideoFrame(frame_);
@@ -109,7 +109,7 @@ void VideoDecoder::decode() {
 void VideoDecoder::loop() {
   std::unique_lock<std::mutex> loop_lock(m);
   // Falling into loop if any request is arrived
-  while (decoding_snapshot_.pts == AV_NOPTS_VALUE || !has_decode_request_) cv.wait(loop_lock);
+  while (decoding_snapshot_req_.pts == AV_NOPTS_VALUE || !has_decode_request_) cv.wait(loop_lock);
   while (true) {
     bool has_work = false;
     bool need_seek = false;

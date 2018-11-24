@@ -84,10 +84,10 @@ TimelineItem* const TimelineLayer::AddTimelineItem(std::unique_ptr<TimelineItem>
   return raw;
 }
 
-std::vector<TimelineItemSnapshot> TimelineLayer::GetTimelineItemSnapshotsAt(int64_t timestamp) const {
+std::vector<TimelineItemSnapshot> TimelineLayer::GetTimelineItemSnapshotsAtTimecode(timecode_t timecode) const {
   std::vector<TimelineItemSnapshot> snapshots;
   for (auto& timeline_item : timeline_items_) {
-    TimelineItemSnapshot snapshot = timeline_item->GetSnapshotAt(timestamp);
+    TimelineItemSnapshot snapshot = timeline_item->GetSnapshotAtTimecode(timecode);
     snapshots.emplace_back(std::move(snapshot));
   }
   return std::move(snapshots);

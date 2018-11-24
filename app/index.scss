@@ -5,6 +5,7 @@
 body {
   background: $primary-color;
   font-family: 'Noto Sans KR', sans-serif;
+  user-select: none;
 }
 
 // Global styles
