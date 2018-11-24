@@ -20,7 +20,7 @@ void VideoDecoderManager::Initialize() {
 
   // Start loop thread
   instance_->loop_thread_ = std::thread(&VideoDecoderManager::loop, instance_);
-  instance_->render_queue_.Initialize(napi::current_env(), "requestRendering", "requestRendering");
+  instance_->render_queue_.Initialize(napi::current_env(), "requestVideoRender", "requestVideoRender");
   instance_->render_queue_.name = "video";
 }
 

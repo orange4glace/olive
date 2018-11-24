@@ -2,7 +2,7 @@ let basepath;
 let module;
 
 var canvas;
-var gl;
+var gl = null;
 var texture;
 
 var renderBuffer;
@@ -12,7 +12,9 @@ onmessage = function(e) {
   if (data.type == 'init') {
     basepath = data.basepath;
     module = require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
-
+  }
+  if (data.type == 'set-canvas') {
+    console.assert(gl == null, "[Renderer] set-canvas failed. gl is already set.");
     canvas = data.canvas;
     gl = canvas.getContext("webgl2");
     gl.viewportWidth = canvas.width;
@@ -21,6 +23,7 @@ onmessage = function(e) {
     webGLStart();
   }
   if (data.type == 'render') {
+    console.assert(gl != null, "[Renderer] render failed. gl is null");
     var t1 = Date.now();
     var snapshots = data.snapshots;
     var buffer;
@@ -36,8 +39,7 @@ onmessage = function(e) {
     drawScene();
     console.log("Draw scene AFTER DRAW", Date.now() - t1, videoFrameData.pts);
     postMessage({
-      type: 'rendered',
-      snapshots: snapshots
+      type: 'rendered'
     });
   }
 }

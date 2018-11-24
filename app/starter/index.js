@@ -1,41 +1,12 @@
-const electron = window.require('electron');
+import { electron, olive, mobx, mobx_react } from 'starter/common';
+import Renderer from 'starter/renderer';
+
 const remote = electron.remote, 
       ipcRenderer = electron.ipcRenderer,
       BrowserWindow = remote.BrowserWindow,
       app = remote.app;
 
-let renderer_worker;
 let resourceWorkerWindow;
-
-let renderSnapshot = null;
-let isRendererFree = false;
-
-function postSnapshotsToRenderer() {
-  renderer_worker.postMessage({
-    type: 'render',
-    snapshots: renderSnapshot
-  });
-  isRendererFree = false;
-  renderSnapshot = null;
-}
-
-function freeSnapshot(snapshot) {
-  olive_module_exports.Free(snapshot.data, snapshot.size);
-}
-
-window.requestRendering = (snapshots) => {
-  if (renderSnapshot != null) {
-    console.log("Snapshot is skipped");
-    for (var i = 0; i < snapshots.length; i ++) {
-      var snapshot = snapshots[i];
-      freeSnapshot(snapshot);
-    }
-  }
-  renderSnapshot = snapshots;
-  if (isRendererFree) {
-    postSnapshotsToRenderer();
-  }
-}
 
 window.requestAudioRendering = (snapshots) => {
   return;
@@ -47,54 +18,6 @@ window.requestAudioRendering = (snapshots) => {
   }
 }
 
-function InitRendererWorker() {
-  var canvas = document.getElementById('canvas');
-  var offscreen = canvas.transferControlToOffscreen();
-  renderer_worker = new Worker("/renderer/worker.js");
-  renderer_worker.postMessage({
-    type: 'init',
-    basepath: basepath,
-    canvas: offscreen
-  }, [offscreen]);
-  renderer_worker.addEventListener('message', e => {
-
-    var type = e.data.type;
-    if (type == 'rendered') {
-      var snapshots = e.data.snapshots;
-      for (var i = 0; i < snapshots.length; i ++) {
-        var snapshot = snapshots[i];
-        // freeSnapshot(snapshot);
-      }
-      if (renderSnapshot != null) {
-        postSnapshotsToRenderer();
-      }
-      else {
-        isRendererFree = true;
-      }
-      olive_module_exports.Rendered();
-    }
-  });
-}
-
-
-import _ from 'test';
-
-var basepath = app.getAppPath();
-console.log(basepath);
-
-// Load native Olive module
-const olive_module = window.require(`${basepath}/src/build/Release/module.node`);
-console.log(olive_module);
-
-const mobx = require('mobx');
-const mobx_react = require('mobx-react');
-
-// Initialize Olive module
-const olive_module_exports = olive_module.initialize(mobx, console.log);
-console.log("[Olive]", olive_module_exports);
-
-InitRendererWorker();
-
 const ResourceRequest = {
   requestMetadata: function(paths) {
     resourceWorkerWindow.webContents.send('request-metadata', paths);
@@ -102,7 +25,7 @@ const ResourceRequest = {
 }
 ipcRenderer.on('resource-metadata', (e, result) => {
   if (result.status == 'ok') {
-    olive_module_exports.resource.LoadResource(result.data);
+    olive.module.resource.LoadResource(result.data);
   }
 });
 
@@ -146,7 +69,7 @@ class WindowRequest {
 
 window.addEventListener('start-app-window', e => {
   e.detail.setupWindow({
-    olive_module: olive_module_exports,
+    olive_module: olive.module,
     mobx: mobx,
     mobx_react: mobx_react,
     ResourceRequest: ResourceRequest,
@@ -177,3 +100,6 @@ function guid() {
   }
   return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
 }
+
+// Initialize module
+olive.initialize();
