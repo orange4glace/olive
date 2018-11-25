@@ -2,10 +2,12 @@ import React from 'react';
 
 import TimelineWindow from 'windows/timeline';
 import ResourceWindow from 'windows/resource';
+import RendererWindow from 'windows/renderer';
 
 const windows = {
   "Timeline": <TimelineWindow/>,
   "Resource": <ResourceWindow/>,
+  "Renderer": <RendererWindow/>,
 }
 
 const factory = {

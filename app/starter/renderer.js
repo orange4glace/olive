@@ -11,25 +11,20 @@ function sendOliveRendered() {
 }
 
 const Renderer = {
-  initialize: function() {
+  initialize: function(canvas) {
+    var offscreen = canvas.transferControlToOffscreen();
     renderer_worker = new Worker("/renderer/worker.js");
     renderer_worker.postMessage({
       type: 'init',
       basepath: basepath,
-    });
+      canvas: offscreen
+    }, [offscreen]);
     initialized = true;
 
     renderer_worker.addEventListener('message', e => {
       var type = e.data.type;
       if (type == 'rendered') return sendOliveRendered();
     });
-  },
-  setCanvas: function(canvas) {
-    var offscreen = canvas.transferControlToOffscreen();
-    renderer_worker.postMessage({
-      type: 'set-canvas',
-      canvas: offscreen
-    }, [offscreen]);
   },
   setActive: function(value) {
 

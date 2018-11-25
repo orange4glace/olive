@@ -4,6 +4,7 @@ window.setupWindow = function(data) {
   window.mobx = data.mobx;
   window.observer = data.mobx_react.observer;
   window.ResourceRequest = data.ResourceRequest
+  window.Renderer = data.Renderer;
   
   let bundleScript = document.createElement('script');
   bundleScript.src = './app.js';

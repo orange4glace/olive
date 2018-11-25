@@ -62,6 +62,9 @@ function mousePositionElement(e, el) {
 	};
 }
 
-export { 
+export default {
+  mouseTarget,
+  mousePositionDocument,
+  findPos,
   mousePositionElement
-};
+}

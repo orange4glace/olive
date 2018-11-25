@@ -19,7 +19,7 @@ class LayoutRoot extends React.Component {
               views: ['Timeline']
             }, {
               direction: 'VIEW',
-              views: ['Timeline']
+              views: ['Renderer']
             }
           ]
         }, {
@@ -33,9 +33,7 @@ class LayoutRoot extends React.Component {
 
   render() {
     return (
-      <Layout direction={this.data.direction}
-              children={this.data.children}
-              views={this.data.views}/>
+      <Layout data={this.data} index={0}/>
     )
   }
  

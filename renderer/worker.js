@@ -12,9 +12,7 @@ onmessage = function(e) {
   if (data.type == 'init') {
     basepath = data.basepath;
     module = require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
-  }
-  if (data.type == 'set-canvas') {
-    console.assert(gl == null, "[Renderer] set-canvas failed. gl is already set.");
+    
     canvas = data.canvas;
     gl = canvas.getContext("webgl2");
     gl.viewportWidth = canvas.width;

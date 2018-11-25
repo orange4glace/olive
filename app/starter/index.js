@@ -73,6 +73,7 @@ window.addEventListener('start-app-window', e => {
     mobx: mobx,
     mobx_react: mobx_react,
     ResourceRequest: ResourceRequest,
+    Renderer: Renderer,
   });
 });
 
