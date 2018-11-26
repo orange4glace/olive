@@ -15,11 +15,43 @@ class LayoutRoot extends React.Component {
           direction: 'VERTICAL',
           children: [
             {
-              direction: 'VIEW',
-              views: ['Timeline']
+              direction: 'HORIZONTAL',
+              children: [
+                {
+                  direction: 'VIEW',
+                  views: ['Empty']
+                }, {
+                  direction: 'VIEW',
+                  views: ['Empty']
+                }
+              ]
             }, {
-              direction: 'VIEW',
-              views: ['Renderer']
+              direction: 'HORIZONTAL',
+              children: [
+                {
+                  direction: 'VIEW',
+                  views: ['Empty']
+                }, {
+                  direction: 'VERTICAL',
+                  children: [
+                    {
+                      direction: 'VIEW',
+                      views: ['Empty']
+                    }, {
+                      direction: 'HORIZONTAL',
+                      children: [
+                        {
+                          direction: 'VIEW',
+                          views: ['Empty']
+                        }, {
+                          direction: 'VIEW',
+                          views: ['Empty']
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }, {
