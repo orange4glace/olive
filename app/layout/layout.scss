@@ -1,14 +1,16 @@
 .component {
   display: flex;
   flex-grow: 1;
+  max-width: 100%;
+  overflow: hidden;
 
   border: 1px solid white;
   box-sizing: border-box;
-
   &.HORIZONTAL {
     flex-direction: row;
 
     > .layout-container {
+      min-width: 20px;
 
       > .handle {
         height: 100%;
@@ -25,6 +27,7 @@
     flex-direction: column;
 
     > .layout-container {
+      min-height: 20px;
 
       > .handle {
         width: 100%;
@@ -47,6 +50,7 @@
   > .layout-container {
     position: relative;
     display: flex;
+    max-width: 100%;
     flex: 1 1;
 
     > .handle {

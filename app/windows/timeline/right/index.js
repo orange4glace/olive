@@ -4,7 +4,7 @@ import { Timeline } from 'napi';
 import TimelineLayer from 'windows/timeline/right/timeline_layer';
 import TimelineRuler from 'windows/timeline/right/timeline_ruler';
 
-import { mousePositionElement } from 'util/mouse_event'
+import MouseEvent from 'util/mouse_event'
 
 import style from './index.scss';
 
@@ -55,7 +55,7 @@ class TimelineRight extends React.Component {
 
   getTimecodeAtEvent(e) {
     var timelineEl = this.timelineRef.current;
-    var offset = mousePositionElement(e, timelineEl);
+    var offset = MouseEvent.mousePositionElement(e, timelineEl);
     offset.x += timelineEl.parentElement.scrollLeft;
     var percent = offset.x / timelineEl.offsetWidth;
     var timecode = percent * Timeline.total_timecode;

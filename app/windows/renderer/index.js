@@ -14,7 +14,7 @@ class RendererWindow extends React.Component {
   }
 
   componentDidMount() {
-    // this.componentRef.current.appendChild(rendererCanvas.element);
+    this.componentRef.current.appendChild(rendererCanvas.element);
   }
 
   render() {
