@@ -62,14 +62,14 @@ class Layout extends React.Component {
 
   shrinkVertical(direction, value, indexOffset, downside) {
     this._evaluateFlex();
-    var shrinked = this._shrinkVertical(this.data.direction, value, indexOffset, downside);
+    var shrinked = this._shrinkVertical(direction, value, indexOffset, downside);
     if (downside) {
       var growTarget = this.data.children[indexOffset - 1];
-      growTarget.component.growVertical(shrinked, true);
+      this.growVertical(direction, shrinked, indexOffset - 1, true);
     }
     else {
       var growTarget = this.data.children[indexOffset + 1];
-      growTarget.component.growVertical(shrinked, false);
+      this.growVertical(direction, shrinked, indexOffset + 1, false);
     }
     this._applyFlex();
   }
@@ -102,10 +102,19 @@ class Layout extends React.Component {
       }
     }
     else {
-      for (var i = indexOffset; i < this.data.children.length; i ++) {
-        var child = this.data.children[i];
-        console.assert(child.component, '[Layout] Propagation assert');
-        child.component._shrinkVertical(direction, actualValue, null, downside);
+      if (downside) {
+        for (var i = indexOffset; i < this.data.children.length; i ++) {
+          var child = this.data.children[i];
+          console.assert(child.component, '[Layout] Propagation assert');
+          child.component._shrinkVertical(direction, actualValue, null, downside);
+        }
+      }
+      else {
+        for (var i = indexOffset; i >= 0; i --) {
+          var child = this.data.children[i];
+          console.assert(child.component, '[Layout] Propagation assert');
+          child.component._shrinkVertical(direction, actualValue, null, downside);
+        }
       }
     }
     return actualValue;
@@ -144,30 +153,41 @@ class Layout extends React.Component {
     }
     else {
       var v = value;
-      for (var i = indexOffset; i < this.data.children.length; i ++) {
-        var child = this.data.children[i];
-        console.assert(child.component, '[Layout] Propagation assert');
-        var shrinked = child.component._shrinkVerticalMeasure(direction, v, null, downside);
-        v = Math.min(v, shrinked);
+      if (downside) {
+        for (var i = indexOffset; i < this.data.children.length; i ++) {
+          var child = this.data.children[i];
+          console.assert(child.component, '[Layout] Propagation assert');
+          var shrinked = child.component._shrinkVerticalMeasure(direction, v, null, downside);
+          v = Math.min(v, shrinked);
+        }
+      }
+      else {
+        for (var i = indexOffset; i >= 0; i --) {
+          var child = this.data.children[i];
+          console.assert(child.component, '[Layout] Propagation assert');
+          var shrinked = child.component._shrinkVerticalMeasure(direction, v, null, downside);
+          v = Math.min(v, shrinked);
+        }
       }
       return v;
     }
   }
 
-  growVertical(value, downside) {
-    this.flex += value;
-    if (this.data.direction == LayoutDirection.VERTICAL) {
-      var targetChild;
-      if (downside) targetChild = this.data.children[this.data.children.length - 1];
-      else targetChild = this.data.children[0];
+  growVertical(direction, value, indexOffset, downside) {
+    indexOffset = indexOffset == null ? (!downside ? 0 : this.data.children.length - 1) : indexOffset;
+    
+    if (this.data.direction == LayoutDirection.VIEW) return;
+    if (this.data.direction == direction) {
+      var targetChild = this.data.children[indexOffset];
+      targetChild.component.flex += value;
       console.assert(targetChild.component, '[Layout] component assert');
-      targetChild.component.growVertical(value);
+      targetChild.component.growVertical(direction, value, null, downside);
     }
-    if (this.data.direction == LayoutDirection.HORIZONTAL) {
+    else {
       for (var i = 0; i < this.data.children.length; i ++) {
         var child = this.data.children[i];
         console.assert(child.component, '[Layout] Propagation assert');
-        child.component.growVertical(value);
+        child.component.growVertical(direction, value, null, downside);
       }
     }
   }
