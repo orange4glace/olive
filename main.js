@@ -42,7 +42,8 @@ function createApp() {
       width: 1000,
       height: 600,
       webPreferences: {
-        nativeWindowOpen: true
+        nativeWindowOpen: true,
+        nodeIntegrationInWorker: true
       }
     });
     windowRequestHost = new WindowRequestHost(win);
