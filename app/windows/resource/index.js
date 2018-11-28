@@ -47,7 +47,6 @@ class ResourceWindow extends React.Component {
           })
         }
         </div>
-      <div className={style.component}>
       </div>
     )
   }

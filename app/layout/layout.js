@@ -199,6 +199,34 @@ class Layout extends React.Component {
       }
     }
   }
+
+  renderViews() {
+    const views = this.data.views;
+    console.log(views)
+    const activeView = views[0];
+    return (
+      <React.Fragment>
+        <div className='view-tabs'>
+          {
+            views.map(view =>
+              <div className='tab'>{view.name}</div>
+            )
+          }
+        </div>
+        <div className='dnd-place'>
+          <div className='top'>
+            <div className='corner-l'>
+              <div className='corner'></div>
+            </div>
+            <div className='corner-r'/>
+          </div>
+        </div>
+        {React.cloneElement(activeView.component, {
+          layoutEventListener: this.layoutEventListener
+        })}
+      </React.Fragment>
+    )
+  }
  
   render() {
     var childIndex = 0;
@@ -206,11 +234,7 @@ class Layout extends React.Component {
       <div className={`${style.component} ${this.data.direction} ${this.data.id} layout`} ref={this.componentRef}>
         {
           this.data.direction == LayoutDirection.VIEW ?
-          this.data.views.map(view => {
-            return React.cloneElement(view, {
-              layoutEventListener: this.layoutEventListener
-            });
-          }) :
+          this.renderViews() :
           this.data.children.map(child => {
             var el = null;
             var last = (childIndex == this.data.children.length - 1);
