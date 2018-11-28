@@ -16,6 +16,7 @@ class Layout extends React.Component {
     var id = parseInt(Math.random() * 10000);
     this.data.id = id;
 
+    this.state = {}
     this.layoutEventListener = {
       resize: null
     };
@@ -23,6 +24,7 @@ class Layout extends React.Component {
 
   componentDidMount() {
     this.data.component = this;
+    this.evaluateDndSize();
   }
 
   _evaluateFlex() {
@@ -55,7 +57,10 @@ class Layout extends React.Component {
     var bound = this.handleMouseMoveHandler.bind(this, index, type)
     document.addEventListener('mousemove', bound);
     document.addEventListener('mouseup',
-        ()=>document.removeEventListener('mousemove', bound));
+      ()=>{
+        this.evaluateDndSize();
+        document.removeEventListener('mousemove', bound);
+    });
   }
 
   handleMouseMoveHandler(index, type, e) {
@@ -66,6 +71,28 @@ class Layout extends React.Component {
     this.lastMousePosition = position;
     if (delta > 0) this.shrinkVertical(this.data.direction, delta, index + 1, true);
     else if (delta < 0) this.shrinkVertical(this.data.direction, -delta, index, false);
+  }
+
+  evaluateDndSize() {
+    if (this.data.direction == LayoutDirection.VIEW) {
+      var minOne = Math.min(this.componentRef.current.clientWidth, this.componentRef.current.clientHeight - 20);
+      var dndSideSize = Math.min(40, minOne * 0.25);
+      var dndCenterWidth = this.componentRef.current.clientWidth - dndSideSize * 2;
+      var dndCenterHeight = this.componentRef.current.clientHeight - 20 - dndSideSize * 2;
+      this.setState({
+        dnd: {
+          side: dndSideSize,
+          width: dndCenterWidth,
+          height: dndCenterHeight
+        }
+      })
+      return;
+    }
+    for (var i = 0; i < this.data.children.length; i ++) {
+      var child = this.data.children[i];
+      child.component.componentRef.current.parentElement.style.flexBasis = child.component.flex + 'px';
+      child.component.evaluateDndSize();
+    }
   }
 
   shrinkVertical(direction, value, indexOffset, downside) {
@@ -202,8 +229,95 @@ class Layout extends React.Component {
 
   renderViews() {
     const views = this.data.views;
-    console.log(views)
     const activeView = views[0];
+
+    var dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle,
+        dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle,
+        dndTopSkinBorderStyle, dndTopSkinStyle, dndBottomSkinStyle,
+        dndLeftSkinStyle, dndRightSkinStyle,
+        dndCenterStyle, dndCenterSkinStyle;
+    if (this.state.dnd) {
+      dndHorizontalWrapStyle = {
+        height: this.state.dnd.side + 'px'
+      }
+      dndHorizontalStyle = {
+        left: this.state.dnd.side + 'px',
+        right: this.state.dnd.side + 'px',
+        height: this.state.dnd.side + 'px'
+      }
+      dndVerticalWrapStyle = {
+        width: this.state.dnd.side + 'px'
+      }
+      dndVerticalStyle = {
+        top: this.state.dnd.side + 'px',
+        bottom: this.state.dnd.side + 'px',
+        width: this.state.dnd.side + 'px'
+      }
+      dndEdgeStyle = {
+        width: this.state.dnd.side * 1.414 + 'px',
+        height: this.state.dnd.side * 1.414 + 'px',
+      }
+      dndTopSkinStyle = {
+        borderTopWidth: `${this.state.dnd.side}px`,
+        borderLeftWidth: `${this.state.dnd.side}px`,
+        borderRightWidth: `${this.state.dnd.side}px`,
+        width: this.state.dnd.width + 'px',
+        height: 0
+      }
+      dndTopSkinBorderStyle = {
+        borderTopWidth: `${this.state.dnd.side + 1}px`,
+        borderLeftWidth: `${this.state.dnd.side + 1}px`,
+        borderRightWidth: `${this.state.dnd.side + 1}px`,
+        width: this.state.dnd.width + 'px',
+        height: 0
+      }
+      dndBottomSkinStyle = {
+        borderBottomWidth: `${this.state.dnd.side}px`,
+        borderLeftWidth: `${this.state.dnd.side}px`,
+        borderRightWidth: `${this.state.dnd.side}px`,
+        width: this.state.dnd.width + 'px',
+        height: 0
+      }
+      dndLeftSkinStyle = {
+        borderLeftWidth: `${this.state.dnd.side}px`,
+        borderTopWidth: `${this.state.dnd.side}px`,
+        borderBottomWidth: `${this.state.dnd.side}px`,
+        width: 0,
+        height: this.state.dnd.height + 'px',
+      }
+      dndRightSkinStyle = {
+        borderRightWidth: `${this.state.dnd.side}px`,
+        borderTopWidth: `${this.state.dnd.side}px`,
+        borderBottomWidth: `${this.state.dnd.side}px`,
+        width: 0,
+        height: this.state.dnd.height + 'px',
+      }
+      dndCenterStyle = {
+        left: this.state.dnd.side + 'px',
+        right: this.state.dnd.side + 'px',
+        top: this.state.dnd.side + 'px',
+        bottom: this.state.dnd.side + 'px'
+      }
+    }
+    function generateSide(direction, wrapperStyle, overlayStyle, edgeStyle, skinStyle) {
+      return (
+        <div className={`place side ${direction}`} style={wrapperStyle}>
+          <div className='overlay' style={overlayStyle} onClick={()=>console.log(123)}>
+            <div className='corner1' style={edgeStyle}/>
+            <div className='corner2' style={edgeStyle}/>
+          </div>
+          <div className='skin' style={skinStyle}></div>
+        </div>
+      )
+    }
+    function generateCenter() {
+      return (
+        <div className='place center' style={dndCenterStyle}>
+          <div className='overlay'/>
+          <div className='skin'/>
+        </div>
+      )
+    }
     return (
       <React.Fragment>
         <div className='view-tabs'>
@@ -214,11 +328,13 @@ class Layout extends React.Component {
           }
         </div>
         <div className='dnd-place'>
-          <div className='top'>
-            <div className='corner-l'>
-              <div className='corner'></div>
-            </div>
-            <div className='corner-r'/>
+          <div className='tab'></div>
+          <div className='con'>
+            {generateSide('top', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndTopSkinStyle)}
+            {generateSide('bottom', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndBottomSkinStyle)}
+            {generateSide('left', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndLeftSkinStyle)}
+            {generateSide('right', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndRightSkinStyle)}
+            {generateCenter()}
           </div>
         </div>
         {React.cloneElement(activeView.component, {
