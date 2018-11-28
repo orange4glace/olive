@@ -19,10 +19,10 @@ class LayoutRoot extends React.Component {
               children: [
                 {
                   direction: 'VIEW',
-                  views: ['Renderer']
+                  views: ['Empty']
                 }, {
                   direction: 'VIEW',
-                  views: ['Timeline']
+                  views: ['Empty']
                 }
               ]
             }, {

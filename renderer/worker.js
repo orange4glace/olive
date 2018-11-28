@@ -1,5 +1,5 @@
 let basepath;
-let module;
+let module = null;
 
 var canvas;
 var gl = null;
@@ -10,8 +10,10 @@ var renderBuffer;
 onmessage = function(e) {
   let data = e.data;
   if (data.type == 'init') {
+    // initialize can be called multiple times at debug stage (eg: hot-reload)
     basepath = data.basepath;
-    module = require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
+    if (module == null)
+      module = require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
     
     canvas = data.canvas;
     gl = canvas.getContext("webgl2");
