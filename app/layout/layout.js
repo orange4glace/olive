@@ -15,6 +15,10 @@ class Layout extends React.Component {
 
     var id = parseInt(Math.random() * 10000);
     this.data.id = id;
+
+    this.layoutEventListener = {
+      resize: null
+    };
   }
 
   componentDidMount() {
@@ -28,12 +32,16 @@ class Layout extends React.Component {
       (this.data.direction == LayoutDirection.VERTICAL) ?
           child.component.flex = child.component.componentRef.current.clientHeight :
           child.component.flex = child.component.componentRef.current.clientWidth
+      child.component.lastFlex = child.component.flex;
       child.component._evaluateFlex();
     }
   }
 
   _applyFlex() {
-    if (this.data.direction == LayoutDirection.VIEW) return;
+    if (this.data.direction == LayoutDirection.VIEW) {
+      if (this.lastFlex != this.flex) this.layoutEventListener.resize && this.layoutEventListener.resize();
+      return;
+    }
     for (var i = 0; i < this.data.children.length; i ++) {
       var child = this.data.children[i];
       child.component.componentRef.current.parentElement.style.flexBasis = child.component.flex + 'px';
@@ -198,7 +206,11 @@ class Layout extends React.Component {
       <div className={`${style.component} ${this.data.direction} ${this.data.id} layout`} ref={this.componentRef}>
         {
           this.data.direction == LayoutDirection.VIEW ?
-          this.data.views.map(view => view) :
+          this.data.views.map(view => {
+            return React.cloneElement(view, {
+              layoutEventListener: this.layoutEventListener
+            });
+          }) :
           this.data.children.map(child => {
             var el = null;
             var last = (childIndex == this.data.children.length - 1);

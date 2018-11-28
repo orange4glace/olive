@@ -1,0 +1,12 @@
+.component {
+
+  > .canvas-container {
+    background: grey;
+
+    > canvas {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+}

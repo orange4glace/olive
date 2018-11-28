@@ -12,8 +12,7 @@ onmessage = function(e) {
   if (data.type == 'init') {
     // initialize can be called multiple times at debug stage (eg: hot-reload)
     basepath = data.basepath;
-    if (module == null)
-      module = require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
+    module = module || require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
     
     canvas = data.canvas;
     gl = canvas.getContext("webgl2");
@@ -33,11 +32,8 @@ onmessage = function(e) {
     }
     renderBuffer = new Uint8Array(videoFrameData.data);
     // renderBuffer = new Uint8Array(renderBuffer);
-    console.log("Draw scene AFTER DATA ", Date.now() - t1, videoFrameData.pts);
     setTexture(renderBuffer);
-    console.log("Draw scene AFTER SET TEXTURE ", Date.now() - t1, videoFrameData.pts);
     drawScene();
-    console.log("Draw scene AFTER DRAW", Date.now() - t1, videoFrameData.pts);
     postMessage({
       type: 'rendered'
     });
