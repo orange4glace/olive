@@ -4,7 +4,8 @@ import mouseEvent from 'util/mouse_event';
 
 import style from './layout.scss';
  
-import LayoutDirection from './layout_direction';
+import { LayoutDirection } from './layout_direction';
+import View from 'layout/view';
  
 class Layout extends React.Component {
 
@@ -226,131 +227,17 @@ class Layout extends React.Component {
       }
     }
   }
-
-  renderViews() {
-    const views = this.data.views;
-    const activeView = views[0];
-
-    var dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle,
-        dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle,
-        dndTopSkinBorderStyle, dndTopSkinStyle, dndBottomSkinStyle,
-        dndLeftSkinStyle, dndRightSkinStyle,
-        dndCenterStyle, dndCenterSkinStyle;
-    if (this.state.dnd) {
-      dndHorizontalWrapStyle = {
-        height: this.state.dnd.side + 'px'
-      }
-      dndHorizontalStyle = {
-        left: this.state.dnd.side + 'px',
-        right: this.state.dnd.side + 'px',
-        height: this.state.dnd.side + 'px'
-      }
-      dndVerticalWrapStyle = {
-        width: this.state.dnd.side + 'px'
-      }
-      dndVerticalStyle = {
-        top: this.state.dnd.side + 'px',
-        bottom: this.state.dnd.side + 'px',
-        width: this.state.dnd.side + 'px'
-      }
-      dndEdgeStyle = {
-        width: this.state.dnd.side * 1.414 + 'px',
-        height: this.state.dnd.side * 1.414 + 'px',
-      }
-      dndTopSkinStyle = {
-        borderTopWidth: `${this.state.dnd.side}px`,
-        borderLeftWidth: `${this.state.dnd.side}px`,
-        borderRightWidth: `${this.state.dnd.side}px`,
-        width: this.state.dnd.width + 'px',
-        height: 0
-      }
-      dndTopSkinBorderStyle = {
-        borderTopWidth: `${this.state.dnd.side + 1}px`,
-        borderLeftWidth: `${this.state.dnd.side + 1}px`,
-        borderRightWidth: `${this.state.dnd.side + 1}px`,
-        width: this.state.dnd.width + 'px',
-        height: 0
-      }
-      dndBottomSkinStyle = {
-        borderBottomWidth: `${this.state.dnd.side}px`,
-        borderLeftWidth: `${this.state.dnd.side}px`,
-        borderRightWidth: `${this.state.dnd.side}px`,
-        width: this.state.dnd.width + 'px',
-        height: 0
-      }
-      dndLeftSkinStyle = {
-        borderLeftWidth: `${this.state.dnd.side}px`,
-        borderTopWidth: `${this.state.dnd.side}px`,
-        borderBottomWidth: `${this.state.dnd.side}px`,
-        width: 0,
-        height: this.state.dnd.height + 'px',
-      }
-      dndRightSkinStyle = {
-        borderRightWidth: `${this.state.dnd.side}px`,
-        borderTopWidth: `${this.state.dnd.side}px`,
-        borderBottomWidth: `${this.state.dnd.side}px`,
-        width: 0,
-        height: this.state.dnd.height + 'px',
-      }
-      dndCenterStyle = {
-        left: this.state.dnd.side + 'px',
-        right: this.state.dnd.side + 'px',
-        top: this.state.dnd.side + 'px',
-        bottom: this.state.dnd.side + 'px'
-      }
-    }
-    function generateSide(direction, wrapperStyle, overlayStyle, edgeStyle, skinStyle) {
-      return (
-        <div className={`place side ${direction}`} style={wrapperStyle}>
-          <div className='overlay' style={overlayStyle} onClick={()=>console.log(123)}>
-            <div className='corner1' style={edgeStyle}/>
-            <div className='corner2' style={edgeStyle}/>
-          </div>
-          <div className='skin' style={skinStyle}></div>
-        </div>
-      )
-    }
-    function generateCenter() {
-      return (
-        <div className='place center' style={dndCenterStyle}>
-          <div className='overlay'/>
-          <div className='skin'/>
-        </div>
-      )
-    }
-    return (
-      <React.Fragment>
-        <div className='view-tabs'>
-          {
-            views.map(view =>
-              <div className='tab'>{view.name}</div>
-            )
-          }
-        </div>
-        <div className='dnd-place'>
-          <div className='tab'></div>
-          <div className='con'>
-            {generateSide('top', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndTopSkinStyle)}
-            {generateSide('bottom', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndBottomSkinStyle)}
-            {generateSide('left', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndLeftSkinStyle)}
-            {generateSide('right', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndRightSkinStyle)}
-            {generateCenter()}
-          </div>
-        </div>
-        {React.cloneElement(activeView.component, {
-          layoutEventListener: this.layoutEventListener
-        })}
-      </React.Fragment>
-    )
-  }
  
   render() {
     var childIndex = 0;
+    console.log(this.data.direction == LayoutDirection.VIEW);
     return (
-      <div className={`${style.component} ${this.data.direction} ${this.data.id} layout`} ref={this.componentRef}>
+      <div className={`${style.component} ${LayoutDirection.toString(this.data.direction)}
+           ${this.data.id} layout`} ref={this.componentRef}>
         {
           this.data.direction == LayoutDirection.VIEW ?
-          this.renderViews() :
+          <View dnd={this.state.dnd} windows={this.data.views}
+                layout={this.data} layoutEventListener={this.layoutEventListener}/> :
           this.data.children.map(child => {
             var el = null;
             var last = (childIndex == this.data.children.length - 1);

@@ -52,12 +52,17 @@
     }
     
     > .view-tabs {
-      display: block;
+      position: relative;
+      z-index: 50;
+      display: flex;
+      overflow: hidden;
       flex-basis: 20px;
       flex-grow: 1;
       flex-shrink: 0;
 
       > .tab {
+        box-sizing: border-box;
+        padding: 0 5px;
         font-size: 12px;
         color: $secondary-contrast-color
       }
@@ -65,6 +70,7 @@
 
     > .dnd-place {
       position: absolute;
+      z-index: 49;
       display: flex;
       flex-direction: column;
       left: 0; top: 0;
