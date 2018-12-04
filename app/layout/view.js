@@ -1,5 +1,6 @@
 import React from 'react';
  
+import WindowFactory from 'windows/window_factory';
 import { LayoutDirection, LayoutViewDirection } from './layout_direction';
 
 const DNDDirection = {
@@ -10,11 +11,47 @@ const DNDDirection = {
   LEFT: 4,
 }
 
+var k = 0;
+
 @observer
 class View extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      id: k ++,
+      components: {},
+      componentCount: 0
+    }
+  }
+  
+  static getDerivedStateFromProps(props, state) {
+    if (state.componentCount == props.windows.length) return null;
+    console.log('drive chk', state.id);
+    if (state.componentCount < props.windows.length) {
+      for (var i = 0; i < props.windows.length; i ++) {
+        var windowName = props.windows[i];
+        if (!state.components[windowName]) {
+          var window = WindowFactory.create(windowName);
+          state.components[windowName] = window;
+        }
+      }
+    }
+    else if (state.componentCount > props.windows.length) {
+      var newComponents = {};
+      for (var i = 0; i < props.windows.length; i ++) {
+        var windowName = props.windows[i];
+        newComponents[windowName] = state.components[windowName];
+      }
+      state.components = newCOmponents;
+    }
+    state.componentCount = props.windows.length;
+    return state;
+  }
+
+  getComponent(name) {
+    return this.state.components[name];
   }
 
   generateSide(direction, wrapperStyle, overlayStyle, edgeStyle, skinStyle) {
@@ -49,7 +86,7 @@ class View extends React.Component {
 
   render() {
     const windows = this.props.windows;
-    const activeWindow = windows[0];
+    const activeWindow = this.state.components[windows[0].name];
 
     var dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle,
         dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle,
@@ -123,9 +160,11 @@ class View extends React.Component {
       <React.Fragment>
         <div className='view-tabs'>
           {
-            windows.map(view =>
-              <div className='tab' onMouseDown={e=>{console.log('mousedown')}}>{view.name}</div>
-            )
+            windows.map(view => {
+              var component = this.getComponent(view);
+              return <div className='tab' key={view}
+                          onMouseDown={e=>{console.log('mousedown')}}>{component.title}</div>
+            })
           }
         </div>
         <div className='dnd-place'>
@@ -138,9 +177,9 @@ class View extends React.Component {
             {this.generateCenter(dndCenterStyle)}
           </div>
         </div>
-        {React.cloneElement(activeWindow.component, {
+        {/*React.cloneElement(activeWindow, {
           layoutEventListener: this.props.layoutEventListener
-        })}
+        })*/}
       </React.Fragment>
     )
   }

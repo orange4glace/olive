@@ -56,12 +56,13 @@ class Layout extends React.Component {
     console.log(e,index,type)
     this.lastMousePosition = mouseEvent.mousePositionDocument(e);
     var bound = this.handleMouseMoveHandler.bind(this, index, type)
+    var mouseup = ()=> {
+      this.evaluateDndSize();
+      document.removeEventListener('mousemove', bound);
+      document.removeEventListener('mouseup', mouseup);
+    }
     document.addEventListener('mousemove', bound);
-    document.addEventListener('mouseup',
-      ()=>{
-        this.evaluateDndSize();
-        document.removeEventListener('mousemove', bound);
-    });
+    document.addEventListener('mouseup', mouseup);
   }
 
   handleMouseMoveHandler(index, type, e) {
@@ -230,7 +231,6 @@ class Layout extends React.Component {
  
   render() {
     var childIndex = 0;
-    console.log(this.data.direction == LayoutDirection.VIEW);
     return (
       <div className={`${style.component} ${LayoutDirection.toString(this.data.direction)}
            ${this.data.id} layout`} ref={this.componentRef}>

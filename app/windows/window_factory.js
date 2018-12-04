@@ -8,18 +8,22 @@ import RendererWindow from 'windows/renderer';
 const windows = {
   "Empty": {
     name: "WINDOW_EMPTY",
+    title: 'Empty',
     component: <EmptyWindow/>,
   },
   "Timeline": {
     name: "WINDOW_TIMELINE",
+    title: 'Timeline',
     component: <TimelineWindow/>,
   },
   "Resource": {
     name: "WINDOW_RESOURCE",
+    title: 'Resource',
     component: <ResourceWindow/>,
   },
   "Renderer": {
     name: "WINDOW_RENDERER",
+    title: 'Renderer',
     component: <RendererWindow/>,
   },
 }

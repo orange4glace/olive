@@ -1,5 +1,3 @@
-import WindowFactory from 'windows/window_factory';
-
 import { LayoutDirection, LayoutViewDirection } from 'layout/layout_direction';
 import Layout from './layout';
 
