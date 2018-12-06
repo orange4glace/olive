@@ -38,7 +38,6 @@ class Layout extends React.Component {
           child.component.flex = child.component.componentRef.current.offsetHeight :
           child.component.flex = child.component.componentRef.current.offsetWidth
       child.component.lastFlex = child.component.flex;
-      console.log('eval flex', child.id, child.component.flex)
       child.component._evaluateFlex();
     }
   }
@@ -55,32 +54,7 @@ class Layout extends React.Component {
     }
   }
 
-  _calibrateFlex(direction, flex, downside) {
-    if (this.data.direction == LayoutDirection.VIEW) return;
-    if (this.data.direction == direction) {
-      var indexOffset = downside ? 0 : this.data.children.length - 1;
-      var sum = 0;
-      for (var i = 0; i < this.data.children.length; i ++) {
-        var child = this.data.children[i];
-        sum += child.component.flex;
-      }
-      console.log(this.data.id, sum,flex, this.data.children[indexOffset].id);
-      // this.data.children[indexOffset].component.flex += (flex - sum);
-      for (var i = 0; i < this.data.children.length; i ++) {
-        var child = this.data.children[i];
-        child.component._calibrateFlex(direction, child.component.flex, downside);
-      }
-    }
-    else {
-      for (var i = 0; i < this.data.children.length; i ++) {
-        var child = this.data.children[i];
-        child.component._calibrateFlex(direction, flex, downside);
-      }
-    }
-  }
-
   handleMouseDownHandler(index, type, e) {
-    console.log(e,index,type)
     this.lastMousePosition = mouseEvent.mousePositionDocument(e);
     var bound = this.handleMouseMoveHandler.bind(this, index, type)
     var mouseup = ()=> {
@@ -126,21 +100,15 @@ class Layout extends React.Component {
   shrinkVertical(direction, value, indexOffset, downside) {
     this._evaluateFlex();
     var shrinked = this._shrinkVertical(direction, value, indexOffset, downside);
-    console.log('shrink',shrinked)
     if (downside) {
       var shrinkTarget = this.data.children[indexOffset];
       var growTarget = this.data.children[indexOffset - 1];
       this.growVertical(direction, shrinked, indexOffset - 1, true);
-      console.log('shrinkV',shrinkTarget.component.data.id);
-      shrinkTarget.component._calibrateFlex(direction, shrinkTarget.component.flex, downside);
-      growTarget.component._calibrateFlex(direction, growTarget.component.flex, !downside);
     }
     else {
       var shrinkTarget = this.data.children[indexOffset];
       var growTarget = this.data.children[indexOffset + 1];
       this.growVertical(direction, shrinked, indexOffset + 1, false);
-      shrinkTarget.component._calibrateFlex(direction, shrinkTarget.component.flex, downside);
-      growTarget.component._calibrateFlex(direction, growTarget.component.flex, !downside);
     }
     this._applyFlex();
   }

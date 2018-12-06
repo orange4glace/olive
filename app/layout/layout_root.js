@@ -1,9 +1,11 @@
 import React from 'react'
 
 import Layout from 'layout/layout';
+import LayoutDND from 'layout/global/layout-dnd';
 
 import LayoutParser from 'layout/data';
  
+@observer
 class LayoutRoot extends React.Component {
   
   constructor(props) {
@@ -73,12 +75,11 @@ class LayoutRoot extends React.Component {
         }
       ]
     })
-    console.log(this.data);
   }
 
   render() {
     return (
-      <div className='layout-root dnd-active'>
+      <div className={`layout-root ${LayoutDND.targetWindow && 'dnd-active'}`}>
         <Layout data={this.data} index={0}/>
       </div>        
     )

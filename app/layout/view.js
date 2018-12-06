@@ -61,7 +61,8 @@ class View extends React.Component {
   generateSide(direction, wrapperStyle, overlayStyle, edgeStyle, skinStyle) {
     return (
       <div className={`place side ${direction}`} style={wrapperStyle}
-        onMouseEnter={e=>this.dndMouseEnterHandler(e, direction)}>
+        onMouseEnter={e=>this.dndMouseEnterHandler(e, direction)}
+        onMouseLeave={e=>this.dndMouseLeaveHandler(e, direction)}>
         <div className='overlay' style={overlayStyle} onClick={()=>console.log(123)}>
           <div className='corner1' style={edgeStyle}/>
           <div className='corner2' style={edgeStyle}/>
@@ -81,10 +82,20 @@ class View extends React.Component {
   dndMouseEnterHandler(e, direction) {
     console.log('mouse enter', direction);
   }
+  dndMouseLeaveHandler(e, direction) {
+    console.log('mouse leave', direction);
+  }
 
   tabMouseDownHandler(window) {
     console.log('tmdh');
     LayoutDND.setTargetWindow(window);
+
+    document.addEventListener('mouseup', this.tabMouseUpHandler);
+  }
+
+  tabMouseUpHandler() {
+    LayoutDND.setTargetWindow(null);
+    window.removeEventListener('mouseup', this.tabMouseDownHandler);
   }
 
   render() {
