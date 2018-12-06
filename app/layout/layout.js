@@ -4,7 +4,7 @@ import mouseEvent from 'util/mouse_event';
 
 import style from './layout.scss';
  
-import { LayoutDirection } from './layout_direction';
+import { LayoutDirection } from './layout-direction';
 import View from 'layout/view';
  
 class Layout extends React.Component {
@@ -26,6 +26,8 @@ class Layout extends React.Component {
   componentDidMount() {
     this.data.component = this;
     this.evaluateDndSize();
+
+    setTimeout(()=>this._evaluateFlex());
   }
 
   _evaluateFlex() {
@@ -33,9 +35,10 @@ class Layout extends React.Component {
     for (var i = 0; i < this.data.children.length; i ++) {
       var child = this.data.children[i];
       (this.data.direction == LayoutDirection.VERTICAL) ?
-          child.component.flex = child.component.componentRef.current.clientHeight :
-          child.component.flex = child.component.componentRef.current.clientWidth
+          child.component.flex = child.component.componentRef.current.offsetHeight :
+          child.component.flex = child.component.componentRef.current.offsetWidth
       child.component.lastFlex = child.component.flex;
+      console.log('eval flex', child.id, child.component.flex)
       child.component._evaluateFlex();
     }
   }
@@ -49,6 +52,30 @@ class Layout extends React.Component {
       var child = this.data.children[i];
       child.component.componentRef.current.parentElement.style.flexBasis = child.component.flex + 'px';
       child.component._applyFlex();
+    }
+  }
+
+  _calibrateFlex(direction, flex, downside) {
+    if (this.data.direction == LayoutDirection.VIEW) return;
+    if (this.data.direction == direction) {
+      var indexOffset = downside ? 0 : this.data.children.length - 1;
+      var sum = 0;
+      for (var i = 0; i < this.data.children.length; i ++) {
+        var child = this.data.children[i];
+        sum += child.component.flex;
+      }
+      console.log(this.data.id, sum,flex, this.data.children[indexOffset].id);
+      // this.data.children[indexOffset].component.flex += (flex - sum);
+      for (var i = 0; i < this.data.children.length; i ++) {
+        var child = this.data.children[i];
+        child.component._calibrateFlex(direction, child.component.flex, downside);
+      }
+    }
+    else {
+      for (var i = 0; i < this.data.children.length; i ++) {
+        var child = this.data.children[i];
+        child.component._calibrateFlex(direction, flex, downside);
+      }
     }
   }
 
@@ -77,10 +104,10 @@ class Layout extends React.Component {
 
   evaluateDndSize() {
     if (this.data.direction == LayoutDirection.VIEW) {
-      var minOne = Math.min(this.componentRef.current.clientWidth, this.componentRef.current.clientHeight - 20);
+      var minOne = Math.min(this.componentRef.current.offsetWidth, this.componentRef.current.offsetHeight - 20);
       var dndSideSize = Math.min(40, minOne * 0.25);
-      var dndCenterWidth = this.componentRef.current.clientWidth - dndSideSize * 2;
-      var dndCenterHeight = this.componentRef.current.clientHeight - 20 - dndSideSize * 2;
+      var dndCenterWidth = this.componentRef.current.offsetWidth - dndSideSize * 2;
+      var dndCenterHeight = this.componentRef.current.offsetHeight - 20 - dndSideSize * 2;
       this.setState({
         dnd: {
           side: dndSideSize,
@@ -92,7 +119,6 @@ class Layout extends React.Component {
     }
     for (var i = 0; i < this.data.children.length; i ++) {
       var child = this.data.children[i];
-      child.component.componentRef.current.parentElement.style.flexBasis = child.component.flex + 'px';
       child.component.evaluateDndSize();
     }
   }
@@ -100,13 +126,21 @@ class Layout extends React.Component {
   shrinkVertical(direction, value, indexOffset, downside) {
     this._evaluateFlex();
     var shrinked = this._shrinkVertical(direction, value, indexOffset, downside);
+    console.log('shrink',shrinked)
     if (downside) {
+      var shrinkTarget = this.data.children[indexOffset];
       var growTarget = this.data.children[indexOffset - 1];
       this.growVertical(direction, shrinked, indexOffset - 1, true);
+      console.log('shrinkV',shrinkTarget.component.data.id);
+      shrinkTarget.component._calibrateFlex(direction, shrinkTarget.component.flex, downside);
+      growTarget.component._calibrateFlex(direction, growTarget.component.flex, !downside);
     }
     else {
+      var shrinkTarget = this.data.children[indexOffset];
       var growTarget = this.data.children[indexOffset + 1];
       this.growVertical(direction, shrinked, indexOffset + 1, false);
+      shrinkTarget.component._calibrateFlex(direction, shrinkTarget.component.flex, downside);
+      growTarget.component._calibrateFlex(direction, growTarget.component.flex, !downside);
     }
     this._applyFlex();
   }
@@ -161,7 +195,7 @@ class Layout extends React.Component {
     indexOffset = indexOffset == null ? (downside ? 0 : this.data.children.length - 1) : indexOffset;
     if (this.data.direction == LayoutDirection.VIEW) {
       var size = (direction == LayoutDirection.VERTICAL) ?
-          this.componentRef.current.clientHeight : this.componentRef.current.clientWidth;
+          this.componentRef.current.offsetHeight : this.componentRef.current.offsetWidth;
       var shrinked = Math.max(20, size - value)
       var shrink = size - shrinked;
       return shrink;
@@ -234,6 +268,12 @@ class Layout extends React.Component {
     return (
       <div className={`${style.component} ${LayoutDirection.toString(this.data.direction)}
            ${this.data.id} layout`} ref={this.componentRef}>
+        {/*
+          I don't know the exact reason but if border is directly applied to component,
+          Jittering problem occurs on resizing. (offsetWidth can't measure its size properly.)
+          To solve that, border is separated.
+        */}
+        <div className='border'/>
         {
           this.data.direction == LayoutDirection.VIEW ?
           <View dnd={this.state.dnd} windows={this.data.views}

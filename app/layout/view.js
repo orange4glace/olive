@@ -1,7 +1,9 @@
 import React from 'react';
  
 import WindowFactory from 'windows/window_factory';
-import { LayoutDirection, LayoutViewDirection } from './layout_direction';
+import { LayoutDirection, LayoutViewDirection } from './layout-direction';
+
+import LayoutDND from 'layout/global/layout-dnd';
 
 const DNDDirection = {
   CENTER: 0,
@@ -24,6 +26,8 @@ class View extends React.Component {
       components: {},
       componentCount: 0
     }
+
+    this.tabMouseDownHandler = this.tabMouseDownHandler.bind(this);
   }
   
   static getDerivedStateFromProps(props, state) {
@@ -56,7 +60,8 @@ class View extends React.Component {
 
   generateSide(direction, wrapperStyle, overlayStyle, edgeStyle, skinStyle) {
     return (
-      <div className={`place side ${direction}`} style={wrapperStyle}>
+      <div className={`place side ${direction}`} style={wrapperStyle}
+        onMouseEnter={e=>this.dndMouseEnterHandler(e, direction)}>
         <div className='overlay' style={overlayStyle} onClick={()=>console.log(123)}>
           <div className='corner1' style={edgeStyle}/>
           <div className='corner2' style={edgeStyle}/>
@@ -74,19 +79,17 @@ class View extends React.Component {
     )
   }
   dndMouseEnterHandler(e, direction) {
-    const layout = this.props.layout;
-    switch (direction) {
-    case DNDDirection.TOP:
-      if (layout.direction == LayoutDirection.VERTICAL) {
+    console.log('mouse enter', direction);
+  }
 
-      }
-    break;
-    }
+  tabMouseDownHandler(window) {
+    console.log('tmdh');
+    LayoutDND.setTargetWindow(window);
   }
 
   render() {
     const windows = this.props.windows;
-    const activeWindow = this.state.components[windows[0].name];
+    const activeWindow = windows[0];
 
     var dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle,
         dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle,
@@ -163,23 +166,25 @@ class View extends React.Component {
             windows.map(view => {
               var component = this.getComponent(view);
               return <div className='tab' key={view}
-                          onMouseDown={e=>{console.log('mousedown')}}>{component.title}</div>
+                          onMouseDown={()=>this.tabMouseDownHandler(view)}>{component.title}</div>
             })
           }
         </div>
-        <div className='dnd-place'>
-          <div className='tab'></div>
-          <div className='con'>
-            {this.generateSide('top', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndTopSkinStyle)}
-            {this.generateSide('bottom', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndBottomSkinStyle)}
-            {this.generateSide('left', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndLeftSkinStyle)}
-            {this.generateSide('right', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndRightSkinStyle)}
-            {this.generateCenter(dndCenterStyle)}
+        <div className='dnd'>
+          <div className='inner'>
+            <div className='tab'></div>
+            <div className='con'>
+              {this.generateSide('top', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndTopSkinStyle)}
+              {this.generateSide('bottom', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndBottomSkinStyle)}
+              {this.generateSide('left', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndLeftSkinStyle)}
+              {this.generateSide('right', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndRightSkinStyle)}
+              {this.generateCenter(dndCenterStyle)}
+            </div>
           </div>
         </div>
-        {/*React.cloneElement(activeWindow, {
+        {React.cloneElement(this.getComponent(activeWindow).component, {
           layoutEventListener: this.props.layoutEventListener
-        })*/}
+        })}
       </React.Fragment>
     )
   }

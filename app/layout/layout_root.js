@@ -12,6 +12,19 @@ class LayoutRoot extends React.Component {
       direction: 'HORIZONTAL',
       children: [
         {
+          direction: 'VIEW',
+          views: ['Empty']
+        },
+        {
+          direction: 'VIEW',
+          views: ['Empty']
+        }
+      ]
+    })
+    this.data = LayoutParser({
+      direction: 'HORIZONTAL',
+      children: [
+        {
           direction: 'VERTICAL',
           children: [
             {
@@ -65,7 +78,9 @@ class LayoutRoot extends React.Component {
 
   render() {
     return (
-      <Layout data={this.data} index={0}/>
+      <div className='layout-root dnd-active'>
+        <Layout data={this.data} index={0}/>
+      </div>        
     )
   }
  

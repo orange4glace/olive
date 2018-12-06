@@ -1,4 +1,4 @@
-import { LayoutDirection, LayoutViewDirection } from 'layout/layout_direction';
+import { LayoutDirection, LayoutViewDirection } from 'layout/layout-direction';
 import Layout from './layout';
 
 class LayoutData {

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import Layout from './layout';
-import LayoutDirection from './layout_direction';
+import LayoutDirection from './layout-direction';
 
 import mouseEvent from 'util/mouse_event';
 import style from './layout.scss';
