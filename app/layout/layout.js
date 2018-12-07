@@ -7,15 +7,13 @@ import style from './layout.scss';
 import { LayoutDirection } from './layout-direction';
 import View from 'layout/view';
  
+@observer
 class Layout extends React.Component {
 
   constructor(props) {
     super(props);
     this.data = this.props.data;
     this.componentRef = React.createRef();
-
-    var id = parseInt(Math.random() * 10000);
-    this.data.id = id;
 
     this.state = {}
     this.layoutEventListener = {
@@ -64,6 +62,7 @@ class Layout extends React.Component {
     }
     document.addEventListener('mousemove', bound);
     document.addEventListener('mouseup', mouseup);
+    e.stopPropagation();
   }
 
   handleMouseMoveHandler(index, type, e) {
@@ -74,6 +73,7 @@ class Layout extends React.Component {
     this.lastMousePosition = position;
     if (delta > 0) this.shrinkVertical(this.data.direction, delta, index + 1, true);
     else if (delta < 0) this.shrinkVertical(this.data.direction, -delta, index, false);
+    e.stopPropagation();
   }
 
   evaluateDndSize() {
@@ -251,15 +251,15 @@ class Layout extends React.Component {
             var last = (childIndex == this.data.children.length - 1);
             if (!last) {
               var boundedHandle = this.handleMouseDownHandler.bind(this, childIndex, this.data.direction);
-              el = <div className={'layout-container'}>
+              el = <div className={'layout-container'} key={child.id}>
                        <div className='handle'
                           onMouseDown={boundedHandle}></div>
                        <Layout data={child} index={childIndex}/>
                     </div>
             } else {
-              el = <div className='layout-container'>
-                       <Layout data={child} index={childIndex}/>
-                     </div>
+              el = <div className='layout-container' key={child.id}>
+                      <Layout data={child} index={childIndex}/>
+                    </div>
             }
             childIndex++;
             return el;

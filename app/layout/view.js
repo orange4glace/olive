@@ -28,6 +28,7 @@ class View extends React.Component {
     }
 
     this.tabMouseDownHandler = this.tabMouseDownHandler.bind(this);
+    this.tabMouseUpHandler = this.tabMouseUpHandler.bind(this);
   }
   
   static getDerivedStateFromProps(props, state) {
@@ -48,9 +49,10 @@ class View extends React.Component {
         var windowName = props.windows[i];
         newComponents[windowName] = state.components[windowName];
       }
-      state.components = newCOmponents;
+      state.components = newComponents;
     }
     state.componentCount = props.windows.length;
+    console.log(props,state);
     return state;
   }
 
@@ -80,6 +82,8 @@ class View extends React.Component {
     )
   }
   dndMouseEnterHandler(e, direction) {
+    LayoutDND.setTargetLayout(this.props.layout);
+    LayoutDND.setTargetDirection(direction);
     console.log('mouse enter', direction);
   }
   dndMouseLeaveHandler(e, direction) {
@@ -87,15 +91,15 @@ class View extends React.Component {
   }
 
   tabMouseDownHandler(window) {
-    console.log('tmdh');
+    LayoutDND.setHostLayout(this.props.layout);
     LayoutDND.setTargetWindow(window);
-
     document.addEventListener('mouseup', this.tabMouseUpHandler);
   }
 
   tabMouseUpHandler() {
+    LayoutDND.drop();
     LayoutDND.setTargetWindow(null);
-    window.removeEventListener('mouseup', this.tabMouseDownHandler);
+    document.removeEventListener('mouseup', this.tabMouseUpHandler);
   }
 
   render() {
@@ -193,9 +197,6 @@ class View extends React.Component {
             </div>
           </div>
         </div>
-        {React.cloneElement(this.getComponent(activeWindow).component, {
-          layoutEventListener: this.props.layoutEventListener
-        })}
       </React.Fragment>
     )
   }

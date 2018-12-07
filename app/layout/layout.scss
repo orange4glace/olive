@@ -10,10 +10,13 @@
 
   &.dnd-active {
 
-    .dnd:hover {
+    .dnd {
+      z-index: 51 !important;
 
-      > .inner {
-        visibility: visible !important;
+      &:hover {
+        > .inner {
+          visibility: visible !important;
+        }
       }
     }
   }
