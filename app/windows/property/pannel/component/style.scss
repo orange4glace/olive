@@ -1,0 +1,17 @@
+.property-pannel {
+
+  &.label {
+
+  }
+
+  &.integer-slider {
+    display: flex;
+    
+    > input {
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+  }
+
+}

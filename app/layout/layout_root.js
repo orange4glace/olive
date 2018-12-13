@@ -37,7 +37,7 @@ class LayoutRoot extends React.Component {
                   views: ['Timeline']
                 }, {
                   direction: 'VIEW',
-                  views: ['Renderer']
+                  views: ['RendererDev']
                 }
               ]
             }, {
@@ -57,7 +57,7 @@ class LayoutRoot extends React.Component {
                       children: [
                         {
                           direction: 'VIEW',
-                          views: ['Empty']
+                          views: ['Property']
                         }, {
                           direction: 'VIEW',
                           views: ['Empty']
