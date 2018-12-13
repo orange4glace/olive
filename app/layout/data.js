@@ -15,18 +15,30 @@ class LayoutData {
     this.id = parseInt(Math.random() * 1000);
   }
 
-  insertWindow(viewDirection) {
+  insertWindow(window, viewDirection) {
     console.assert(this.direction == LayoutDirection.VIEW,
       "[LayoutData] insertWindow : layout must be a view");
     if (viewDirection == LayoutViewDirection.CENTER) return;
-    console.log('insert window', viewDirection, this.parent.direction);
+    console.log('insert window', this.id, viewDirection, this.parent.direction);
     if (LayoutViewDirection.isOrthogonalToLayoutDirection(viewDirection, this.parent.direction)) {
+      var index = this.parent.indexOfChildLayout(this);
+      this.parent.children.splice(index, 1);
+      var layout = new LayoutData(this.parent, LayoutDirection.getOrthogonalDirection(this.parent.direction));
+      this.parent.children.splice(index, 0, layout);
+      this.parent = layout;
+      layout.children.push(this);
       
+      var win = new LayoutData(layout, LayoutDirection.VIEW);
+      win.views.push(window);
+      if (LayoutViewDirection.isTopOrLeft) layout.children.splice(0, 0, win);
+      else layout.children.splice(1, 0, win);
     }
     else {
       var index = this.parent.indexOfChildLayout(this);
       var layout = new LayoutData(this.parent, LayoutDirection.VIEW);
-      this.parent.children.splice(index, 0, layout);
+      layout.views.push(window);
+      if (LayoutViewDirection.isTopOrLeft) this.parent.children.splice(index, 0, layout);
+      else this.parent.children.splice(index + 1, 0, layout);
     }
   }
 

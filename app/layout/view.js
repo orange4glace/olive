@@ -62,7 +62,7 @@ class View extends React.Component {
 
   generateSide(direction, wrapperStyle, overlayStyle, edgeStyle, skinStyle) {
     return (
-      <div className={`place side ${direction}`} style={wrapperStyle}
+      <div className={`place side ${LayoutViewDirection.toString(direction)}`} style={wrapperStyle}
         onMouseEnter={e=>this.dndMouseEnterHandler(e, direction)}
         onMouseLeave={e=>this.dndMouseLeaveHandler(e, direction)}>
         <div className='overlay' style={overlayStyle} onClick={()=>console.log(123)}>
@@ -189,10 +189,10 @@ class View extends React.Component {
           <div className='inner'>
             <div className='tab'></div>
             <div className='con'>
-              {this.generateSide('top', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndTopSkinStyle)}
-              {this.generateSide('bottom', dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndBottomSkinStyle)}
-              {this.generateSide('left', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndLeftSkinStyle)}
-              {this.generateSide('right', dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndRightSkinStyle)}
+              {this.generateSide(LayoutViewDirection.TOP, dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndTopSkinStyle)}
+              {this.generateSide(LayoutViewDirection.BOTTOM, dndHorizontalWrapStyle, dndHorizontalStyle, dndEdgeStyle, dndBottomSkinStyle)}
+              {this.generateSide(LayoutViewDirection.LEFT, dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndLeftSkinStyle)}
+              {this.generateSide(LayoutViewDirection.RIGHT, dndVerticalWrapStyle, dndVerticalStyle, dndEdgeStyle, dndRightSkinStyle)}
               {this.generateCenter(dndCenterStyle)}
             </div>
           </div>

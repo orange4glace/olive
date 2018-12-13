@@ -25,6 +25,7 @@ class Layout extends React.Component {
     this.data.component = this;
     this.evaluateDndSize();
 
+    console.log("com did ma ", this.data.id);
     setTimeout(()=>this._evaluateFlex());
   }
 
