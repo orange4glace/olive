@@ -43,8 +43,6 @@ class LayoutData {
   }
 
   removeWindow(window) {
-    console.log('remove window', this, window);
-    console.log(this, this.views.slice(0));
     console.assert(this.direction == LayoutDirection.VIEW,
       "[LayoutData] removeWindow : layout must be a view");
     var idx = this.views.indexOf(window);
@@ -60,13 +58,11 @@ class LayoutData {
   }
 
   removeLayout(layout) {
-    console.log('remove layout', this, layout)
     var index = this.indexOfChildLayout(layout);
     var child = this.children.splice(index, 1)[0];
     if (this.children.length == 1) {
       var replacer = this.children[0];
       var thisIndex = this.parent.indexOfChildLayout(this);
-      console.log('replace with',this.parent, thisIndex, replacer)
       this.parent.children[thisIndex] = replacer;
       replacer.parent = this.parent;
     }

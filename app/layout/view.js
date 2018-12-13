@@ -197,6 +197,13 @@ class View extends React.Component {
             </div>
           </div>
         </div>
+        <div className='window'>
+          {
+            React.cloneElement(this.getComponent(activeWindow).component, {
+              layoutEventListener: this.props.layoutEventListener
+            })
+          }
+        </div>
       </React.Fragment>
     )
   }

@@ -30,6 +30,7 @@ class TimelineRuler extends React.Component {
     var timecode = this.timelineUtil.getTimecodeAtEvent(e);
     console.log(timecode);
     Timeline.SetCurrentTimecode(timecode);
+    Timeline.DirtyVideo();
   }
 
   render() {

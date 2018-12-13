@@ -46,7 +46,7 @@ void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_
 }
 
 VideoDecoder* const VideoDecoderHost::AssignDecoder(timeline_item_id item_id) {
-  logger::get()->info("[VideoDecoderHost] Assign new decoder");
+  logger::get()->critical("[VideoDecoderHost] Assign new decoder");
   VideoDecoder* decoder = NULL;
   if (decoder_pool_.empty()) {
     // Allocate new Decoder

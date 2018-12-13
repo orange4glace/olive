@@ -109,6 +109,7 @@ std::vector<TimelineItemSnapshot> Timeline::GetTimelineItemSnapshotsAtCurrentTim
 
 void Timeline::SetCurrentTimecode(int timecode) {
   current_timecode_ = timecode;
+  logger::get()->critical("SetCurrentTimecode {}", timecode);
 }
 
 // Todo: Set dirty if only timeline item affects to current rendering state

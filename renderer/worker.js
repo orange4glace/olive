@@ -10,6 +10,7 @@ var renderBuffer;
 onmessage = function(e) {
   let data = e.data;
   if (data.type == 'init') {
+    console.log('init');
     // initialize can be called multiple times at debug stage (eg: hot-reload)
     basepath = data.basepath;
     module = module || require(`${basepath}/renderer/build/Release/olive_renderer_module.node`);
@@ -22,6 +23,7 @@ onmessage = function(e) {
     webGLStart();
   }
   if (data.type == 'render') {
+    console.log('render');
     console.assert(gl != null, "[Renderer] render failed. gl is null");
     var t1 = Date.now();
     var snapshots = data.snapshots;
