@@ -34,14 +34,24 @@ TimelineLayer::TimelineLayer(timeline_layer_id id)
 
 TimelineLayer::~TimelineLayer() {}
 
-TimelineItem* const TimelineLayer::AddTimelineItem(int start_timecode, int end_timecode, Resource* const resource) {
+TimelineItem* const TimelineLayer::AddResourceTimelineItem(int start_timecode, int end_timecode, Resource* const resource) {
   if (end_timecode == -1) {
     int64_t duration = static_cast<VideoResource*>(resource)->duration();
     end_timecode = Timeline::instance()->ConvertMicrosecondToTimecode(duration);
   }
-  logger::get()->info("[TimelineLayer] AddTimelineItem {} {} {}", start_timecode, end_timecode, resource->id());
+  logger::get()->info("[TimelineLayer] AddResourceTimelineItem {} {} {}", start_timecode, end_timecode, resource->id());
   
   std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>(resource);
+  TimelineItem* raw = item.get();
+  item->SetTimecode(start_timecode, end_timecode);
+  AddTimelineItem(std::move(item));
+  return raw;
+}
+
+TimelineItem* const TimelineLayer::AddFigureTimelineItem(int start_timecode, int end_timecode) {
+  logger::get()->info("[TimelineLayer] AddFigureTimelineItem {} {} {}", start_timecode, end_timecode);
+  
+  std::unique_ptr<TimelineItem> item = std::make_unique<TimelineItem>();
   TimelineItem* raw = item.get();
   item->SetTimecode(start_timecode, end_timecode);
   AddTimelineItem(std::move(item));

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Timeline } from 'napi';
+import Timeline from 'timeline'
 
 import style from './timeline_ruler.scss';
 
@@ -29,8 +29,8 @@ class TimelineRuler extends React.Component {
   setCurrentTimecodeByEvent(e) {
     var timecode = this.timelineUtil.getTimecodeAtEvent(e);
     console.log(timecode);
-    Timeline.SetCurrentTimecode(timecode);
-    Timeline.DirtyVideo();
+    Timeline.setCurrentTimecode(timecode);
+    // Timeline.DirtyVideo();
   }
 
   render() {

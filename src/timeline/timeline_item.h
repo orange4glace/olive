@@ -33,7 +33,8 @@ class TimelineItem : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(TimelineItem, "TimelineItem");
 
 public:
-  TimelineItem(Resource* resource = NULL);
+  TimelineItem();
+  TimelineItem(Resource* resource);
   ~TimelineItem();
   void SetTimecode(int start_timecode, int end_timecode);
   void SetFormatTimecode(int fmt_timecode);

@@ -2,8 +2,6 @@
 @import "windows/timeline/variable.scss";
 
 .component {
-  display: flex;
-  align-items: center;
   
   flex-basis: $timeline-layer-height;
   flex-grow: 0;
@@ -22,5 +20,9 @@
     color: $primary-text-color;
     font-size: 12px;
     font-family: 'Nanum Gothic', sans-serif;
+  }
+
+  > .timeline-item {
+    flex-basis: $timeline-layer-height;
   }
 }

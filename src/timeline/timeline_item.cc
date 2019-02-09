@@ -13,12 +13,15 @@ namespace {
   timeline_item_id __next_timeline_item_id_ = 0;
 } // namespace
 
-TimelineItem::TimelineItem(Resource* resource)
+TimelineItem::TimelineItem()
   : NAPI_Instanceable_Initializer(TimelineItem),
     id_(napi_instance_ref(), "id", __next_timeline_item_id_++),
-    resource_(resource), format_timecode_(0),
     start_timecode_(napi_instance_ref(), "start_timecode", 0),
     end_timecode_(napi_instance_ref(), "end_timecode", 0) {
+}
+
+TimelineItem::TimelineItem(Resource* resource)
+  : TimelineItem() {
 }
 
 TimelineItem::~TimelineItem() {}

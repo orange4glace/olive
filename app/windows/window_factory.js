@@ -6,6 +6,7 @@ import ResourceWindow from 'windows/resource';
 import RendererWindow from 'windows/renderer';
 import RendererDevWindow from 'windows/renderer-dev';
 import PropertyWindow from 'windows/property';
+import ToolWindow from 'windows/tool';
 
 const windows = {
   'Empty': {
@@ -37,6 +38,11 @@ const windows = {
     name: 'WINDOW_PROPERTY',
     title: 'Property',
     component: <PropertyWindow/>
+  },
+  'Tool': {
+    name: 'WINDOW_TOOL',
+    title: 'Tool',
+    component: <ToolWindow/>
   },
 }
 

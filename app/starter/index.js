@@ -1,4 +1,5 @@
 import { electron, olive, mobx, mobx_react } from 'starter/common';
+import Timeline from 'timeline/starter/timeline';
 import Renderer from 'starter/renderer';
 
 const remote = electron.remote, 
@@ -74,6 +75,7 @@ window.addEventListener('start-app-window', e => {
     mobx_react: mobx_react,
     ResourceRequest: ResourceRequest,
     Renderer: Renderer,
+    Timeline: Timeline,
   });
 });
 

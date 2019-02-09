@@ -24,7 +24,8 @@ public:
   TimelineLayer(timeline_layer_id id);
   ~TimelineLayer();
   TimelineItem* const GetTimelineItemAtTimecode(int timecode);
-  TimelineItem* const AddTimelineItem(int start_timecode, int end_timecode, Resource* const resource);
+  TimelineItem* const AddResourceTimelineItem(int start_timecode, int end_timecode, Resource* const resource);
+  TimelineItem* const AddFigureTimelineItem(int start_timecode, int end_timecode);
   // TimelineItem* const AddTimelineMediaItem(Media* const media, int start_timecode, int end_timecode);
   // TimelineItem* const AddTimelineJSItem(int start_timecode, int end_timecode);
   void MoveTimelineItem(TimelineItem* const item, int start_timecode, int end_timecode);

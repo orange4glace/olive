@@ -35,7 +35,8 @@ public:
   TimelineLayer* const AddTimelineLayer();
   void RemoveTimelineLayer(timeline_layer_id id);
 
-  TimelineItem* const AddTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource);
+  TimelineItem* const AddResourceTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource);
+  TimelineItem* const AddFigureTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode);
   void RemoveTimelineItem(timeline_item_id id);
   void MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                         int start_timecode, int end_timecode);
@@ -65,11 +66,13 @@ public:
   // NAPI
   napi_value _NAPI_AddTimelineLayer();
   napi_value _NAPI_AddResourceTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource);
+  napi_value _NAPI_AddFigureTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode);
   napi_value _NAPI_MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const item,
                                     int start_timecode, int end_timecode);
 
   napi_value _NAPI_SetCurrentTimecode(int timecode);
   napi_value _NAPI_IncreaseCurrentTimecodeInMillisecond(int milli);
+  napi_value _NAPI_SetCurrentTimelineItem(TimelineItem* const);
 
   napi_value _NAPI_DirtyVideo();
   napi_value _NAPI_DirtyAudio();
@@ -77,6 +80,8 @@ public:
   NAPI_EXPORT_FUNCTION0(Timeline, NAPI_AddTimelineLayer, _NAPI_AddTimelineLayer);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddResourceTimelineItem, _NAPI_AddResourceTimelineItem,
       TimelineLayer* const, int, int, Resource* const);
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_AddFigureTimelineItem, _NAPI_AddFigureTimelineItem,
+      TimelineLayer* const, int, int);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_MoveTimelineItem, _NAPI_MoveTimelineItem,
       TimelineLayer* const, TimelineItem* const, int, int);
 
@@ -88,6 +93,8 @@ public:
       int);
   NAPI_EXPORT_FUNCTION(Timeline, NAPI_IncreaseCurrentTimecodeInMillisecond, _NAPI_IncreaseCurrentTimecodeInMillisecond,
       int);
+  NAPI_EXPORT_FUNCTION(Timeline, NAPI_SetCurrentTimelineItem, _NAPI_SetCurrentTimelineItem,
+      TimelineItem* const);
 
 private:
   static std::unique_ptr<Timeline> instance_;

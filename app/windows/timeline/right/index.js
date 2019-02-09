@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Timeline } from 'napi';
+import Timeline from 'timeline';
 import TimelineLayer from 'windows/timeline/right/timeline_layer';
 import TimelineRuler from 'windows/timeline/right/timeline_ruler';
 
@@ -47,7 +47,7 @@ class TimelineRight extends React.Component {
 
   timecodeBarRef(el) {
     mobx.autorun(() => {
-      var timecode = Timeline.current_timecode;
+      var timecode = Timeline.currentTimecode;
       var position = this.getPositionAtTimecode(timecode);
       el.style.left = position + '%';
     })
@@ -58,12 +58,12 @@ class TimelineRight extends React.Component {
     var offset = MouseEvent.mousePositionElement(e, timelineEl);
     offset.x += timelineEl.parentElement.scrollLeft;
     var percent = offset.x / timelineEl.offsetWidth;
-    var timecode = percent * Timeline.total_timecode;
+    var timecode = percent * Timeline.totalTimecode;
     return Math.floor(timecode);
   }
 
   getPositionAtTimecode(timecode) {
-    return timecode / Timeline.total_timecode * 100;
+    return timecode / Timeline.totalTimecode * 100;
   }
 
   render() {
@@ -79,9 +79,9 @@ class TimelineRight extends React.Component {
               <div className='timecode-bar' ref={this.timecodeBarRef}><div className='timecode-bar-head'></div></div>
               <div className='layers'>
               {
-                [...Timeline.layers].map(([key, layer]) => {
+                Timeline.timelineLayers.map(layer => {
                   return (
-                    <TimelineLayer layer={layer} key={layer.id}
+                    <TimelineLayer timelineLayer={layer} key={layer.id}
                                   timelineUtil={this.timelineUtil}
                                   timelineItemMover={timelineItemMover}/>
                   )

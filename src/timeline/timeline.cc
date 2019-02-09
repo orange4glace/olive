@@ -90,11 +90,6 @@ void Timeline::MoveTimelineItem(TimelineLayer* const layer, TimelineItem* const 
   else {
     // Move to another timeline layer
   }
-} 
-
-TimelineItem* const Timeline::AddTimelineItem(TimelineLayer* const layer, int start_timecode, int end_timecode, Resource* const resource) {
-  logger::get()->critical("AddTimelineItem {} {} {} {}", layer->id(), start_timecode, end_timecode, resource->id());
-  return layer->AddTimelineItem(start_timecode, end_timecode, resource);
 }
 
 std::vector<TimelineItemSnapshot> Timeline::GetTimelineItemSnapshotsAtCurrentTimecode() const {
@@ -155,15 +150,21 @@ NAPI_DEFINE_CLASS(Timeline,
     NAPI_PROPERTY_VALUE("timecode_timebase", napi_configurable, NAPI_MOBX_OBSERVABLE),
     NAPI_PROPERTY_VALUE("total_timecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
     NAPI_PROPERTY_VALUE("current_timecode", napi_configurable, NAPI_MOBX_OBSERVABLE),
+    NAPI_PROPERTY_VALUE("current_timeline_item", napi_configurable, NAPI_MOBX_OBSERVABLE),
+
+
     NAPI_PROPERTY_FUNCTION("AddTimelineLayer", NAPI_AddTimelineLayer, napi_default),
     NAPI_PROPERTY_FUNCTION("AddResourceTimelineItem", NAPI_AddResourceTimelineItem, napi_default),
+    NAPI_PROPERTY_FUNCTION("AddFigureTimelineItem", NAPI_AddFigureTimelineItem, napi_default),
     NAPI_PROPERTY_FUNCTION("MoveTimelineItem", NAPI_MoveTimelineItem, napi_default),
     
     NAPI_PROPERTY_FUNCTION("DirtyVideo", NAPI_DirtyVideo, napi_default),
     NAPI_PROPERTY_FUNCTION("DirtyAudio", NAPI_DirtyAudio, napi_default),
 
     NAPI_PROPERTY_FUNCTION("SetCurrentTimecode", NAPI_SetCurrentTimecode, napi_default),
-    NAPI_PROPERTY_FUNCTION("IncreaseCurrentTimecodeInMillisecond", NAPI_IncreaseCurrentTimecodeInMillisecond, napi_default))
+    NAPI_PROPERTY_FUNCTION("IncreaseCurrentTimecodeInMillisecond", NAPI_IncreaseCurrentTimecodeInMillisecond, napi_default),
+    
+    NAPI_PROPERTY_FUNCTION("SetCurrentTimelineItem", NAPI_SetCurrentTimelineItem, napi_default))
 
 napi_value Timeline::_NAPI_AddTimelineLayer() {
   std::unique_lock<std::mutex> lock(m);
@@ -174,7 +175,14 @@ napi_value Timeline::_NAPI_AddTimelineLayer() {
 napi_value Timeline::_NAPI_AddResourceTimelineItem(TimelineLayer* const layer,
     int start_timecode, int end_timecode, Resource* const resource) {
   std::unique_lock<std::mutex> lock(m);
-  TimelineItem* const item = AddTimelineItem(layer, start_timecode, end_timecode, resource);
+  TimelineItem* const item = layer->AddResourceTimelineItem(start_timecode, end_timecode, resource);
+  return item->napi_instance();
+}
+
+napi_value Timeline::_NAPI_AddFigureTimelineItem(TimelineLayer* const layer,
+    int start_timecode, int end_timecode) {
+  std::unique_lock<std::mutex> lock(m);
+  TimelineItem* const item = layer->AddFigureTimelineItem(start_timecode, end_timecode);
   return item->napi_instance();
 }
 
@@ -205,6 +213,15 @@ napi_value Timeline::_NAPI_IncreaseCurrentTimecodeInMillisecond(int milli) {
   int timecode = RescaleToTimecode(milli, 1000);
   std::unique_lock<std::mutex> lock(m);
   SetCurrentTimecode(current_timecode_ + timecode);
+  return NULL;
+}
+
+napi_value Timeline::_NAPI_SetCurrentTimelineItem(TimelineItem* const timeline_item) {
+  if (timeline_item == nullptr) {
+    NAPI_SetInstanceNamedProperty("current_timeline_item", napi::create_undefined());
+    return NULL;
+  }
+  NAPI_SetInstanceNamedProperty("current_timeline_item", napi::unref(timeline_item->napi_instance_ref()));
   return NULL;
 }
 

@@ -1,32 +1,26 @@
 import React from 'react';
-import FigureType from 'figure/type';
+import ObjectType from 'object/type';
 
-import Rectangle from 'figure/rectangle';
+import Rectangle from 'object/figure/rectangle';
 
 import RectangleComponent from 'renderer/component/rectangle';
 
 class CanvasData {
-  figures = [];
+  objects = [];
   
   constructor() {
-    this.figures.push(new Rectangle());
+    this.objects.push(new Rectangle());
   }
 };
 
 let canvasData = new CanvasData();
 
-function GetFigureComponent(figure) {
-  const FIGURE_COMPONENT_MAP = {
-    [FigureType.RECTANGLE]: RectangleComponent
+function GetObjectComponent(object) {
+  const OBJECT_COMPONENT_MAP = {
+    [ObjectType.RECTANGLE]: RectangleComponent
   }
-  console.log(FIGURE_COMPONENT_MAP[figure.type], <div/>)
-  return FIGURE_COMPONENT_MAP[figure.type];
-}
-
-class Test extends React.Component {
-  render() {
-    return <div/>
-  }
+  console.log(OBJECT_COMPONENT_MAP[object.type], <div/>)
+  return OBJECT_COMPONENT_MAP[object.type];
 }
 
 class Canvas extends React.Component {
@@ -38,11 +32,11 @@ class Canvas extends React.Component {
   render() {
     return (
       <div>
-        {canvasData.figures.map(figure => {
-          var component = GetFigureComponent(figure);
+        {canvasData.objects.map(object => {
+          var component = GetObjectComponent(object);
           React.cloneElement(
             <component/>, {
-            key: figure.id
+            key: object.id
           });
         })}
       </div>

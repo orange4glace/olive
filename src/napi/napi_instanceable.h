@@ -22,7 +22,7 @@ public:
     return napi::unref(__napi_instance_ref_);
   }
 
-  inline napi_ref napi_instance_ref() {
+  inline napi_ref& napi_instance_ref() {
     return __napi_instance_ref_;
   }
 
