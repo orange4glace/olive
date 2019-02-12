@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "outDir": "./../dist/main",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "es5",
+    "lib": ["es6", "es7", "es2017.object", "dom"],
+    "jsx": "react",
+    "sourceMap": true,
+    "allowJs": true,
+    "listFiles": true
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "files": [
+    "main.ts"
+  ],
+  "compileOnSave": true
+}

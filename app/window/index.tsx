@@ -1,9 +1,9 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 
-import LayoutRoot from 'layout/layout_root';
+import LayoutRoot from 'window/layout/layout-root';
 
-import style from './index.scss';
+const style = require('./index.scss');
 
 /*
 console.log(window.open());

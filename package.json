@@ -26,9 +26,11 @@
     "url-loader": "^1.0.1",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.5"
+    "webpack-dev-server": "^3.1.11"
   },
   "dependencies": {
+    "@types/react": "^16.8.2",
+    "@types/react-dom": "^16.8.0",
     "mobx": "^5.1.0",
     "mobx-react": "^5.2.8",
     "react": "^16.5.0",
@@ -44,11 +46,12 @@
       "transform-decorators-legacy"
     ]
   },
-  "main": "./main.js",
+  "main": "./dist/main.js",
   "scripts": {
-    "start": "webpack-dev-server --config ./webpack.config.js --mode development",
+    "build": "webpack --config ./webpack.main.config.js --mode development && webpack --config ./webpack.app.config.js --mode development",
+    "start": "webpack --config ./webpack.main.config.js --mode development && webpack-dev-server --config ./webpack.app.config.js --mode development --content-base ./dist",
     "electron": "electron .",
-    "electron-debug": "G:/electron/src/out/Release/electron.exe .",
-    "build": "./build.sh"
+    "electron-debug": "G:/electron/src/out/Release/electron.exe ./dist/main/main.js",
+    "webpack": "webpack --config ./webpack.main.config.js --mode development"
   }
 }
