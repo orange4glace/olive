@@ -37,6 +37,8 @@ struct VideoFrame : Frame {
   uint64_t GetDataAddress() override;
   int32_t GetDataSize() override;
 
+  napi_value ToJSObject() override;
+
   AVFrame* frame;
 
   VideoFrame::Data data;

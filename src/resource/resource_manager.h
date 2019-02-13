@@ -4,7 +4,7 @@
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
 
-#include "resource/type.h"
+#include "typedef.h"
 
 #include <memory>
 #include <map>
@@ -23,7 +23,7 @@ public:
     return instance_;
   }
 
-  Resource* const LoadResource(resource_type type, std::string path);
+  Resource* const LoadResource(ResourceType type, std::string path);
   Resource* const GetResource(ResourceID resource_id);
 
   // NAPI
@@ -37,7 +37,7 @@ private:
 
   static ResourceManager* instance_;
 
-  std::map<resource_id, std::unique_ptr<Resource> > resources_;
+  std::map<ResourceID, std::unique_ptr<Resource> > resources_;
 
   napi_ref napi_resources_ref_;
 

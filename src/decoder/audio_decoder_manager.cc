@@ -1,3 +1,4 @@
+/*
 #include "decoder/audio_decoder_manager.h"
 
 #include "decoder/audio_decoder_host.h"
@@ -6,15 +7,11 @@
 #include "resource/resource.h"
 #include "resource/video_resource.h"
 
-#include "timeline/timeline.h"
-#include "timeline/timeline_item_snapshot.h"
-
 #include "napi/napi_encoder.h"
 
 #include "logger/logger.h"
 
 namespace olive {
-
 void AudioDecoderManager::Initialize() {
   instance_ = new AudioDecoderManager();
 
@@ -47,12 +44,11 @@ void AudioDecoderManager::loop() {
     logger::get()->info("[AudioDecoderManager] Decoding done");
 
     render_queue_.Push(std::move(host_waiter_result));
-    /*
-    std::unique_lock<std::mutex> render_wait_lock(m);
-    NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_blocking));
-    bool& rendered = this->rendered;
-    cv.wait(render_wait_lock, [&rendered] { return rendered; });
-    */
+
+    // std::unique_lock<std::mutex> render_wait_lock(m);
+    // NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, NULL, napi_tsfn_blocking));
+    // bool& rendered = this->rendered;
+    // cv.wait(render_wait_lock, [&rendered] { return rendered; });
   }
 }
   
@@ -94,3 +90,4 @@ void AudioDecoderManager::Rendered() {
 AudioDecoderManager* AudioDecoderManager::instance_ = NULL;
 
 } // namespace olvie
+*/

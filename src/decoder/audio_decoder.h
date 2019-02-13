@@ -4,13 +4,12 @@
 #include "decoder/decoder.h"
 
 namespace olive {
-
 class AudioFrame;
 class AudioDecoderHost;
 
-class AudioDecoder : public Decoder {
-
+class AudioDecoder {
 public:
+/*
   AudioDecoder(AudioDecoderHost* const decoder_host, VideoResource* const resource);
 
   void Initialize() throw (const char*) override;
@@ -56,7 +55,7 @@ private:
   AudioFrame* current_audio_frame_;
   std::deque<AudioFrame*> frame_queue_;
 
-
+*/
 };
 
 }

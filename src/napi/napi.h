@@ -7,6 +7,8 @@
 #define NAPI_EXPERIMENTAL
 #include <node_api.h>
 
+using napi_promise = napi_value;
+
 #include "logger/logger.h"
 
 namespace olive {
@@ -21,7 +23,8 @@ namespace olive {
 
 class napi {
 public:
-  static void Initialize(napi_env env, napi_value exports);
+  static void Initialize(napi_env env, napi_callback_info cb_info);
+  
   static void ExportNamedProperty(const char* name, napi_value value);
 
   static napi_ref CreateReference(napi_value value, int initial_refcount = 1);
@@ -66,7 +69,6 @@ public:
   static napi_value ObjectAssign(size_t size, napi_value* target_and_sources);
 
 private:
-  static napi_value NAPI_Initialize(napi_env env, napi_callback_info cb_info);
 
   static napi_env env_;
   static napi_ref export_ref_;

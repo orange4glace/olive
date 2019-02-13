@@ -3,23 +3,35 @@
 
 #include "decoder/decoder.h"
 
+#include "napi/napi.h"
+#include "typedef.h"
+
+#include <atomic>
+
 namespace olive {
 
 class VideoFrame;
 class VideoDecoderHost;
 
-class VideoDecoder : public Decoder {
+class VideoDecoder {
 
 friend class VideoDecoderHost;
 
 public:
   VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* const resource);
 
-  void Initialize() throw (const char*) override;
-  void Decode(TimelineItemSnapshot snapshot) override;
+  void Initialize() throw (const char*);
+
+  napi_promise Decode(timecode_t timecode);
 
   std::mutex m;
   std::condition_variable cv;
+
+  /* Promise & callback */
+  napi_deferred deferred_;
+  timecode_t requested_timecode;
+
+  std::atomic<int> busy;
 
 private:
   int Seek(int64_t timestamp);
@@ -30,9 +42,8 @@ private:
 
   VideoDecoderHost* decoder_host_;
   
-  TimelineItemSnapshot decoding_snapshot_req_;
-  TimelineItemSnapshot decoding_snapshot_;
   bool has_decode_request_;
+  timecode_t requested_pts_;
   bool decode_request_resolved_;
   bool has_work_;
 
@@ -54,6 +65,10 @@ private:
   enum AVPixelFormat pix_fmt_;
 
   uint8_t* rgb_;
+
+
+  /* Promise & callback */
+  napi_threadsafe_function tsfn_callback_;
 
 };
 

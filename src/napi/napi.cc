@@ -4,10 +4,6 @@
 #include "napi/es6/map.h"
 #include "napi/es6/observable_map.h"
 
-#include "timeline/timeline.h"
-#include "timeline/timeline_layer.h"
-#include "timeline/timeline_item.h"
-
 #include "resource/resource_manager.h"
 #include "resource/resource.h"
 
@@ -40,91 +36,17 @@ napi_value FreeMemory(napi_env env, napi_callback_info cbinfo) {
   return NULL;
 }
 
-napi_value Rendered(napi_env env, napi_callback_info cbinfo) {
-  VideoDecoderManager::instance()->Rendered();
-
-  return NULL;
 }
 
-}
-
-void napi::Initialize(napi_env env, napi_value exports) {
-  napi::set_current_env(env);
-
-  napi_value fn1;
-  NAPI_CALL(napi_create_function(env, NULL, 0, NAPI_Initialize, NULL, &fn1));
-  NAPI_CALL(napi_set_named_property(env, exports, "initialize", fn1));
-}
-
-napi_value napi::NAPI_Initialize(napi_env env, napi_callback_info cb_info) {
+void napi::Initialize(napi_env env, napi_callback_info cb_info) {
   // Mobx.decorate, Mobx.observe, Mobx.computed
-  napi::set_current_env(env);
   napi_value global = napi::get_global();
 
-  size_t argc = 2;
-  napi_value argv[2];
+  size_t argc = 1;
+  napi_value argv[1];
   NAPI_CALL(napi_get_cb_info(env, cb_info, &argc, argv, NULL, NULL));
-  napi_value mobx_ = argv[0];
-  NAPI_CALL(napi_create_reference(env, mobx_, 1, &mobx_ref_));
-  NAPI_CALL(napi_create_reference(env, argv[1], 1, &log_ref_));
+  NAPI_CALL(napi_create_reference(env, argv[0], 1, &log_ref_));
 
-  napi_value Object = napi::GetNamedProperty(global, "Object");
-  napi::GetNamedProperty(Object, "assign", &object_assign_ref_);
-  std::cout << "NAPI Initialize\n";
-
-  napi_value decorate, observable, computed;
-  NAPI_CALL(napi_get_named_property(env, mobx_, "decorate", &decorate));
-  NAPI_CALL(napi_get_named_property(env, mobx_, "observable", &observable));
-  NAPI_CALL(napi_get_named_property(env, mobx_, "computed", &computed));
-
-  NAPI_CALL(napi_create_reference(env, decorate, 1, &mobx_decorate_ref_));
-  NAPI_CALL(napi_create_reference(env, observable, 1, &mobx_observable_ref_));
-  NAPI_CALL(napi_create_reference(env, computed, 1, &mobx_computed_ref_));
-  std::cout << "Timeline Initialize\n";
-
-  es6::Map::Initialize();
-  es6::ObservableMap::Initialize();
-
-  napi_value export_ = create_empty_object();
-  export_ref_ = CreateReference(export_);
-
-  std::cout << "Timeline Initialize\n";
-  Timeline::NAPI_Initialize(env);
-  std::cout << "Timeline NAPI Initialize\n";
-  Timeline::Initialize();
-
-  std::cout << "TimelineLayer NAPI Initialize\n";
-  TimelineLayer::NAPI_Initialize(env);
-  std::cout << "TimelineItem NAPI Initialize\n";
-  TimelineItem::NAPI_Initialize(env);
-
-  std::cout << "ResourceManager Initialize\n";
-  ResourceManager::NAPI_Initialize(env);
-  std::cout << "ResourceManager Initialize\n";
-  ResourceManager::Initialize();
-
-  std::cout << "Resource NAPI Initialize\n";
-  Resource::NAPI_Initialize(env);
-
-  std::cout << "VideoDecoderManager Initialize\n";
-  VideoDecoderManager::Initialize();
-
-  std::cout << "AudioDecoderManager Initialize\n";
-  AudioDecoderManager::Initialize();
-
-  std::cout << "Export..\n";
-  ExportNamedProperty("timeline", Timeline::instance()->napi_instance());
-  ExportNamedProperty("resource", ResourceManager::instance()->napi_instance());
-
-  napi_value freefn;
-  NAPI_CALL(napi_create_function(env, "Free", NAPI_AUTO_LENGTH, FreeMemory, NULL, &freefn));
-  ExportNamedProperty("Free", freefn);
-
-  napi_value renderedfn;
-  NAPI_CALL(napi_create_function(env, "Rendered", NAPI_AUTO_LENGTH, Rendered, NULL, &renderedfn));
-  ExportNamedProperty("Rendered", renderedfn);
-
-  return export_;
 }
 
 void napi::ExportNamedProperty(const char* name, napi_value value) {

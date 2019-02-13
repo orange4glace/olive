@@ -11,11 +11,10 @@
 #include "decoder/decoder.h"
 #include "decoder/video_decoder.h"
 
-#include "timeline/timeline_item_snapshot.h"
-
 #include "logger/logger.h"
 
 #include <mutex>
+#include <cstdlib>
 #include <condition_variable>
 
 namespace olive {
@@ -30,53 +29,32 @@ VideoDecoderHost::VideoDecoderHost(VideoResource* const resource) :
   // decoders_.insert({-1, decoder_});
 }
 
-void VideoDecoderHost::Decode(std::vector<TimelineItemSnapshot> snapshots, size_t* counter) {
-  manager_work_counter_ = counter;
-  for (auto& snapshot : snapshots) {
-    TimelineItemID timeline_item_id = snapshot.timeline_item_id;
-    Decoder* decoder = NULL;
-    logger::get()->info("[DecoderHost] Pass snapshot TimelineItemID : {}", timeline_item_id);
-    if (decoders_.count(timeline_item_id))
-      decoder = decoders_[timeline_item_id];
-    else
-      decoder = AssignDecoder(timeline_item_id);
-    assert(decoder);
-    decoder->Decode(std::move(snapshot));
-  }
+napi_promise VideoDecoderHost::Decode(timecode_t timecode) {
+  // Find available decoder
+  VideoDecoder* decoder = GetOrNewAvailableDecoder(timecode);
+  napi_promise promise = decoder->Decode(timecode);
+  return promise;
 }
 
-VideoDecoder* const VideoDecoderHost::AssignDecoder(timeline_item_id item_id) {
-  logger::get()->critical("[VideoDecoderHost] Assign new decoder");
+VideoDecoder* VideoDecoderHost::GetOrNewAvailableDecoder(timecode_t timecode) {
   VideoDecoder* decoder = NULL;
-  if (decoder_pool_.empty()) {
-    // Allocate new Decoder
+  for (auto dec : decoders_) {
+    if (dec->busy.load()) continue;
+    if (decoder == NULL) {
+      decoder = dec;
+      continue;
+    }
+    int d1 = abs(dec->requested_timecode - timecode);
+    int d2 = abs(decoder->requested_timecode - timecode);
+    if (d1 < d2) decoder = dec;
+  }
+  if (decoder == NULL) {
     decoder = new VideoDecoder(this, resource_);
     decoder->Initialize();
+    decoders_.emplace_back(decoder);
   }
-  else {
-    VideoDecoder* decoder = decoder_pool_.front();
-    decoder_pool_.pop();
-  }
-  decoders_.insert({item_id, decoder});
+  decoder->requested_timecode = timecode;
   return decoder;
-}
-
-void VideoDecoderHost::DecoderCallbackBlocking(TimelineItemSnapshot snapshot) {
-  VideoDecoderManager* decoder_manager = VideoDecoderManager::instance();
-  {
-    std::unique_lock<std::mutex> manager_lock(decoder_manager->m);
-    *manager_work_counter_ -= 1;
-    logger::get()->info("[CALLBACK] {} {}", snapshot.pts, *manager_work_counter_);
-    decoder_manager->host_waiter_result.emplace_back(snapshot);
-  }
-  decoder_manager->cv.notify_one();
-}
-
-void VideoDecoderHost::DecoderCallbackNonBlocking(TimelineItemSnapshot snapshot) {
-  VideoDecoderManager* decoder_manager = VideoDecoderManager::instance();
-  *manager_work_counter_ -= 1;
-  logger::get()->info("[CALLBACK] {} {}", snapshot.pts, *manager_work_counter_);
-  decoder_manager->host_waiter_result.emplace_back(snapshot);
 }
 
 int64_t VideoDecoderHost::duration() const {

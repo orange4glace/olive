@@ -5,21 +5,21 @@
 namespace olive {
 
 namespace {
-resource_id _next_resource_id_ = 0;
+ResourceID _next_resource_id_ = 0;
 }
 
-Resource::Resource(resource_type type, std::string path) :
+Resource::Resource(ResourceType type, std::string path) :
     NAPI_Instanceable_Initializer(Resource),
     id_(napi_instance_ref(), "id", _next_resource_id_++),
     type_(type),
     path_(napi_instance_ref(), "path", path) {
 }
 
-resource_id Resource::id() const {
+ResourceID Resource::id() const {
   return id_;
 }
 
-resource_type Resource::type() const {
+ResourceType Resource::type() const {
   return type_;
 }
 

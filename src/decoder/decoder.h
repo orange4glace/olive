@@ -1,8 +1,6 @@
 #ifndef OLIVE_DECODER_H_
 #define OLIVE_DECODER_H_
 
-#include "timeline/timeline_item_snapshot.h"
-
 #include "napi/napi_export.h"
 #include "napi/napi_instanceable.h"
 
@@ -33,9 +31,6 @@ class Decoder {
 
 public:
   inline Decoder() {};
-
-  virtual void Initialize() throw (const char*) = 0;
-  virtual void Decode(TimelineItemSnapshot snapshot) = 0;
 
 };
 
