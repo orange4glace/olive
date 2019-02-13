@@ -29,14 +29,16 @@ function initializeApp(): void {
   app.decoder = initDecoder();
   app.timeline = new Timeline();
   app.resource = new ResourceManager();
+
+  console.log(app);
 }
 
-function initDecoder() {
-  return null;
+function initDecoder(): any {
   const basepath = electron.remote.app.getAppPath();
   console.log(`[Internal] Initilaize Decoder module. basepath=${basepath}`);
-  const module_initializer = require(`${basepath}/src/build/Release/module.node`);
+  const module_initializer = require(`../../src/build/Release/module.node`);
   const module = module_initializer.initialize(console.log);
+  console.log(module);
   return module;
 }
 

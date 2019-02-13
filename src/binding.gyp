@@ -12,18 +12,12 @@
         "napi/es6/map.cc",
         "napi/es6/observable_map.cc",
 
-        "timeline/timeline.cc",
-        "timeline/timeline_layer.cc",
-        "timeline/timeline_item.cc",
-        "timeline/timeline_item_snapshot.cc",
-
         "resource/resource_manager.cc",
         "resource/resource.cc",
         "resource/video_resource.cc",
 
         "decoder/memory_pool.cc",
         "decoder/frame.cc",
-        "decoder/snapshot_queue.cc",
 
         "decoder/video_decoder_manager.cc",
         "decoder/video_decoder_host.cc",
@@ -34,6 +28,8 @@
         "decoder/audio_decoder_host.cc",
         "decoder/audio_decoder.cc",
         "decoder/audio_frame.cc",
+        
+        "api.cc"
       ],
       "include_dirs": [
         "./",

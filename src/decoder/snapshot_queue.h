@@ -1,3 +1,5 @@
+## No longer used.
+
 #ifndef OLIVE_SNAPSHOT_QUEUE_H_
 #define OLIVE_SNAPSHOT_QUEUE_H_
 

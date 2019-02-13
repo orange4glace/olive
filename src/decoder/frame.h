@@ -1,6 +1,8 @@
 #ifndef OLIVE_FRAME_H_
 #define OLIVE_FRAME_H_
 
+#include "napi/napi.h"
+
 extern "C" {
 #include <libavutil/imgutils.h>
 #include <libavutil/samplefmt.h>
@@ -24,6 +26,8 @@ struct Frame {
   virtual inline void TransferToRenderer() {}
   virtual uint64_t GetDataAddress() = 0;
   virtual int32_t GetDataSize() = 0;
+
+  inline virtual napi_value ToJSObject() { return NULL; }
 
   void ref();
   void unref();

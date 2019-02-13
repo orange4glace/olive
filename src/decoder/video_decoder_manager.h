@@ -1,15 +1,11 @@
 #ifndef OLIVE_VIDEO_DECODER_MANAGER_H_
 #define OLIVE_VIDEO_DECODER_MANAGER_H_
 
-#include "decoder/snapshot_queue.h"
-
-#include "resource/type.h"
-
-#include "timeline/timeline_item_snapshot.h"
-
 #include "napi/napi.h"
+#include "typedef.h"
 
 #include <vector>
+#include <map>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -27,26 +23,13 @@ public:
     return instance_;
   }
 
-  void Rendered();
-
-  std::mutex m;
-  std::condition_variable cv;
-
-  std::vector<TimelineItemSnapshot> host_waiter_result;
+  napi_promise Decode(ResourceID resource_id, timecode_t timecode);
 
 private:
   static VideoDecoderManager* instance_;
 
-  // Run on a separate thread
-  void loop();
-
-  void DecodeVideo(std::vector<TimelineItemSnapshot> snapshots);
-
-  std::thread loop_thread_;
-
-  SnapshotQueue render_queue_;
+  std::map<ResourceID, VideoDecoderHost*> decoder_hosts_;
   
-
 };
 
 }

@@ -14,6 +14,7 @@
     "electron": "^4.0.0-nightly.20181010",
     "electron-devtools-installer": "^2.2.4",
     "file-loader": "^1.1.11",
+    "node-loader": "^0.6.0",
     "node-sass": "^4.9.2",
     "postcss-flexbugs-fixes": "^4.0.0",
     "postcss-loader": "^3.0.0",
@@ -52,6 +53,7 @@
     "start": "webpack --config ./webpack.main.config.js --mode development && webpack-dev-server --config ./webpack.app.config.js --mode development --content-base ./dist",
     "electron": "electron .",
     "electron-debug": "G:/electron/src/out/Release/electron.exe ./dist/main/main.js",
-    "webpack": "webpack --config ./webpack.main.config.js --mode development"
+    "webpack": "webpack --config ./webpack.main.config.js --mode development",
+    "build-decoder": "./build.sh"
   }
 }

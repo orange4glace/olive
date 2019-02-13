@@ -5,7 +5,7 @@
 #include "napi/napi_instanceable.h"
 #include "napi/napi_sync_property.h"
 
-#include "resource/type.h"
+#include "typedef.h"
 
 #include <string>
 
@@ -18,17 +18,17 @@ NAPI_DECLARE_CLASS(Resource, "Resource")
 public:
   virtual bool Initialize() = 0;
 
-  resource_id id() const;
-  resource_type type() const;
+  ResourceID id() const;
+  ResourceType type() const;
   const std::string& path() const;
 
 protected:
-  Resource(resource_type type, std::string path);
+  Resource(ResourceType type, std::string path);
 
   Decoder* decoder_;
 
 private:
-  NAPISyncProperty<resource_id> id_;
+  NAPISyncProperty<ResourceID> id_;
   // resource_id id_;
   resource_type type_;
   NAPISyncProperty<std::string> path_;

@@ -5,6 +5,8 @@
 #include "decoder/memory_pool.h"
 #include "logger/logger.h"
 
+#include "napi/napi_encoder.h"
+
 #include <iostream>
 
 extern "C" {
@@ -56,6 +58,15 @@ uint64_t VideoFrame::GetDataAddress() {
 // Deprecated
 int32_t VideoFrame::GetDataSize() {
   return 0;
+}
+
+napi_value VideoFrame::ToJSObject() {
+  napi_value object = napi::create_object();
+  uint64_t data_addr = GetDataAddress();
+  int32_t data_size = GetDataSize();
+  napi::SetNamedProperty(object, "data", napi_encoder<uint64_t>::encode(data_addr));
+  napi::SetNamedProperty(object, "size", napi_encoder<int32_t>::encode(data_size));
+  return object;
 }
 
 } // namespace olive

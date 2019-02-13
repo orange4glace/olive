@@ -3,33 +3,33 @@
 
 #include "decoder/decoder_host.h"
 
+#include "napi/napi.h"
+#include "typedef.h"
+
+#include <vector>
+
 namespace olive {
 
 class VideoResource;
 class VideoDecoder;
 
-class VideoDecoderHost : public DecoderHost {
+class VideoDecoderHost {
 
 public:
   VideoDecoderHost(VideoResource* const resource);
 
-  void Decode(std::vector<TimelineItemSnapshot> snapshots, size_t* counter) override;
-
-  void DecoderCallbackNonBlocking(TimelineItemSnapshot snapshot);
-  void DecoderCallbackBlocking(TimelineItemSnapshot snapshot);
+  napi_promise Decode(timecode_t timecode);
 
   // Duration in microseconds
   int64_t duration() const;
 
 protected:
-  VideoDecoder* const AssignDecoder(timeline_item_id item_id);
-  void FreeDecoder(timeline_item_id item_id);
+
+  VideoDecoder* GetOrNewAvailableDecoder(timecode_t timecode);
 
 private:
-  std::queue<VideoDecoder*> decoder_pool_;
-  std::map<timeline_item_id, VideoDecoder*> decoders_;
+  std::vector<VideoDecoder*> decoders_;
 
-  size_t* manager_work_counter_;
   VideoResource* const resource_;
 
   // Decoder for gathering information like duration, frame rate...
