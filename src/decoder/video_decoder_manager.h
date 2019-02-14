@@ -23,6 +23,7 @@ public:
     return instance_;
   }
 
+  void CreateDecoderHost(Resource* const resource);
   napi_promise Decode(ResourceID resource_id, timecode_t timecode);
 
 private:

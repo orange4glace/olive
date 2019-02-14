@@ -5,23 +5,11 @@
 
 namespace olive {
 
-class VideoDecoderHost;
-class AudioDecoderHost;
-
 class VideoResource : public Resource {
 public:
   VideoResource(std::string path);
 
-  bool Initialize() override;
-
-  VideoDecoderHost* const video_decoder_host();
-  AudioDecoderHost* const audio_decoder_host();
-
-  int64_t duration() const;
-
 private:
-  VideoDecoderHost* video_decoder_host_;
-  AudioDecoderHost* audio_decoder_host_;
 
 };
 

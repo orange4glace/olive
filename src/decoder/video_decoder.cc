@@ -47,7 +47,6 @@ VideoDecoder::VideoDecoder(VideoDecoderHost* const decoder_host, VideoResource* 
 void VideoDecoder::Initialize() {
 
   requested_timecode = -34827832;
-
   AV_THROW(avformat_open_input(&fmt_ctx_, resource_->path().c_str(), NULL, NULL) == 0, "AVFORMAT_OPEN_INPUT");
   AV_THROW(avformat_find_stream_info(fmt_ctx_, NULL) == 0, "AVFORMAT_INPUT_STREAM_INFO");
   AVDictionary* opts_ = NULL;

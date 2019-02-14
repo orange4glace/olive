@@ -1,9 +1,6 @@
 #ifndef OLIVE_RESOURCE_MANANGER_H_
 #define OLIVE_RESOURCE_MANANGER_H_
 
-#include "napi/napi_export.h"
-#include "napi/napi_instanceable.h"
-
 #include "typedef.h"
 
 #include <memory>
@@ -14,32 +11,17 @@ namespace olive {
 
 class Resource;
 
-class ResourceManager : public NAPI_Instanceable {
-NAPI_DECLARE_CLASS(ResourceManager, "ResourceManager")
+class ResourceManager {
 
 public:
-  static void Initialize();
-  static inline ResourceManager* const instance() {
-    return instance_;
-  }
-
-  Resource* const LoadResource(ResourceType type, std::string path);
-  Resource* const GetResource(ResourceID resource_id);
-
-  // NAPI
-  napi_value _NAPI_LoadResource(napi_value resource_metadata);
-
-  NAPI_EXPORT_FUNCTION(ResourceManager, NAPI_LoadResource, _NAPI_LoadResource,
-      napi_value);
-
-private:
   ResourceManager();
 
-  static ResourceManager* instance_;
+  Resource* const AddResource(std::string path);
+  Resource* const GetResource(ResourceID id);
 
-  std::map<ResourceID, std::unique_ptr<Resource> > resources_;
-
-  napi_ref napi_resources_ref_;
+private:
+  std::map<std::string, ResourceID> resource_path_map_;
+  std::map<ResourceID, Resource*> resource_map_;
 
 }; // class ResourceManager
 
