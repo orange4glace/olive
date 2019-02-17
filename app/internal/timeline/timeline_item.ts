@@ -2,21 +2,23 @@ import { observable, action } from 'mobx';
 
 var next_timeline_item_id = 0;
 
-class TimelineItem {
+export enum TimelineType {
+  VIDEO,
+  AUDIO,
+  MEDIA,
+  FIGURE,
+  NESTED
+}
 
-  static Type = {
-    'VIDEO': 'video',
-    'AUDIO': 'audio',
-    'OBJECT': 'object'
-  };
+export default class TimelineItem {
 
   id = next_timeline_item_id++;
-  type: any;
+  type: TimelineType;
 
   @observable startTimecode: number;
   @observable endTimecode: number;
 
-  constructor(type: any) {
+  constructor(type: TimelineType) {
     this.type = type;
   }
 
@@ -35,5 +37,3 @@ class TimelineItem {
   }
 
 }
-
-export default TimelineItem;

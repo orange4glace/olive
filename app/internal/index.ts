@@ -5,6 +5,9 @@ import App from 'internal/app-interface';
 import Timeline from 'internal/timeline/timeline';
 import ResourceManager from 'internal/resource/manager';
 
+import * as O from 'internal/object';
+console.log(O)
+
 import WindowParam from 'window/window-param'
 
 import {
@@ -27,6 +30,7 @@ function initializeApp(): void {
   app.mobx.autorun = mobx.autorun;
   app.mobx.observer = mobx_react.observer;
   app.decoder = initDecoder();
+  app.nanovg = initNanovg();
   app.timeline = new Timeline();
   app.resource = new ResourceManager();
 
@@ -38,8 +42,14 @@ function initDecoder(): any {
   console.log(`[Internal] Initilaize Decoder module. basepath=${basepath}`);
   const module_initializer = require(`../../src/build/Release/module.node`);
   const module = module_initializer.initialize(console.log);
+
   console.log(module);
   return module;
+}
+
+function initNanovg(): any {
+  const nanovg = require(`../../nanovg-webgl/build/Release/nanovg_node_webgl.node`);
+  return nanovg;
 }
 
 let resourceWorkerWindow : electron.BrowserWindow;

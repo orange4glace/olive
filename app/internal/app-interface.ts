@@ -17,12 +17,14 @@ interface mobxExport {
 
 export default class App {
   decoder: Decoder;
+  nanovg: any;
   mobx: mobxExport;
   timeline: Timeline;
   resource: ResourceManager;
 
   constructor() {
     this.decoder = null;
+    this.nanovg = null;
     this.mobx = {
       observable: null,
       action: null,

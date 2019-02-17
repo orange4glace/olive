@@ -105,6 +105,7 @@ napi_promise VideoDecoder::Decode(timecode_t timecode) {
   logger::get()->info("[Decoder] Decode request Rescale timecode = {} pts = {} found = {}", timecode, pts, target_frame ? true : false);
   if (target_frame) {
     target_frame->ref();
+    target_frame->unref();
     // Decode done, resolve promise immediately
     target_frame->TransferToRenderer();
     napi_value js_result = target_frame->ToJSObject();
@@ -175,6 +176,7 @@ void VideoDecoder::loop() {
       VideoFrame* target_frame = PeekQueueTo(target_pts);
       if (target_frame) {
         target_frame->ref();
+        target_frame->unref();
         // Decode done, resolve promise
         NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, target_frame, napi_tsfn_nonblocking));
         decode_request_resolved_ = true;
@@ -202,7 +204,7 @@ void VideoDecoder::decode() {
       if (ret >= 0) {
         std::unique_lock<std::mutex> loop_lock(m);
         VideoFrame* frame = new VideoFrame(frame_);
-        logger::get()->critical("[VideoDecoder] FrameQueue Push {} {} {}", frame->pts, frame_queue_.size(), frame->id);
+        logger::get()->info("[VideoDecoder] FrameQueue Push {} {} {}", frame->pts, frame_queue_.size(), frame->id);
         frame_queue_.emplace_back(frame);
         av_frame_unref(frame_);
       }

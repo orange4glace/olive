@@ -1,15 +1,17 @@
-import React from 'react';
+import * as React from 'react';
 
-import Property from 'object/property';
-import PropertyPannelControl from 'windows/property/pannel/component/property_pannel_control';
-import PropertyPannelLabel from 'windows/property/pannel/component/label';
-import PropertyPannelIntegerSlider from 'windows/property/pannel/component/integer_slider';
+import ObjectBasePannel from 'window/view/property/pannel/object-base-pannel'
 
-class PropertyWindow extends React.Component {
+// import Property from 'object/property';
+// import PropertyPannelControl from 'windows/property/pannel/component/property_pannel_control';
+// import PropertyPannelLabel from 'windows/property/pannel/component/label';
+// import PropertyPannelIntegerSlider from 'windows/property/pannel/component/integer_slider';
+
+export default class PropertyView extends React.Component {
 
   constructor(props) {
     super(props);
-
+/*
     this.propertyDOM = [
       [Property.WIDTH,
       <PropertyPannelControl key={Property.WIDTH}>
@@ -26,14 +28,7 @@ class PropertyWindow extends React.Component {
       <PropertyPannelControl key={Property.POSITION}>
       </PropertyPannelControl>]
     ]
-  }
-
-  getValue(property) {
-    
-  }
-
-  onChange(property) {
-
+*/
   }
 
   render() {
@@ -46,5 +41,3 @@ class PropertyWindow extends React.Component {
   }
 
 }
-
-export default PropertyWindow;

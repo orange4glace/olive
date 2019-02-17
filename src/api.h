@@ -13,6 +13,8 @@
 
 namespace olive {
 
+struct Frame;
+
 class OliveAPI : public NAPI_Instanceable {
 NAPI_DECLARE_CLASS(OliveAPI, "OliveAPI");
 
@@ -21,9 +23,11 @@ public:
 
   napi_value _AddResource(std::string path);
   napi_value _Decode(ResourceID id, timecode_t timecode);
+  napi_value _FreeFrame(Frame* frame);
 
   NAPI_EXPORT_FUNCTION(OliveAPI, AddResource, _AddResource, std::string);
   NAPI_EXPORT_FUNCTION(OliveAPI, Decode, _Decode, ResourceID, timecode_t);
+  NAPI_EXPORT_FUNCTION(OliveAPI, FreeFrame, _FreeFrame, Frame*);
 
 private:
   VideoDecoderManager* video_decoder_manager_;
