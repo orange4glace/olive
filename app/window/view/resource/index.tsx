@@ -1,15 +1,25 @@
 import * as React from 'react';
 import app from 'internal/app';
 
-import ResourceItemView from 'window/view/resource/resource-item';
+import ResourceViewController from './controller/controller'
+import ResourceItemView from 'window/view/resource/resource-item-view';
+import { IResourceManager } from 'standard';
 
 const style = require('./index.scss');
 
+interface Props {
+  resourceManager: IResourceManager
+}
+
 @app.mobx.observer
-class ResourceView extends React.Component {
+class ResourceView extends React.Component<Props, {}> {
+
+  controller: ResourceViewController;
 
   constructor(props: any) {
     super(props);
+
+    this.controller = new ResourceViewController(this.props.resourceManager)
   }
 
   dragOverHandler(e: React.DragEvent) {
@@ -29,7 +39,7 @@ class ResourceView extends React.Component {
     }
     for (let i = 0; i < filePaths.length; i ++) {
       const path = filePaths[i];
-      app.resource.addResource(path);
+      this.controller.addResource(path);
     }
   }
 

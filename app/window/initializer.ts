@@ -2,6 +2,7 @@ import WindowParam from 'window/window-param';
 import app from 'internal/app';
 
 function initialize(param: WindowParam) {
+  app.factory = param.app.factory;
   app.decoder = param.app.decoder;
   app.mobx = param.app.mobx;
   app.timeline = param.app.timeline;

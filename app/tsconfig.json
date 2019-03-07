@@ -4,6 +4,7 @@
     "outDir": "./../dist/app",
     "moduleResolution": "node",
     "experimentalDecorators": true,
+    "downlevelIteration": true,
     "noImplicitAny": true,
     "module": "es6",
     "target": "es5",
@@ -15,10 +16,12 @@
   },
   "exclude": [
     "node_modules"
-  ],
+  ]/*,
   "files": [
-    "internal/index.ts",
+    "typings.d.ts",
     "window/index.tsx",
-    "window/initializer.ts"
-  ]
+    "window/initializer.ts",
+    "internal/index.ts",
+    "internal/renderer/index.ts"
+  ]*/
 }

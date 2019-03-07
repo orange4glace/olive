@@ -1,9 +1,17 @@
 import * as electron from 'electron';
 import * as mobx from 'mobx';
 import * as mobx_react from 'mobx-react';
+
+import { initialize as DecoderInitializer } from 'internal/decoder/index'
+
+import { context as PostableContext } from 'worker-postable'
+import RendererWorker from 'worker-loader!./renderer/index';
 import App from 'internal/app-interface';
 import Timeline from 'internal/timeline/timeline';
 import ResourceManager from 'internal/resource/manager';
+import DecoderServer from 'internal/decoder/server'
+import Factory from './factory';
+import { Poster } from 'poster';
 
 import * as O from 'internal/object';
 console.log(O)
@@ -24,28 +32,41 @@ const remote = electron.remote,
       BrowserWindow = remote.BrowserWindow;
 
 function initializeApp(): void {
-  app = new App();
-  app.mobx.observable = mobx.observable;
-  app.mobx.action = mobx.action;
-  app.mobx.autorun = mobx.autorun;
-  app.mobx.observer = mobx_react.observer;
-  app.decoder = initDecoder();
+  let rendererWorker = new RendererWorker();
+  const rendererWorkerPoster = new Poster(rendererWorker);
+  PostableContext.onMesssage = msg => rendererWorkerPoster.emit('post', msg);
+  
+  app = ((window as any).app) as App;
+  app.mobx = {
+    observable: mobx.observable,
+    action: mobx.action,
+    autorun: mobx.autorun,
+    computed: mobx.computed,
+    observer: mobx_react.observer,
+  }
+  app.factory = new Factory();
+  app.decoder = DecoderInitializer();
   app.nanovg = initNanovg();
   app.timeline = new Timeline();
   app.resource = new ResourceManager();
 
+  console.log(app.decoder)
+
+  const decoderServer = new DecoderServer(app.decoder);
+  decoderServer.attachClient(rendererWorkerPoster);
+
   console.log(app);
 }
 
-function initDecoder(): any {
-  const basepath = electron.remote.app.getAppPath();
-  console.log(`[Internal] Initilaize Decoder module. basepath=${basepath}`);
-  const module_initializer = require(`../../src/build/Release/module.node`);
-  const module = module_initializer.initialize(console.log);
+// function initDecoder(): any {
+//   const basepath = electron.remote.app.getAppPath();
+//   console.log(`[Internal] Initilaize Decoder module. basepath=${basepath}`);
+//   const module_initializer = require(`../../src/build/Release/module.node`);
+//   const module = module_initializer.initialize(console.log);
 
-  console.log(module);
-  return module;
-}
+//   console.log(module);
+//   return module;
+// }
 
 function initNanovg(): any {
   const nanovg = require(`../../nanovg-webgl/build/Release/nanovg_node_webgl.node`);

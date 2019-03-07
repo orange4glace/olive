@@ -1,10 +1,9 @@
-import { IObservableFactory, IObservableFactories, IEnhancer, IActionFactory, IReactionPublic, IAutorunOptions, IReactionDisposer } from 'mobx';
+import { IObservableFactory, IObservableFactories, IEnhancer, IActionFactory, IReactionPublic, IAutorunOptions, IReactionDisposer, IComputed } from 'mobx';
 import { IReactComponent } from 'mobx-react';
-import Decoder from 'internal/decoder';
+import IDecoder from 'internal/decoder/decoder';
 import Timeline from 'internal/timeline/timeline'
 import ResourceManager from 'internal/resource/manager';
-
-console.log('APP TS IMPORTED');
+import Factory from './factory';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {
@@ -12,26 +11,15 @@ interface mobxExport {
   };
   action: IActionFactory;
   autorun: (view: (r: IReactionPublic) => any, opts?: IAutorunOptions) => IReactionDisposer;
+  computed: IComputed;
   observer: <T extends IReactComponent>(target: T) => T;
 }
 
-export default class App {
-  decoder: Decoder;
+export default interface App {
+  factory: Factory,
+  decoder: IDecoder;
   nanovg: any;
   mobx: mobxExport;
   timeline: Timeline;
   resource: ResourceManager;
-
-  constructor() {
-    this.decoder = null;
-    this.nanovg = null;
-    this.mobx = {
-      observable: null,
-      action: null,
-      autorun: null,
-      observer: null
-    };
-    this.timeline = null;
-    this.resource = null;
-  }
 }

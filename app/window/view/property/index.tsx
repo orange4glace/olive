@@ -9,7 +9,7 @@ import ObjectBasePannel from 'window/view/property/pannel/object-base-pannel'
 
 export default class PropertyView extends React.Component {
 
-  constructor(props) {
+  constructor(props: any) {
     super(props);
 /*
     this.propertyDOM = [
@@ -32,7 +32,6 @@ export default class PropertyView extends React.Component {
   }
 
   render() {
-    const properties = this.props.properties;
     return (
       <div>
       

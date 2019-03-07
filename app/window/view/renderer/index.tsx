@@ -2,6 +2,8 @@ import * as React from 'react';
 import app from 'internal/app';
 import NVG from '../../../../nanovg-webgl';
 
+import Rectangle from 'internal/object/rectangle'
+
 const style = require('./index.scss');
 
 class RendererView extends React.Component<any, any> {
@@ -26,6 +28,13 @@ class RendererView extends React.Component<any, any> {
     const canvas: HTMLCanvasElement = document.createElement("canvas");
     const gl = canvas.getContext('webgl2');
     this.vg = app.nanovg.initialize(gl);
+
+    var win = (window as any);
+    win.render = function(vg: any) {
+      var rect = new Rectangle()
+      vg.beginFrame(1920, 1080, 1);
+      
+    }.bind(this.vg);
 
     this.containerRef.current.appendChild(canvas);
     

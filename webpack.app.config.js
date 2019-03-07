@@ -63,7 +63,7 @@ module.exports = [{
         ]
       },
       {
-        test: /\.(woff(2)?|ttf|eot|jpg)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.(woff(2)?|ttf|eot|jpg|png)(\?v=\d+\.\d+\.\d+)?$/,
         exclude: /node_modules/,
         use: [{
           loader: 'file-loader',

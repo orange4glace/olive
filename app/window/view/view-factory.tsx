@@ -8,6 +8,8 @@ import RendererView from 'window/view/renderer';
 // import RendererDevView from 'window/view/renderer-dev';
 import PropertyView from 'window/view/property';
 
+import app from 'internal/app'
+
 const views: { [index: string] : any } = {
   'Empty': {
     name: 'WINDOW_EMPTY',
@@ -22,7 +24,7 @@ const views: { [index: string] : any } = {
   'Resource': {
     name: 'WINDOW_RESOURCE',
     title: 'Resource',
-    component: <ResourceView/>,
+    component: <ResourceView resourceManager={app.resource}/>,
   },
   'Renderer': {
     name: 'WINDOW_RENDERER',

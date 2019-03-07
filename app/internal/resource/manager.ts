@@ -1,11 +1,12 @@
 import app from 'internal/app';
 import { observable, action } from 'mobx';
 
+import { IResourceManager } from 'standard'
 import Resource from 'internal/resource/resource';
 
 type PathString = string;
 
-export default class ResourceManager {
+export default class ResourceManager implements IResourceManager {
   private resourceMap: Map<PathString, Resource>;
   @observable resources: Array<Resource>;
 
@@ -15,7 +16,7 @@ export default class ResourceManager {
   }
 
   @action
-  addResource(path: PathString) {
+  addResource(path: PathString): void {
     // Check if resource already exists
     if (this.resourceMap.has(path)) return;
 
@@ -24,8 +25,9 @@ export default class ResourceManager {
       
     }
     else if (resource.isVideo()) {
-      app.decoder.addVideoResource(resource.path);
     }
+    console.log(app.decoder)
+    app.decoder.AddResource(resource.path);
     this.resourceMap.set(path, resource);
     this.resources.push(resource);
   }

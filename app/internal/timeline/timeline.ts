@@ -1,44 +1,54 @@
-import { observable, action } from 'mobx';
+import TimelineInterface from 'standard/timeline'
+import { Postable, postable } from 'worker-postable';
+import { observable, action } from 'mobx'
 
-import TimelineLayer from 'internal/timeline/timeline_layer';
-import TimelineItem from 'internal/timeline/timeline_item';
+import Track from './track'
 
-export default class Timeline {
+import { EventEmitter2 } from 'eventemitter2'
+import { IResource } from 'standard';
+import VideoTrackItem from './video-track-item';
 
-  @observable totalTimecode: number;
-  @observable currentTimecode: number;
-  @observable timelineLayers: Array<TimelineLayer> = [];
-  @observable selectedTimelineLayer: TimelineLayer = null;
+@Postable
+export default class Timeline implements TimelineInterface {
+
+  @postable totalTime: number;
+  @postable currentTime: number;
+
+  @postable tracks: Array<Track>;
+  
+  updateHandlerTick: number;
+
+  ee: EventEmitter2;
 
   constructor() {
-    this.totalTimecode = 100;
-    this.currentTimecode = 0;
+    this.ee = new EventEmitter2();
+    this.tracks = [];
+
+    this.currentTime = 17000;
+    this.totalTime = 35000;
+
+    this.addTrack();
+  }
+
+  getCurrentTime() {
+    return this.currentTime;
+  }
+
+  setCurrentTime(time: number) {
+    this.currentTime = time;
   }
 
   @action
-  addTimelineLayer() {
-    var timeline_layer = new TimelineLayer();
-    this.timelineLayers.push(timeline_layer);
+  addTrack(): Track {
+    let track = new Track();
+    this.tracks.push(track);
+    this.ee.emit('addTrack', track);
+    return track;
   }
 
-  @action
-  setCurrentTimecode(timecode: number) {
-    this.currentTimecode = timecode;
-  }
-
-  @action
-  selectTimelineLayer(timelineLayer: TimelineLayer) {
-    this.selectedTimelineLayer = timelineLayer;
-  }
-
-  @action
-  moveTimelineItem(timelineLayer: TimelineLayer, timelineItem: TimelineItem,
-      startTimecode: number, endTimecode: number) {
-
-  }
-
-  getSelectedTimelineLayer() {
-    return this.selectedTimelineLayer;
+  createVideoTrackItem(resource: IResource) {
+    const result = new VideoTrackItem(resource);
+    return result;
   }
 
 }

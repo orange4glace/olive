@@ -1,5 +1,7 @@
 // ./main.js
 import { app, BrowserWindow, ipcMain, WebContents } from 'electron';
+import * as path from 'path'
+import * as os from 'os'
 
 import {
   WindowRequestParam,
@@ -114,11 +116,15 @@ function createWorker(appWindow: BrowserWindow): Promise<BrowserWindow> {
 const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
 
 app.on('ready', function () {
-
+/*
+  BrowserWindow.addDevToolsExtension(
+     path.join(os.homedir(), '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0')
+  )
+/*
   installExtension(REACT_DEVELOPER_TOOLS)
       .then((name: any) => console.log(`Added Extension:  ${name}`))
       .catch((err: any) => console.log('An error occurred: ', err));
-  
+*/
 
   createApp().then(appWindow => {
     console.log("[Node] App Window created");

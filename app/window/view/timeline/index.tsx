@@ -1,8 +1,7 @@
 import * as React from 'react';
 import app from 'internal/app';
 
-import TimelineLeftView from 'window/view/timeline/left';
-import TimelineRightView from 'window/view/timeline/right';
+import { TimelineView as TimelineRightView } from 'window/view/timeline/right';
 
 const style = require('./index.scss');
 
@@ -16,8 +15,8 @@ class TimelineWindow extends React.Component {
   render() {
     return (
       <div className={style.component}>
-        <TimelineLeftView/>
-        <TimelineRightView/>
+        { /* <TimelineLeftView/> */ }
+        <TimelineRightView timeline={app.timeline}/>
       </div>
     )
   }
