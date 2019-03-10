@@ -7,6 +7,8 @@ function initialize(param: WindowParam) {
   app.mobx = param.app.mobx;
   app.timeline = param.app.timeline;
   app.resource = param.app.resource;
+  app.workerPoster = param.app.workerPoster;
+  app.canvas = param.app.canvas;
   console.log('[Window] Initialize', app);
   console.log('initilaize', param.app);
   let bundleScript = document.createElement('script');

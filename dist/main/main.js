@@ -189,9 +189,15 @@ function createWorker(appWindow) {
 }
 var _a = __webpack_require__(/*! electron-devtools-installer */ "./node_modules/electron-devtools-installer/dist/index.js"), installExtension = _a.default, REACT_DEVELOPER_TOOLS = _a.REACT_DEVELOPER_TOOLS;
 electron__WEBPACK_IMPORTED_MODULE_0__["app"].on('ready', function () {
-    installExtension(REACT_DEVELOPER_TOOLS)
-        .then(function (name) { return console.log("Added Extension:  " + name); })
-        .catch(function (err) { return console.log('An error occurred: ', err); });
+    /*
+      BrowserWindow.addDevToolsExtension(
+         path.join(os.homedir(), '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0')
+      )
+    /*
+      installExtension(REACT_DEVELOPER_TOOLS)
+          .then((name: any) => console.log(`Added Extension:  ${name}`))
+          .catch((err: any) => console.log('An error occurred: ', err));
+    */
     createApp().then(function (appWindow) {
         console.log("[Node] App Window created");
         createWorker(appWindow).then(function (worker) {
@@ -258,7 +264,7 @@ function map_obj(obj, fn){
 /*! exports provided: _args, _development, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, bin, bugs, description, homepage, keywords, license, main, name, repository, scripts, version, default */
 /***/ (function(module) {
 
-module.exports = {"_args":[["7zip@0.0.6","C:\\Users\\orang\\Desktop\\olive"]],"_development":true,"_from":"7zip@0.0.6","_id":"7zip@0.0.6","_inBundle":false,"_integrity":"sha1-nK+xca+CMpSQNTtIFvAzR6oVCjA=","_location":"/7zip","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"7zip@0.0.6","name":"7zip","escapedName":"7zip","rawSpec":"0.0.6","saveSpec":null,"fetchSpec":"0.0.6"},"_requiredBy":["/electron-devtools-installer"],"_resolved":"https://registry.npmjs.org/7zip/-/7zip-0.0.6.tgz","_spec":"0.0.6","_where":"C:\\Users\\orang\\Desktop\\olive","bin":{"7z":"7zip-lite/7z.exe"},"bugs":{"url":"https://github.com/fritx/win-7zip/issues"},"description":"7zip Windows Package via Node.js","homepage":"https://github.com/fritx/win-7zip#readme","keywords":["7z","7zip","7-zip","windows","install"],"license":"GNU LGPL","main":"index.js","name":"7zip","repository":{"type":"git","url":"git+ssh://git@github.com/fritx/win-7zip.git"},"scripts":{"test":"mocha"},"version":"0.0.6"};
+module.exports = {"_args":[["7zip@0.0.6","D:\\source\\olive"]],"_development":true,"_from":"7zip@0.0.6","_id":"7zip@0.0.6","_inBundle":false,"_integrity":"sha1-nK+xca+CMpSQNTtIFvAzR6oVCjA=","_location":"/7zip","_phantomChildren":{},"_requested":{"type":"version","registry":true,"raw":"7zip@0.0.6","name":"7zip","escapedName":"7zip","rawSpec":"0.0.6","saveSpec":null,"fetchSpec":"0.0.6"},"_requiredBy":["/electron-devtools-installer"],"_resolved":"https://registry.npmjs.org/7zip/-/7zip-0.0.6.tgz","_spec":"0.0.6","_where":"D:\\source\\olive","bin":{"7z":"7zip-lite/7z.exe"},"bugs":{"url":"https://github.com/fritx/win-7zip/issues"},"description":"7zip Windows Package via Node.js","homepage":"https://github.com/fritx/win-7zip#readme","keywords":["7z","7zip","7-zip","windows","install"],"license":"GNU LGPL","main":"index.js","name":"7zip","repository":{"type":"git","url":"git+ssh://git@github.com/fritx/win-7zip.git"},"scripts":{"test":"mocha"},"version":"0.0.6"};
 
 /***/ }),
 

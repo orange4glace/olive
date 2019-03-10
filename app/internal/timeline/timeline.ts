@@ -1,15 +1,23 @@
-import TimelineInterface from 'standard/timeline'
+import ITimeline from 'standard/timeline'
 import { Postable, postable } from 'worker-postable';
 import { observable, action } from 'mobx'
 
-import Track from './track'
+import Track, { TrackBase } from './track'
 
 import { EventEmitter2 } from 'eventemitter2'
 import { IResource } from 'standard';
 import VideoTrackItem from './video-track-item';
 
+export interface TimelineBase {
+
+  totalTime: number;
+  currentTime: number;
+
+  tracks: Array<TrackBase>;
+}
+
 @Postable
-export default class Timeline implements TimelineInterface {
+export default class Timeline implements TimelineBase, ITimeline {
 
   @postable totalTime: number;
   @postable currentTime: number;

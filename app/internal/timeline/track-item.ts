@@ -2,13 +2,25 @@ import ITrackItem from 'standard/track-item'
 import { Postable, postable } from 'worker-postable';
 
 import TrackItemType from './track-item-type'
-
-import { observable, action } from 'mobx'
+import { DrawingBase } from 'internal/drawing';
+import Drawing from 'internal/drawing/drawing';
 
 let _nextTrackItemID = 0;
 
+export interface TrackItemBase {
+  type: TrackItemType;
+
+  startTime: number;
+  endTime: number;
+
+  next: TrackItemBase;
+  prev: TrackItemBase;
+
+  drawing: DrawingBase;
+}
+
 @Postable
-export default class TrackItem implements ITrackItem {
+export default class TrackItem implements TrackItemBase, ITrackItem {
 
   id: number;
   @postable type: TrackItemType;
@@ -18,6 +30,8 @@ export default class TrackItem implements ITrackItem {
 
   @postable next: TrackItem;
   @postable prev: TrackItem;
+
+  @postable drawing: Drawing;
 
   constructor(type: TrackItemType = TrackItemType.NORMAL) {
     this.id = _nextTrackItemID++;

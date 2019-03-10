@@ -1,9 +1,9 @@
-export interface IResourceManager {
-
-  addResource(path: string): void;
-
+export interface IResource {
+  id: number;
 }
 
-export interface IResource {
+export interface IResourceManager {
+
+  addResource(resource: IResource): void;
 
 }

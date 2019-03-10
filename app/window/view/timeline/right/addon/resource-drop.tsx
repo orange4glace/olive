@@ -17,7 +17,7 @@ let currentTrackItemHostSet: IObservableValue<TrackItemHostSet> = observable.box
 
 DNDInstance.ee.on('dragstart', (e: React.DragEvent, type: string, data: any) => {
   if (type == 'resource') {
-    let trackItem = app.factory.createVideoTrackItem(data);
+    let trackItem = app.factory.createTrackItem(data);
     let trackItemHost = new TrackItemHost(trackItem);
     currentTrackItemHostSet.set(new TrackItemHostSet());
     currentTrackItemHostSet.get().add(trackItemHost);

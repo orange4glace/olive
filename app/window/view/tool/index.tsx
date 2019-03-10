@@ -2,8 +2,6 @@ import * as React from 'react';
 
 import app from 'internal/app';
 
-import Rectangle from 'object/figure/rectangle';
-
 class ToolView extends React.Component {
 
   constructor(props: any) {

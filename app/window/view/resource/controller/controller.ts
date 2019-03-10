@@ -1,4 +1,5 @@
 import { IResourceManager, IResource } from 'standard'
+import app from 'internal/app';
 
 import ResourceHost from './resouce-host'
 
@@ -13,7 +14,8 @@ export default class ResourceViewController {
   }
 
   addResource(path: string): void {
-    this.resourceManager.addResource(path);
+    const resource = app.factory.createResource(path);
+    this.resourceManager.addResource(resource);
   }
 
 }

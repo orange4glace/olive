@@ -1,11 +1,14 @@
-import { ITrack } from './worker-postable-generated'
+import { TrackBase, TrackItemBase } from "internal/timeline";
+import { TrackItemRenderer } from "./track-item";
+import { Posted } from "worker-postable";
+import NVG from "../../../../nanovg-webgl";
 
-import TrackItem from './track-item'
+@Posted('Track')
+export class TrackRenderer implements TrackBase {
 
-export default class Track implements ITrack {
-  trackItems: Set<TrackItem>;
+  trackItems: Set<TrackItemRenderer>;
 
-  private lastAccessedTrackItem: TrackItem = null;
+  private lastAccessedTrackItem: TrackItemRenderer = null;
 
   getTrackItemAt(time: number) {
     const item = this.accessAfter(time);
@@ -14,7 +17,7 @@ export default class Track implements ITrack {
     return null;
   }
 
-  private accessAfter(query: number): TrackItem {
+  private accessAfter(query: number): TrackItemRenderer {
     if (this.trackItems.size == 0) return null;
     if (!this.trackItems.has(this.lastAccessedTrackItem))
       this.lastAccessedTrackItem = this.trackItems.values().next().value;
@@ -42,5 +45,11 @@ export default class Track implements ITrack {
       }
       return lastAccessed;
     }
+  }
+
+  draw(nvg: NVG, timecode: number) {
+    let trackItem = this.getTrackItemAt(timecode);
+    if (trackItem == null) return;
+    trackItem.draw(nvg, timecode);
   }
 }

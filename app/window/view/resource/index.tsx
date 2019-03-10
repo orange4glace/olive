@@ -44,18 +44,17 @@ class ResourceView extends React.Component<Props, {}> {
   }
 
   render() {
+    let resources: any[] = [];
+    app.resource.resources.forEach(resource => {
+      resources.push(<ResourceItemView resource={resource} key={resource.id}/>)
+    })
+
     return (
       <div className={style.component}
           onDragOver={e=>this.dragOverHandler(e)}
           onDrop={e=>this.dropHandler(e)}>
         <div className="resource-items">
-        {
-          app.resource.resources.map(resource => {
-            return (
-              <ResourceItemView resource={resource} key={resource.id}/>
-            )
-          })
-        }
+        { [resources] }
         </div>
       </div>
     )

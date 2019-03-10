@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import Property from 'internal/object/property'
+import Property from 'internal/drawing/property'
 
 interface PropertyLabelProps {
   property: Property<any>

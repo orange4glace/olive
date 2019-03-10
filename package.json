@@ -11,7 +11,7 @@
     "babel-preset-stage-2": "^6.24.1",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^1.0.0",
-    "electron": "^4.0.0-nightly.20181010",
+    "electron": "4.0.0-beta.2",
     "electron-devtools-installer": "^2.2.4",
     "file-loader": "^1.1.11",
     "node-loader": "^0.6.0",
@@ -27,15 +27,21 @@
     "url-loader": "^1.0.1",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.11"
+    "webpack-dev-server": "^3.1.11",
+    "worker-loader": "^2.0.0"
   },
   "dependencies": {
     "@types/react": "^16.8.2",
     "@types/react-dom": "^16.8.0",
-    "mobx": "^5.1.0",
+    "eventemitter2": "^5.0.1",
+    "hotkeys-js": "^3.4.4",
+    "mobx": "^5.9.0",
     "mobx-react": "^5.2.8",
+    "node-interval-tree": "^1.3.3",
     "react": "^16.5.0",
-    "react-dom": "^16.5.0"
+    "react-dom": "^16.5.0",
+    "tstl": "^2.1.2",
+    "worker-postable": "^1.2.12"
   },
   "babel": {
     "presets": [
@@ -54,6 +60,7 @@
     "electron": "electron .",
     "electron-debug": "G:/electron/src/out/Release/electron.exe ./dist/main/main.js",
     "webpack": "webpack --config ./webpack.main.config.js --mode development",
-    "build-decoder": "./build.sh"
+    "build-decoder": "./build.sh",
+    "transpile-worker": "worker-postable -i app/"
   }
 }

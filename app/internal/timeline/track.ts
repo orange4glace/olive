@@ -1,19 +1,25 @@
-import TrackInterface from 'standard/track'
+import ITrack from 'standard/track'
 import { Postable, postable } from 'worker-postable';
 
-import TrackItem from './track-item'
+import TrackItem, { TrackItemBase } from './track-item'
 
 import { EventEmitter2 } from 'eventemitter2';
 
 let _nextTrackID = 0;
 
+export interface TrackBase {
+
+  trackItems: Set<TrackItemBase>;
+
+}
+
 @Postable
-export default class Track implements TrackInterface {
+export default class Track implements TrackBase, ITrack {
 
   readonly id: number;
 
   @postable trackItems: Set<TrackItem>;
-
+  
   private lastAccessedTrackItem: TrackItem = null;
   private tailTrackItem: TrackItem = null;
 
@@ -28,6 +34,7 @@ export default class Track implements TrackInterface {
   }
 
   addTrackItem(trackItem: TrackItem) {
+    console.log(this.trackItems, trackItem)
     this.trackItems.add(trackItem);
     console.log('track item added')
     this.link(trackItem);

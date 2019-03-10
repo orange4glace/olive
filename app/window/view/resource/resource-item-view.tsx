@@ -1,12 +1,12 @@
 import * as React from 'react';
 import app from 'internal/app';
-import Resource from 'internal/resource/resource';
 import { DNDInstance } from 'window/dragndrop';
+import { IResource } from 'standard';
 
 const style = require('./resource-item.scss');
 
 interface ResourceItemViewProps {
-  resource: Resource;
+  resource: IResource;
 }
 
 @app.mobx.observer
@@ -47,7 +47,7 @@ class ResourceItemView extends React.Component<ResourceItemViewProps, {}> {
             </div>
             <div className='title-bar'>
               <div className='inner'>
-                <div className='title'>{resource.path}</div>
+                <div className='title'></div>
               </div>
             </div>
           </div>

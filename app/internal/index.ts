@@ -4,7 +4,7 @@ import * as mobx_react from 'mobx-react';
 
 import { initialize as DecoderInitializer } from 'internal/decoder/index'
 
-import { context as PostableContext } from 'worker-postable'
+import { context as PostableContext, ref, getPostableID } from 'worker-postable'
 import RendererWorker from 'worker-loader!./renderer/index';
 import App from 'internal/app-interface';
 import Timeline from 'internal/timeline/timeline';
@@ -13,8 +13,6 @@ import DecoderServer from 'internal/decoder/server'
 import Factory from './factory';
 import { Poster } from 'poster';
 
-import * as O from 'internal/object';
-console.log(O)
 
 import WindowParam from 'window/window-param'
 
@@ -46,16 +44,20 @@ function initializeApp(): void {
   }
   app.factory = new Factory();
   app.decoder = DecoderInitializer();
-  app.nanovg = initNanovg();
   app.timeline = new Timeline();
   app.resource = new ResourceManager();
+  app.workerPoster = rendererWorkerPoster;
+  app.canvas = document.createElement('canvas');
 
-  console.log(app.decoder)
+  console.log(Timeline, app.timeline)
 
   const decoderServer = new DecoderServer(app.decoder);
   decoderServer.attachClient(rendererWorkerPoster);
 
-  console.log(app);
+  ref(app.timeline);
+  const postableID = getPostableID(app.timeline);
+  rendererWorkerPoster.postMessage('timeline', postableID);
+  rendererWorkerPoster.transferMessage('canvas', (app.canvas as any).transferControlToOffscreen());
 }
 
 // function initDecoder(): any {
@@ -67,11 +69,6 @@ function initializeApp(): void {
 //   console.log(module);
 //   return module;
 // }
-
-function initNanovg(): any {
-  const nanovg = require(`../../nanovg-webgl/build/Release/nanovg_node_webgl.node`);
-  return nanovg;
-}
 
 let resourceWorkerWindow : electron.BrowserWindow;
 

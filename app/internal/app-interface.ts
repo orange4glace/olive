@@ -4,6 +4,7 @@ import IDecoder from 'internal/decoder/decoder';
 import Timeline from 'internal/timeline/timeline'
 import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
+import { Poster } from 'poster';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {
@@ -18,8 +19,9 @@ interface mobxExport {
 export default interface App {
   factory: Factory,
   decoder: IDecoder;
-  nanovg: any;
   mobx: mobxExport;
   timeline: Timeline;
   resource: ResourceManager;
+  workerPoster: Poster;
+  canvas: HTMLCanvasElement;
 }

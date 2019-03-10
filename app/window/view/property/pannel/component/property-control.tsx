@@ -1,27 +1,26 @@
 import * as React from 'react'
 
-import Property from 'internal/object/property'
-import PropertyValue, {
-    Vector2PropertyValue } from 'internal/object/property-value'
+import Property, { PropertyTypes } from 'internal/drawing/property'
+import { PropertyValue, Vector2PropertyValue } from 'internal/drawing/property-value'
 
 import PropertyLabel from 'window/view/property/pannel/component/property-label'
+import PostableVector2 from 'util/postable_vector2';
 
-interface PropertyControlProps<T extends PropertyValue<any>> {
+interface PropertyControlProps<T extends PropertyTypes> {
   label: string,
   property: Property<T>
 }
 
-class PropertyControl<T extends PropertyValue<any>> extends React.Component<PropertyControlProps<T>, {}> {
+class PropertyControl<T extends PropertyTypes> extends React.Component<PropertyControlProps<T>, {}> {
 
 }
 
-class Vector2PropertyControl extends PropertyControl<Vector2PropertyValue> {
+class Vector2PropertyControl extends PropertyControl<PostableVector2> {
 
   render() {
     return (
       <div>
         <PropertyLabel property={this.props.property}>{this.props.label}</PropertyLabel>
-        <input value={this.props.property.evaluatedValue.value.x}/>
       </div>
     )
   }

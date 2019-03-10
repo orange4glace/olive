@@ -1,20 +1,13 @@
+import ResourceType from "./type_t";
+
 let next_resource_id = 0;
 
 export default class Resource {
   readonly id: number;
-  readonly path: string;
-  readonly ext: string;
+  readonly type: ResourceType;
 
-  constructor(path: string) {
+  constructor(type: ResourceType) {
     this.id = next_resource_id ++;
-    this.path = path;
-  }
-
-  isImage(): boolean {
-    return false;
-  }
-
-  isVideo(): boolean {
-    return false;
+    this.type = type;
   }
 }
