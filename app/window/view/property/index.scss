@@ -1,0 +1,14 @@
+.component {
+  display: flex;
+  flex-direction: row;
+
+  > .property-form-view {
+    flex: 1;
+  }
+
+  > .property-keyframe-view {
+    flex: 1;
+    min-width: 200px;
+  }
+
+}

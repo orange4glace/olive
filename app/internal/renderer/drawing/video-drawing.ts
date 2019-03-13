@@ -1,6 +1,6 @@
 import DrawingRenderer from "./drawing";
 import { VideoDrawingBase } from "internal/drawing";
-import { PropertyRenderer } from "./property";
+import { PropertyRenderer, Vector2PropertyRenderer } from "./property";
 import { Posted } from "worker-postable";
 import { DrawingContext } from "./drawing-context";
 import { PostableVector2Renderer } from "../renderer-util";
@@ -9,7 +9,7 @@ import { PostableVector2Renderer } from "../renderer-util";
 export class VideoDrawingRenderer extends DrawingRenderer
     implements VideoDrawingBase {
 
-  size: PropertyRenderer<PostableVector2Renderer>;
+  size: Vector2PropertyRenderer;
 
   constructor() {
     super();

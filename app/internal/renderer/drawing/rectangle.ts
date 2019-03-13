@@ -1,7 +1,6 @@
 import { PolygonRenderer } from "./polygon";
-import { RectangleBase } from "internal/drawing";
-import { PropertyRenderer } from "./property";
-import { Vector2PropertyValueRenderer } from "./property-value";
+import { RectangleBase, Vector2PropertyBase } from "internal/drawing";
+import { PropertyRenderer, Vector2PropertyRenderer } from "./property";
 import { Posted } from "worker-postable";
 import { DrawingContext } from "./drawing-context";
 import { PostableVector2Renderer } from "../renderer-util";
@@ -10,7 +9,7 @@ import { PostableVector2Renderer } from "../renderer-util";
 export class RectangleRenderer extends PolygonRenderer
     implements RectangleBase {
 
-  protected size: PropertyRenderer<PostableVector2Renderer>;
+  protected size: Vector2PropertyRenderer;
 
   constructor() {
     super();
@@ -18,8 +17,8 @@ export class RectangleRenderer extends PolygonRenderer
 
   protected drawSelf(context: DrawingContext) {
     const nvg = context.nvg;
-    let position = this.position.getInterpolatedPropertyValue(context.timecode).value;
-    let size = this.size.getInterpolatedPropertyValue(context.timecode).value;
+    let position = this.position.getInterpolatedPropertyValue(context.timecode);
+    let size = this.size.getInterpolatedPropertyValue(context.timecode);
     console.log(position,size)
     nvg.strokeColor(125, 39, 92, 255);
     nvg.beginPath();

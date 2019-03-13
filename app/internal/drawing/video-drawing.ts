@@ -1,20 +1,18 @@
-import Property, { PropertyBase } from './property'
-import { Vector2PropertyValue, Vector2PropertyValueBase } from './property-value';
-
 import Drawing, { DrawingBase } from './drawing'
 import { Postable, postable } from 'worker-postable';
-import PostableVector2 from 'util/postable_vector2';
+import { DrawingType } from './drawing-type';
+import { Vector2Property, Vector2PropertyBase } from './property';
 
 export interface VideoDrawingBase extends DrawingBase {
-  size: PropertyBase<PostableVector2>;
+  size: Vector2PropertyBase;
 }
 
 @Postable
 export default class VideoDrawing extends Drawing implements VideoDrawingBase {
 
-  @postable size: Property<PostableVector2>;
+  @postable size: Vector2Property;
 
   constructor() {
-    super();
+    super(DrawingType.VIDEO);
   }
 }

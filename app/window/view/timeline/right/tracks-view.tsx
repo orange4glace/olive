@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { observable, action, computed } from 'mobx';
-import { observer } from 'mobx-react'
+import { observable, action, computed, observer } from 'window/app-mobx';
 
 import { TimelineViewController, TimelineHost, TrackHost, TrackItemHost } from '../controller';
 import ADiv from 'window/view/advanced-div';
@@ -152,6 +151,7 @@ export class TrackViewItemRenderer extends React.Component<TrackViewProps, {}> {
   }
 
   render() {
+    console.log('render me', this.props.trackHost.trackItemHosts.size)
     return (
       <>
       {this.visibleItems}

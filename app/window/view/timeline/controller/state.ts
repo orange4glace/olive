@@ -1,11 +1,13 @@
-import { observable } from 'mobx'
+import { observable } from 'window/app-mobx';
 import hotkeys from 'hotkeys-js'
 
 import TrackItemHost from './track-item-host';
+import TimelineViewController from './controller';
 
 export class _TimelineState {
 
   @observable snap: boolean = true;
+  @observable focusedTimelineViewController: TimelineViewController;
   
   NativeTrackItemView: any;
 
@@ -13,7 +15,11 @@ export class _TimelineState {
 
   }
 
+  setFocusedTimelineViewController(controller: TimelineViewController) {
+    this.focusedTimelineViewController = controller;
+  }
+
 }
 
-const TimelineState = new _TimelineState();
-export default TimelineState;
+const TimelineViewState = new _TimelineState();
+export default TimelineViewState;

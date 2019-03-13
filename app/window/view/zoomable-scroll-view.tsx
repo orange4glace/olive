@@ -1,12 +1,13 @@
 import * as React from 'react'
-import * as style from './zoomable-scroll-view.scss'
+import { observable, action } from 'window/app-mobx';
+import { observer } from 'window/app-mobx';
+import { EventEmitter2 } from 'eventemitter2'
+
 import hotkeys from 'hotkeys-js';
 import { MouseUtil } from 'orangeutil'
 
-import { observable, action } from 'mobx'
-import { observer } from 'mobx-react'
+import * as style from './zoomable-scroll-view.scss'
 
-import { EventEmitter2 } from 'eventemitter2'
 
 const ZOOM_THRESHOLD = 0.03;
 
@@ -187,7 +188,15 @@ export default class ZoomableScrollView extends React.PureComponent<Props, {}> {
     return (
       <div className={`zoomable-scroll-view ${style.component}`}
            onWheel={this.wheelHandler}>
-        <div className='zoomable-scroll-view-content'>{this.props.children}</div>
+        <div className='zoomable-scroll-view-content'>
+        {
+          React.Children.map(this.props.children, child =>
+            React.cloneElement((child as React.ReactElement<any>), {
+              scrollViewController: this.props.controller
+            })
+          )
+        }
+        </div>
         <ScrollBar controller={this.props.controller}/>
       </div>
     );

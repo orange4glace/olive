@@ -1,26 +1,26 @@
-import { PropertyValue, PropertyValueBase } from './property-value';
 import { Postable, postable } from 'worker-postable';
 import { InterpolationType } from './interpolation-type';
 import PostableVector2 from 'util/postable_vector2';
+import { TreeMap, Pair } from 'tstl';
 
 export type PropertyTypes = number | PostableVector2;
 
 export interface KeyframeBase<T extends PropertyTypes> {
   timecode: number;
-  value: PropertyValueBase<T>;
+  value: T;
   next: KeyframeBase<T>;
   prev: KeyframeBase<T>;
   interpolationType: InterpolationType;
 }
 
-class Keyframe<T extends PropertyTypes> implements KeyframeBase<T> {
+export class Keyframe<T extends PropertyTypes> implements KeyframeBase<T> {
   @postable timecode: number;
-  @postable value: PropertyValue<T>;
+  @postable value: T;
   @postable next: Keyframe<T>;
   @postable prev: Keyframe<T>;
   @postable interpolationType: InterpolationType;
 
-  constructor(timecode: number, value: PropertyValue<T>) {
+  constructor(timecode: number, value: T) {
     this.timecode = timecode;
     this.value = value;
     this.interpolationType = InterpolationType.LINEAR;
@@ -31,27 +31,71 @@ export interface PropertyBase<T extends PropertyTypes> {
   animatable: boolean;
   animated: boolean;
   keyframes: Set<KeyframeBase<T>>;
-  defaultValue: PropertyValueBase<T>;
+  defaultValue: T;
+
+  interpolate(lhs: T, rhs: T, t: number): T;
 }
 
 @Postable
-export default class Property<T extends PropertyTypes> implements PropertyBase<T> {
+export abstract class Property<T extends PropertyTypes> implements PropertyBase<T> {
 
   evaluatedValue: T;
   @postable animatable: boolean;
   @postable animated: boolean;
   @postable keyframes: Set<Keyframe<T>>;
-  @postable defaultValue: PropertyValue<T>;
+  @postable defaultValue: T;
 
+  keyframeTreeMap: TreeMap<number, Keyframe<T>>;
 
-  lastAccessedKeyframe: Keyframe<T> = null;
-
-  constructor(defaultValue: PropertyValue<T>) {
+  constructor(defaultValue: T) {
     this.animated = false;
     this.keyframes = new Set<Keyframe<T>>();
     this.defaultValue = defaultValue;
   }
 
+  abstract createValue(...args: any): T;
+  abstract interpolate(lhs: T, rhs: T, t: number): T;
+
+  getValueAt(timecode: number): T {
+    if (!this.animated) return this.defaultValue;
+    // touch getter to observe change
+    this.keyframes.values();
+    let next = this.keyframeTreeMap.lower_bound(timecode);
+    if (next.equals(this.keyframeTreeMap.end())) {
+      if (this.keyframeTreeMap.size() == 0)
+        return this.defaultValue;
+      return next.prev().value.second.value;
+    }
+    if (next.equals(this.keyframeTreeMap.begin()))
+      return next.value.second.value;
+    let prevKeyframe = next.prev().value.second;
+    let nextKeyframe = next.value.second;
+    let t = (timecode - prevKeyframe.timecode) / (nextKeyframe.timecode - prevKeyframe.timecode);
+    return this.interpolate(prevKeyframe.value, nextKeyframe.value, t);
+  }
+
+  addKeyframeAt(timecode: number, value: T) {
+    if (!this.animated) {
+      this.defaultValue = value;
+      return;
+    }
+    let lagacy = this.keyframeTreeMap.get(timecode);
+    if (lagacy != null) {
+      lagacy.value = value;
+      return;
+    }
+    let keyframe = new Keyframe<T>(timecode, value);
+    this.keyframeTreeMap.insert(new Pair(timecode, keyframe));
+    this.keyframes.add(keyframe);
+  }
+
+  removeKeyframe(keyframe: Keyframe<T>) {
+    console.assert(this.keyframes.has(keyframe), '[property] no such keyframe', keyframe);
+    this.keyframeTreeMap.erase(keyframe.timecode);
+    this.keyframes.delete(keyframe);
+  }
+
+  /*
   private access(timecode: number): Keyframe<T> {
     var bef = this.accessBefore(timecode);
     if (bef.timecode == timecode) return bef;
@@ -100,9 +144,19 @@ export default class Property<T extends PropertyTypes> implements PropertyBase<T
     }
   }
 
-  setKeyframe(timecode: number, value: PropertyValue<T>) {
+  setKeyframe(timecode: number, value: T) {
+    if (!this.animated) {
+      console.log(' set keyframe ', value);
+      this.defaultValue.value = value;
+      return;
+    }
     var keyframe = this.access(timecode);
-    keyframe.value = value;
+    keyframe.value.value = value;
+  }
+
+  getKeyframeAt(timecode: number): T {
+    if (!this.animated) return this.defaultValue;
+    return this.access(timecode);
   }
 
   getInterpolatedPropertyValue(timecode: number): PropertyValue<T> {
@@ -113,6 +167,24 @@ export default class Property<T extends PropertyTypes> implements PropertyBase<T
     if (aft == null) return bef.value;
     var t = (timecode - bef.timecode) / (aft.timecode - bef.timecode);
     return bef.value.interpolate(aft.value, t);
+  }
+  */
+}
+
+export interface Vector2PropertyBase extends PropertyBase<PostableVector2> {
+}
+
+@Postable
+export class Vector2Property extends Property<PostableVector2> implements Vector2PropertyBase {
+
+  createValue(x: number, y: number): PostableVector2 {
+    return new PostableVector2(x, y);
+  }
+
+  interpolate(lhs: PostableVector2, rhs: PostableVector2, t: number): PostableVector2 {
+    return new PostableVector2(
+      lhs.x + (rhs.x - lhs.x) * t,
+      lhs.y + (rhs.y - lhs.y) * t);
   }
 
 }

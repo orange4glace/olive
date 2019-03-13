@@ -1,5 +1,3 @@
-import { observable } from 'mobx'
-
 import TrackHost from './track-host'
 import TrackItemHost from './track-item-host';
 

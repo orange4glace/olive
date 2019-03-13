@@ -1,5 +1,5 @@
 /*
-import { action } from 'mobx';
+import { observable } from 'window/app-mobx';
 
 import TimelineViewController from '../controller';
 import TrackHost from '../track-host';

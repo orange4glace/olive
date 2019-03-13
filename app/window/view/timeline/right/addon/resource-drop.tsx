@@ -5,13 +5,13 @@ import { IObservableValue } from 'mobx';
 import app from 'internal/app'
 
 import { TimelineViewController, TrackItemHost } from '../../controller';
-import TimelineState from '../../timeline-context';
 import { DNDInstance } from 'window/dragndrop';
 import { TrackUserViewProps } from '../tracks-view';
 import ADiv from 'window/view/advanced-div';
 import { TrackItemHostSet } from '../../controller/track-host';
 
 import * as style from './resource-drop.scss'
+import TimelineViewState from '../../controller/state';
 
 let currentTrackItemHostSet: IObservableValue<TrackItemHostSet> = observable.box<TrackItemHostSet>(null);
 
@@ -98,7 +98,7 @@ class ResourceDropViewRenderer extends React.Component<TrackUserViewProps, {}> {
     let snapAdjustment = Infinity;
     let snapTargets: Set<number> = new Set<number>();
 
-    if (TimelineState.snap) {
+    if (TimelineViewState.snap) {
       currentTrackItemHostSet.get().value.forEach(trackItemHost => {
         const localTime = trackItemHost.endTime + dt;
         const snapTime = controller.getClosestSnapTime(localTime);

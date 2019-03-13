@@ -64,7 +64,7 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
                       children: [
                         {
                           direction: 'VIEW',
-                          views: ['Empty']
+                          views: ['Property']
                         }, {
                           direction: 'VIEW',
                           views: ['Empty']

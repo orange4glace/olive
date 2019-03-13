@@ -128,7 +128,12 @@ class WindowRequest {
 
 initializeApp();
 window.addEventListener('start-app-window', (e: CustomEvent) => {
-  console.log('start app window');
+  console.log('start app window', e.detail);
+  e.detail.fufuSet = (window as any).Set;
+  e.detail.Object = (window as any).Object;
+  e.detail.Array = (window as any).Array;
+  e.detail.Set = (window as any).Set;
+  e.detail.Map = (window as any).Map;
   initilaizeWindow(e.detail, {
     app: app
   });

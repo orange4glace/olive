@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { observer } from 'mobx-react'
+import { observer } from 'window/app-mobx'
 
 import { TimelineViewController, TimelineHost, TrackHost, TrackItemHost } from '../controller';
 import ADiv from 'window/view/advanced-div';

@@ -1,5 +1,5 @@
 export * from './property'
-export * from './property-value'
+// export * from './property-value'
 export * from './drawing'
 export * from './paper'
 export * from './polygon'

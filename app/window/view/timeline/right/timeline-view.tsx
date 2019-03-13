@@ -4,7 +4,7 @@ import hotkeys from 'hotkeys-js';
 import { observable, action, computed, observer } from 'window/app-mobx'
 
 import { MouseUtil, Throttle } from 'orangeutil'
-import ZoomableScrollView, { ZoomableScrollViewController } from './zoomable-scroll-view'
+import ZoomableScrollView, { ZoomableScrollViewController } from '../../zoomable-scroll-view'
 import Timeline from 'standard/timeline';
 import ADiv from 'window/view/advanced-div'
 
@@ -23,7 +23,7 @@ interface TimelineUserViewClass {
 
 
 interface TimelineViewProps {
-  timeline: Timeline;
+  timelineViewController: TimelineViewController;
 }
 
 export default class TimelineView extends React.Component<TimelineViewProps, {}> {
@@ -36,18 +36,16 @@ export default class TimelineView extends React.Component<TimelineViewProps, {}>
     TimelineView.userViews_.push(component);
   }
 
-  controller: TimelineViewController;
-
   constructor(props: any) {
     super(props);
     const zoomScrollViewController = new ZoomableScrollViewController();
-    this.controller = new TimelineViewController(this.props.timeline, zoomScrollViewController);
+    this.props.timelineViewController.attachScrollViewController(zoomScrollViewController);
   }
 
   render() {
     return (
-      <ZoomableScrollView controller={this.controller.scrollViewController}>
-        <TimelineViewContent controller={this.controller}></TimelineViewContent>
+      <ZoomableScrollView controller={this.props.timelineViewController.scrollViewController}>
+        <TimelineViewContent controller={this.props.timelineViewController}></TimelineViewContent>
       </ZoomableScrollView>
     )
   }

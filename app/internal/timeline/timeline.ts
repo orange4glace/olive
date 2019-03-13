@@ -23,8 +23,6 @@ export default class Timeline implements TimelineBase, ITimeline {
   @postable currentTime: number;
 
   @postable tracks: Array<Track>;
-  
-  updateHandlerTick: number;
 
   ee: EventEmitter2;
 

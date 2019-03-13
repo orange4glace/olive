@@ -6,7 +6,7 @@ import ResourceView from 'window/view/resource';
 import ToolView from 'window/view/tool';
 import RendererView from 'window/view/renderer';
 // import RendererDevView from 'window/view/renderer-dev';
-import PropertyView from 'window/view/property';
+import { PropertyView } from 'window/view/property';
 
 import app from 'internal/app'
 

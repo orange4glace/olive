@@ -1,42 +1,43 @@
-import * as React from 'react';
+import * as React from 'react'
+import TimelineViewState from '../timeline/controller/state';
+import { computed, observer } from 'window/app-mobx';
+import Timeline from 'internal/timeline/timeline';
+import TrackItem from 'internal/timeline/track-item';
+import { PropertyKeyframeView } from './property-keyframe-view';
+import PropertyFormView from './property-form-view';
 
-import ObjectBasePannel from 'window/view/property/pannel/object-base-pannel'
+import * as style from './index.scss'
 
-// import Property from 'object/property';
-// import PropertyPannelControl from 'windows/property/pannel/component/property_pannel_control';
-// import PropertyPannelLabel from 'windows/property/pannel/component/label';
-// import PropertyPannelIntegerSlider from 'windows/property/pannel/component/integer_slider';
+@observer
+export class PropertyView extends React.Component {
 
-export default class PropertyView extends React.Component {
-
-  constructor(props: any) {
-    super(props);
-/*
-    this.propertyDOM = [
-      [Property.WIDTH,
-      <PropertyPannelControl key={Property.WIDTH}>
-        <PropertyPannelLabel>WIDTH</PropertyPannelLabel>
-        <PropertyPannelIntegerSlider
-            value={this.getValue(Property.WIDTH)} onChange={this.onChange(Property.WIDTH)}/>
-      </PropertyPannelControl>],
-      [Property.HEIGHT,
-      <PropertyPannelControl key={Property.HEIGHT}>
-        <PropertyPannelLabel>HEIGHT</PropertyPannelLabel>
-        <PropertyPannelIntegerSlider/>
-      </PropertyPannelControl>],
-      [Property.POSITION,
-      <PropertyPannelControl key={Property.POSITION}>
-      </PropertyPannelControl>]
-    ]
-*/
+  @computed get timeline(): Timeline {
+    return TimelineViewState.focusedTimelineViewController ?
+      TimelineViewState.focusedTimelineViewController.timelineHost.timeline as Timeline :  null;
+  }
+  @computed get trackItem(): TrackItem {
+    return TimelineViewState.focusedTimelineViewController ?
+      TimelineViewState.focusedTimelineViewController.focusedTrackItemHosts.size == 1 ?
+      TimelineViewState.focusedTimelineViewController.focusedTrackItemHosts.values().next().value.trackItem as TrackItem : null : null;
   }
 
   render() {
-    return (
-      <div>
-      
-      </div>
-    )
+    if (this.timeline && this.trackItem) {
+      return (
+        <div className={style.component}>
+          <div className='property-form-view'>
+            <PropertyFormView timeline={this.timeline} trackItem={this.trackItem}/>
+          </div>
+          <div className='property-keyframe-view'>
+            <PropertyKeyframeView timeline={this.timeline} trackItem={this.trackItem}/>
+          </div>
+        </div>
+      )
+    }
+    else {
+      return <div>NO TrackItem Selected</div>
+    }
   }
 
 }
+

@@ -127,13 +127,13 @@ export class RangeSelector {
     const newXLine: TimeSlice = this.exclude(currentXLine, lastXLine);
     this.controller.timelineHost.trackHosts.forEach(trackHost => {
       trackHost.getTrackItemHostsAtRange(oldXLine.startTime, oldXLine.endTime).forEach(trackItemHost => {
-        if (e.movementX > 0 && trackItemHost.endTime < oldXLine.endTime) trackItemHost.defocus();
-        if (e.movementX < 0 && trackItemHost.startTime > oldXLine.startTime) trackItemHost.defocus();
+        if (e.movementX > 0 && trackItemHost.endTime < oldXLine.endTime) this.controller.defocusTrackItem(trackItemHost);
+        if (e.movementX < 0 && trackItemHost.startTime > oldXLine.startTime) this.controller.defocusTrackItem(trackItemHost);
       })
     })
     this.controller.timelineHost.trackHosts.forEach(trackHost => {
       trackHost.getTrackItemHostsAtRange(newXLine.startTime, newXLine.endTime).forEach(trackItemHost => {
-        trackItemHost.focus();
+        this.controller.focusTrackItem(trackItemHost);
       })
     });
   }

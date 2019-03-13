@@ -1,4 +1,4 @@
-import { observable } from 'mobx'
+import { observable } from 'window/app-mobx';
 
 import TrackItem from 'standard/track-item'
 
@@ -18,7 +18,8 @@ export default class TrackItemHost {
   startBoundaryTime: number = -Infinity;
   endBoundaryTime: number = Infinity;
 
-  @observable focused: boolean;
+  @observable private focused_: boolean;
+  get focused() { return this.focused_; }
   @observable active: boolean;
 
   @observable snapped: string;
@@ -28,7 +29,7 @@ export default class TrackItemHost {
     this.trackItem = trackItem;
     if (trackItem) this.startTime = trackItem.startTime;
     if (trackItem) this.endTime = trackItem.endTime;
-    this.focused = false;
+    this.focused_ = false;
     this.snapped = 'none';
   }
 
@@ -42,12 +43,8 @@ export default class TrackItemHost {
     this.active = false;
   }
 
-  focus() {
-    this.focused = true;
-  }
-
-  defocus() {
-    this.focused = false;
+  setFocus(value: boolean) {
+    this.focused_ = value;
   }
 
 }

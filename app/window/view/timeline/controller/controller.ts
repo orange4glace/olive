@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { observable, action, computed } from 'mobx'
+import { observable, action } from 'window/app-mobx';
 import { EventEmitter2 } from 'eventemitter2'
 
 import { MouseUtil } from 'orangeutil'
-import { ZoomableScrollViewController } from 'window/view/timeline/right/zoomable-scroll-view'
+import { ZoomableScrollViewController } from 'window/view/zoomable-scroll-view'
 
 import Timeline from 'standard/timeline';
 import TrackItem from 'standard/track-item';
@@ -34,13 +34,14 @@ export default class TimelineViewController {
   unitMillisecond: number;
   unitWidth: number;
 
+  @observable focusedTrackItemHosts: Set<TrackItemHost> = new Set();
+
   tracksViewRef: React.RefObject<any>;
 
   ee: EventEmitter2;
 
-  constructor(timeline: Timeline, scrollViewController: ZoomableScrollViewController) {
+  constructor(timeline: Timeline) {
     this.timelineHost = new TimelineHost(timeline);
-    this.scrollViewController = scrollViewController;
 
     this.tracksViewRef = React.createRef();
 
@@ -50,8 +51,12 @@ export default class TimelineViewController {
     this.removeFocusedTrackItems = this.removeFocusedTrackItems.bind(this);
     // this.commit = this.commit.bind(this);
 
-    this.scrollViewController.ee.addListener('update', this.update);
     hotkeys('delete', this.removeFocusedTrackItems);
+  }
+
+  attachScrollViewController(scrollViewController: ZoomableScrollViewController) {
+    this.scrollViewController = scrollViewController
+    scrollViewController.ee.on('update', this.update);
   }
 
   @action
@@ -97,10 +102,24 @@ export default class TimelineViewController {
     })
   }
 
+  focusTrackItem(trackItemHost: TrackItemHost) {
+    if (trackItemHost.focused) return;
+    trackItemHost.setFocus(true);
+    this.focusedTrackItemHosts.add(trackItemHost);
+    this.ee.emit('trackItemFocused', trackItemHost);
+  }
+
+  defocusTrackItem(trackItemHost: TrackItemHost) {
+    if (!trackItemHost.focused) return;
+    trackItemHost.setFocus(false);
+    this.focusedTrackItemHosts.delete(trackItemHost);
+    this.ee.emit('trackItemDefocused', trackItemHost);
+  }
+
   defocusAllTrackItems() {
     this.timelineHost.trackHosts.forEach(trackHost => {
       trackHost.trackItemHosts.forEach(trackItemHost => {
-        trackItemHost.focused = false;
+        this.defocusTrackItem(trackItemHost);
       })
     })
   }

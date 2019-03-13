@@ -1,4 +1,5 @@
-import { observable, computed } from 'mobx'
+import { observable } from 'window/app-mobx';
+
 import { make_pair ,TreeMap } from 'tstl'
 import IntervalTree from 'node-interval-tree'
 
