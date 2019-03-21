@@ -50,17 +50,19 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
   constructor(defaultValue: T) {
     this.animated = false;
     this.keyframes = new Set<Keyframe<T>>();
+    this.keyframeTreeMap = new TreeMap<number, Keyframe<T>>();
     this.defaultValue = defaultValue;
   }
 
   abstract createValue(...args: any): T;
+  abstract cloneValue(value: T): T;
   abstract interpolate(lhs: T, rhs: T, t: number): T;
 
-  getValueAt(timecode: number): T {
+  getValueAt(timeoffset: number): T {
     if (!this.animated) return this.defaultValue;
     // touch getter to observe change
     this.keyframes.values();
-    let next = this.keyframeTreeMap.lower_bound(timecode);
+    let next = this.keyframeTreeMap.lower_bound(timeoffset);
     if (next.equals(this.keyframeTreeMap.end())) {
       if (this.keyframeTreeMap.size() == 0)
         return this.defaultValue;
@@ -70,22 +72,22 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
       return next.value.second.value;
     let prevKeyframe = next.prev().value.second;
     let nextKeyframe = next.value.second;
-    let t = (timecode - prevKeyframe.timecode) / (nextKeyframe.timecode - prevKeyframe.timecode);
+    let t = (timeoffset - prevKeyframe.timecode) / (nextKeyframe.timecode - prevKeyframe.timecode);
     return this.interpolate(prevKeyframe.value, nextKeyframe.value, t);
   }
 
-  addKeyframeAt(timecode: number, value: T) {
+  addKeyframeAt(timeoffset: number, value: T) {
     if (!this.animated) {
       this.defaultValue = value;
       return;
     }
-    let lagacy = this.keyframeTreeMap.get(timecode);
-    if (lagacy != null) {
-      lagacy.value = value;
+    let lagacy = this.keyframeTreeMap.find(timeoffset);
+    if (!lagacy.equals(this.keyframeTreeMap.end())) {
+      lagacy.value.second.value = value;
       return;
     }
-    let keyframe = new Keyframe<T>(timecode, value);
-    this.keyframeTreeMap.insert(new Pair(timecode, keyframe));
+    let keyframe = new Keyframe<T>(timeoffset, value);
+    this.keyframeTreeMap.insert(new Pair(timeoffset, keyframe));
     this.keyframes.add(keyframe);
   }
 
@@ -93,6 +95,10 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     console.assert(this.keyframes.has(keyframe), '[property] no such keyframe', keyframe);
     this.keyframeTreeMap.erase(keyframe.timecode);
     this.keyframes.delete(keyframe);
+  }
+
+  setAnimated(value: boolean) {
+    this.animated = value;
   }
 
   /*
@@ -179,6 +185,10 @@ export class Vector2Property extends Property<PostableVector2> implements Vector
 
   createValue(x: number, y: number): PostableVector2 {
     return new PostableVector2(x, y);
+  }
+
+  cloneValue(value: PostableVector2): PostableVector2 {
+    return new PostableVector2(value.x, value.y);
   }
 
   interpolate(lhs: PostableVector2, rhs: PostableVector2, t: number): PostableVector2 {

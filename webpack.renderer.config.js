@@ -1,6 +1,8 @@
 module.exports = [{
-  entry: './app/renderer/index.ts',
-  target: 'web',
+  entry: {
+    internal: './app/internal/index.ts'
+  },
+  target: 'electron-renderer',
   module: {
     rules: [
       {
@@ -8,15 +10,19 @@ module.exports = [{
         exclude: /node_modules/,
         use: ['ts-loader']
       },
+      {
+        test: /\.node$/,
+        use: 'node-loader'
+      },
     ]
   },
   devtool: 'source-map',
   resolve: {
     modules: ['node_modules', 'app'],
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.node']
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json']
   },
   output: {
-    path: __dirname + '/dist/renderer',
+    path: __dirname + '/dist/app',
     publicPath: '/',
     filename: '[name].js'
   }

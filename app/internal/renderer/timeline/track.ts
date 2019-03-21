@@ -1,7 +1,8 @@
-import { TrackBase, TrackItemBase } from "internal/timeline";
+import { TrackBase, TrackItemBase, TrackItemType } from "internal/timeline";
 import { TrackItemRenderer } from "./track-item";
 import { Posted } from "worker-postable";
 import NVG from "../../../../nanovg-webgl";
+import { VideoTrackItemRenderer } from "./video-track-item";
 
 @Posted('Track')
 export class TrackRenderer implements TrackBase {
@@ -47,9 +48,18 @@ export class TrackRenderer implements TrackBase {
     }
   }
 
-  draw(nvg: NVG, timecode: number) {
+  async draw(nvg: NVG, timecode: number) {
     let trackItem = this.getTrackItemAt(timecode);
     if (trackItem == null) return;
-    trackItem.draw(nvg, timecode);
+    await trackItem.draw(nvg, timecode);
+  }
+
+  decode(timecode: number) {
+    let trackItem = this.getTrackItemAt(timecode);
+    if (trackItem == null) return;
+    if (trackItem.type == TrackItemType.VIDEO) {
+      let videoTrackItem = trackItem as VideoTrackItemRenderer;
+      videoTrackItem.decode(timecode - videoTrackItem.startTime);
+    }
   }
 }

@@ -3,3 +3,11 @@ export default interface IDecoder {
   Decode(resourceID: number, timecode: number): Promise<any>;
   FreeFrame(frame: any): void;
 }
+
+export interface VideoFrameData {
+  data: ArrayBuffer;
+  ptr: BigInt;
+  width: number;
+  height: number;
+  pts: number;
+}

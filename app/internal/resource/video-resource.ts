@@ -1,11 +1,17 @@
-import Resource from "./resource";
 import ResourceType from "./type_t";
 import app from "internal/app";
+import { Resource, ResourceBase } from "./resource";
+import { Postable, postable } from "worker-postable";
 
-export default class VideoResource extends Resource {
+export interface VideoResourceBase extends ResourceBase {
+  native_id: number;
+}
+
+@Postable
+export class VideoResource extends Resource {
 
   readonly path: string;
-  readonly native_id: number;
+  @postable readonly native_id: number;
 
   constructor(path: string) {
     super(ResourceType.VIDEO);

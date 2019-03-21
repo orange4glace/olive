@@ -1,21 +1,28 @@
 import * as React from 'react'
 import { computed, observer } from 'window/app-mobx';
 
-import PropertyLabel from 'window/view/property/pannel/component/property-label'
 import PostableVector2 from 'util/postable_vector2';
+import PropertyLabel from './property-label';
 import { Property, PropertyTypes, Vector2Property } from 'internal/drawing';
+import { PropertyAnimatedDecorator } from './property-decorator';
+
+import * as style from './style.scss'
+import TrackItem from 'internal/timeline/track-item';
+import Timeline from 'internal/timeline/timeline';
 
 interface PropertyControlProps<T extends PropertyTypes> {
   label: string,
-  timeoffset: number;
+  timeline: Timeline;
+  trackItem: TrackItem;
+  drawing: Drawing;
   property: Property<T>;
 }
 
 class PropertyControl<T extends PropertyTypes> extends React.Component<PropertyControlProps<T>, {}> {
 
   @computed get currentPropertyValue(): T {
-    console.log('computed')
-    return this.props.property.getValueAt(this.props.timeoffset);
+    const time = this.props.timeline.currentTime - this.props.trackItem.baseTime;
+    return this.props.property.getValueAt(time);
   }
 
 }
@@ -32,19 +39,22 @@ export class Vector2PropertyControl extends PropertyControl<PostableVector2> {
 
   xValueChangeHandler(e: any) {
     const property = this.props.property as Vector2Property;
+    const time = this.props.timeline.currentTime - this.props.trackItem.baseTime;
     let value = property.createValue(+e.target.value, this.currentPropertyValue.y);
-    property.addKeyframeAt(this.props.timeoffset, value);
+    property.addKeyframeAt(time, value);
   }
 
   yValueChangeHandler(e: any) {
     const property = this.props.property as Vector2Property;
+    const time = (this.props.timeline.currentTime - this.props.trackItem.baseTime);
     let value = property.createValue(this.currentPropertyValue.x, +e.target.value);
-    property.addKeyframeAt(this.props.timeoffset, value);
+    property.addKeyframeAt(time, value);
   }
 
   render() {
     return (
-      <div>
+      <div className={style.component}>
+        <PropertyAnimatedDecorator timeline={this.props.timeline} trackItem={this.props.trackItem} property={this.props.property}/>
         <PropertyLabel property={this.props.property}>{this.props.label}</PropertyLabel>
         <input value={this.currentPropertyValue.x} onChange={this.xValueChangeHandler}/>
         <input value={this.currentPropertyValue.y} onChange={this.yValueChangeHandler}/>

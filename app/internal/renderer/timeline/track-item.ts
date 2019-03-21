@@ -10,6 +10,7 @@ export class TrackItemRenderer implements TrackItemBase {
 
   startTime: number;
   endTime: number;
+  baseTime: number;
 
   next: TrackItemRenderer;
   prev: TrackItemRenderer;
@@ -17,13 +18,12 @@ export class TrackItemRenderer implements TrackItemBase {
   drawing: DrawingRenderer;
 
   draw(nvg: NVG, timecode: number): void {
-    console.log('Draw on',this);
     let context: DrawingContext = {
       nvg: nvg,
       timecode: timecode,
       screenWidth: 300,
       screenHeight: 150
     };
-    this.drawing.draw(context);
+    this.drawing.draw(context, timecode - this.baseTime);
   }
 }

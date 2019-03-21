@@ -2,19 +2,48 @@ const webpack = require('webpack');
 const autoprefixer = require('autoprefixer');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const md5 = require('./md5')
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const path = require('path')
 
 module.exports = [{
   entry: {
     initializer: './app/window/initializer.ts',
     window: './app/window/index.tsx',
   },
+  devServer: {
+    contentBase: './dist',
+    hot: true
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin()
+  ],
   target: 'web',
   module: {
     rules: [
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: ['ts-loader']
+        use: {
+          loader: "babel-loader",
+          options: {
+            cacheDirectory: true,
+            babelrc: false,
+            presets: [
+              [
+                "@babel/preset-env",
+                { targets: { browsers: "last 2 versions" } } // or whatever your project requires
+              ],
+              "@babel/preset-typescript",
+              "@babel/preset-react"
+            ],
+            plugins: [
+              // plugin-proposal-decorators is only needed if you're using experimental decorators in TypeScript
+              ["@babel/plugin-proposal-decorators", { legacy: true }],
+              ["@babel/plugin-proposal-class-properties", { loose: true }],
+              "react-hot-loader/babel"
+            ]
+          }
+        }
       },
       {
         // https://velopert.com/3447
@@ -90,13 +119,15 @@ module.exports = [{
     filename: '[name].js'
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new CopyWebpackPlugin([
       {
         from: './renderer/worker.js',
         to: './renderer/'
       }
-    ])
+    ]),
+    new ForkTsCheckerWebpackPlugin({
+      tsconfig: path.resolve(__dirname, './app/tsconfig.json')
+    })
   ]
 },
 
@@ -113,6 +144,28 @@ module.exports = [{
         test: /\.tsx?$/,
         exclude: /node_modules/,
         use: ['ts-loader']
+        /*
+        use: {
+          loader: "babel-loader",
+          options: {
+            cacheDirectory: true,
+            babelrc: false,
+            presets: [
+              [
+                "@babel/preset-env",
+                { targets: { browsers: "last 2 versions" } } // or whatever your project requires
+              ],
+              "@babel/preset-typescript",
+              "@babel/preset-react"
+            ],
+            plugins: [
+              // plugin-proposal-decorators is only needed if you're using experimental decorators in TypeScript
+              ["@babel/plugin-proposal-decorators", { legacy: true }],
+              ["@babel/plugin-proposal-class-properties", { loose: true }]
+            ]
+          }
+        }
+        */
       },
       {
         test: /\.node$/,
@@ -128,6 +181,12 @@ module.exports = [{
   output: {
     path: __dirname + '/dist/app',
     publicPath: '/',
-    filename: '[name].js'
-  }
+    filename: '[name].js',
+    globalObject: 'this'
+  },
+  plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      tsconfig: path.resolve(__dirname, './app/tsconfig.json')
+    })
+  ]
 }]

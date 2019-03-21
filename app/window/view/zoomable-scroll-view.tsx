@@ -15,7 +15,7 @@ export class ZoomableScrollViewController {
 
   @observable start: number;
   @observable end: number;
-  scrollWidth: number;
+  @observable scrollWidth: number = NaN;
   elementRef: React.RefObject<HTMLDivElement>;
 
   ee: EventEmitter2;
@@ -149,7 +149,8 @@ class ScrollBar extends React.Component<Props, {}> {
   }
 }
 
-export default class ZoomableScrollView extends React.PureComponent<Props, {}> {
+@observer
+export default class ZoomableScrollView extends React.Component<Props, {}> {
 
   constructor(props: any) {
     super(props);
@@ -190,6 +191,7 @@ export default class ZoomableScrollView extends React.PureComponent<Props, {}> {
            onWheel={this.wheelHandler}>
         <div className='zoomable-scroll-view-content'>
         {
+          isNaN(this.props.controller.scrollWidth) ? <></> :
           React.Children.map(this.props.children, child =>
             React.cloneElement((child as React.ReactElement<any>), {
               scrollViewController: this.props.controller

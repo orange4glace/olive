@@ -5,8 +5,8 @@ import { observable, action } from 'mobx'
 import Track, { TrackBase } from './track'
 
 import { EventEmitter2 } from 'eventemitter2'
-import { IResource } from 'standard';
 import VideoTrackItem from './video-track-item';
+import { Resource } from 'internal/resource';
 
 export interface TimelineBase {
 
@@ -52,7 +52,7 @@ export default class Timeline implements TimelineBase, ITimeline {
     return track;
   }
 
-  createVideoTrackItem(resource: IResource) {
+  createVideoTrackItem(resource: Resource) {
     const result = new VideoTrackItem(resource);
     return result;
   }

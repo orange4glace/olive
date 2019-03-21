@@ -1,7 +1,10 @@
 import { KeyframeBase, PropertyBase, PropertyTypes, Vector2PropertyBase } from "internal/drawing";
-import { Posted } from "worker-postable";
+import { Posted, listenable, listen } from "worker-postable";
 import { InterpolationType } from "internal/drawing/interpolation-type";
 import { PostableVector2Renderer } from "../renderer-util";
+import { observable, observe, ObservableSet } from "mobx";
+import { TreeMap, Pair } from "tstl";
+import { MapIterator } from "tstl/base";
 
 @Posted('Keyframe')
 export class KeyframeRenderer<T extends PropertyTypes> implements KeyframeBase<T> {
@@ -21,48 +24,49 @@ export class KeyframeRenderer<T extends PropertyTypes> implements KeyframeBase<T
 export abstract class PropertyRenderer<T extends PropertyTypes> implements PropertyBase<T> {
   animatable: boolean;
   animated: boolean;
-  keyframes: Set<KeyframeRenderer<T>>;
+  @listenable keyframes: Set<KeyframeRenderer<T>>;
   defaultValue: T;
+
+  keyframeMap: TreeMap<number, KeyframeRenderer<T>>;
+  currentKeyframeIterator: MapIterator<number, KeyframeRenderer<T>, true, TreeMap<number, KeyframeRenderer<T>>>;
+  
+  constructor() {
+    this.keyframeMap = new TreeMap();
+
+    this.observeKeyframes = this.observeKeyframes.bind(this);
+    listen(this, (change: any) => {
+      if ((change.type=='add' || change.type == 'update') && change.name == 'keyframes')
+        this.observeKeyframes(change.newValue);
+    })
+  }
+
+  observeKeyframes(keyframes: ObservableSet<KeyframeRenderer<T>>) {
+    listen(keyframes, change => {
+      if (change.type == 'add') {
+        let keyframe = change.newValue as KeyframeRenderer<T>;
+        this.keyframeMap.insert(new Pair(keyframe.timecode, keyframe));
+      }
+    });
+  }
 
   private lastAccessedKeyframe: KeyframeRenderer<T>;
 
   abstract interpolate(lhs: T, rhs: T, t: number): T;
 
-  private accessBefore(timecode: number): KeyframeRenderer<T> {
-    let after = this.accessAfter(timecode);
-    if (after == null) return this.lastAccessedKeyframe;
-    else {
-      if (after.timecode == timecode) return after;
-      return after.prev;
-    }
+  private accessBefore(timeoffset: number): KeyframeRenderer<T> {
+    let it = this.keyframeMap.lower_bound(timeoffset);
+    if (it.equals(this.keyframeMap.end())) 
+      if (this.keyframeMap.size() > 0) return this.keyframeMap.rbegin().value.second;
+      else return null;
+    if (it.value.second.timecode == timeoffset) return it.value.second;
+    if (it.equals(this.keyframeMap.begin())) return null;
+    return it.prev().value.second;
   }
 
-  private accessAfter(timecode: number): KeyframeRenderer<T> {
-    if (this.keyframes.size == 0) return null;
-    if (!this.keyframes.has(this.lastAccessedKeyframe))
-      this.lastAccessedKeyframe = this.keyframes.values().next().value;
-    var lastAccessed = this.lastAccessedKeyframe;
-    if (lastAccessed.timecode == timecode) return lastAccessed;
-
-    if (lastAccessed.timecode > timecode) {
-      var candidate = lastAccessed;
-      while (true) {
-        candidate = lastAccessed;
-        lastAccessed = lastAccessed.prev;
-        this.lastAccessedKeyframe = lastAccessed;
-        if (lastAccessed.timecode < timecode) break;
-      }
-      return candidate;
-    }
-
-    else {
-      while (lastAccessed != null) {
-        this.lastAccessedKeyframe = lastAccessed;
-        if (lastAccessed.timecode >= timecode) break;
-        lastAccessed = lastAccessed.next;
-      }
-      return lastAccessed;
-    }
+  private accessAfter(timeoffset: number): KeyframeRenderer<T> {
+    let it = this.keyframeMap.lower_bound(timeoffset);
+    if (it.equals(this.keyframeMap.end())) return null;
+    return it.value.second;
   }
 
   getInterpolatedPropertyValue(timecode: number): T {

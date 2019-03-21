@@ -3,10 +3,9 @@ import { observable } from 'window/app-mobx';
 import { make_pair ,TreeMap } from 'tstl'
 import IntervalTree from 'node-interval-tree'
 
-import Track from 'standard/track'
-import TrackItem from 'standard/track-item'
-
 import TrackItemHost from "./track-item-host";
+import TrackItem from 'internal/timeline/track-item';
+import Track from 'internal/timeline/track';
 
 let __next_track_item_host_set_id = 0;
 export class TrackItemHostSet {

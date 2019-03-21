@@ -5,12 +5,12 @@ import { EventEmitter2 } from 'eventemitter2'
 import { MouseUtil } from 'orangeutil'
 import { ZoomableScrollViewController } from 'window/view/zoomable-scroll-view'
 
-import Timeline from 'standard/timeline';
-import TrackItem from 'standard/track-item';
 import TimelineHost from './timeline-host'
 import TrackHost from './track-host';
 import TrackItemHost from './track-item-host';
 import hotkeys from 'hotkeys-js';
+import Timeline from 'internal/timeline/timeline';
+import TrackItem from 'internal/timeline/track-item';
 
 export enum TimelineViewEventType {
   TRACK_DRAG_OVER = 'TRACK_DRAG_OVER',
@@ -30,7 +30,7 @@ export default class TimelineViewController {
 
   @observable startTime: number;
   @observable endTime: number;
-  pxPerMillisecond: number;
+  @observable pxPerMillisecond: number;
   unitMillisecond: number;
   unitWidth: number;
 

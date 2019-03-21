@@ -23,6 +23,8 @@ import {
   WindowRequestWrapResult,
   AppParam } from 'connector'
 
+  if ((module as any).hot) (module as any).hot.accept();
+
 var app: App;
 
 const remote = electron.remote, 
@@ -30,9 +32,11 @@ const remote = electron.remote,
       BrowserWindow = remote.BrowserWindow;
 
 function initializeApp(): void {
+  let internalPoster = new Poster(window);
+
   let rendererWorker = new RendererWorker();
   const rendererWorkerPoster = new Poster(rendererWorker);
-  PostableContext.onMesssage = msg => rendererWorkerPoster.emit('post', msg);
+  PostableContext.onMessage = msg => rendererWorkerPoster.send('post', msg);
   
   app = ((window as any).app) as App;
   app.mobx = {
@@ -48,16 +52,21 @@ function initializeApp(): void {
   app.resource = new ResourceManager();
   app.workerPoster = rendererWorkerPoster;
   app.canvas = document.createElement('canvas');
+  app.canvas.width = 1280;
+  app.canvas.height = 720;
 
   console.log(Timeline, app.timeline)
 
-  const decoderServer = new DecoderServer(app.decoder);
-  decoderServer.attachClient(rendererWorkerPoster);
+  const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   ref(app.timeline);
   const postableID = getPostableID(app.timeline);
-  rendererWorkerPoster.postMessage('timeline', postableID);
-  rendererWorkerPoster.transferMessage('canvas', (app.canvas as any).transferControlToOffscreen());
+  rendererWorkerPoster.send('timeline', postableID);
+
+  let offscreen = (app.canvas as any).transferControlToOffscreen();
+  rendererWorkerPoster.send('canvas', {
+    data: offscreen,
+  }, [offscreen])
 }
 
 // function initDecoder(): any {

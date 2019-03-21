@@ -1,31 +1,55 @@
-import { Poster } from 'poster'
+import { Poster, ReceivedRequest } from 'poster'
 
 import IDecoder from './decoder'
 
+export interface DecodeRequest {
+  resourceID: number;
+  timecode: number;
+}
+
+export interface FreeRequest {
+  id: number;
+}
+
+export interface DecodeResponse {
+  id: number;
+  ptr: BigInt;
+}
+
 export default class DecoderServer {
 
+  private __next_frame_id = 0;
+
+  private poster: Poster;
   private decoder: IDecoder;
-  private clients: Poster[];
-  private clientHandlers: Map<Poster, any> = new Map();
 
-  constructor(decoder: IDecoder) {
+  private frames: Map<number, any> = new Map();
+
+  constructor(poster: Poster, decoder: IDecoder) {
+    this.poster = poster;
     this.decoder = decoder;
+    
+    this.decodeHandler = this.decodeHandler.bind(this);
+    this.freeHandler = this.freeHandler.bind(this);
+
+    this.poster.addRequestListener('decode', this.decodeHandler);
+    this.poster.addRequestListener('free', this.freeHandler);
   }
 
-  attachClient(client: Poster) {
-    const decodeHandler = this.decodeHandler.bind(this, client);
-    this.clientHandlers.set(client, decodeHandler);
-    client.on('decode', decodeHandler);
-  }
-  
-  detachClient(client: Poster) {
-
-  }
-
-  decodeHandler(client: Poster, data: any) {
+  decodeHandler(req: ReceivedRequest<DecodeRequest>) {
+    const data = req.data;
     this.decoder.Decode(data.resourceID, data.timecode).then((result: any) => {
-      client.emit('decoded', result);
+      let res: DecodeResponse = {
+        id: this.__next_frame_id++,
+        ptr: result.data
+      }
+      this.frames.set(res.id, result);
+      req.respond(res);
     })
+  }
+
+  freeHandler(req: ReceivedRequest<FreeRequest>) {
+    this.decoder.FreeFrame(this.frames.get(req.data.id).native);
   }
 
 }

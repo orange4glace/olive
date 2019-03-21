@@ -10,7 +10,7 @@ export class PaperRenderer extends DrawingRenderer implements PaperBase {
     super();
   }
 
-  protected drawSelf(context: DrawingContext) {
+  protected drawSelf(context: DrawingContext, timeoffset: number) {
     
   }
   

@@ -12,6 +12,7 @@ export interface TrackItemBase {
 
   startTime: number;
   endTime: number;
+  baseTime: number;
 
   next: TrackItemBase;
   prev: TrackItemBase;
@@ -27,6 +28,7 @@ export default class TrackItem implements TrackItemBase, ITrackItem {
 
   @postable startTime: number;
   @postable endTime: number;
+  @postable baseTime: number;
 
   @postable next: TrackItem;
   @postable prev: TrackItem;
@@ -37,6 +39,8 @@ export default class TrackItem implements TrackItemBase, ITrackItem {
     this.id = _nextTrackItemID++;
     this.type = type;
 
+    this.baseTime = 0;
+
     this.next = null;
     this.prev = null;
   }
@@ -45,12 +49,17 @@ export default class TrackItem implements TrackItemBase, ITrackItem {
     let trackItem = new TrackItem();
     trackItem.startTime = this.startTime;
     trackItem.endTime = this.endTime;
+    trackItem.baseTime = this.baseTime;
     return trackItem;
   }
 
   setTime(startTime: number, endTime: number) {
     this.startTime = startTime;
     this.endTime = endTime;
+  }
+
+  setBaseTime(baseTime: number) {
+    this.baseTime = baseTime;
   }
 
 }

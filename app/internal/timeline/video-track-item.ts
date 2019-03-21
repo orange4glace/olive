@@ -5,19 +5,21 @@ import TrackItemType from './track-item-type';
 import { IResource } from 'standard';
 import VideoDrawing from 'internal/drawing/video-drawing';
 import { Rectangle } from 'internal/drawing';
+import { Resource, ResourceBase } from 'internal/resource';
 
 export interface VideoTrackItemBase extends TrackItemBase {
-
+  resource: ResourceBase;
 }
 
 @Postable
-export default class VideoTrackItem extends TrackItem implements TrackItemBase {
+export default class VideoTrackItem extends TrackItem implements VideoTrackItemBase {
 
-  resource: IResource;
+  @postable resource: Resource;
 
-  constructor(resource: IResource) {
+  constructor(resource: Resource) {
     super(TrackItemType.VIDEO);
     this.resource = resource;
+    console.log('RESOURCE',resource)
 
     this.startTime = 0;
     this.endTime = 3000;

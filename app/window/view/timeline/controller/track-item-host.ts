@@ -1,6 +1,5 @@
 import { observable } from 'window/app-mobx';
-
-import TrackItem from 'standard/track-item'
+import TrackItem from 'internal/timeline/track-item';
 
 let _nextTrackItemID = 0;
 

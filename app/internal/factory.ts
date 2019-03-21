@@ -1,18 +1,17 @@
 import VideoTrackItem from "./timeline/video-track-item";
-import { IResource, ITrackItem } from "standard";
 import { Resource, ResourceType, VideoResource } from "./resource";
+import TrackItem from "./timeline/track-item";
 
 export default class Factory {
-  createTrackItem(iresource: IResource): ITrackItem {
+  createTrackItem(iresource: Resource): TrackItem {
     let resource = iresource as Resource;
     switch (resource.type) {
       case ResourceType.VIDEO:
-        console.log('new video track item')
         return new VideoTrackItem(resource);
       break;
     }
   }
-  createResource(path: string): IResource {
+  createResource(path: string): Resource {
     return new VideoResource(path);
   }
 }

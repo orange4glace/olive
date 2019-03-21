@@ -1,24 +1,28 @@
 {
   "devDependencies": {
+    "@babel/core": "^7.3.4",
+    "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-proposal-decorators": "^7.3.0",
+    "@babel/polyfill": "^7.2.5",
+    "@babel/preset-env": "^7.3.4",
+    "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime": "<=7.0.0-beta.55",
     "autoprefixer": "^9.0.1",
     "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
+    "babel-loader": "^8.0.0-beta.6",
     "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "babel-preset-env": "^1.7.0",
-    "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1",
     "copy-webpack-plugin": "^4.5.3",
     "css-loader": "^1.0.0",
     "electron": "4.0.0-beta.2",
     "electron-devtools-installer": "^2.2.4",
     "file-loader": "^1.1.11",
+    "fork-ts-checker-webpack-plugin": "^1.0.0",
     "node-loader": "^0.6.0",
     "node-sass": "^4.9.2",
     "postcss-flexbugs-fixes": "^4.0.0",
     "postcss-loader": "^3.0.0",
-    "react-hot-loader": "^4.3.4",
+    "react-hot-loader": "^4.8.0",
     "sass-loader": "^7.0.3",
     "style-loader": "^0.23.0",
     "svg-inline-loader": "^0.8.0",
@@ -27,7 +31,7 @@
     "url-loader": "^1.0.1",
     "webpack": "^4.17.2",
     "webpack-cli": "^3.1.0",
-    "webpack-dev-server": "^3.1.11",
+    "webpack-dev-server": "^3.2.1",
     "worker-loader": "^2.0.0"
   },
   "dependencies": {
@@ -41,7 +45,7 @@
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
     "tstl": "^2.1.2",
-    "worker-postable": "^1.2.12"
+    "worker-postable": "^1.3.1"
   },
   "babel": {
     "presets": [
@@ -58,7 +62,8 @@
     "build": "webpack --config ./webpack.main.config.js --mode development && webpack --config ./webpack.app.config.js --mode development",
     "start": "webpack --config ./webpack.main.config.js --mode development && webpack-dev-server --config ./webpack.app.config.js --mode development --content-base ./dist",
     "electron": "electron .",
-    "electron-debug": "G:/electron/src/out/Release/electron.exe ./dist/main/main.js",
+    "electron-debug": "G:/electron-debug/Release/electron.exe ./dist/main/main.js",
+    "electron-debug2": "G:/electron-gn/src/out/Release/electron.exe ./dist/main/main.js",
     "webpack": "webpack --config ./webpack.main.config.js --mode development",
     "build-decoder": "./build.sh",
     "transpile-worker": "worker-postable -i app/"

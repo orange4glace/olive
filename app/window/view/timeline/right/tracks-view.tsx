@@ -135,6 +135,7 @@ export class TrackViewItemRenderer extends React.Component<TrackViewProps, {}> {
 
   @computed
   get visibleItems(): Array<JSX.Element> {
+    console.log('upd')
     const timelineHost = this.props.timelineHost;
     const trackHost = this.props.trackHost;
     const timelineViewController = this.props.timelineViewController;
@@ -151,7 +152,6 @@ export class TrackViewItemRenderer extends React.Component<TrackViewProps, {}> {
   }
 
   render() {
-    console.log('render me', this.props.trackHost.trackItemHosts.size)
     return (
       <>
       {this.visibleItems}
@@ -203,6 +203,7 @@ export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
   render() {
     const trackItemHost = this.props.trackItemHost;
     const controller = this.props.timelineViewController;
+    console.log('render trackitem')
     const left = controller.getPositionRelativeToTimeline(trackItemHost.startTime);
     const right = controller.getPositionRelativeToTimeline(trackItemHost.endTime);
     const style = {

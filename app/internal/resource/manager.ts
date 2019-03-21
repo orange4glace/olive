@@ -2,7 +2,6 @@ import app from 'internal/app';
 import { observable, action } from 'mobx';
 
 import { IResourceManager, IResource } from 'standard'
-import Resource from 'internal/resource/resource';
 
 type PathString = string;
 

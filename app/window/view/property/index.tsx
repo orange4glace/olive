@@ -3,10 +3,10 @@ import TimelineViewState from '../timeline/controller/state';
 import { computed, observer } from 'window/app-mobx';
 import Timeline from 'internal/timeline/timeline';
 import TrackItem from 'internal/timeline/track-item';
-import { PropertyKeyframeView } from './property-keyframe-view';
-import PropertyFormView from './property-form-view';
 
 import * as style from './index.scss'
+import { PropertyFormView } from './form';
+import { PropertyTimelineView } from './timeline';
 
 @observer
 export class PropertyView extends React.Component {
@@ -29,7 +29,7 @@ export class PropertyView extends React.Component {
             <PropertyFormView timeline={this.timeline} trackItem={this.trackItem}/>
           </div>
           <div className='property-keyframe-view'>
-            <PropertyKeyframeView timeline={this.timeline} trackItem={this.trackItem}/>
+            <PropertyTimelineView timeline={this.timeline} trackItem={this.trackItem}/>
           </div>
         </div>
       )

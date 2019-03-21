@@ -15,7 +15,21 @@ export class VideoDrawingRenderer extends DrawingRenderer
     super();
   }
 
-  protected drawSelf(context: DrawingContext) {
-    console.log('draw vid')
+  protected drawSelf(context: DrawingContext, timeoffset: number) {
+    // const vg = context.nvg;
+    // const videoFrame = context.videoFrame;
+    // const image = vg.createImageRGBA(videoFrame.width, videoFrame.height, 0, BigInt(videoFrame.ptr));
+    // const paint = vg.imagePattern(image);
+    // console.log(image, paint);
+    // vg.beginPath();
+    // vg.moveTo(0, 0);
+    // vg.lineTo(videoFrame.width, 0);
+    // vg.lineTo(videoFrame.width, videoFrame.height);
+    // vg.lineTo(0, videoFrame.height);
+    // vg.closePath();
+    // vg.strokeColor(30, 80, 100, 255);
+    // vg.stroke();
+    // vg.fillPaint(paint);
+    // vg.fill();
   }
 }

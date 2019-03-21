@@ -1,0 +1,60 @@
+@import "window/theme.scss";
+@import "./../common.scss";
+
+.component {
+
+  > .header {
+    height: 30px;
+    box-sizing: border-box;
+    border-bottom: 1px solid $bright-background;
+
+    > .indicator {
+      position: absolute;
+      z-index: 555;
+      top: 30px;
+      width: 1px;
+      height: 100%;
+      background: rgb(90, 161, 255);
+
+      > .tip {
+        position: absolute;
+        top: -15px;
+        left: -7.5px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 15px 7.5px 0 7.5px;
+        border-color: #2990ff transparent transparent transparent;
+      }
+    }
+  }
+
+  > .property-timeline-body {
+    position: relative;
+
+    > .grid {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+
+    > .keyframe-content {
+
+      > .keyframes {
+        position: relative;
+        height: $property-height;
+  
+        > .keyframe {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          top: 15px;
+          margin-left: -1px;
+
+          transform: rotate(45deg) translateX(-50%);
+          background: grey;
+        }
+      }
+    }
+  }
+}

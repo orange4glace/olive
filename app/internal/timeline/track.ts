@@ -34,9 +34,7 @@ export default class Track implements TrackBase, ITrack {
   }
 
   addTrackItem(trackItem: TrackItem) {
-    console.log(this.trackItems, trackItem)
     this.trackItems.add(trackItem);
-    console.log('track item added')
     this.link(trackItem);
     this.ee.emit('addTrackItem', trackItem);
   }

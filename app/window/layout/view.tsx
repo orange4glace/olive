@@ -47,7 +47,6 @@ class View extends React.Component<ViewProps, ViewState> {
   
   static getDerivedStateFromProps(props: any, state: any) {
     if (state.componentCount == props.windows.length) return null;
-    console.log('drive chk', state.id);
     if (state.componentCount < props.windows.length) {
       for (var i = 0; i < props.windows.length; i ++) {
         var windowName = props.windows[i];
@@ -66,7 +65,6 @@ class View extends React.Component<ViewProps, ViewState> {
       state.components = newComponents;
     }
     state.componentCount = props.windows.length;
-    console.log(props,state);
     return state;
   }
 

@@ -1,8 +1,7 @@
 import TrackHost from './track-host'
 import TrackItemHost from './track-item-host';
-
-import Timeline from 'standard/timeline';
-import Track from 'standard/track';
+import Timeline from 'internal/timeline/timeline';
+import Track from 'internal/timeline/track';
 
 type resizeFunction = (dt: number) => number;
 

@@ -11,8 +11,7 @@
     "lib": ["es6", "es7", "es2017.object", "dom"],
     "jsx": "react",
     "sourceMap": true,
-    "allowJs": true,
-    "listFiles": true
+    "allowJs": true
   },
   "exclude": [
     "node_modules"

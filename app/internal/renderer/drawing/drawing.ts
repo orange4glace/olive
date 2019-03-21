@@ -12,12 +12,11 @@ export default abstract class DrawingRenderer implements DrawingBase {
   scale: Vector2PropertyRenderer;
   children: Array<DrawingRenderer>;
 
-  draw(context: DrawingContext) {
-    console.log('Draw on Drawing',this);
-    this.drawSelf(context);
+  draw(context: DrawingContext, timeoffset: number) {
+    this.drawSelf(context, timeoffset);
     this.children.forEach(child => {
-      child.draw(context);
+      child.draw(context, timeoffset);
     })
   }
-  protected abstract drawSelf(context: DrawingContext): void;
+  protected abstract drawSelf(context: DrawingContext, timeoffset: number): void;
 }

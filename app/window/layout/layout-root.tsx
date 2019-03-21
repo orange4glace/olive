@@ -44,7 +44,7 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
                   views: ['Timeline']
                 }, {
                   direction: 'VIEW',
-                  views: ['Empty']
+                  views: ['Property']
                 }
               ]
             }, {
@@ -64,7 +64,7 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
                       children: [
                         {
                           direction: 'VIEW',
-                          views: ['Property']
+                          views: ['Empty']
                         }, {
                           direction: 'VIEW',
                           views: ['Empty']

@@ -11,12 +11,19 @@ export class TimelineRenderer implements TimelineBase {
   totalTime: number;
   currentTime: number;
 
-  draw(nvg: NVG): void {
-    nvg.beginFrame(300, 150, 1);
+  async draw(nvg: NVG) {
+    nvg.beginFrame(1280, 720, 1);
+    for (let i = 0; i < this.tracks.length; i++) {
+      let track = this.tracks[i];
+      await track.draw(nvg, this.currentTime);
+    }
+    // nvg.endFrame();
+  }
+
+  decode(): void {
     this.tracks.forEach(track => {
-      track.draw(nvg, this.currentTime);
+      track.decode(this.currentTime);
     })
-    nvg.endFrame();
   }
 
 }

@@ -12,6 +12,7 @@ $scroll-bar-foregound-color: #bbb;
   > .zoomable-scroll-view-content {
     position: relative;
     flex: 1;
+    overflow: hidden;
   }
 
   > .scroll-bar {

@@ -49,6 +49,7 @@ VideoDecoder* VideoDecoderHost::GetOrNewAvailableDecoder(timecode_t timecode) {
     if (d1 < d2) decoder = dec;
   }
   if (decoder == NULL) {
+    logger::get()->critical("[VideoDecoderHost] Allocate new Decoder");
     decoder = new VideoDecoder(this, resource_);
     decoder->Initialize();
     decoders_.emplace_back(decoder);
