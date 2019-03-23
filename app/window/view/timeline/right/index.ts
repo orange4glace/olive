@@ -4,9 +4,11 @@ import { TracksView, TrackView, TrackItemView } from './tracks-view'
 
 import { RangeSelectorView } from './addon/range-selector'
 import { ResourceDropView } from './addon/resource-drop'
+import { TrackItemManipulationView } from './addon/track-item-manipulation';
 
 TimelineTracksView.registerUserView(RangeSelectorView);
 TrackView.registerUserView(ResourceDropView);
+TrackItemView.registerUserView(TrackItemManipulationView);
 
 export {
   TimelineView,

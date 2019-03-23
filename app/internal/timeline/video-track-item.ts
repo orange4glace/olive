@@ -6,6 +6,7 @@ import { IResource } from 'standard';
 import VideoDrawing from 'internal/drawing/video-drawing';
 import { Rectangle } from 'internal/drawing';
 import { Resource, ResourceBase } from 'internal/resource';
+import { TimePair } from './time-pair';
 
 export interface VideoTrackItemBase extends TrackItemBase {
   resource: ResourceBase;
@@ -16,20 +17,15 @@ export default class VideoTrackItem extends TrackItem implements VideoTrackItemB
 
   @postable resource: Resource;
 
-  constructor(resource: Resource) {
-    super(TrackItemType.VIDEO);
+  constructor(resource: Resource, time: TimePair, baseTime: number) {
+    super(TrackItemType.VIDEO, time, baseTime);
     this.resource = resource;
-    console.log('RESOURCE',resource)
-
-    this.startTime = 0;
-    this.endTime = 3000;
 
     this.drawing = new Rectangle();
   }
 
   clone(): VideoTrackItem {
-    let trackItem = new VideoTrackItem(this.resource);
-    super.clone();
+    let trackItem = new VideoTrackItem(this.resource, this.time, this.baseTime);
     return trackItem;
   }
 

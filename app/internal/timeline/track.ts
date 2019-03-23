@@ -1,11 +1,20 @@
-import ITrack from 'standard/track'
 import { Postable, postable } from 'worker-postable';
 
 import TrackItem, { TrackItemBase } from './track-item'
 
+import { TreeMap, Pair, IComparable } from 'tstl';
+import { Iterator, MapIterator } from 'tstl/base';
+import { observable } from 'window/app-mobx';
 import { EventEmitter2 } from 'eventemitter2';
+import { TimePair, TimePairBase } from './time-pair';
 
 let _nextTrackID = 0;
+
+export enum TrackEvent {
+  TRACK_ITEM_ADDED = 'TRACK_ITEM_ADDED',
+  TRACK_ITEM_REMOVED = 'TRACK_ITEM_REMOVED',
+  TRACK_ITEM_TIME_CHANGED = 'TRACK_ITEM_CHANGED'
+}
 
 export interface TrackBase {
 
@@ -14,167 +23,168 @@ export interface TrackBase {
 }
 
 @Postable
-export default class Track implements TrackBase, ITrack {
+export default class Track implements TrackBase {
 
   readonly id: number;
 
   @postable trackItems: Set<TrackItem>;
-  
-  private lastAccessedTrackItem: TrackItem = null;
-  private tailTrackItem: TrackItem = null;
+  trackItemTreeMap: TreeMap<TimePair, TrackItem>;
 
-  ee: EventEmitter2;
+  private ee: EventEmitter2;
 
   constructor() {
     // Initialize objects
-    this.ee = new EventEmitter2();
     this.trackItems = new Set<TrackItem>();
+    this.trackItemTreeMap = new TreeMap<TimePair, TrackItem>();
+
+    this.ee = new EventEmitter2();
 
     this.id = _nextTrackID++;
   }
 
-  addTrackItem(trackItem: TrackItem) {
-    this.trackItems.add(trackItem);
-    this.link(trackItem);
-    this.ee.emit('addTrackItem', trackItem);
+  addTrackItem(trackItem: TrackItem): void {
+    this._clearTime(trackItem.time.start, trackItem.time.end);
+    this._addTrackItem(trackItem);
   }
 
   removeTrackItem(trackItem: TrackItem) {
-    this.ee.emit('willRemoveTrackItem', trackItem);
-    this.unlink(trackItem);
-    this.trackItems.delete(trackItem);
+    this._removeTrackItem(trackItem);
   }
 
-  getTrackItemAt(time: number) {
-    const item = this.accessAfter(time);
-    if (item == null) return null;
-    if (item.startTime <= time && time < item.endTime) return item;
+  getTrackItemAt(time: number): TrackItem {
+    let q = new TimePair(time, time);
+    let it = this.trackItemTreeMap.lower_bound(q);
+    let test = null;
+    if (it.equals(this.trackItemTreeMap.end())) {
+      if (this.trackItemTreeMap.size() == 0) return null;
+      test = this.trackItemTreeMap.rbegin().value;
+    }
+    else test = it.value;
+    if (test.first.start <= time && time < test.first.end) return test.second;
     return null;
   }
 
-  setTrackItemTime(trackItem: TrackItem, startTime: number, endTime: number) {
-    const lastStartTime = trackItem.startTime;
-    const lastEndTime = trackItem.endTime;
-    console.log('set Time', trackItem, startTime, endTime);
-    trackItem.setTime(startTime, endTime);
-    this.ee.emit('trackItemTimeChange', trackItem, lastStartTime, lastEndTime);
+  getTrackItemBefore(trackItem: TrackItem) {
+    console.assert(this.trackItems.has(trackItem));
+    let it = this.trackItemTreeMap.find(trackItem.time);
+    if (it.equals(this.trackItemTreeMap.begin())) return null;
+    return it.prev().value.second;
+  }
+
+  getTrackItemAfter(trackItem: TrackItem) {
+    console.assert(this.trackItems.has(trackItem));
+    let it = this.trackItemTreeMap.find(trackItem.time).next();
+    if (it.equals(this.trackItemTreeMap.end())) return null;
+    return it.value.second;
+  }
+
+  setTrackItemTime(trackItem: TrackItem, startTime: number, endTime: number, baseTime: number): void {
+    this._setTrackItemTime(trackItem, new TimePair(startTime, endTime), baseTime);
   }
 
   clearTime(startTime: number, endTime: number) {
-    let additions = [];
+    this._clearTime(startTime, endTime);
+  }
+
+  private _addTrackItem(trackItem: TrackItem) {
+    this.trackItems.add(trackItem);
+    this.trackItemTreeMap.insert(new Pair(trackItem.time, trackItem));
+    this.ee.emit(TrackEvent.TRACK_ITEM_ADDED, trackItem);
+  }
+
+  private _removeTrackItem(trackItem: TrackItem) {
+    console.assert(this.trackItems.has(trackItem));
+    this.trackItems.delete(trackItem);
+    console.assert(this.trackItemTreeMap.count(trackItem.time));
+    this.trackItemTreeMap.erase(trackItem.time);
+    this.ee.emit(TrackEvent.TRACK_ITEM_REMOVED, trackItem);
+  }
+
+  private _setTrackItemTime(trackItem: TrackItem, timePair: TimePair, baseTime: number): void {
+    // assert check
+    console.assert(this.trackItemTreeMap.count(trackItem.time));
+    console.assert(this.trackItems.has(trackItem));
+    console.assert(!this.trackItemTreeMap.has(timePair));
+    let lastTimePair = trackItem.time;
+
+    this.trackItemTreeMap.erase(trackItem.time);
+    this._clearTime(timePair.start, timePair.end);
+
+    trackItem.__setTime(timePair, baseTime);
+    this.trackItemTreeMap.insert(new Pair(timePair, trackItem));
+    
+    this.ee.emit(TrackEvent.TRACK_ITEM_TIME_CHANGED, trackItem, lastTimePair, timePair);
+  }
+
+  private _clearTime(startTime: number, endTime: number) {
+    let additions: TrackItem[] = [];
     let removals = [];
-    let current = this.accessAfter(startTime);
-    while (current != null) {
-      console.log('traverse', current);
-      if (current.startTime >= endTime || current.endTime < startTime) break;
-      if (startTime <= current.startTime) {
-        if (current.endTime <= endTime) {
+    let it = this.accessAfter(startTime);
+    while (!it.equals(this.trackItemTreeMap.end())) {
+      let timePair = it.value.first;
+      let current = it.value.second;
+      if (timePair.start >= endTime || timePair.end < startTime) break;
+      if (startTime <= timePair.start) {
+        if (timePair.end <= endTime) {
           // Completely inside of clear box
           removals.push(current);
         }
         else {
-          this.setTrackItemTime(current, endTime, current.endTime);
+          this._setTrackItemTime(current, new TimePair(endTime, timePair.end), current.baseTime + (endTime - current.time.start));
         }
       }
       else {
-        if (endTime <= current.endTime) {
+        if (endTime <= timePair.end) {
           // Complete inside of current box
           const currentLeft = current.clone();
           const currentRight = current.clone();
-          currentLeft.endTime = startTime;
-          currentRight.startTime = endTime;
+          currentLeft.__setTime(new TimePair(current.time.start, startTime), current.baseTime);
+          currentRight.__setTime(new TimePair(endTime, current.time.end), current.baseTime + (endTime - current.time.start));
           additions.push(currentLeft);
           additions.push(currentRight);
           removals.push(current);
         }
         else {
-          console.log('clear time', current);
-          this.setTrackItemTime(current, current.startTime, startTime);
+          this._setTrackItemTime(current, new TimePair(timePair.start, startTime), current.baseTime);
         }
       }
-      current = this.accessNext(current);
+      it = it.next();
     }
     removals.forEach(removal => {
-      this.removeTrackItem(removal);
+      this._removeTrackItem(removal);
     })
     additions.forEach(addition => {
-      this.addTrackItem(addition);
+      this._addTrackItem(addition);
     })
   }
 
-  link(trackItem: TrackItem) {
-    if (this.tailTrackItem == null) {
-      this.tailTrackItem = trackItem;
-      return;
-    }
-    const next = this.accessAfter(trackItem.startTime);
-    if (next == null) {
-      this.tailTrackItem.next = trackItem;
-      trackItem.prev = this.tailTrackItem;
-      trackItem.next = null;
-      this.tailTrackItem = trackItem;
-      return;
-    }
-    const prev = next.prev;
-    trackItem.prev = prev;
-    trackItem.next = next;
-    if (prev != null)
-      prev.next = trackItem;
-    next.prev = trackItem;
-
+  private accessAfter(query: number): MapIterator<TimePair, TrackItem, true, TreeMap<TimePair, TrackItem>> {
+    if (this.trackItemTreeMap.size() == 0) return this.trackItemTreeMap.end();
+    let q = new TimePair(query, query);
+    let it = this.trackItemTreeMap.lower_bound(q);
+    if (it.equals(this.trackItemTreeMap.begin())) return it;
+    let prev = it.prev();
+    let timePair = prev.value.first;
+    if (timePair.start <= query && query < timePair.end) return prev;
+    return it;
   }
 
-  unlink(trackItem: TrackItem) {
-    const prev = trackItem.prev;
-    const next = trackItem.next;
-    if (this.tailTrackItem == trackItem)
-      this.tailTrackItem = prev;
-    if (this.lastAccessedTrackItem == trackItem)
-      this.lastAccessedTrackItem = trackItem.next;
-    if (prev) prev.next = next;
-    if (next) next.prev = prev;
-    trackItem.prev = null;
-    trackItem.next = null;
+
+  // Event Emitter
+  addEventListener(type: (TrackEvent.TRACK_ITEM_ADDED | TrackEvent.TRACK_ITEM_REMOVED),
+      callback: (trackItem: TrackItem) => void): void;
+  addEventListener(type: TrackEvent.TRACK_ITEM_TIME_CHANGED,
+      callback: (trackItem: TrackItem, oldTimePair: TimePair, newTimePair: TimePair) => void): void;
+  addEventListener(type: TrackEvent, callback: (...args: any) => void) {
+    this.ee.addListener(type, callback);
   }
 
-  private access(trackItem: TrackItem) {
-    this.lastAccessedTrackItem = trackItem;
-  }
-
-  private accessNext(trackItem: TrackItem) {
-    this.lastAccessedTrackItem = trackItem.next;
-    return this.lastAccessedTrackItem;
-  }
-
-  private accessAfter(query: number): TrackItem {
-    if (this.lastAccessedTrackItem == null) {
-      if (this.tailTrackItem == null) return null;
-      this.lastAccessedTrackItem = this.tailTrackItem;
-    }
-    var lastAccessed = this.lastAccessedTrackItem;
-    var ne = lastAccessed.next;
-    if (lastAccessed.startTime <= query && query < lastAccessed.endTime) return lastAccessed;
-
-    if (lastAccessed.startTime > query) {
-      var candidate = lastAccessed;
-      while (true) {
-        candidate = lastAccessed;
-        lastAccessed = lastAccessed.prev;
-        if (lastAccessed == null) break;
-        this.lastAccessedTrackItem = lastAccessed;
-        if (lastAccessed.endTime <= query) break;
-      }
-      return candidate;
-    }
-
-    else {
-      while (lastAccessed != null) {
-        this.lastAccessedTrackItem = lastAccessed;
-        if (lastAccessed.endTime > query) break;
-        lastAccessed = lastAccessed.next;
-      }
-      return lastAccessed;
-    }
+  removeEventListener(type: (TrackEvent.TRACK_ITEM_ADDED | TrackEvent.TRACK_ITEM_REMOVED),
+      callback: (trackItem: TrackItem) => void): void;
+  removeEventListener(type: TrackEvent.TRACK_ITEM_TIME_CHANGED,
+      callback: (trackItem: TrackItem, oldTimePair: TimePair, newTimePair: TimePair) => void): void;
+  removeEventListener(type: TrackEvent, callback: (...args: any) => void) {
+    this.ee.removeListener(type, callback);
   }
 
 }

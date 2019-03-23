@@ -2,6 +2,7 @@ import TrackHost from './track-host'
 import TrackItemHost from './track-item-host';
 import Timeline from 'internal/timeline/timeline';
 import Track from 'internal/timeline/track';
+import { observable } from 'window/app-mobx';
 
 type resizeFunction = (dt: number) => number;
 
@@ -9,39 +10,37 @@ export default class TimelineHost {
 
   timeline: Timeline;
 
-  trackHosts: Map<Track, TrackHost>;
+  @observable trackHosts: Set<TrackHost>;
+  trackHostMap: Map<Track, TrackHost>;
 
   snapTimes: Array<number>;
   snapThreshold: number = 0;
 
   constructor(timeline: Timeline) {
     this.timeline = timeline;
-    this.trackHosts = new Map<Track, TrackHost>();
-    
-    timeline.tracks.forEach(track => {
-      const trackHost = this.addTrackHost(track);
-    })
-
-    this.timeline.ee.on('addTrack', (track: Track) => {
-      this.addTrackHost(track);
-    })
-    this.timeline.ee.on('removeTrack', (track: Track) => {
-      this.removeTrackHost(track);
-    })
+    this.trackHosts = new Set();
+    this.trackHostMap = new Map();
   }
 
-  addTrackHost(track: Track): TrackHost {
-    let trackHost = new TrackHost(track);
-    this.trackHosts.set(track, trackHost);
+  addTrackHost(trackHost: TrackHost): TrackHost {
+    this.trackHosts.add(trackHost);
+    this.trackHostMap.set(trackHost.track, trackHost);
     return trackHost;
   }
 
-  removeTrackHost(track: Track): void {
-    this.trackHosts.delete(track);
+  removeTrackHost(trackHost: TrackHost): void {
+    this.trackHosts.delete(trackHost);
+    this.trackHostMap.delete(trackHost.track);
   }
 
   getTrackHost(track: Track): TrackHost {
-    return this.trackHosts.get(track);
+    return this.trackHostMap.get(track);
+  }
+
+  defocusAllTrackItemHosts(): void {
+    this.trackHosts.forEach(trackHost => {
+      trackHost.defocusAllTrackItemHosts();
+    })
   }
 
 }

@@ -3,17 +3,14 @@ import { Posted } from "worker-postable";
 import DrawingRenderer from "../drawing/drawing";
 import { DrawingContext } from "../drawing/drawing-context";
 import NVG from "../../../../nanovg-webgl";
+import { TimePairRenderer } from "./time-pair";
 
 @Posted('TrackItem')
 export class TrackItemRenderer implements TrackItemBase {
   type: TrackItemType;
 
-  startTime: number;
-  endTime: number;
+  time: TimePairRenderer;
   baseTime: number;
-
-  next: TrackItemRenderer;
-  prev: TrackItemRenderer;
 
   drawing: DrawingRenderer;
 

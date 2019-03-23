@@ -8,6 +8,11 @@ function addMouseMoveHoldEventListener(el: Element | Document, callback: (e: Mou
   el.addEventListener('mouseup', remover);
 }
 
+function stopPropagation(e: MouseEvent | React.MouseEvent | KeyboardEvent | React.KeyboardEvent) {
+  e.stopPropagation();
+}
+
 export default {
-  addMouseMoveHoldEventListener
+  addMouseMoveHoldEventListener,
+  stopPropagation
 }

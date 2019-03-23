@@ -13,6 +13,7 @@ import Timeline from 'internal/timeline/timeline';
 import TrackItem from 'internal/timeline/track-item';
 
 export enum TimelineViewEventType {
+  TRACKS_MOUSE_MOVE_START = 'TRACKS_MOUSE_MOVE_START',
   TRACK_DRAG_OVER = 'TRACK_DRAG_OVER',
   TRACK_DROP = 'TRACK_DROP'
 }
@@ -34,8 +35,6 @@ export default class TimelineViewController {
   unitMillisecond: number;
   unitWidth: number;
 
-  @observable focusedTrackItemHosts: Set<TrackItemHost> = new Set();
-
   tracksViewRef: React.RefObject<any>;
 
   ee: EventEmitter2;
@@ -48,10 +47,7 @@ export default class TimelineViewController {
     this.ee = new EventEmitter2();
 
     this.update = this.update.bind(this);
-    this.removeFocusedTrackItems = this.removeFocusedTrackItems.bind(this);
     // this.commit = this.commit.bind(this);
-
-    hotkeys('delete', this.removeFocusedTrackItems);
   }
 
   attachScrollViewController(scrollViewController: ZoomableScrollViewController) {
@@ -94,36 +90,6 @@ export default class TimelineViewController {
     this.ee.emit('update');
   }
 
-  removeFocusedTrackItems() {
-    this.timelineHost.trackHosts.forEach(trackHost => {
-      trackHost.trackItemHosts.forEach(trackItemHost => {
-        if (trackItemHost.focused) trackHost.track.removeTrackItem(trackItemHost.trackItem);
-      })
-    })
-  }
-
-  focusTrackItem(trackItemHost: TrackItemHost) {
-    if (trackItemHost.focused) return;
-    trackItemHost.setFocus(true);
-    this.focusedTrackItemHosts.add(trackItemHost);
-    this.ee.emit('trackItemFocused', trackItemHost);
-  }
-
-  defocusTrackItem(trackItemHost: TrackItemHost) {
-    if (!trackItemHost.focused) return;
-    trackItemHost.setFocus(false);
-    this.focusedTrackItemHosts.delete(trackItemHost);
-    this.ee.emit('trackItemDefocused', trackItemHost);
-  }
-
-  defocusAllTrackItems() {
-    this.timelineHost.trackHosts.forEach(trackHost => {
-      trackHost.trackItemHosts.forEach(trackItemHost => {
-        this.defocusTrackItem(trackItemHost);
-      })
-    })
-  }
-
   setSnapThreshold(value: number) {
     this.snapThreshold = value;
   }
@@ -153,38 +119,6 @@ export default class TimelineViewController {
 
 
 
-
-
-  // Event
-  private _VOID_FNCTION = ():any=>null;
-
-  trackItemRightHandleMouseDownHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-  trackItemRightHandleMouseClickHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-  trackItemRightHandleMouseMoveStartHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-
-  trackItemLeftHandleMouseDownHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-  trackItemLeftHandleMouseClickHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-  trackItemLeftHandleMouseMoveStartHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-
-  trackItemBarHandleMouseDownHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-  trackItemBarHandleMouseClickHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-  trackItemBarHandleMouseMoveStartHandler: 
-  (e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) => void = this._VOID_FNCTION;
-
-  timelineMouseDownHandler: 
-  (e: MouseEvent | React.MouseEvent) => void = this._VOID_FNCTION;
-  timelineMouseClickHandler: 
-  (e: MouseEvent | React.MouseEvent) => void = this._VOID_FNCTION;
-  timelineMouseMoveStartHandler: 
-  (e: MouseEvent | React.MouseEvent) => void = this._VOID_FNCTION;
 
 
 /*
@@ -257,9 +191,28 @@ export default class TimelineViewController {
   getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent) {
     return MouseUtil.mousePositionElement(e, this.tracksViewRef.current);
   }
+
+
+  // Event
+  addEventListener(event: TimelineViewEventType.TRACKS_MOUSE_MOVE_START,
+      callback: (e: MouseEvent) => void): void;
+  addEventListener(event: TimelineViewEventType, callback: (...args: any) => void): void {
+    this.ee.addListener(event, callback);
+  }
+
+  removeEventListener(event: TimelineViewEventType.TRACKS_MOUSE_MOVE_START,
+      callback: (e: MouseEvent) => void): void;
+  removeEventListener(event: TimelineViewEventType, callback: (...args: any) => void): void {
+    this.ee.removeListener(event, callback);
+  }
+
+  fireEvent(event: TimelineViewEventType.TRACKS_MOUSE_MOVE_START, e: MouseEvent): void;
+  fireEvent(event: TimelineViewEventType, ...args: any): void {
+    this.ee.emit.bind(this.ee, event).apply(this.ee, args);
+  }
 }
 
-
+/*
 // Only for rgb-color app
 export class ClipboardExtension {
   
@@ -300,3 +253,4 @@ export class ClipboardExtension {
     })
   }
 }
+*/

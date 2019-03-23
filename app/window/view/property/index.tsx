@@ -16,9 +16,18 @@ export class PropertyView extends React.Component {
       TimelineViewState.focusedTimelineViewController.timelineHost.timeline as Timeline :  null;
   }
   @computed get trackItem(): TrackItem {
-    return TimelineViewState.focusedTimelineViewController ?
-      TimelineViewState.focusedTimelineViewController.focusedTrackItemHosts.size == 1 ?
-      TimelineViewState.focusedTimelineViewController.focusedTrackItemHosts.values().next().value.trackItem as TrackItem : null : null;
+    console.log('compute')
+    let controller = TimelineViewState.focusedTimelineViewController;
+    if (!controller) return null;
+    let focusedTrackItem: TrackItem = null;
+    let count = 0;
+    controller.timelineHost.trackHosts.forEach(trackHost => {
+      if (trackHost.focusedTrackItemHosts.size)
+        focusedTrackItem = trackHost.focusedTrackItemHosts.values().next().value.trackItem;
+      count += trackHost.focusedTrackItemHosts.size;
+    })
+    if (count > 1) return null;
+    return focusedTrackItem;
   }
 
   render() {

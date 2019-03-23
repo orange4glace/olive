@@ -183,10 +183,5 @@ module.exports = [{
     publicPath: '/',
     filename: '[name].js',
     globalObject: 'this'
-  },
-  plugins: [
-    new ForkTsCheckerWebpackPlugin({
-      tsconfig: path.resolve(__dirname, './app/tsconfig.json')
-    })
-  ]
+  }
 }]

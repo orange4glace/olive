@@ -1,65 +1,52 @@
-import ITrackItem from 'standard/track-item'
 import { Postable, postable } from 'worker-postable';
 
 import TrackItemType from './track-item-type'
 import { DrawingBase } from 'internal/drawing';
 import Drawing from 'internal/drawing/drawing';
+import { TimePair, TimePairBase } from './time-pair';
 
 let _nextTrackItemID = 0;
 
 export interface TrackItemBase {
   type: TrackItemType;
 
-  startTime: number;
-  endTime: number;
+  time: TimePairBase;
   baseTime: number;
-
-  next: TrackItemBase;
-  prev: TrackItemBase;
 
   drawing: DrawingBase;
 }
 
 @Postable
-export default class TrackItem implements TrackItemBase, ITrackItem {
+export default class TrackItem implements TrackItemBase {
 
   id: number;
   @postable type: TrackItemType;
 
-  @postable startTime: number;
-  @postable endTime: number;
+  @postable time: TimePair;
   @postable baseTime: number;
-
-  @postable next: TrackItem;
-  @postable prev: TrackItem;
 
   @postable drawing: Drawing;
 
-  constructor(type: TrackItemType = TrackItemType.NORMAL) {
+  constructor(type: TrackItemType = TrackItemType.NORMAL, time: TimePair, baseTime: number) {
     this.id = _nextTrackItemID++;
     this.type = type;
 
-    this.baseTime = 0;
-
-    this.next = null;
-    this.prev = null;
+    this.__setTime(time, baseTime);
   }
 
   clone(): TrackItem {
-    let trackItem = new TrackItem();
-    trackItem.startTime = this.startTime;
-    trackItem.endTime = this.endTime;
+    let trackItem = new TrackItem(this.type, this.time, this.baseTime);
     trackItem.baseTime = this.baseTime;
     return trackItem;
   }
 
-  setTime(startTime: number, endTime: number) {
-    this.startTime = startTime;
-    this.endTime = endTime;
-  }
-
   setBaseTime(baseTime: number) {
     this.baseTime = baseTime;
+  }
+
+  __setTime(time: TimePair, baseTime: number) {
+    this.baseTime = baseTime;
+    this.time = new TimePair(time.start, time.end);
   }
 
 }

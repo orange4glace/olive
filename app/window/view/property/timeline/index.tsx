@@ -52,10 +52,10 @@ export class PropertyTimelineView extends React.Component<PropertyTimelineViewPr
   updateView() {
     const controller = this.scrollViewController;
     const trackItem = this.props.trackItem;
-    let totalTime = trackItem.endTime - trackItem.startTime;
+    let totalTime = trackItem.time.end - trackItem.time.start;
     let startTime = Math.floor(totalTime * controller.start);
     let endTime = Math.floor(totalTime * controller.end);
-    this.propertyViewController.baseTimecode = trackItem.startTime;
+    this.propertyViewController.baseTimecode = trackItem.time.start;
     this.propertyViewController.startTimecode = startTime;
     this.propertyViewController.endTimecode = endTime;
     let unitMillisecond = 1000;

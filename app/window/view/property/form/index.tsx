@@ -22,7 +22,7 @@ export class PropertyFormView extends React.Component<PropertyFormViewProps, {}>
   render() {
     const timeline = this.props.timeline;
     const trackItem = this.props.trackItem;
-    let timeoffset = timeline.currentTime - trackItem.startTime;
+    let timeoffset = timeline.currentTime - trackItem.time.start;
     return (
       <div>
         {createDrawingPropertyView(

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { observable, action } from "mobx";
 
-import TimelineViewController from "window/view/timeline/controller/controller";
+import TimelineViewController, { TimelineViewEventType } from "window/view/timeline/controller/controller";
 import { MouseUtil, EventUtil } from "orangeutil";
 import { observer } from "mobx-react";
 import { TracksUserViewProps, TracksUserView } from '../timeline-tracks-view';
@@ -13,35 +13,6 @@ interface TimelinePosition {
 interface TimeSlice {
   startTime: number;
   endTime: number;
-}
-
-@observer
-export class RangeSelectorView extends TracksUserView {
-
-  rangeSelector: RangeSelector;
-
-  constructor(props: TracksUserViewProps) {
-    super(props);
-    this.rangeSelector = new RangeSelector(props.timelineViewController);
-  }
-
-  render() {
-    const controller = this.props.timelineViewController;
-    const rangeSelector = this.rangeSelector;
-    if (!rangeSelector.active) return <></>;
-    const style = {
-      left: controller.getPositionRelativeToTimeline(rangeSelector.start.time) + 'px',
-      top: rangeSelector.start.y + 'px',
-      width: controller.getPixelAmountRelativeToTimeline(rangeSelector.end.time - rangeSelector.start.time) + 'px',
-      height: (rangeSelector.end.y - rangeSelector.start.y) + 'px'
-    };
-    return (
-      <div className='range-selector' style={style}>
-        <div className='b'/>
-      </div>
-    )
-  }
-
 }
 
 export class RangeSelector {
@@ -64,7 +35,7 @@ export class RangeSelector {
     this.moveRange = this.moveRange.bind(this);
     this.endRange = this.endRange.bind(this);
 
-    controller.timelineMouseMoveStartHandler = this.startRange;
+    controller.addEventListener(TimelineViewEventType.TRACKS_MOUSE_MOVE_START, this.startRange);
   }
 
   private calculate() {
@@ -92,7 +63,7 @@ export class RangeSelector {
   @action
   startRange(e: MouseEvent | React.MouseEvent) {
     this.active = true;
-    this.controller.defocusAllTrackItems();
+    this.controller.timelineHost.defocusAllTrackItemHosts();
     let pos = MouseUtil.mousePositionElement(e, this.controller.tracksViewRef.current);
     this._start = {
       time: this.controller.getTimeRelativeToTimeline(pos.x),
@@ -126,14 +97,16 @@ export class RangeSelector {
     const oldXLine: TimeSlice = this.exclude(lastXLine, currentXLine);
     const newXLine: TimeSlice = this.exclude(currentXLine, lastXLine);
     this.controller.timelineHost.trackHosts.forEach(trackHost => {
-      trackHost.getTrackItemHostsAtRange(oldXLine.startTime, oldXLine.endTime).forEach(trackItemHost => {
-        if (e.movementX > 0 && trackItemHost.endTime < oldXLine.endTime) this.controller.defocusTrackItem(trackItemHost);
-        if (e.movementX < 0 && trackItemHost.startTime > oldXLine.startTime) this.controller.defocusTrackItem(trackItemHost);
+      trackHost.getTrackItemsAtRange(oldXLine.startTime, oldXLine.endTime).forEach(trackItem => {
+        if (e.movementX > 0 && trackItem.time.end < oldXLine.endTime)
+          trackHost.defocusTrackItemHost(trackHost.getTrackItemHost(trackItem));
+        if (e.movementX < 0 && trackItem.time.start > oldXLine.startTime)
+          trackHost.defocusTrackItemHost(trackHost.getTrackItemHost(trackItem));
       })
     })
     this.controller.timelineHost.trackHosts.forEach(trackHost => {
-      trackHost.getTrackItemHostsAtRange(newXLine.startTime, newXLine.endTime).forEach(trackItemHost => {
-        this.controller.focusTrackItem(trackItemHost);
+      trackHost.getTrackItemsAtRange(newXLine.startTime, newXLine.endTime).forEach(trackItem => {
+        trackHost.focusTrackItemHost(trackHost.getTrackItemHost(trackItem));
       })
     });
   }
@@ -141,6 +114,35 @@ export class RangeSelector {
   @action
   endRange(e: MouseEvent | React.MouseEvent) {
     this.active = false;
+  }
+
+}
+
+@observer
+export class RangeSelectorView extends TracksUserView {
+
+  rangeSelector: RangeSelector;
+
+  constructor(props: TracksUserViewProps) {
+    super(props);
+    this.rangeSelector = new RangeSelector(props.timelineViewController);
+  }
+
+  render() {
+    const controller = this.props.timelineViewController;
+    const rangeSelector = this.rangeSelector;
+    if (!rangeSelector.active) return <></>;
+    const style = {
+      left: controller.getPositionRelativeToTimeline(rangeSelector.start.time) + 'px',
+      top: rangeSelector.start.y + 'px',
+      width: controller.getPixelAmountRelativeToTimeline(rangeSelector.end.time - rangeSelector.start.time) + 'px',
+      height: (rangeSelector.end.y - rangeSelector.start.y) + 'px'
+    };
+    return (
+      <div className='range-selector' style={style}>
+        <div className='b'/>
+      </div>
+    )
   }
 
 }

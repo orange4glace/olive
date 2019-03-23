@@ -2,12 +2,12 @@ import * as React from 'react'
 import { observable, action } from 'window/app-mobx';
 import { observer } from 'window/app-mobx';
 
-import { TimelineViewController } from '../controller';
+import { TimelineViewController, TimelineViewEventType } from '../controller';
 import ADiv from 'window/view/advanced-div';
 import { MouseUtil } from 'orangeutil';
 
 import { TracksView } from './tracks-view'
-import ActivatedTracksView from './activated-tracks-view'
+import { GhostTracksView } from './ghost-tracks-view'
 import TimelineState from '../controller/state';
 
 export interface TracksUserViewProps {
@@ -56,7 +56,7 @@ export class TimelineTracksView extends React.Component<Props, {}> {
   }
 
   documentMouseMoveStartHandler(e: MouseEvent) {
-    this.props.timelineViewController.timelineMouseMoveStartHandler(e);
+    this.props.timelineViewController.fireEvent(TimelineViewEventType.TRACKS_MOUSE_MOVE_START, e);
   }
 
   render() {
@@ -67,7 +67,7 @@ export class TimelineTracksView extends React.Component<Props, {}> {
         onDocumentMouseMoveStart={this.documentMouseMoveStartHandler}>
 
         <TracksView timelineViewController={timelineViewController}/>
-        <ActivatedTracksView timelineViewController={timelineViewController}/>
+        <GhostTracksView timelineViewController={timelineViewController}/>
 
         <GuidelineIndicator timelineViewController={timelineViewController}/>
 

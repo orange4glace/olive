@@ -6,6 +6,9 @@ import ADiv from 'window/view/advanced-div';
 import { MouseUtil } from 'orangeutil';
 import { DragAndDrop } from 'window/dragndrop';
 import { TimelineViewEventType } from '../controller/controller';
+import Track from 'internal/timeline/track';
+import TrackItem from 'internal/timeline/track-item';
+import { TimePair } from 'internal/timeline/time-pair';
 
 
 export interface TrackUserViewProps {
@@ -13,7 +16,7 @@ export interface TrackUserViewProps {
   timelineHost: TimelineHost;
   trackHost: TrackHost;
 }
-export interface TrackItemUserViewProps {
+export interface TrackItemUserViewProps extends TrackUserViewProps {
   timelineViewController: TimelineViewController;
   trackHost: TrackHost;
   trackItemHost: TrackItemHost;
@@ -26,14 +29,7 @@ interface Props {
 
 interface TrackViewProps {
   timelineHost: TimelineHost;
-  trackHost: TrackHost;
-  timelineViewController: TimelineViewController;
-}
-
-interface TrackItemViewProps {
-  timelineHost: TimelineHost;
-  trackHost: TrackHost;
-  trackItemHost: TrackItemHost;
+  track: Track;
   timelineViewController: TimelineViewController;
 }
 
@@ -49,8 +45,8 @@ export class TracksView extends React.Component<Props, {}> {
     const timelineHost = timelineViewController.timelineHost;
     return (
       <div className='tracks'>
-        {[...timelineHost.trackHosts].map(([track, trackHost]) => 
-          <TrackView key={track.id} timelineHost={timelineHost} trackHost={trackHost} timelineViewController={timelineViewController}/>
+        {[...timelineHost.timeline.tracks].map(track => 
+          <TrackView key={track.id} timelineHost={timelineHost} track={track} timelineViewController={timelineViewController}/>
         )}
       </div>
     )
@@ -60,6 +56,8 @@ export class TracksView extends React.Component<Props, {}> {
 
 @observer
 export class TrackView extends React.Component<TrackViewProps, {}> {
+
+  trackHost: TrackHost;
 
   private static userViews_: Array<any> = [];
   static get userViews(): ReadonlyArray<any> {
@@ -74,9 +72,21 @@ export class TrackView extends React.Component<TrackViewProps, {}> {
   constructor(props: any) {
     super(props);
 
+    const controller = this.props.timelineViewController;
+    const track = this.props.track;
+    this.trackHost = new TrackHost(track);
+    controller.timelineHost.addTrackHost(this.trackHost);
+
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.dragOverHandler = this.dragOverHandler.bind(this);
     this.dropHandler = this.dropHandler.bind(this);
+  }
+
+  componentWillUnmount() {
+    const controller = this.props.timelineViewController;
+    const track = this.props.track;
+    this.trackHost = new TrackHost(track);
+    controller.timelineHost.removeTrackHost(this.trackHost);
   }
 
   mouseDownHandler(e: React.MouseEvent) {
@@ -84,24 +94,24 @@ export class TrackView extends React.Component<TrackViewProps, {}> {
 
   dragOverHandler(e: React.DragEvent, dnd: DragAndDrop) {
     this.props.timelineViewController.ee.emit(TimelineViewEventType.TRACK_DRAG_OVER,
-        e, dnd, this.props.trackHost);
+        e, dnd, this.trackHost);
   }
 
   dropHandler(e: React.DragEvent, dnd: DragAndDrop) {
     this.props.timelineViewController.ee.emit(TimelineViewEventType.TRACK_DROP,
-        e, dnd, this.props.trackHost);
+        e, dnd, this.trackHost);
   }
 
   render() {
     const timelineViewController = this.props.timelineViewController;
     const timelineHost = timelineViewController.timelineHost;
-    const trackHost = this.props.trackHost;
+    const trackHost = this.trackHost;
     return (
       <ADiv className='track'
         onMouseDown={this.mouseDownHandler}
         onDocumentDragOver={this.dragOverHandler}
         onDocumentDrop={this.dropHandler}>
-        <TrackViewItemRenderer timelineHost={timelineHost} trackHost={trackHost} timelineViewController={timelineViewController}/>
+        <TrackViewItemRenderer {...this.props} trackHost={trackHost}/>
         <UserViews timelineHost={timelineHost} trackHost={trackHost} timelineViewController={timelineViewController}/>
       </ADiv>
     );
@@ -128,10 +138,12 @@ class UserViews extends React.PureComponent<TrackUserViewProps, {}> {
 }
 
 
-
+interface TrackViewItemRendererProps extends TrackViewProps {
+  trackHost: TrackHost;
+}
 
 @observer
-export class TrackViewItemRenderer extends React.Component<TrackViewProps, {}> {
+export class TrackViewItemRenderer extends React.Component<TrackViewItemRendererProps, {}> {
 
   @computed
   get visibleItems(): Array<JSX.Element> {
@@ -142,11 +154,10 @@ export class TrackViewItemRenderer extends React.Component<TrackViewProps, {}> {
     const startTime = timelineViewController.startTime;
     const endTime = timelineViewController.endTime;
     let result: Array<JSX.Element> = [];
-    trackHost.trackItemHosts.forEach(trackItemHost => {
-      if ((startTime > trackItemHost.endTime || trackItemHost.startTime > endTime) == false)
+    trackHost.track.trackItems.forEach(trackItem => {
+      if ((startTime > trackItem.time.end || trackItem.time.start > endTime) == false)
         result.push(
-            <TrackItemView key={trackItemHost.id} timelineHost={timelineHost} trackHost={trackHost}
-                           trackItemHost={trackItemHost} timelineViewController={timelineViewController}/>)
+            <TrackItemView {...this.props} key={trackItem.id} trackItem={trackItem}/>)
     })
     return result;
   }
@@ -160,8 +171,14 @@ export class TrackViewItemRenderer extends React.Component<TrackViewProps, {}> {
   }
 }
 
+interface TrackItemViewProps extends TrackViewItemRendererProps {
+  trackItem: TrackItem;
+}
+
 @observer
 export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
+
+  trackItemHost: TrackItemHost;
 
   private static userViews_: Array<any> = [];
   static get userViews(): ReadonlyArray<any> {
@@ -173,39 +190,18 @@ export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
 
   constructor(props: any) {
     super(props);
+    const trackItem = this.props.trackItem;
 
-    this.barHandleMouseMoveStartHandler = this.barHandleMouseMoveStartHandler.bind(this);
-    this.leftHandleMouseMoveStartHandler = this.leftHandleMouseMoveStartHandler.bind(this);
-    this.rightHandleMouseMoveStartHandler = this.rightHandleMouseMoveStartHandler.bind(this);
-  }
-
-  barHandleMouseMoveStartHandler(e: MouseEvent) {
-    const controller = this.props.timelineViewController;
-    const trackHost = this.props.trackHost;
-    const trackItemHost = this.props.trackItemHost;
-    controller.trackItemBarHandleMouseMoveStartHandler(e, trackHost, trackItemHost);
-  }
-
-  leftHandleMouseMoveStartHandler(e: MouseEvent) {
-    const controller = this.props.timelineViewController;
-    const trackHost = this.props.trackHost;
-    const trackItemHost = this.props.trackItemHost;
-    controller.trackItemLeftHandleMouseMoveStartHandler(e, trackHost, trackItemHost);
-  }
-
-  rightHandleMouseMoveStartHandler(e: MouseEvent) {
-    const controller = this.props.timelineViewController;
-    const trackHost = this.props.trackHost;
-    const trackItemHost = this.props.trackItemHost;
-    controller.trackItemRightHandleMouseMoveStartHandler(e, trackHost, trackItemHost);
+    this.trackItemHost = new TrackItemHost(trackItem);
+    this.props.trackHost.addTrackItemHost(this.trackItemHost);
   }
 
   render() {
-    const trackItemHost = this.props.trackItemHost;
+    const trackItemHost = this.trackItemHost;
+    const trackItem = trackItemHost.trackItem;
     const controller = this.props.timelineViewController;
-    console.log('render trackitem')
-    const left = controller.getPositionRelativeToTimeline(trackItemHost.startTime);
-    const right = controller.getPositionRelativeToTimeline(trackItemHost.endTime);
+    const left = controller.getPositionRelativeToTimeline(trackItem.time.start);
+    const right = controller.getPositionRelativeToTimeline(trackItem.time.end);
     const style = {
       left: left + 'px',
       width: (right - left) + 'px'
@@ -214,16 +210,31 @@ export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
                       (trackItemHost.focused ? 'focused' : '');
     return (
       <ADiv className={className} style={style}>
-        <ADiv className='bar'
-          onDocumentMouseMoveStart={this.barHandleMouseMoveStartHandler}>
-          { /* <timelineViewState.NativeTrackItemView trackItemHost={trackItemHost}/> */ }
+        <ADiv className='bar'>
+          <TrackItemUserViews {...this.props} trackItemHost={this.trackItemHost}/>
         </ADiv>
-        <ADiv className='thumb left-inner' onDocumentMouseMoveStart={this.leftHandleMouseMoveStartHandler}/>
-        <ADiv className='thumb right-inner' onDocumentMouseMoveStart={this.rightHandleMouseMoveStartHandler}/>
-        <ADiv className='thumb left-outer' onDocumentMouseMoveStart={this.leftHandleMouseMoveStartHandler}/>
-        <ADiv className='thumb right-outer' onDocumentMouseMoveStart={this.rightHandleMouseMoveStartHandler}/>
       </ADiv>
     )
   }
 
+}
+
+
+class TrackItemUserViews extends React.PureComponent<TrackItemUserViewProps, {}> {
+  render() {
+    let i = 0;
+    return (
+      <>
+        { TrackItemView.userViews.map(view => 
+          React.createElement(view, {
+            key: i++,
+            timelineHost: this.props.timelineHost,
+            trackHost: this.props.trackHost,
+            trackItemHost: this.props.trackItemHost,
+            timelineViewController: this.props.timelineViewController
+          })
+        )}
+      </>
+    )
+  }
 }
