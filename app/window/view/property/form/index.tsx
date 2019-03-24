@@ -7,6 +7,8 @@ import { DrawingType } from 'internal/drawing/drawing-type';
 import { Rectangle } from 'internal/drawing';
 import { observer } from 'window/app-mobx';
 
+import * as style from './index.scss'
+
 interface PropertyFormViewProps {
   timeline: Timeline,
   trackItem: TrackItem
@@ -14,6 +16,25 @@ interface PropertyFormViewProps {
 
 @observer
 export class PropertyFormView extends React.Component<PropertyFormViewProps, {}> {
+
+  constructor(props: PropertyFormViewProps) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className={style.component}>
+        <div className='header'></div>
+        <div className='content'>
+          <PropertyFormViewContent {...this.props}/>
+        </div>
+      </div>)
+  }
+
+}
+
+@observer
+export class PropertyFormViewContent extends React.Component<PropertyFormViewProps, {}> {
 
   constructor(props: PropertyFormViewProps) {
     super(props);

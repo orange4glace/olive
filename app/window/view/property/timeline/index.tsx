@@ -254,7 +254,7 @@ class KeyframeView extends React.Component<PropertyTimelineKeyframeViewProps, {}
     const timeline = this.props.timeline;
     const trackItem = this.props.trackItem;
     const keyframe = this.props.keyframe;
-    const time = trackItem.baseTime + keyframe.timecode;
+    const time = keyframe.timecode - trackItem.baseTime;
     const style = {
       left: controller.getPositionRelativeToTimeline(time)
     }

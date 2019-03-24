@@ -1,0 +1,10 @@
+@import "window/theme.scss";
+@import "../common.scss";
+
+.component {
+
+  > .header {
+    height: $timeline-header-height;
+  }
+
+}

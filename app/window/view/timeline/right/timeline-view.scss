@@ -49,7 +49,6 @@
       > .track {
         position: relative;
         width: 100%;
-        height: 40px;
 
         > .preset-drop-handler {
           position: absolute;
@@ -59,7 +58,6 @@
     
         > .track-item {
           position: absolute;
-          top: 10px;
           height: 30px;
           box-sizing: border-box;
           border-right: 1px solid $primary-background;

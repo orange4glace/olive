@@ -100,7 +100,7 @@ class PropertyTimelineHeaderViewIndicator extends React.Component<PropertyTimeli
     const controller = this.props.propertyViewController;
     const timeline = this.props.timeline;
     const trackItem = this.props.trackItem;
-    const currentTime = timeline.currentTime;
+    const currentTime = timeline.currentTime - trackItem.time.start;
     const style = {
       left: controller.getPositionRelativeToTimeline(currentTime)
     }

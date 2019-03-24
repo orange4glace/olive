@@ -1,6 +1,6 @@
 import TrackHost from './track-host'
 import TrackItemHost from './track-item-host';
-import Timeline from 'internal/timeline/timeline';
+import Timeline, { TimelineEvent } from 'internal/timeline/timeline';
 import Track from 'internal/timeline/track';
 import { observable } from 'window/app-mobx';
 
@@ -10,7 +10,7 @@ export default class TimelineHost {
 
   timeline: Timeline;
 
-  @observable trackHosts: Set<TrackHost>;
+  @observable trackHosts: Array<TrackHost>;
   trackHostMap: Map<Track, TrackHost>;
 
   snapTimes: Array<number>;
@@ -18,18 +18,34 @@ export default class TimelineHost {
 
   constructor(timeline: Timeline) {
     this.timeline = timeline;
-    this.trackHosts = new Set();
+    this.trackHosts = new Array();
     this.trackHostMap = new Map();
+
+    this.addTrackHost = this.addTrackHost.bind(this);
+    this.removeTrackHost = this.removeTrackHost.bind(this);
+
+    timeline.tracks.forEach(this.addTrackHost);
+    timeline.addEventListener(TimelineEvent.TRACK_ADDED, this.addTrackHost);
+    timeline.addEventListener(TimelineEvent.TRACK_REMOVED, this.removeTrackHost);
+  }
+  
+  destructor() {
+    this.timeline.removeEventListener(TimelineEvent.TRACK_ADDED, this.addTrackHost);
+    this.timeline.removeEventListener(TimelineEvent.TRACK_REMOVED, this.removeTrackHost);
   }
 
-  addTrackHost(trackHost: TrackHost): TrackHost {
-    this.trackHosts.add(trackHost);
+  private addTrackHost(track: Track): TrackHost {
+    let trackHost = new TrackHost(track);
+    this.trackHosts.push(trackHost);
     this.trackHostMap.set(trackHost.track, trackHost);
     return trackHost;
   }
 
-  removeTrackHost(trackHost: TrackHost): void {
-    this.trackHosts.delete(trackHost);
+  private removeTrackHost(track: Track): void {
+    let trackHost = this.getTrackHost(track);
+    let idx = this.trackHosts.indexOf(trackHost);
+    console.assert(idx != -1);
+    this.trackHosts.splice(idx, 1);
     this.trackHostMap.delete(trackHost.track);
   }
 

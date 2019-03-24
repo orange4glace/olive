@@ -155,6 +155,7 @@ export class TrackItemManipulation {
           trackHost.track.setTrackItemTime(trackItem,
               trackItem.time.start, trackItem.time.end + this.final,
               trackItem.baseTime);
+        console.log(trackItem);
       })
     })
     this.ghostTrackItemSets.forEach((ghostTrackItemSet, trackHost) => {

@@ -50,8 +50,11 @@ class GhostTrackView extends React.Component<GhostTrackViewProps, {}> {
             <GhostTrackItemView {...this.props} ghostTrackItem={ghostTrackItem} />)
       })
     })
+    const style = {
+      height: trackHost.height + 'px'
+    }
     return (
-      <ADiv className='track active'>
+      <ADiv className='track active' style={style}>
         {visibleItems}
       </ADiv>
     );
@@ -77,7 +80,7 @@ class GhostTrackItemView extends React.Component<GhostTrackItemViewProps, {}> {
     const right = controller.getPositionRelativeToTimeline(ghostTrackItem.end);
     const style = {
       left: left + 'px',
-      width: (right - left) + 'px'
+      width: (right - left) + 'px',
     }
     const className = 'track-item ';
                       // 'snap-' + trackItemHost.snapped;

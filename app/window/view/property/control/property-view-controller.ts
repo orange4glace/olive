@@ -5,6 +5,7 @@ import { MouseUtil } from "orangeutil";
 import TrackItem from "internal/timeline/track-item";
 import { TrackItemHost } from "./track-item-host";
 import { EventEmitter2 } from "eventemitter2";
+import { KeyframeHost } from "./keyframe-host";
 
 interface PropertyViewEvent {
   a: number;
@@ -12,6 +13,10 @@ interface PropertyViewEvent {
 
 export interface PropertyTimelineEvent extends PropertyViewEvent {
   
+}
+
+export interface PropertyTimelineKeyframeEvent extends PropertyTimelineEvent {
+  keyframeHost: KeyframeHost;
 }
 
 export class PropertyViewController {
@@ -57,11 +62,9 @@ export class PropertyViewController {
   getPositionRelativeToTimeline(time: number) {
     // Touch |endTime| variable so observer can detect the change
     this.endTimecode;
-    time -= this.baseTimecode;
     return Math.floor((time - this.startTimecode) * this.pxPerMillisecond);
   }
   getPixelAmountRelativeToTimeline(time: number) {
-    time -= this.baseTimecode;
     return time * this.pxPerMillisecond;
   }
   getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent) {

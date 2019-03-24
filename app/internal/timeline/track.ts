@@ -4,9 +4,9 @@ import TrackItem, { TrackItemBase } from './track-item'
 
 import { TreeMap, Pair, IComparable } from 'tstl';
 import { Iterator, MapIterator } from 'tstl/base';
-import { observable } from 'window/app-mobx';
 import { EventEmitter2 } from 'eventemitter2';
 import { TimePair, TimePairBase } from './time-pair';
+import { observable } from 'mobx';
 
 let _nextTrackID = 0;
 
@@ -26,6 +26,7 @@ export interface TrackBase {
 export default class Track implements TrackBase {
 
   readonly id: number;
+  @observable name: string;
 
   @postable trackItems: Set<TrackItem>;
   trackItemTreeMap: TreeMap<TimePair, TrackItem>;
@@ -33,6 +34,7 @@ export default class Track implements TrackBase {
   private ee: EventEmitter2;
 
   constructor() {
+    this.name = 'unnamed track';
     // Initialize objects
     this.trackItems = new Set<TrackItem>();
     this.trackItemTreeMap = new TreeMap<TimePair, TrackItem>();

@@ -9,6 +9,7 @@ import { PropertyAnimatedDecorator } from './property-decorator';
 import * as style from './style.scss'
 import TrackItem from 'internal/timeline/track-item';
 import Timeline from 'internal/timeline/timeline';
+import { NumberInput } from './number-input';
 
 interface PropertyControlProps<T extends PropertyTypes> {
   label: string,
@@ -21,7 +22,7 @@ interface PropertyControlProps<T extends PropertyTypes> {
 class PropertyControl<T extends PropertyTypes> extends React.Component<PropertyControlProps<T>, {}> {
 
   @computed get currentPropertyValue(): T {
-    const time = this.props.timeline.currentTime - this.props.trackItem.baseTime;
+    const time = this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime;
     return this.props.property.getValueAt(time);
   }
 
@@ -37,17 +38,17 @@ export class Vector2PropertyControl extends PropertyControl<PostableVector2> {
     this.yValueChangeHandler = this.yValueChangeHandler.bind(this);
   }
 
-  xValueChangeHandler(e: any) {
+  xValueChangeHandler(val: number) {
     const property = this.props.property as Vector2Property;
-    const time = this.props.timeline.currentTime - this.props.trackItem.baseTime;
-    let value = property.createValue(+e.target.value, this.currentPropertyValue.y);
+    const time = this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime;
+    let value = property.createValue(val, this.currentPropertyValue.y);
     property.addKeyframeAt(time, value);
   }
 
-  yValueChangeHandler(e: any) {
+  yValueChangeHandler(val: number) {
     const property = this.props.property as Vector2Property;
-    const time = (this.props.timeline.currentTime - this.props.trackItem.baseTime);
-    let value = property.createValue(this.currentPropertyValue.x, +e.target.value);
+    const time = (this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime);
+    let value = property.createValue(this.currentPropertyValue.x, val);
     property.addKeyframeAt(time, value);
   }
 
@@ -56,8 +57,8 @@ export class Vector2PropertyControl extends PropertyControl<PostableVector2> {
       <div className={style.component}>
         <PropertyAnimatedDecorator timeline={this.props.timeline} trackItem={this.props.trackItem} property={this.props.property}/>
         <PropertyLabel property={this.props.property}>{this.props.label}</PropertyLabel>
-        <input value={this.currentPropertyValue.x} onChange={this.xValueChangeHandler}/>
-        <input value={this.currentPropertyValue.y} onChange={this.yValueChangeHandler}/>
+        <NumberInput value={this.currentPropertyValue.x} onChange={this.xValueChangeHandler}/>
+        <NumberInput value={this.currentPropertyValue.y} onChange={this.yValueChangeHandler}/>
       </div>
     )
   }

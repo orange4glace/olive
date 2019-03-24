@@ -29,7 +29,7 @@ interface Props {
 
 interface TrackViewProps {
   timelineHost: TimelineHost;
-  track: Track;
+  trackHost: TrackHost;
   timelineViewController: TimelineViewController;
 }
 
@@ -45,9 +45,10 @@ export class TracksView extends React.Component<Props, {}> {
     const timelineHost = timelineViewController.timelineHost;
     return (
       <div className='tracks'>
-        {[...timelineHost.timeline.tracks].map(track => 
-          <TrackView key={track.id} timelineHost={timelineHost} track={track} timelineViewController={timelineViewController}/>
-        )}
+        {[...timelineHost.trackHosts].map(trackHost => {
+          return (
+              <TrackView key={trackHost.track.id} timelineHost={timelineHost} trackHost={trackHost} timelineViewController={timelineViewController}/>);
+        })}
       </div>
     )
   }
@@ -56,8 +57,6 @@ export class TracksView extends React.Component<Props, {}> {
 
 @observer
 export class TrackView extends React.Component<TrackViewProps, {}> {
-
-  trackHost: TrackHost;
 
   private static userViews_: Array<any> = [];
   static get userViews(): ReadonlyArray<any> {
@@ -72,21 +71,9 @@ export class TrackView extends React.Component<TrackViewProps, {}> {
   constructor(props: any) {
     super(props);
 
-    const controller = this.props.timelineViewController;
-    const track = this.props.track;
-    this.trackHost = new TrackHost(track);
-    controller.timelineHost.addTrackHost(this.trackHost);
-
     this.mouseDownHandler = this.mouseDownHandler.bind(this);
     this.dragOverHandler = this.dragOverHandler.bind(this);
     this.dropHandler = this.dropHandler.bind(this);
-  }
-
-  componentWillUnmount() {
-    const controller = this.props.timelineViewController;
-    const track = this.props.track;
-    this.trackHost = new TrackHost(track);
-    controller.timelineHost.removeTrackHost(this.trackHost);
   }
 
   mouseDownHandler(e: React.MouseEvent) {
@@ -94,20 +81,23 @@ export class TrackView extends React.Component<TrackViewProps, {}> {
 
   dragOverHandler(e: React.DragEvent, dnd: DragAndDrop) {
     this.props.timelineViewController.ee.emit(TimelineViewEventType.TRACK_DRAG_OVER,
-        e, dnd, this.trackHost);
+        e, dnd, this.props.trackHost);
   }
 
   dropHandler(e: React.DragEvent, dnd: DragAndDrop) {
     this.props.timelineViewController.ee.emit(TimelineViewEventType.TRACK_DROP,
-        e, dnd, this.trackHost);
+        e, dnd, this.props.trackHost);
   }
 
   render() {
     const timelineViewController = this.props.timelineViewController;
     const timelineHost = timelineViewController.timelineHost;
-    const trackHost = this.trackHost;
+    const trackHost = this.props.trackHost;
+    const style = {
+      height: trackHost.height + 'px'
+    }
     return (
-      <ADiv className='track'
+      <ADiv className='track' style={style}
         onMouseDown={this.mouseDownHandler}
         onDocumentDragOver={this.dragOverHandler}
         onDocumentDrop={this.dropHandler}>
@@ -147,17 +137,15 @@ export class TrackViewItemRenderer extends React.Component<TrackViewItemRenderer
 
   @computed
   get visibleItems(): Array<JSX.Element> {
-    console.log('upd')
     const timelineHost = this.props.timelineHost;
     const trackHost = this.props.trackHost;
     const timelineViewController = this.props.timelineViewController;
     const startTime = timelineViewController.startTime;
     const endTime = timelineViewController.endTime;
     let result: Array<JSX.Element> = [];
-    trackHost.track.trackItems.forEach(trackItem => {
-      if ((startTime > trackItem.time.end || trackItem.time.start > endTime) == false)
+    trackHost.trackItemHosts.forEach(trackItemHost => {
         result.push(
-            <TrackItemView {...this.props} key={trackItem.id} trackItem={trackItem}/>)
+            <TrackItemView {...this.props} key={trackItemHost.trackItem.id} trackItemHost={trackItemHost}/>)
     })
     return result;
   }
@@ -172,13 +160,11 @@ export class TrackViewItemRenderer extends React.Component<TrackViewItemRenderer
 }
 
 interface TrackItemViewProps extends TrackViewItemRendererProps {
-  trackItem: TrackItem;
+  trackItemHost: TrackItemHost;
 }
 
 @observer
 export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
-
-  trackItemHost: TrackItemHost;
 
   private static userViews_: Array<any> = [];
   static get userViews(): ReadonlyArray<any> {
@@ -190,14 +176,10 @@ export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
 
   constructor(props: any) {
     super(props);
-    const trackItem = this.props.trackItem;
-
-    this.trackItemHost = new TrackItemHost(trackItem);
-    this.props.trackHost.addTrackItemHost(this.trackItemHost);
   }
 
   render() {
-    const trackItemHost = this.trackItemHost;
+    const trackItemHost = this.props.trackItemHost;
     const trackItem = trackItemHost.trackItem;
     const controller = this.props.timelineViewController;
     const left = controller.getPositionRelativeToTimeline(trackItem.time.start);
@@ -211,7 +193,7 @@ export class TrackItemView extends React.Component<TrackItemViewProps, {}> {
     return (
       <ADiv className={className} style={style}>
         <ADiv className='bar'>
-          <TrackItemUserViews {...this.props} trackItemHost={this.trackItemHost}/>
+          <TrackItemUserViews {...this.props} trackItemHost={this.props.trackItemHost}/>
         </ADiv>
       </ADiv>
     )

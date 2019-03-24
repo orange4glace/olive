@@ -1,0 +1,9 @@
+@import "window/theme.scss";
+@import "../common.scss";
+
+.component {
+
+  > .header {
+    height: $property-header-height;
+  }
+}

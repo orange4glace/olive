@@ -90,6 +90,8 @@ export default class TrackHost {
   get ghostTrackItemSets(): ReadonlySet<GhostTrackItemSet> {
     return this.ghostTrackItemSets_; }
 
+  @observable height: number;
+
   constructor(track: Track) {
     this.track = track;
     this.trackItemMap = new Map<TrackItem, TrackItemHost>();
@@ -103,6 +105,8 @@ export default class TrackHost {
     this.trackItemAddedHandler = this.trackItemAddedHandler.bind(this);
     this.trackItemRemovedHandler = this.trackItemRemovedHandler.bind(this);
     this.trackItemTimeChangeHandler = this.trackItemTimeChangeHandler.bind(this);
+
+    this.height = 30;
 
     track.trackItems.forEach(trackItem => {
       this.trackItemAddedHandler(trackItem);
@@ -119,6 +123,7 @@ export default class TrackHost {
   }
 
   private trackItemAddedHandler(trackItem: TrackItem) {
+    this.addTrackItemHost(trackItem);
     // Update set
     this.startTimeSet.insert(make_pair(trackItem.time.start, trackItem));
     this.endTimeSet.insert(make_pair(trackItem.time.end, trackItem));
@@ -127,6 +132,7 @@ export default class TrackHost {
   }
 
   private trackItemRemovedHandler(trackItem: TrackItem) {
+    this.removeTrackItemHost(trackItem);
     // Update set
     this.startTimeSet.erase(trackItem.time.start);
     this.endTimeSet.erase(trackItem.time.end);
@@ -146,13 +152,15 @@ export default class TrackHost {
     this.intervalTree.insert(newTimePair.start, newTimePair.end, trackItem);
   }
 
-  addTrackItemHost(trackItemHost: TrackItemHost) {
+  private addTrackItemHost(trackItem: TrackItem) {
+    let trackItemHost = new TrackItemHost(trackItem);
     this.trackItemMap.set(trackItemHost.trackItem, trackItemHost);
     this.trackItemHosts_.add(trackItemHost);
   }
 
-  removeTrackItemHost(trackItemHost: TrackItemHost) {
-    console.assert(this.trackItemHosts.has(trackItemHost));
+  private removeTrackItemHost(trackItem: TrackItem) {
+    let trackItemHost = this.getTrackItemHost(trackItem);
+    console.assert(trackItemHost);
     // delete it
     this.trackItemMap.delete(trackItemHost.trackItem);
     this.trackItemHosts_.delete(trackItemHost);
