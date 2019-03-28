@@ -2,9 +2,12 @@
 @import "../common.scss";
 
 .component {
+  box-sizing: border-box;
 
   > .header {
+    box-sizing: border-box;
     height: $timeline-header-height;
+    border-bottom: 1px solid $bright-background;
   }
 
 }

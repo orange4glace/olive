@@ -2,7 +2,7 @@ import { Postable, postable } from 'worker-postable';
 
 import TrackItemType from './track-item-type'
 import { DrawingBase } from 'internal/drawing';
-import Drawing from 'internal/drawing/drawing';
+import { Drawing } from 'internal/drawing/drawing';
 import { TimePair, TimePairBase } from './time-pair';
 
 let _nextTrackItemID = 0;
@@ -27,21 +27,15 @@ export default class TrackItem implements TrackItemBase {
 
   @postable drawing: Drawing;
 
-  constructor(type: TrackItemType = TrackItemType.NORMAL, time: TimePair, baseTime: number) {
+  constructor(type: TrackItemType = TrackItemType.NORMAL) {
     this.id = _nextTrackItemID++;
     this.type = type;
-
-    this.__setTime(time, baseTime);
   }
 
   clone(): TrackItem {
-    let trackItem = new TrackItem(this.type, this.time, this.baseTime);
-    trackItem.baseTime = this.baseTime;
+    let trackItem = new TrackItem(this.type);
+    trackItem.__setTime(this.time, this.baseTime);
     return trackItem;
-  }
-
-  setBaseTime(baseTime: number) {
-    this.baseTime = baseTime;
   }
 
   __setTime(time: TimePair, baseTime: number) {

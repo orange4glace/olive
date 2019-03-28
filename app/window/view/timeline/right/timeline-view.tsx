@@ -212,8 +212,8 @@ class Ruler extends React.Component<TimelineViewContentProps, {}> {
       else if (s.length > 2) return s.slice(0, 2);
       return s;
     }
-    let milli = milliseconds % 1000;
-    milliseconds = Math.floor(milliseconds / 1000);
+    let milli = milliseconds % 30;
+    milliseconds = Math.floor(milliseconds / 30);
     let sec = milliseconds % 60;
     milliseconds = Math.floor(milliseconds / 60);
     let min = milliseconds % 60;

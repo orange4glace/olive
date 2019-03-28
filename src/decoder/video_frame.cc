@@ -20,7 +20,8 @@ namespace {
   SwsContext* sws_ctx = NULL;
 
   void ScaleFrame(VideoFrame* frame) {
-    if (sws_ctx == NULL) sws_ctx = sws_getContext(1920, 1080, AV_PIX_FMT_YUV420P, 1920, 1080, AV_PIX_FMT_RGB32, SWS_BILINEAR, NULL, NULL, NULL);
+    if (sws_ctx == NULL) sws_ctx = sws_getContext(frame->data.width, frame->data.height, AV_PIX_FMT_YUV420P,
+        frame->data.width, frame->data.height, AV_PIX_FMT_RGB32, SWS_BILINEAR, NULL, NULL, NULL);
     if (frame->scaled) return;
     int linesize[4] = { frame->data.width * 4, 0, 0, 0 };
     frame->data.data = (uint8_t*)MemoryPool::Allocate(frame->data.width * frame->data.height * 4);

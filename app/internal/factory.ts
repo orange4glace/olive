@@ -4,10 +4,10 @@ import TrackItem from "./timeline/track-item";
 import { TimePair } from "./timeline/time-pair";
 
 export default class Factory {
-  createTrackItem(resource: Resource, time: TimePair, baseTime: number): TrackItem {
+  createTrackItem(resource: Resource): TrackItem {
     switch (resource.type) {
       case ResourceType.VIDEO:
-        return new VideoTrackItem(resource, time, baseTime);
+        return new VideoTrackItem((resource as VideoResource));
       break;
     }
   }

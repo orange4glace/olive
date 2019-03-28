@@ -25,9 +25,10 @@ public:
   inline napi_ref& napi_instance_ref() {
     return __napi_instance_ref_;
   }
+  
+  NAPI_Instanceable(NAPI_InstanceableHelper& helper);
 
 protected:
-  NAPI_Instanceable(NAPI_InstanceableHelper& helper);
   // virtual void NAPI_CreateInstance() = 0;
 
 private:

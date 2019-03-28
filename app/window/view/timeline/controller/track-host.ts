@@ -108,7 +108,7 @@ export default class TrackHost {
 
     this.height = 30;
 
-    track.trackItems.forEach(trackItem => {
+    track.trackItems.forEach((_, trackItem) => {
       this.trackItemAddedHandler(trackItem);
     });
     track.addEventListener(TrackEvent.TRACK_ITEM_ADDED, this.trackItemAddedHandler);

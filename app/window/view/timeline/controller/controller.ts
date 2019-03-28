@@ -6,11 +6,7 @@ import { MouseUtil } from 'orangeutil'
 import { ZoomableScrollViewController } from 'window/view/zoomable-scroll-view'
 
 import TimelineHost from './timeline-host'
-import TrackHost from './track-host';
-import TrackItemHost from './track-item-host';
-import hotkeys from 'hotkeys-js';
 import Timeline from 'internal/timeline/timeline';
-import TrackItem from 'internal/timeline/track-item';
 
 export enum TimelineViewEventType {
   TRACKS_MOUSE_MOVE_START = 'TRACKS_MOUSE_MOVE_START',
@@ -60,12 +56,13 @@ export default class TimelineViewController {
     const controller = this.scrollViewController;
     const timeline = this.timelineHost.timeline;
     let startTime = Math.floor(timeline.totalTime * controller.start);
-    let endTime = Math.floor(timeline.totalTime * controller.end);
+    let endTime = Math.ceil(timeline.totalTime * controller.end);
     this.startTime = startTime;
     this.endTime = endTime;
-    let unitMillisecond = 1000;
+    let unitMillisecond = 30;
     let unitWidth = controller.scrollWidth / ((endTime - startTime) / unitMillisecond);
-    let multiplier = [2, 5];
+    if (unitWidth <= 0) return;
+    let multiplier = [2, 2];
     let multiplierI = 0;
     if (unitWidth > 150) {
       while (true) {

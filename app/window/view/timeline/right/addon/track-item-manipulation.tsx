@@ -155,7 +155,6 @@ export class TrackItemManipulation {
           trackHost.track.setTrackItemTime(trackItem,
               trackItem.time.start, trackItem.time.end + this.final,
               trackItem.baseTime);
-        console.log(trackItem);
       })
     })
     this.ghostTrackItemSets.forEach((ghostTrackItemSet, trackHost) => {
@@ -163,159 +162,121 @@ export class TrackItemManipulation {
     })
   }
 
-  // @action
-  // startResizeRight(e: MouseEvent | React.MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) {
-  //   const controller = this.controller;
-  //   this.resizingPixelWidth = 0;
-  //   trackHost.activeTrackItemHost(trackItemHost);
-  //   if (trackItemHost == trackHost.getLastFocusedTrackItemHost()) {
-  //     controller.timelineHost.trackHosts.forEach(trackHost => {
-  //       trackHost.activeTrackItemHost(trackHost.getLastFocusedTrackItemHost());
-  //     });
-  //   }
-  //   EventUtil.addMouseMoveHoldEventListener(document, this.handleResizeRight);
-  // }
-
-  // @action
-  // handleResizeRight(e: MouseEvent): number {
-  //   const controller = this.controller;
-  //   let dt = controller.getTimeAmountRelativeToTimeline(
-  //     controller.getMousePostionRelativeToTimeline(e).x);
-  //   this.resizingPixelWidth += dt;
-  //   dt = this.resizingPixelWidth;
-  //   let maximum = Infinity;
-  //   let minimum = -Infinity;
-
-  //   controller.timelineHost.trackHosts.forEach(trackHost => {
-  //     trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //       const localMaximum = Math.min(trackItemHost.endBoundaryTime,
-  //         controller.timelineHost.timeline.totalTime) - trackItemHost.endTime;
-  //       const localMinimum = trackItemHost.startTime - trackItemHost.endTime;
-  //       maximum = Math.min(maximum, localMaximum);
-  //       minimum = Math.max(minimum, localMinimum);
-  //     })
-  //   })
-  //   dt = Math.max(Math.min(dt, maximum), minimum);
-
-  //   let snapAdjustment = Infinity;
-  //   let snapTargets: Set<number> = new Set<number>();
-
-  //   if (TimelineState.snap) {
-  //     controller.timelineHost.trackHosts.forEach(trackHost => {
-  //       trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //         const localTime = trackItemHost.endTime + dt;
-  //         const snapTime = controller.getClosestSnapTime(localTime);
-  //         const localSnapAdjustment = snapTime - localTime;
-  //         const comp = Math.abs(snapAdjustment) - Math.abs(localSnapAdjustment);
-  //         if (comp > 0) {
-  //           snapAdjustment = localSnapAdjustment;
-  //           snapTargets.clear();
-  //           snapTargets.add(snapTime);
-  //         }
-  //         else if (comp == 0) snapTargets.add(snapTime);
-  //       })
-  //     })
-  //     if (Math.abs(snapAdjustment) <= controller.getTimeAmountRelativeToTimeline(controller.snapThreshold))
-  //       dt += snapAdjustment;
-  //     else snapTargets.clear();
-  //   }
-
-  //   dt = Math.max(Math.min(dt, maximum), minimum);
-  //   dt = Math.round(dt);
-  //   controller.timelineHost.trackHosts.forEach(trackHost => {
-  //     trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //       trackItemHost.endTimeActive = trackItemHost.endTime + dt;
-  //       trackItemHost.snapped = snapTargets.has(trackItemHost.endTimeActive) ? 'right' : 'none';
-  //     })
-  //   })
-  //   return dt;
-  // }
-
-
   
-  // startMove(e: MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) {
-  //   const controller = this.controller;
-  //   this.resizingPixelWidth = 0;
-  //   controller.timelineHost.trackHosts.forEach(trackHost => {
-  //     trackHost.trackItemHosts.forEach(trackItemHost => {
-  //       if (trackItemHost.focused) trackHost.activeTrackItemHost(trackItemHost);
-  //     })
-  //   });
-  //   EventUtil.addMouseMoveHoldEventListener(document, this.move, this.endMove);
-  // }
+  startMove(e: MouseEvent, trackHost: TrackHost, trackItemHost: TrackItemHost) {
+    const timelineHost = this.controller.timelineHost
+    this.current = 0;
 
-  // move(e: MouseEvent): number {
-  //   const controller = this.controller;
-  //   let dt = controller.getTimeAmountRelativeToTimeline(
-  //     controller.getMousePostionRelativeToTimeline(e).x);
-  //   this.resizingPixelWidth += dt;
-  //   dt = this.resizingPixelWidth;
-  //   let maximum = Infinity;
-  //   let minimum = -Infinity;
+    this.targetTrackItems = new Map();
 
-  //   controller.timelineHost.trackHosts.forEach(trackHost => {
-  //     trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //       const localMaximum = controller.timelineHost.timeline.totalTime - trackItemHost.endTime;
-  //       const localMinimum = -trackItemHost.startTime;
-  //       maximum = Math.min(maximum, localMaximum);
-  //       minimum = Math.max(minimum, localMinimum);
-  //     })
-  //   })
-  //   dt = Math.max(Math.min(dt, maximum), minimum);
+    timelineHost.trackHosts.forEach(trackHost => {
+      let targetTrackItems: TrackItem[] = [];
+      trackHost.focusedTrackItemHosts.forEach(trackItemHost => {
+        targetTrackItems.push(trackItemHost.trackItem);
+      })
+      this.targetTrackItems.set(trackHost, targetTrackItems);
+    })
 
-  //   let snapAdjustment = Infinity;
-  //   let snapTargets: Set<number> = new Set<number>();
-    
-  //   if (TimelineState.snap) {
-  //     controller.timelineHost.trackHosts.forEach(trackHost => {
-  //       trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //         const localTime = trackItemHost.endTime + dt;
-  //         const snapTime = controller.getClosestSnapTime(localTime);
-  //         const localSnapAdjustment = snapTime - localTime;
-  //         const comp = Math.abs(snapAdjustment) - Math.abs(localSnapAdjustment);
-  //         if (comp > 0) {
-  //           snapAdjustment = localSnapAdjustment;
-  //           snapTargets.clear();
-  //           snapTargets.add(snapTime);
-  //         }
-  //         else if (comp == 0) snapTargets.add(snapTime);
-  //       })
-  //     })
-  //     controller.timelineHost.trackHosts.forEach(trackHost => {
-  //       trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //         const localTime = trackItemHost.startTime + dt;
-  //         const snapTime = controller.getClosestSnapTime(localTime);
-  //         const localSnapAdjustment = snapTime - localTime;
-  //         const comp = Math.abs(snapAdjustment) - Math.abs(localSnapAdjustment);
-  //         if (comp > 0) {
-  //           snapAdjustment = localSnapAdjustment;
-  //           snapTargets.clear();
-  //           snapTargets.add(snapTime);
-  //         }
-  //         else if (comp == 0) snapTargets.add(snapTime);
-  //       })
-  //     })
-  //     if (Math.abs(snapAdjustment) <= controller.getTimeAmountRelativeToTimeline(controller.snapThreshold))
-  //       dt += snapAdjustment;
-  //     else snapTargets.clear();
-  //   }
+    this.ghostTrackItemSets = new Map();
+    this.targetTrackItems.forEach((trackItems: TrackItem[], trackHost: TrackHost) => {
+      let ghostTrackItemSet = new GhostTrackItemSet();
+      this.ghostTrackItemSets.set(trackHost, ghostTrackItemSet);
+      trackItems.forEach(trackItem => {
+        let ghostTrackItem = new GhostTrackItem(trackItemHost.trackItem.time.start, trackItemHost.trackItem.time.end);
+        ghostTrackItem.trackItem = trackItem;
+        ghostTrackItemSet.add(ghostTrackItem);
+      })
+      trackHost.addGhostTrackItemSet(ghostTrackItemSet);
+    });
 
-  //   dt = Math.max(Math.min(dt, maximum), minimum);
-  //   dt = Math.round(dt);
-  //   controller.timelineHost.trackHosts.forEach(trackHost => {
-  //     trackHost.trackItemHostsActive.forEach(trackItemHost => {
-  //       trackItemHost.startTimeActive = trackItemHost.startTime + dt;
-  //       trackItemHost.endTimeActive = trackItemHost.endTime + dt;
-  //       trackItemHost.snapped = snapTargets.has(trackItemHost.startTimeActive) ? 'left' :
-  //                               snapTargets.has(trackItemHost.endTimeActive) ? 'right' : 'none';
-  //     })
-  //   })
-  //   return dt;
-  // }
+    this.minimum = -Infinity;
+    this.maximum = Infinity;
+  }
 
-  // endMove() {
-  //   this.controller.commit();
-  // }
+  handleMove(e: MouseEvent): number {
+    const controller = this.controller;
+    let dt = controller.getTimeAmountRelativeToTimeline(e.movementX);
+    this.current += dt;
+    dt = this.current;
+
+    dt = Math.max(Math.min(dt, this.maximum), this.minimum);
+
+    let snapAdjustment = Infinity;
+    let snapTargets: Set<number> = new Set<number>();
+
+    this.ghostTrackItemSets.forEach(ghostTrackItemSet => {
+      ghostTrackItemSet.value.forEach(ghostTrackItem => {
+        ghostTrackItem.start = ghostTrackItem.trackItem.time.start + dt;
+        ghostTrackItem.end = ghostTrackItem.trackItem.time.end + dt;
+      })
+    })
+    if (TimelineViewState.snap) {
+      this.ghostTrackItemSets.forEach(ghostTrackItemSet => {
+        ghostTrackItemSet.value.forEach(ghostTrackItem => {
+          const localTime = ghostTrackItem.start;
+          const snapTime = controller.getClosestSnapTime(localTime);
+          const localSnapAdjustment = snapTime - localTime;
+          const comp = Math.abs(snapAdjustment) - Math.abs(localSnapAdjustment);
+          if (comp > 0) {
+            snapAdjustment = localSnapAdjustment;
+            snapTargets.clear();
+            snapTargets.add(snapTime);
+          }
+          else if (comp == 0) snapTargets.add(snapTime);
+        })
+      })
+      
+      this.ghostTrackItemSets.forEach(ghostTrackItemSet => {
+        ghostTrackItemSet.value.forEach(ghostTrackItem => {
+          const localTime = ghostTrackItem.end;
+          const snapTime = controller.getClosestSnapTime(localTime);
+          const localSnapAdjustment = snapTime - localTime;
+          const comp = Math.abs(snapAdjustment) - Math.abs(localSnapAdjustment);
+          if (comp > 0) {
+            snapAdjustment = localSnapAdjustment;
+            snapTargets.clear();
+            snapTargets.add(snapTime);
+          }
+          else if (comp == 0) snapTargets.add(snapTime);
+        })
+      })
+      
+      if (Math.abs(snapAdjustment) <= controller.getTimeAmountRelativeToTimeline(controller.snapThreshold))
+        dt += snapAdjustment;
+      else snapTargets.clear();
+    }
+
+    dt = Math.max(Math.min(dt, this.maximum), this.minimum);
+    dt = Math.round(dt);
+
+    this.ghostTrackItemSets.forEach(ghostTrackItemSet => {
+      ghostTrackItemSet.value.forEach(ghostTrackItem => {
+        ghostTrackItem.start = ghostTrackItem.trackItem.time.start + dt;
+        ghostTrackItem.end = ghostTrackItem.trackItem.time.end + dt;
+      })
+    })
+    // controller.timelineHost.trackHosts.forEach(trackHost => {
+    //   trackHost.trackItemHostsActive.forEach(trackItemHost => {
+    //     trackItemHost.startTimeActive = trackItemHost.startTime + dt;
+    //     trackItemHost.snapped = snapTargets.has(trackItemHost.startTimeActive) ? 'left' : 'none';
+    //   })
+    // })
+    this.final = dt;
+    return dt;
+  }
+
+  commitMove() {
+    this.targetTrackItems.forEach((trackItems: TrackItem[], trackHost: TrackHost) => {
+      trackItems.forEach(trackItem => {
+        trackHost.track.setTrackItemTime(trackItem,
+            trackItem.time.start + this.final, trackItem.time.end + this.final,
+            trackItem.baseTime);
+      })
+    })
+    this.ghostTrackItemSets.forEach((ghostTrackItemSet, trackHost) => {
+      trackHost.removeGhostTrackItemSet(ghostTrackItemSet);
+    })
+  }
   
 
 }
@@ -335,6 +296,9 @@ export class TrackItemManipulationView extends React.Component<TrackItemUserView
     this.startResizeRight = this.startResizeRight.bind(this);
     this.handleResizeRight = this.handleResizeRight.bind(this);
     this.commitResizeRight = this.commitResizeRight.bind(this);
+    this.startMove = this.startMove.bind(this);
+    this.handleMove = this.handleMove.bind(this);
+    this.commitMove = this.commitMove.bind(this);
   }
 
   startResizeLeft(e: MouseEvent) {
@@ -362,10 +326,29 @@ export class TrackItemManipulationView extends React.Component<TrackItemUserView
   commitResizeRight() {
     this.manipulationController.commitResizeRight();
   }
+
+  startMove(e: MouseEvent) {
+    console.log('start move')
+    this.manipulationController.startMove(e, this.props.trackHost, this.props.trackItemHost);
+    return true;
+  }
+
+  handleMove(e: MouseEvent) {
+    console.log('handle move')
+    this.manipulationController.handleMove(e);
+  }
+
+  commitMove(e: MouseEvent) {
+    this.manipulationController.commitMove();
+  }
   
   render() {
     return (
-      <div className={style.component}>
+      <ADiv className={style.component}
+            onMouseDown={EventUtil.stopPropagation}
+            onDocumentMouseMoveStart={this.startMove}
+            onDocumentMouseMove={this.handleMove}
+            onDocumentMouseMoveEnd={this.commitMove}>
         <ADiv className='thumb left-inner'
             onMouseDown={EventUtil.stopPropagation}
             onDocumentMouseMoveStart={this.startResizeLeft}
@@ -388,7 +371,7 @@ export class TrackItemManipulationView extends React.Component<TrackItemUserView
             onDocumentMouseMoveEnd={this.commitResizeRight}/>
         {/* <ADiv className='thumb left-outer' onDocumentMouseMoveStart={this.leftHandleMouseMoveStartHandler}/>
         <ADiv className='thumb right-outer' onDocumentMouseMoveStart={this.rightHandleMouseMoveStartHandler}/> */}
-      </div>
+      </ADiv>
     )
   }
 }

@@ -166,9 +166,9 @@ class ResourceDropViewRenderer extends React.Component<TrackUserViewProps, {}> {
     //   this.props.trackHost.track.clearTime(ghostTrackItem.time.start, ghostTrackItem.time.end);
     // });
     ghostTrackItemSet.value.forEach(ghostTrackItem => {
-      const trackItem = app.factory.createTrackItem(resource,
-          app.factory.createTimePair(ghostTrackItem.start, ghostTrackItem.end), 0);
-      this.props.trackHost.track.addTrackItem(trackItem);
+      const trackItem = app.factory.createTrackItem(resource);
+      this.props.trackHost.track.addTrackItem(trackItem,
+          ghostTrackItem.start, ghostTrackItem.end, 0);
     });
     console.log('commit end')
     

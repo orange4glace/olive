@@ -128,6 +128,8 @@ class Layout extends React.Component<LayoutProps, LayoutState> {
       this.growVertical(direction, shrinked, indexOffset + 1, false);
     }
     this._applyFlex();
+    // window.dispatchEvent(new Event('resize'));
+    console.log('resiz')
   }
 
   _shrinkVertical(direction: LayoutDirection, value: number, indexOffset: number, downside: boolean) {

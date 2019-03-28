@@ -1,5 +1,7 @@
+import { CResource } from "internal/native";
+
 export default interface IDecoder {
-  AddResource(path: string): number;
+  AddResource(path: string): CResource;
   Decode(resourceID: number, timecode: number): Promise<any>;
   FreeFrame(frame: any): void;
 }

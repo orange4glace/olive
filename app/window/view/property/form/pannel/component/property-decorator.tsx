@@ -19,7 +19,7 @@ export class PropertyAnimatedDecorator extends React.Component<PropertyProps, {}
   }
 
   clickHandler(e: React.MouseEvent) {
-    const time = this.props.timeline.currentTime - this.props.trackItem.baseTime;
+    const time = this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime;
     this.props.property.setAnimated(!this.props.property.animated);
     this.props.property.addKeyframeAt(time, this.props.property.cloneValue(this.props.property.defaultValue));
   }

@@ -42,6 +42,7 @@ export abstract class PropertyRenderer<T extends PropertyTypes> implements Prope
 
   observeKeyframes(keyframes: ObservableSet<KeyframeRenderer<T>>) {
     listen(keyframes, change => {
+      console.log(change)
       if (change.type == 'add') {
         let keyframe = change.newValue as KeyframeRenderer<T>;
         this.keyframeMap.insert(new Pair(keyframe.timecode, keyframe));

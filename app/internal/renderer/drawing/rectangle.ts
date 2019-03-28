@@ -18,18 +18,20 @@ export class RectangleRenderer extends PolygonRenderer
   protected drawSelf(context: DrawingContext, timeoffset: number) {
     const vg = context.nvg;
     const videoFrame = context.videoFrame;
-    const image = vg.createImageRGBA(1280, 720, 0, videoFrame.ptr);
-    const paint = vg.imagePattern(0, 0, 1280, 720, 0, image, 1);
-    console.log(image,paint)
+    const image = vg.createImageRGBA(videoFrame.width, videoFrame.height, 0, videoFrame.ptr);
+    const paint = vg.imagePattern(0, 0, videoFrame.width, videoFrame.height, 0, image, 1);
+
+    const position = this.position.getInterpolatedPropertyValue(timeoffset);
+    vg.translate(position.x, position.y);
     vg.beginPath();
     // vg.moveTo(0, 0);
     // vg.lineTo(videoFrame.width, 0);
     // vg.lineTo(videoFrame.width, videoFrame.height);
     // vg.lineTo(0, videoFrame.height);
     vg.moveTo(0, 0);
-    vg.lineTo(1280, 0);
-    vg.lineTo(1280, 720);
-    vg.lineTo(0, 720);
+    vg.lineTo(videoFrame.width, 0);
+    vg.lineTo(videoFrame.width, videoFrame.height);
+    vg.lineTo(0, videoFrame.height);
     vg.closePath();
     vg.strokeColor(20, 90, Math.floor(Math.random() * 235), 255);
     vg.stroke()
@@ -39,16 +41,16 @@ export class RectangleRenderer extends PolygonRenderer
     vg.freePaint(paint);
     vg.deleteImage(image);
     return;
-    const nvg = context.nvg;
-    let position = this.position.getInterpolatedPropertyValue(timeoffset);
-    let size = this.size.getInterpolatedPropertyValue(timeoffset);
-    nvg.strokeColor(125, 39, 92, 255);
-    nvg.beginPath();
-    nvg.moveTo(position.x, position.y);
-    nvg.lineTo(position.x + size.x, position.y);
-    nvg.lineTo(position.x + size.x, position.y + size.y);
-    nvg.lineTo(position.x, position.y + size.y);
-    nvg.closePath();
-    nvg.stroke();
+    // const nvg = context.nvg;
+    // let position = this.position.getInterpolatedPropertyValue(timeoffset);
+    // let size = this.size.getInterpolatedPropertyValue(timeoffset);
+    // nvg.strokeColor(125, 39, 92, 255);
+    // nvg.beginPath();
+    // nvg.moveTo(position.x, position.y);
+    // nvg.lineTo(position.x + size.x, position.y);
+    // nvg.lineTo(position.x + size.x, position.y + size.y);
+    // nvg.lineTo(position.x, position.y + size.y);
+    // nvg.closePath();
+    // nvg.stroke();
   }
 }

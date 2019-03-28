@@ -17,5 +17,7 @@ export default class Rectangle extends Polygon implements RectangleBase {
     super(DrawingType.RECTANGLE);
 
     this.size = new Vector2Property(new PostableVector2(100, 100));
+
+    this.addProperty(this.size);
   }
 }

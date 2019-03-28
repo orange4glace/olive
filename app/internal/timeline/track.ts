@@ -18,7 +18,7 @@ export enum TrackEvent {
 
 export interface TrackBase {
 
-  trackItems: Set<TrackItemBase>;
+  trackItems: Map<TrackItemBase, TimePairBase>;
 
 }
 
@@ -28,7 +28,7 @@ export default class Track implements TrackBase {
   readonly id: number;
   @observable name: string;
 
-  @postable trackItems: Set<TrackItem>;
+  @postable trackItems: Map<TrackItem, TimePair>;
   trackItemTreeMap: TreeMap<TimePair, TrackItem>;
 
   private ee: EventEmitter2;
@@ -36,7 +36,7 @@ export default class Track implements TrackBase {
   constructor() {
     this.name = 'unnamed track';
     // Initialize objects
-    this.trackItems = new Set<TrackItem>();
+    this.trackItems = new Map();
     this.trackItemTreeMap = new TreeMap<TimePair, TrackItem>();
 
     this.ee = new EventEmitter2();
@@ -44,7 +44,8 @@ export default class Track implements TrackBase {
     this.id = _nextTrackID++;
   }
 
-  addTrackItem(trackItem: TrackItem): void {
+  addTrackItem(trackItem: TrackItem, start: number, end: number, baseTime: number): void {
+    trackItem.__setTime(new TimePair(start, end), baseTime);
     this._clearTime(trackItem.time.start, trackItem.time.end);
     this._addTrackItem(trackItem);
   }
@@ -89,7 +90,7 @@ export default class Track implements TrackBase {
   }
 
   private _addTrackItem(trackItem: TrackItem) {
-    this.trackItems.add(trackItem);
+    this.trackItems.set(trackItem, trackItem.time);
     this.trackItemTreeMap.insert(new Pair(trackItem.time, trackItem));
     this.ee.emit(TrackEvent.TRACK_ITEM_ADDED, trackItem);
   }
@@ -110,9 +111,11 @@ export default class Track implements TrackBase {
     let lastTimePair = trackItem.time;
 
     this.trackItemTreeMap.erase(trackItem.time);
+    trackItem.__setTime(timePair, baseTime);
+    timePair = new TimePair(trackItem.time.start, trackItem.time.end);
     this._clearTime(timePair.start, timePair.end);
 
-    trackItem.__setTime(timePair, baseTime);
+    this.trackItems.set(trackItem, timePair);
     this.trackItemTreeMap.insert(new Pair(timePair, trackItem));
     
     this.ee.emit(TrackEvent.TRACK_ITEM_TIME_CHANGED, trackItem, lastTimePair, timePair);

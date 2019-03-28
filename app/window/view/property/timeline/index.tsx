@@ -6,7 +6,6 @@ import Timeline from 'internal/timeline/timeline';
 import TrackItem from 'internal/timeline/track-item';
 import { observable, autorun, observer, computed } from 'window/app-mobx';
 import { IReactionDisposer } from 'mobx';
-import Drawing from 'internal/drawing/drawing';
 import { DrawingType } from 'internal/drawing/drawing-type';
 import { PropertyViewController } from '../control/property-view-controller';
 import { TrackItemHost } from '../control/track-item-host';
@@ -135,7 +134,6 @@ class PropertyTimelineBodyView extends React.Component<PropertyTimelineContentVi
 
   timelineUpdateHandler() {
     const controller = this.props.propertyViewController;
-    console.log('atr', this.canvasRef.current, controller.scrollViewController.scrollWidth);
     if (isNaN(controller.scrollViewController.scrollWidth)) return;
 
     let startCount = Math.floor(controller.startTimecode / controller.unitMillisecond);
@@ -170,14 +168,19 @@ class PropertyTimelineBodyView extends React.Component<PropertyTimelineContentVi
 
 
   render() {
+    const drawingHosts = this.props.propertyViewController.trackItemHost.drawingHosts;
     return (
       <div className='property-timeline-body'>
         <div className='grid'>
           <canvas ref={this.canvasRef}></canvas>
         </div>
         <div className='keyframe-content'>
-          <DrawingKeyframeContentView {...this.props}
-              drawing={this.props.trackItem.drawing} propertyViewController={this.props.propertyViewController}/>
+        {
+          [...drawingHosts].map(([_, drawingHost]) => 
+            <DrawingKeyframeContentView {...this.props}
+                drawingHost={drawingHost} propertyViewController={this.props.propertyViewController}/>
+          )
+        }
         </div>
       </div>
     )
@@ -189,36 +192,27 @@ class PropertyTimelineBodyView extends React.Component<PropertyTimelineContentVi
 
 
 interface PropertyTimelineDrawingViewProps extends PropertyTimelineViewProps {
-  drawing: Drawing,
+  drawingHost: DrawingHost,
   propertyViewController: PropertyViewController
 }
 
 interface PropertyTimelinePropertyViewProps extends PropertyTimelineDrawingViewProps {
-  drawingHost: DrawingHost;
-  property: Property<any>
+  propertyHost: PropertyHost;
 }
 
 @observer
 class PropertyTimelineKeyframeView extends React.Component<PropertyTimelinePropertyViewProps, {}> {
 
-  propertyHost: PropertyHost;
-
   constructor(props: PropertyTimelinePropertyViewProps) {
     super(props);
-    this.propertyHost = new PropertyHost(this.props.property);
-    this.props.drawingHost.addPropertyHost(this.propertyHost);
-  }
-
-  componentWillUnmount() {
-    this.props.drawingHost.removePropertyHost(this.propertyHost);
   }
 
   render() {
-    const property = this.props.property;
+    const propertyHost = this.props.propertyHost;
     const keyframes: JSX.Element[] = [];
 
-    property.keyframes.forEach(keyframe => {
-      keyframes.push(<KeyframeView {...this.props} propertyHost={this.propertyHost} keyframe={keyframe}/>)
+    propertyHost.keyframeHosts.forEach(keyframeHost => {
+      keyframes.push(<KeyframeView {...this.props} propertyHost={propertyHost} keyframeHost={keyframeHost}/>)
     })
     return (
       <div className='keyframes'>
@@ -231,29 +225,22 @@ class PropertyTimelineKeyframeView extends React.Component<PropertyTimelinePrope
 interface PropertyTimelineKeyframeViewProps extends PropertyTimelinePropertyViewProps {
   drawingHost: DrawingHost;
   propertyHost: PropertyHost;
-  keyframe: Keyframe<any>
+  keyframeHost: KeyframeHost;
 }
 
 @observer
 class KeyframeView extends React.Component<PropertyTimelineKeyframeViewProps, {}> {
 
-  keyframeHost: KeyframeHost;
-
   constructor(props: PropertyTimelineKeyframeViewProps) {
     super(props);
-    this.keyframeHost = new KeyframeHost(this.props.keyframe);
-    this.props.propertyHost.addKeyframeHost(this.keyframeHost);
-  }
-
-  componentWillUnmount() {
-    this.props.propertyHost.removeKeyframeHost(this.keyframeHost);
   }
 
   render() {
     const controller = this.props.propertyViewController;
     const timeline = this.props.timeline;
     const trackItem = this.props.trackItem;
-    const keyframe = this.props.keyframe;
+    const keyframeHost = this.props.keyframeHost;
+    const keyframe = keyframeHost.keyframe;
     const time = keyframe.timecode - trackItem.baseTime;
     const style = {
       left: controller.getPositionRelativeToTimeline(time)
@@ -267,23 +254,14 @@ class KeyframeView extends React.Component<PropertyTimelineKeyframeViewProps, {}
 
 class DrawingKeyframeContentView extends React.Component<PropertyTimelineDrawingViewProps, any> {
 
-  drawingHost: DrawingHost;
-
   constructor(props: PropertyTimelineDrawingViewProps) {
     super(props);
-    this.drawingHost = new DrawingHost(this.props.drawing);
-    this.props.propertyViewController.trackItemHost.addDrawingHost(this.drawingHost);
-  }
-
-  componentWillUnmount() {
-    this.props.propertyViewController.trackItemHost.removeDrawingHost(this.drawingHost);
   }
 
   render() {
     return createDrawingPropertyKeyframeView(this.props.trackItem.drawing.type, {
       ...this.props,
-      drawing: this.props.trackItem.drawing,
-      drawingHost: this.drawingHost,
+      drawingHost: this.props.drawingHost,
       propertyViewController: this.props.propertyViewController
     })
   }
@@ -298,18 +276,23 @@ interface DrawingKeyframeContentViewProps extends PropertyTimelineDrawingViewPro
 class RectangleDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps, any> {
 
   render() {
-    const rectangle = this.props.drawing as Rectangle;
+    const drawingHost = this.props.drawingHost;
+    const rectangle = this.props.drawingHost.drawing as Rectangle;
+    const positionPropertyHost = drawingHost.getPropertyHost(rectangle.position);
+    const scalePropertyHost = drawingHost.getPropertyHost(rectangle.scale);
     return (
       <>
-        <PropertyTimelineKeyframeView {...this.props} property={rectangle.position}/>
-        <PropertyTimelineKeyframeView {...this.props} property={rectangle.scale}/>
+        <PropertyTimelineKeyframeView {...this.props} propertyHost={positionPropertyHost}/>
+        <PropertyTimelineKeyframeView {...this.props} propertyHost={scalePropertyHost}/>
       </>
     )
   }
 }
 
 const DrawingPropertyKeyframeViewMap: any = {
-  [DrawingType.RECTANGLE]: RectangleDrawingKeyframeContentView
+  [DrawingType.PAPER]: RectangleDrawingKeyframeContentView,
+  [DrawingType.RECTANGLE]: RectangleDrawingKeyframeContentView,
+  [DrawingType.VIDEO]: RectangleDrawingKeyframeContentView
 }
 
 function createDrawingPropertyKeyframeView(type: DrawingType, props: DrawingKeyframeContentViewProps) {

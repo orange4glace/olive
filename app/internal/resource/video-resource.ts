@@ -13,11 +13,15 @@ export class VideoResource extends Resource {
   readonly path: string;
   @postable readonly native_id: number;
 
+  duration: number;
+
   constructor(path: string) {
     super(ResourceType.VIDEO);
     this.path = path;
 
-    this.native_id = app.decoder.AddResource(path);
+    const native = app.decoder.AddResource(path);
+    this.native_id = native.id;
+    this.duration = native.duration;
   }
 
 }

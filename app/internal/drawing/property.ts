@@ -2,6 +2,12 @@ import { Postable, postable } from 'worker-postable';
 import { InterpolationType } from './interpolation-type';
 import PostableVector2 from 'util/postable_vector2';
 import { TreeMap, Pair } from 'tstl';
+import { EventEmitter2 } from 'eventemitter2';
+
+export enum PropertyEvent {
+  KEYFRAME_ADDED = 'KEYFRAME_ADDED',
+  KEYFRAME_REMOVED = 'KEYFRAME_REMOVED'
+}
 
 export type PropertyTypes = number | PostableVector2;
 
@@ -47,11 +53,15 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
 
   keyframeTreeMap: TreeMap<number, Keyframe<T>>;
 
+  ee: EventEmitter2;
+
   constructor(defaultValue: T) {
     this.animated = false;
     this.keyframes = new Set<Keyframe<T>>();
     this.keyframeTreeMap = new TreeMap<number, Keyframe<T>>();
     this.defaultValue = defaultValue;
+
+    this.ee = new EventEmitter2();
   }
 
   abstract createValue(...args: any): T;
@@ -175,6 +185,20 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     return bef.value.interpolate(aft.value, t);
   }
   */
+
+
+  // Event Emitter
+  addEventListener(type: (PropertyEvent.KEYFRAME_ADDED | PropertyEvent.KEYFRAME_REMOVED),
+      callback: (keyframe: Keyframe<any>) => void): void;
+  addEventListener(type: PropertyEvent, callback: (...args: any) => void) {
+    this.ee.addListener(type, callback);
+  }
+
+  removeEventListener(type: (PropertyEvent.KEYFRAME_ADDED | PropertyEvent.KEYFRAME_REMOVED),
+      callback: (keyframe: Keyframe<any>) => void): void;
+  removeEventListener(type: PropertyEvent, callback: (...args: any) => void) {
+    this.ee.removeListener(type, callback);
+  }
 }
 
 export interface Vector2PropertyBase extends PropertyBase<PostableVector2> {

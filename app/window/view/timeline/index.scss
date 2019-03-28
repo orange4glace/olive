@@ -1,15 +1,19 @@
-@import 'theme-black.scss';
+@import 'window/theme.scss';
 
 .component {
   display: flex;
 
-  > .layers {
+  > .left {
+    overflow: hidden;
     flex-basis: 300px;
     flex-grow: 0;
     flex-shrink: 0;
+    box-sizing: border-box;
+    border-right: 1px solid $bright-background;
   }
 
-  > .timeline {
+  > .right {
+    overflow: hidden;
     flex: 1;
     flex-grow: 1;
   }

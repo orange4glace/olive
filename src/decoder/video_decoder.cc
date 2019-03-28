@@ -91,7 +91,7 @@ void VideoDecoder::Initialize() {
 }
 
 napi_promise VideoDecoder::Decode(timecode_t timecode) {
-  logger::get()->info("[Decoder] Decode request, timecode = ", timecode);
+  logger::get()->info("[Decoder] Decode request, timecode = {}", timecode);
   std::unique_lock<std::mutex> loop_lock(m);
 
   napi_promise promise;
@@ -103,7 +103,10 @@ napi_promise VideoDecoder::Decode(timecode_t timecode) {
   int64_t pts = av_rescale_q(timecode, AVRational{1, 30}, fmt_ctx_->streams[stream_index_]->time_base);
   if (pts < fmt_ctx_->streams[stream_index_]->start_time) pts = fmt_ctx_->streams[stream_index_]->start_time;
   VideoFrame* target_frame = PeekQueueTo(pts);
-  logger::get()->info("[Decoder] Decode request Rescale timecode = {} pts = {} found = {}", timecode, pts, target_frame ? true : false);
+  logger::get()->info("[Decoder] Decode request Rescale timecode = {} pts = {} found = {} start = {} timebase = {} / {}",
+      timecode, pts, target_frame ? true : false, fmt_ctx_->streams[stream_index_]->start_time,
+      fmt_ctx_->streams[stream_index_]->time_base.den,
+      fmt_ctx_->streams[stream_index_]->time_base.num);
   if (target_frame) {
     target_frame->ref();
     // Decode done, resolve promise immediately
@@ -118,6 +121,7 @@ napi_promise VideoDecoder::Decode(timecode_t timecode) {
   }
   else {
     requested_timecode = timecode;
+    requested_pts_ = pts;
     has_decode_request_ = true;
     decode_request_resolved_ = false;
     busy.fetch_add(1);
@@ -140,8 +144,7 @@ void VideoDecoder::loop() {
 
     if (has_decode_request_) {
       has_decode_request_ = false;
-      target_pts =
-          av_rescale_q(requested_timecode, AVRational{1, 30}, fmt_ctx_->streams[stream_index_]->time_base);
+      target_pts = requested_pts_;
 
       // Check if seek needed
       int64_t start_pts = AV_NOPTS_VALUE;
@@ -163,8 +166,7 @@ void VideoDecoder::loop() {
 
     loop_lock.unlock();
     if (need_seek) {
-      target_pts =
-          av_rescale_q(requested_timecode, AVRational{1, 30}, fmt_ctx_->streams[stream_index_]->time_base);
+      target_pts = requested_pts_;
       Seek(target_pts);
     }
 
@@ -215,7 +217,7 @@ void VideoDecoder::decode() {
 
 int VideoDecoder::Seek(int64_t pts) {
   int result = av_seek_frame(fmt_ctx_, stream_index_, pts, AVSEEK_FLAG_BACKWARD);
-  logger::get()->info("[VideoDecoder] Seek {} {}", pts, result);
+  logger::get()->critical("[VideoDecoder] Seek {} {}", pts, result);
   if (result < 0) return result;
 
   avcodec_flush_buffers(dec_ctx_);

@@ -21,6 +21,6 @@ export class TrackItemRenderer implements TrackItemBase {
       screenWidth: 300,
       screenHeight: 150
     };
-    this.drawing.draw(context, timecode - this.baseTime);
+    this.drawing.draw(context, timecode);
   }
 }

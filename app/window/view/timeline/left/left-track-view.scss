@@ -4,10 +4,14 @@
 .component {
 
   > .track {
+    box-sizing: border-box;
     font-size: 12px;
     color: $primary-text;
+    border-bottom: 1px solid $bright-background;
 
     > .name {
+      box-sizing: border-box;
+      padding: 0 6px;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;

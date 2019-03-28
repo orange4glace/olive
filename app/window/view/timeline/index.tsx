@@ -28,8 +28,12 @@ class TimelineWindow extends React.Component {
   render() {
     return (
       <ADiv className={style.component} onMouseDownCapture={this.mouseDownCaptureHandler}>
-        <LeftTimelineView timelineViewController={this.timelineViewController}/>
-        <TimelineRightView timelineViewController={this.timelineViewController}/>
+        <div className='left'>
+          <LeftTimelineView timelineViewController={this.timelineViewController}/>
+        </div>
+        <div className='right'>
+          <TimelineRightView timelineViewController={this.timelineViewController}/>
+        </div>
       </ADiv>
     )
   }

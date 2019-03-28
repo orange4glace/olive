@@ -1,4 +1,4 @@
-import Drawing, { DrawingBase } from './drawing';
+import { DrawingBase, Drawing } from './drawing';
 import { Postable } from 'worker-postable';
 import { DrawingType } from './drawing-type';
 

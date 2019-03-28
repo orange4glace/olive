@@ -9,6 +9,8 @@ namespace olive {
 
 OliveAPI::OliveAPI()
   : NAPI_Instanceable_Initializer(OliveAPI) {
+  ResourceJS::NAPI_Initialize(napi::current_env());
+
   video_decoder_manager_ = new VideoDecoderManager();
   resource_manager_ = new ResourceManager();
 }
@@ -16,7 +18,7 @@ OliveAPI::OliveAPI()
 napi_value OliveAPI::_AddResource(std::string path) {
   Resource* resource = resource_manager_->AddResource(path);
   video_decoder_manager_->CreateDecoderHost(resource);
-  return napi_encoder<int32_t>::encode(resource->id());
+  return resource->js()->napi_instance();
 }
 
 napi_value OliveAPI::_Decode(ResourceID id, timecode_t timecode) {
