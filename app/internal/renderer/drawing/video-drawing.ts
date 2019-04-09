@@ -22,22 +22,23 @@ export class VideoDrawingRenderer extends DrawingRenderer
   draw(context: DrawingContext, timeoffset: number) {
     const vg = context.nvg;
     const videoFrame = context.videoFrame;
-    this.image = vg.createImageRGBA(videoFrame.width, videoFrame.height, 0, videoFrame.ptr);
-    this.paint = vg.imagePattern(0, 0, videoFrame.width, videoFrame.height, 0, this.image, 1);
 
     const position = this.position.getInterpolatedPropertyValue(timeoffset);
     const scale = this.scale.getInterpolatedPropertyValue(timeoffset);
+    const size = this.size.getInterpolatedPropertyValue(timeoffset);
+
+    this.image = vg.createImageRGBA(videoFrame.width, videoFrame.height, 0, videoFrame.ptr);
+    this.paint = vg.imagePattern(0, 0, size.x, size.y, 0, this.image, 1);
+
     vg.save();
     vg.translate(position.x, position.y);
     vg.scale(scale.x, scale.y);
     vg.beginPath();
     vg.moveTo(0, 0);
-    vg.lineTo(videoFrame.width, 0);
-    vg.lineTo(videoFrame.width, videoFrame.height);
-    vg.lineTo(0, videoFrame.height);
+    vg.lineTo(size.x, 0);
+    vg.lineTo(size.x, size.y);
+    vg.lineTo(0, size.y);
     vg.closePath();
-    vg.strokeColor(20, 90, Math.floor(Math.random() * 235), 255);
-    vg.stroke()
     vg.fillPaint(this.paint);
     vg.fill();
     vg.restore();

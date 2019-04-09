@@ -6,7 +6,7 @@ import * as DragAndDrop from 'window/dragndrop'
 
 const __emitter = new EventEmitter2();
 
-interface Props extends React.HTMLAttributes<Element> {
+export interface ADivProps extends React.HTMLAttributes<Element> {
   onDocumentMouseMoveStart?: (e: MouseEvent) => boolean | void;
   onDocumentMouseMoveEnd?: EventListener;
   onDocumentMouseMove?: EventListener;
@@ -23,7 +23,7 @@ interface Props extends React.HTMLAttributes<Element> {
   onGlobalMouseDown?: (event: React.MouseEvent, group?: string) => void;
 }
 
-interface _Props extends Props {
+interface _Props extends ADivProps {
   ref?: any;
   forwardedRef: any;
 }
@@ -128,5 +128,5 @@ class AdvancedDiv extends React.PureComponent<_Props, any> {
 
 export type Ref = HTMLDivElement;
 
-const ADiv = React.forwardRef<Ref, Props>((props, ref) => <AdvancedDiv {...props} forwardedRef={ref}></AdvancedDiv>)
+const ADiv = React.forwardRef<Ref, ADivProps>((props, ref) => <AdvancedDiv {...props} forwardedRef={ref}></AdvancedDiv>)
 export default ADiv;

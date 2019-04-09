@@ -9,6 +9,7 @@ export class DrawingHost<T extends Drawing> {
   propertyHosts: Map<Property<any>, PropertyHost>;
 
   @observable open: boolean = false;
+  @observable focused: boolean = false;
 
   constructor(drawing: T) {
     this.drawing = drawing;

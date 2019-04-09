@@ -28,7 +28,7 @@ class PropertyControl<T extends PropertyTypes> extends React.Component<PropertyC
     const trackItem = this.props.trackItemHost.trackItem;
     const property = this.props.propertyHost.property;
     const time = this.props.timeline.currentTime - trackItem.time.start + trackItem.baseTime;
-    return property.getValueAt(time);
+    return property.getInterpolatedPropertyValue(time);
   }
 
 }

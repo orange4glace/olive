@@ -1,5 +1,6 @@
 import * as React from 'react';
 import app from 'internal/app';
+import { RendererUIView } from './ui/renderer-ui-view';
 
 const style = require('./index.scss');
 
@@ -62,7 +63,7 @@ class RendererView extends React.Component<any, any> {
     return (
       <div className={style.component} ref={this.componentRef}>
         <div className='canvas-container' style={containerStyle} ref={this.containerRef}>
-
+          <RendererUIView/>
         </div>
       </div>
     )

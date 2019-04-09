@@ -3,6 +3,7 @@ import { InterpolationType } from './interpolation-type';
 import PostableVector2 from 'util/postable_vector2';
 import { TreeMap, Pair } from 'tstl';
 import { EventEmitter2 } from 'eventemitter2';
+import { Vector4 } from 'oliveutil/vector4';
 
 export enum PropertyEvent {
   KEYFRAME_ADDED = 'KEYFRAME_ADDED',
@@ -203,9 +204,33 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
   }
 }
 
-export interface Vector2PropertyBase extends PropertyBase<PostableVector2> {
+
+export interface ScalarPropertyBase extends PropertyBase<number> {
 }
 
+@Postable
+export class ScalarProperty extends Property<number> implements ScalarPropertyBase {
+
+  createValue(val: number): number {
+    return val;
+  }
+
+  cloneValue(val: number): number {
+    return val;
+  }
+
+  interpolate(lhs: number, rhs: number, t: number): number {
+    return lhs + (rhs - lhs) * t;
+  }
+
+}
+
+
+
+
+
+export interface Vector2PropertyBase extends PropertyBase<PostableVector2> {
+}
 @Postable
 export class Vector2Property extends Property<PostableVector2> implements Vector2PropertyBase {
 
@@ -221,6 +246,31 @@ export class Vector2Property extends Property<PostableVector2> implements Vector
     return new PostableVector2(
       lhs.x + (rhs.x - lhs.x) * t,
       lhs.y + (rhs.y - lhs.y) * t);
+  }
+
+}
+
+
+
+export interface Vector4PropertyBase extends PropertyBase<Vector4> {
+}
+@Postable
+export class Vector4Property extends Property<Vector4> implements Vector2PropertyBase {
+
+  createValue(x: number, y: number, z: number, w : number): Vector4 {
+    return new Vector4(x, y, z, w);
+  }
+
+  cloneValue(val: Vector4): Vector4 {
+    return new Vector4(val.x, val.y, val.z, val.w);
+  }
+
+  interpolate(lhs: Vector4, rhs: Vector4, t: number): Vector4 {
+    return new Vector4(
+      lhs.x + (rhs.x - lhs.x) * t,
+      lhs.y + (rhs.y - lhs.y) * t,
+      lhs.z + (rhs.z - lhs.z) * t,
+      lhs.w + (rhs.w - lhs.w) * t);
   }
 
 }

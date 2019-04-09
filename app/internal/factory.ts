@@ -11,9 +11,6 @@ export default class Factory {
       break;
     }
   }
-  createResource(path: string): Resource {
-    return new VideoResource(path);
-  }
   createTimePair(start: number, end: number): TimePair {
     return new TimePair(start, end);
   }

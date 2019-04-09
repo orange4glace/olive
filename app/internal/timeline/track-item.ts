@@ -38,6 +38,10 @@ export default class TrackItem implements TrackItemBase {
     return trackItem;
   }
 
+  getTimeoffset(time: number) {
+    return time - this.time.start + this.baseTime;
+  }
+
   __setTime(time: TimePair, baseTime: number) {
     this.baseTime = baseTime;
     this.time = new TimePair(time.start, time.end);

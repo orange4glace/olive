@@ -1,10 +1,11 @@
-import { KeyframeBase, PropertyBase, PropertyTypes, Vector2PropertyBase } from "internal/drawing";
+import { KeyframeBase, PropertyBase, PropertyTypes, Vector2PropertyBase, Vector4PropertyBase } from "internal/drawing";
 import { Posted, listenable, listen } from "worker-postable";
 import { InterpolationType } from "internal/drawing/interpolation-type";
 import { PostableVector2Renderer } from "../renderer-util";
 import { observable, observe, ObservableSet } from "mobx";
 import { TreeMap, Pair } from "tstl";
 import { MapIterator } from "tstl/base";
+import { Vector4Renderer } from "oliveutil/vector4";
 
 @Posted('Keyframe')
 export class KeyframeRenderer<T extends PropertyTypes> implements KeyframeBase<T> {
@@ -88,5 +89,17 @@ export class Vector2PropertyRenderer extends PropertyRenderer<PostableVector2Ren
     return new PostableVector2Renderer(
       lhs.x + (rhs.x - lhs.x) * t,
       lhs.y + (rhs.y - lhs.y) * t);
+  }
+}
+
+@Posted('Vector4Property')
+export class Vector4PropertyRenderer extends PropertyRenderer<Vector4Renderer> implements Vector4PropertyBase {
+  
+  interpolate(lhs: Vector4Renderer, rhs: Vector4Renderer, t: number): Vector4Renderer {
+    return new Vector4Renderer(
+      lhs.x + (rhs.x - lhs.x) * t,
+      lhs.y + (rhs.y - lhs.y) * t,
+      lhs.z + (rhs.z - lhs.z) * t,
+      lhs.w + (rhs.w - lhs.w) * t);
   }
 }

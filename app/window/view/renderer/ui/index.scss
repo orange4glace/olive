@@ -1,0 +1,28 @@
+@import "window/theme.scss";
+
+.drawing-control-point {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+
+  > .circle {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 16px;
+    height: 16px;
+    border-radius: 30px;
+    border: 2px solid $contrast-background;
+
+    > .fill {
+      position: absolute;
+      left: 3px;
+      top: 3px;
+      width: 10px;
+      height: 10px;
+      box-sizing: border-box;
+      border-radius: 30px;
+      background: $contrast-background;
+    }
+  }
+}

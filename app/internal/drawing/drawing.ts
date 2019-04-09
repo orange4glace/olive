@@ -50,6 +50,7 @@ export abstract class Drawing implements DrawingBase {
 
   addDrawing(drawing: Drawing) {
     this.children.push(drawing);
+    drawing.parent = this;
     this.ee.emit(DrawingEvent.CHILD_DRAWING_ADDED, drawing);
   }
 
@@ -60,7 +61,10 @@ export abstract class Drawing implements DrawingBase {
   getTransformMatrix(time: number): mat2d {
     let mat: mat2d;
     if (this.parent != null) mat = this.parent.getTransformMatrix(time);
-    else mat2d.identity(mat);
+    else {
+      mat = mat2d.create();
+      mat2d.identity(mat);
+    }
     let translateVec = vec2.create();
     let rotateVec = vec2.create();
     let scaleVec = vec2.create();
@@ -73,7 +77,7 @@ export abstract class Drawing implements DrawingBase {
     return mat;
   }
 
-  abstract containsPoint(time: number, x: number, y: number): boolean;
+  /*abstract*/ containsPoint(time: number, x: number, y: number): boolean {return false;}
 
   
 

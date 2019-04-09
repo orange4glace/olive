@@ -7,6 +7,8 @@ import VideoDrawing from 'internal/drawing/video-drawing';
 import { Rectangle, Paper } from 'internal/drawing';
 import { Resource, ResourceBase, VideoResource } from 'internal/resource';
 import { TimePair } from './time-pair';
+import PostableVector2 from 'util/postable_vector2';
+import { Vector4 } from 'oliveutil/vector4';
 
 export interface VideoTrackItemBase extends TrackItemBase {
   resource: ResourceBase;
@@ -23,7 +25,12 @@ export default class VideoTrackItem extends TrackItem implements VideoTrackItemB
     console.log('create video trak item', resource)
 
     this.drawing = new Paper();
-    this.drawing.addDrawing(new VideoDrawing());
+    // const videoDrawing = new VideoDrawing();
+    // videoDrawing.size.defaultValue = new PostableVector2(resource.width, resource.height);
+    // this.drawing.addDrawing(videoDrawing);
+    const rectangle = new Rectangle();
+    rectangle.size.defaultValue = new Vector4(-100, 100, 100, -100);
+    this.drawing.addDrawing(rectangle);
   }
 
   clone(): VideoTrackItem {
