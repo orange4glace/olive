@@ -4,14 +4,19 @@ import Timeline from "internal/timeline/timeline";
 import TrackItem from "internal/timeline/track-item";
 import { Vector2PropertyControl } from './pannel/component/property-control';
 import { DrawingType } from 'internal/drawing/drawing-type';
-import { Rectangle } from 'internal/drawing';
+import { Rectangle, Paper, Property, Vector2Property } from 'internal/drawing';
 import { observer } from 'window/app-mobx';
 
 import * as style from './index.scss'
+import { PropertyGroupView } from './pannel/component/property-group';
+import { DrawingHost } from '../control/drawing-host';
+import { PropertyViewController } from '../control/property-view-controller';
+import { TrackItemHost } from '../control/track-item-host';
+import { PropertyHost } from '../control/property-host';
+import VideoDrawing from 'internal/drawing/video-drawing';
 
 interface PropertyFormViewProps {
-  timeline: Timeline,
-  trackItem: TrackItem
+  propertyViewController: PropertyViewController;
 }
 
 @observer
@@ -22,36 +27,42 @@ export class PropertyFormView extends React.Component<PropertyFormViewProps, {}>
   }
 
   render() {
+    const controller = this.props.propertyViewController;
+    const trackItemHost = controller.trackItemHost;
     return (
       <div className={style.component}>
         <div className='header'></div>
         <div className='content'>
-          <PropertyFormViewContent {...this.props}/>
+          <PropertyFormContentView {...this.props} timeline={controller.timeline} trackItemHost={trackItemHost}/>
         </div>
       </div>)
   }
 
 }
 
-@observer
-export class PropertyFormViewContent extends React.Component<PropertyFormViewProps, {}> {
+interface PropertyFormContentViewProps extends PropertyFormViewProps {
+  timeline: Timeline;
+  trackItemHost: TrackItemHost;
+}
 
-  constructor(props: PropertyFormViewProps) {
+@observer
+export class PropertyFormContentView extends React.Component<PropertyFormContentViewProps, {}> {
+
+  constructor(props: PropertyFormContentViewProps) {
     super(props);
   }
 
   render() {
     const timeline = this.props.timeline;
-    const trackItem = this.props.trackItem;
-    let timeoffset = timeline.currentTime - trackItem.time.start;
+    const trackItemHost = this.props.trackItemHost;
+    const drawingHost = this.props.trackItemHost.drawingHost;
     return (
       <div>
-        {createDrawingPropertyView(
-          trackItem.drawing.type,
-          timeline,
-          trackItem,
-          trackItem.drawing
-        )}
+        {createDrawingPropertyView(drawingHost.drawing.type, {
+          level: 0,
+          timeline: timeline,
+          trackItemHost: trackItemHost,
+          drawingHost: drawingHost})}
       </div>
     )
   }
@@ -59,39 +70,89 @@ export class PropertyFormViewContent extends React.Component<PropertyFormViewPro
 }
 
 interface DrawingPropertyFormProps {
-  timeline: Timeline,
-  trackItem: TrackItem,
-  drawing: Drawing;
+  level: number;
+  timeline: Timeline;
+  trackItemHost: TrackItemHost;
+  drawingHost: DrawingHost<any>;
+}
+
+@observer
+class PaperDrawingPropertyFormView extends React.Component<DrawingPropertyFormProps, {}> {
+
+  constructor(props: DrawingPropertyFormProps) {
+    super(props);
+  }
+
+  render() {
+    const drawingHost = this.props.drawingHost;
+    return (
+      <PropertyGroupView label='Paper' drawingHost={drawingHost}>
+        <Vector2PropertyControl {...this.props} label={'position'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.position)}/>
+        <Vector2PropertyControl {...this.props} label={'scale'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.scale)}/>
+        {
+          [...drawingHost.childrenDrawingHosts].map(([child, childHost]) =>
+              createDrawingPropertyView(childHost.drawing.type, {
+                  level: this.props.level + 1,
+                  timeline: this.props.timeline,
+                  trackItemHost: this.props.trackItemHost,
+                  drawingHost: childHost}))
+        }
+      </PropertyGroupView>
+    )
+  }
 }
 
 @observer
 class RectangleDrawingPropertyFormView extends React.Component<DrawingPropertyFormProps, {}> {
 
-  rectangleDrawing: Rectangle;
-
   constructor(props: DrawingPropertyFormProps) {
     super(props);
-    this.rectangleDrawing = props.drawing as Rectangle;
   }
 
   render() {
+    const drawingHost = this.props.drawingHost as DrawingHost<Rectangle>;
     return (
-      <Vector2PropertyControl {...this.props} label={'size'} property={this.rectangleDrawing.position}/>
+      <PropertyGroupView label='Rectangle' drawingHost={drawingHost}>
+        <Vector2PropertyControl {...this.props} label={'position'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.position)}/>
+        <Vector2PropertyControl {...this.props} label={'scale'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.scale)}/>
+      </PropertyGroupView>
+    )
+  }
+}
+
+@observer
+class VideoDrawingPropertyFormView extends React.Component<DrawingPropertyFormProps, {}> {
+
+  constructor(props: DrawingPropertyFormProps) {
+    super(props);
+  }
+
+  render() {
+    const drawingHost = this.props.drawingHost as DrawingHost<VideoDrawing>;
+    return (
+      <PropertyGroupView label='Video' drawingHost={drawingHost}>
+        <Vector2PropertyControl {...this.props} label={'position'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.position)}/>
+        <Vector2PropertyControl {...this.props} label={'scale'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.scale)}/>
+        <Vector2PropertyControl {...this.props} label={'size'} propertyHost={
+            drawingHost.getPropertyHost(drawingHost.drawing.size)}/>
+      </PropertyGroupView>
     )
   }
 }
 
 const DrawingPropertyViewMap: any = {
-  [DrawingType.RECTANGLE]: RectangleDrawingPropertyFormView
+  [DrawingType.PAPER]: PaperDrawingPropertyFormView,
+  [DrawingType.RECTANGLE]: RectangleDrawingPropertyFormView,
+  [DrawingType.VIDEO]: VideoDrawingPropertyFormView
 }
 
-function createDrawingPropertyView(type: DrawingType, timeline: Timeline, trackItem: TrackItem, drawing: Drawing) {
+function createDrawingPropertyView(type: DrawingType, props: DrawingPropertyFormProps) {
   return React.createElement(
-    DrawingPropertyViewMap[type],
-    {
-      timeline: timeline,
-      trackItem: trackItem,
-      drawing: drawing
-    }
-  );
+    DrawingPropertyViewMap[type], props);
 }

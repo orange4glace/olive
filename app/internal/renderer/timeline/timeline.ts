@@ -17,7 +17,11 @@ export class TimelineRenderer implements TimelineBase {
       let track = this.tracks[i];
       await track.draw(nvg, this.currentTime);
     }
-    // nvg.endFrame();
+    nvg.endFrame();
+    for (let i = 0; i < this.tracks.length; i++) {
+      let track = this.tracks[i];
+      await track.afterDraw(nvg, this.currentTime);
+    }
   }
 
   decode(): void {

@@ -5,20 +5,21 @@ import { renderer } from "../renderer";
 import { ResourceRenderer } from "../resource/resource";
 import NVG from "../../../../nanovg-webgl";
 import { DrawingContext } from "../drawing/drawing-context";
-import { DecodeResponse } from "internal/decoder/server";
-import { VideoFrameData } from "internal/decoder/decoder";
+import { VideoFrameData, DecodeResult } from "internal/decoder/decoder";
 
 @Posted('VideoTrackItem')
 export class VideoTrackItemRenderer extends TrackItemRenderer
     implements VideoTrackItemBase {
+
+  acquiredDecoderID: number = -1;
   
   resource: ResourceRenderer;
 
-  decodePromise: Promise<DecodeResponse>;
+  decodePromise: Promise<DecodeResult>;
 
   async draw(nvg: NVG, timecode: number) {
     let data = await this.decodePromise;
-    let videoFrameData: VideoFrameData = renderer.converter.AsVideoFrameData(data.ptr);
+    let videoFrameData: VideoFrameData = renderer.converter.AsVideoFrameData(data.data);
     let context: DrawingContext = {
       nvg: nvg,
       timecode: timecode,
@@ -27,14 +28,15 @@ export class VideoTrackItemRenderer extends TrackItemRenderer
       videoFrame: videoFrameData
     };
     this.drawing.draw(context, timecode - this.baseTime);
-    renderer.decoderClient.Free({id: data.id});
+    renderer.decoder.FreeFrame(data.native);
   }
 
   decode(timecode: number) {
-    this.decodePromise = renderer.decoderClient.Decode({
-        resourceID: this.resource.id,
-        timecode: timecode
-    });
+    const decoder = renderer.decoder;
+    if (this.acquiredDecoderID == -1)
+      this.acquiredDecoderID = decoder.Acquire(this.resource.id, timecode);
+    console.log(this.acquiredDecoderID)
+    this.decodePromise = decoder.Decode(this.resource.id, timecode, this.acquiredDecoderID);
   }
 
 }

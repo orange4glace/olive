@@ -2,8 +2,8 @@ import WindowParam from 'window/window-param';
 import app from 'internal/app';
 
 function initialize(param: WindowParam) {
+  app.project = param.app.project;
   app.factory = param.app.factory;
-  app.decoder = param.app.decoder;
   app.mobx = param.app.mobx;
   app.timeline = param.app.timeline;
   app.resource = param.app.resource;
@@ -14,6 +14,10 @@ function initialize(param: WindowParam) {
   let bundleScript = document.createElement('script');
   bundleScript.src = './window.js';
   document.head.appendChild(bundleScript);
+
+  // let devtoolsScript = document.createElement('script');
+  // devtoolsScript.src = 'http://localhost:8097';
+  // document.head.appendChild(devtoolsScript);
 }
 
 // must cast as any to set property on window

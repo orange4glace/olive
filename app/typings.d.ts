@@ -8,3 +8,10 @@ declare module "worker-loader!*" {
 
   export default WebpackWorker;
 }
+
+declare module 'ffprobe' {
+  function getInfo(filePath: string, opts: {
+    path: string
+  }, cb: (err: any, info: any)=>void): void;
+  export = getInfo;
+}

@@ -2,19 +2,38 @@
 
 .component {
   display: flex;
+  flex-direction: column;
 
-  > .left {
-    overflow: hidden;
-    flex-basis: 300px;
-    flex-grow: 0;
-    flex-shrink: 0;
-    box-sizing: border-box;
-    border-right: 1px solid $bright-background;
+  > .header {
+    flex: 0 0 20px;
+    line-height: 20px;
+
+    > .current-frame-time {
+      box-sizing: border-box;
+      padding-left: 5px;
+      font-size: 15px;
+      font-weight: bold;
+      color: $highlight-text;
+    }
   }
 
-  > .right {
-    overflow: hidden;
-    flex: 1;
-    flex-grow: 1;
+  > .content {
+    display: flex;
+    flex: 1 1;
+
+    > .left {
+      overflow: hidden;
+      flex-basis: 300px;
+      flex-grow: 0;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      border-right: 1px solid $bright-background;
+    }
+
+    > .right {
+      overflow: hidden;
+      flex: 1;
+      flex-grow: 1;
+    }
   }
 }

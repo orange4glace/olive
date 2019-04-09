@@ -3,12 +3,12 @@ import app from 'internal/app';
 
 import ResourceViewController from './controller/controller'
 import ResourceItemView from 'window/view/resource/resource-item-view';
-import { IResourceManager } from 'standard';
+import { ResourceManager } from 'internal/resource';
 
 const style = require('./index.scss');
 
 interface Props {
-  resourceManager: IResourceManager
+  resourceManager: ResourceManager
 }
 
 @app.mobx.observer

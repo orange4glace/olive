@@ -4,6 +4,7 @@ import { type } from 'os';
 import { DrawingType } from './drawing-type';
 import { Vector2Property, Vector2PropertyBase, Property } from './property';
 import { EventEmitter2 } from 'eventemitter2';
+import { mat3, vec2, mat2d } from 'gl-matrix';
 
 export enum DrawingEvent {
   CHILD_DRAWING_ADDED = 'CHILD_DRAWING_ADDED',
@@ -27,6 +28,8 @@ export abstract class Drawing implements DrawingBase {
   @postable position: Vector2Property;
   @postable scale: Vector2Property;
   @postable children: Array<Drawing>;
+
+  parent: Drawing;
 
   properties: Property<any>[] = [];
 
@@ -53,6 +56,24 @@ export abstract class Drawing implements DrawingBase {
   addProperty(property: Property<any>) {
     this.properties.push(property);
   }
+  
+  getTransformMatrix(time: number): mat2d {
+    let mat: mat2d;
+    if (this.parent != null) mat = this.parent.getTransformMatrix(time);
+    else mat2d.identity(mat);
+    let translateVec = vec2.create();
+    let rotateVec = vec2.create();
+    let scaleVec = vec2.create();
+    let position = this.position.getInterpolatedPropertyValue(time);
+    let scale = this.scale.getInterpolatedPropertyValue(time);
+    vec2.set(translateVec, position.x, position.y);
+    vec2.set(scaleVec, scale.x, scale.y);
+    mat2d.translate(mat, mat, translateVec);
+    mat2d.scale(mat, mat, scaleVec);
+    return mat;
+  }
+
+  abstract containsPoint(time: number, x: number, y: number): boolean;
 
   
 

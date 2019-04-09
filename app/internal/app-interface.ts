@@ -1,10 +1,10 @@
 import { IObservableFactory, IObservableFactories, IEnhancer, IActionFactory, IReactionPublic, IAutorunOptions, IReactionDisposer, IComputed } from 'mobx';
 import { IReactComponent } from 'mobx-react';
-import IDecoder from 'internal/decoder/decoder';
 import Timeline from 'internal/timeline/timeline'
 import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
 import { Poster } from 'poster';
+import { Project } from './project';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {
@@ -17,8 +17,9 @@ interface mobxExport {
 }
 
 export default interface App {
-  factory: Factory,
-  decoder: IDecoder;
+  project: Project;
+  factory: Factory;
+  // decoder: IDecoder;
   mobx: mobxExport;
   timeline: Timeline;
   resource: ResourceManager;

@@ -100,43 +100,41 @@ __webpack_require__.r(__webpack_exports__);
 // ./main.js
 
 console.log("Start electron main");
-var WindowRequestHost = /** @class */ (function () {
-    function WindowRequestHost(mainWin) {
-        var _this = this;
+class WindowRequestHost {
+    constructor(mainWin) {
         this.mainWindow = mainWin;
         this.requests = new Map();
         this.webContents = mainWin.webContents;
-        this.mainWindow.webContents.on('new-window', function (event, url, frameName, disposition, options, additionalFeatures) {
+        this.mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
             console.log(frameName);
-            var request = _this.requests.get(frameName);
+            const request = this.requests.get(frameName);
             if (!request)
                 return;
             console.log("[WindowRequestHost] new-window from BrowserMain.BrowserRequest");
             event.preventDefault();
             Object.assign(options, request);
             event.newGuest = new electron__WEBPACK_IMPORTED_MODULE_0__["BrowserWindow"](options);
-            _this.sendWrapResultToRenderer({
+            this.sendWrapResultToRenderer({
                 ok: true,
                 name: frameName,
                 id: event.newGuest.id
             });
         });
-        electron__WEBPACK_IMPORTED_MODULE_0__["ipcMain"].on('request-window', function (e, arg) {
+        electron__WEBPACK_IMPORTED_MODULE_0__["ipcMain"].on('request-window', (e, arg) => {
             console.log("[WindowRequestHost] Request window", arg.name);
-            _this.requests.set(arg.name, arg);
-            _this.webContents.send('request-window-open', arg);
+            this.requests.set(arg.name, arg);
+            this.webContents.send('request-window-open', arg);
         });
     }
-    WindowRequestHost.prototype.sendWrapResultToRenderer = function (open) {
+    sendWrapResultToRenderer(open) {
         this.webContents.send('request-window', open);
-    };
-    return WindowRequestHost;
-}());
-var win = null;
-var __worker = null;
-var windowRequestHost = null;
+    }
+}
+let win = null;
+let __worker = null;
+let windowRequestHost = null;
 function createApp() {
-    var promise = new Promise(function (resolve, reject) {
+    let promise = new Promise((resolve, reject) => {
         win = new electron__WEBPACK_IMPORTED_MODULE_0__["BrowserWindow"]({
             width: 1000,
             height: 600,
@@ -148,8 +146,8 @@ function createApp() {
         windowRequestHost = new WindowRequestHost(win);
         // I don't know but because of some bug of electron, 
         // napi_threadsafe_function works properly when page is reloaded at least once.
-        win.webContents.once('did-finish-load', function () {
-            win.webContents.once('did-finish-load', function () {
+        win.webContents.once('did-finish-load', () => {
+            win.webContents.once('did-finish-load', () => {
                 resolve(win);
             });
             win.webContents.reload();
@@ -163,20 +161,20 @@ function createApp() {
     return promise;
 }
 function createWorker(appWindow) {
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
         resolve(null);
     });
-    var promise = new Promise(function (resolve, reject) {
+    let promise = new Promise((resolve, reject) => {
         // Initialize the window to our specified dimensions
         __worker = new electron__WEBPACK_IMPORTED_MODULE_0__["BrowserWindow"]();
         __worker.webContents.openDevTools();
         console.log("Create worker window");
-        __worker.webContents.once('did-finish-load', function (e) {
+        __worker.webContents.once('did-finish-load', (e) => {
             __worker.webContents.send('start-worker', {
                 appWindowID: appWindow.id
             });
         });
-        electron__WEBPACK_IMPORTED_MODULE_0__["ipcMain"].once('worker-started', function (e, arg) {
+        electron__WEBPACK_IMPORTED_MODULE_0__["ipcMain"].once('worker-started', (e, arg) => {
             resolve(__worker);
         });
         __worker.loadFile('./worker/index.html');
@@ -187,37 +185,38 @@ function createWorker(appWindow) {
     });
     return promise;
 }
-var _a = __webpack_require__(/*! electron-devtools-installer */ "./node_modules/electron-devtools-installer/dist/index.js"), installExtension = _a.default, REACT_DEVELOPER_TOOLS = _a.REACT_DEVELOPER_TOOLS;
+const { default: installExtension, REACT_DEVELOPER_TOOLS } = __webpack_require__(/*! electron-devtools-installer */ "./node_modules/electron-devtools-installer/dist/index.js");
 electron__WEBPACK_IMPORTED_MODULE_0__["app"].on('ready', function () {
     /*
       BrowserWindow.addDevToolsExtension(
          path.join(os.homedir(), '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0')
       )
-    /*
-      installExtension(REACT_DEVELOPER_TOOLS)
-          .then((name: any) => console.log(`Added Extension:  ${name}`))
-          .catch((err: any) => console.log('An error occurred: ', err));
     */
-    createApp().then(function (appWindow) {
-        console.log("[Node] App Window created");
-        createWorker(appWindow).then(function (worker) {
-            console.log("[Node] Worker Window created");
-            /*
-            console.log("[Node] Worker created");
-            ipcMain.once('app-window-initiated', (e, appWindowId) => {
-              console.log("[Node] Register main-worker window");
-              let appWindow = BrowserWindow.fromId(appWindowId);
-              worker.webContents.send('register-main-window', appWindow.id);
-              appWindow.webContents.send('register-worker-window', worker.id);
-        
-              appWindow.webContents.send('start');
-            })
-            */
-            startApp(appWindow, {
-                resourceWorkerWindowID: -1
+    console.log('Install Chrome extensions');
+    installExtension(REACT_DEVELOPER_TOOLS)
+        .then((name) => {
+        createApp().then(appWindow => {
+            console.log("[Node] App Window created");
+            createWorker(appWindow).then(worker => {
+                console.log("[Node] Worker Window created");
+                /*
+                console.log("[Node] Worker created");
+                ipcMain.once('app-window-initiated', (e, appWindowId) => {
+                  console.log("[Node] Register main-worker window");
+                  let appWindow = BrowserWindow.fromId(appWindowId);
+                  worker.webContents.send('register-main-window', appWindow.id);
+                  appWindow.webContents.send('register-worker-window', worker.id);
+            
+                  appWindow.webContents.send('start');
+                })
+                */
+                startApp(appWindow, {
+                    resourceWorkerWindowID: -1
+                });
             });
         });
-    });
+    })
+        .catch((err) => console.log('An error occurred: ', err));
 });
 function startApp(window, param) {
     console.log('[Main] Start internal');

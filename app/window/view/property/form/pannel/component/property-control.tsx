@@ -10,20 +10,25 @@ import * as style from './style.scss'
 import TrackItem from 'internal/timeline/track-item';
 import Timeline from 'internal/timeline/timeline';
 import { NumberInput } from './number-input';
+import { DrawingHost } from 'window/view/property/control/drawing-host';
+import { PropertyHost } from 'window/view/property/control/property-host';
+import { TrackItemHost } from 'window/view/property/control/track-item-host';
 
 interface PropertyControlProps<T extends PropertyTypes> {
   label: string,
   timeline: Timeline;
-  trackItem: TrackItem;
-  drawing: Drawing;
-  property: Property<T>;
+  trackItemHost: TrackItemHost;
+  drawingHost: DrawingHost<any>;
+  propertyHost: PropertyHost;
 }
 
 class PropertyControl<T extends PropertyTypes> extends React.Component<PropertyControlProps<T>, {}> {
 
   @computed get currentPropertyValue(): T {
-    const time = this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime;
-    return this.props.property.getValueAt(time);
+    const trackItem = this.props.trackItemHost.trackItem;
+    const property = this.props.propertyHost.property;
+    const time = this.props.timeline.currentTime - trackItem.time.start + trackItem.baseTime;
+    return property.getValueAt(time);
   }
 
 }
@@ -39,26 +44,34 @@ export class Vector2PropertyControl extends PropertyControl<PostableVector2> {
   }
 
   xValueChangeHandler(val: number) {
-    const property = this.props.property as Vector2Property;
-    const time = this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime;
+    const trackItem = this.props.trackItemHost.trackItem;
+    const property = this.props.propertyHost.property as Vector2Property;
+    const time = this.props.timeline.currentTime - trackItem.time.start + trackItem.baseTime;
     let value = property.createValue(val, this.currentPropertyValue.y);
     property.addKeyframeAt(time, value);
   }
 
   yValueChangeHandler(val: number) {
-    const property = this.props.property as Vector2Property;
-    const time = (this.props.timeline.currentTime - this.props.trackItem.time.start + this.props.trackItem.baseTime);
+    const trackItem = this.props.trackItemHost.trackItem;
+    const property = this.props.propertyHost.property as Vector2Property;
+    const time = (this.props.timeline.currentTime - trackItem.time.start + trackItem.baseTime);
     let value = property.createValue(this.currentPropertyValue.x, val);
     property.addKeyframeAt(time, value);
   }
 
   render() {
+    const trackItem = this.props.trackItemHost.trackItem;
+    const property = this.props.propertyHost.property;
     return (
       <div className={style.component}>
-        <PropertyAnimatedDecorator timeline={this.props.timeline} trackItem={this.props.trackItem} property={this.props.property}/>
-        <PropertyLabel property={this.props.property}>{this.props.label}</PropertyLabel>
-        <NumberInput value={this.currentPropertyValue.x} onChange={this.xValueChangeHandler}/>
-        <NumberInput value={this.currentPropertyValue.y} onChange={this.yValueChangeHandler}/>
+        <div className='label-space'>
+          <PropertyAnimatedDecorator timeline={this.props.timeline} trackItem={trackItem} property={property}/>
+          <PropertyLabel property={property}>{this.props.label}</PropertyLabel>
+        </div>
+        <div className='value-space'>
+          <NumberInput value={this.currentPropertyValue.x} onChange={this.xValueChangeHandler}/>
+          <NumberInput value={this.currentPropertyValue.y} onChange={this.yValueChangeHandler}/>
+        </div>
       </div>
     )
   }

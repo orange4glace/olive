@@ -3,11 +3,10 @@
 .component {
   display: flex;
   width: 50px;
-  border-bottom: 1px solid $bright-background;
 
   > .value {
     width: 100%;
-    color: $primary-text;
+    color: $highlight-text;
     font-size: 12px;
     box-sizing: border-box;
     line-height: 20px;

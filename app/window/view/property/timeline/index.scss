@@ -40,19 +40,26 @@
 
     > .keyframe-content {
 
-      > .keyframes {
-        position: relative;
-        height: $property-header-height;
-  
-        > .keyframe {
-          position: absolute;
-          width: 10px;
-          height: 10px;
-          top: 15px;
-          margin-left: -1px;
+      .drawing-property-group {
+        padding-top: $property-header-height;
+        box-sizing: border-box;
 
-          transform: rotate(45deg) translateX(-50%);
-          background: grey;
+        > .keyframes {
+          position: relative;
+          box-sizing: border-box;
+          height: $property-header-height;
+          border-bottom: 1px solid $bright-background;
+    
+          > .keyframe {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            top: 15px;
+            margin-left: -1px;
+  
+            transform: rotate(45deg) translateX(-50%);
+            background: grey;
+          }
         }
       }
     }

@@ -1,11 +1,12 @@
 import { Property, Keyframe, PropertyEvent } from "internal/drawing";
 import { KeyframeHost } from "./keyframe-host";
 import { invariant } from "util/debuging";
+import { observable } from "window/app-mobx";
 
 export class PropertyHost {
 
   property: Property<any>
-  keyframeHosts: Map<Keyframe<any>, KeyframeHost>;
+  @observable keyframeHosts: Map<Keyframe<any>, KeyframeHost>;
 
   constructor(property: Property<any>) {
     this.property = property;
@@ -26,6 +27,7 @@ export class PropertyHost {
   }
 
   private addKeyframeHost(keyframe: Keyframe<any>) {
+    console.log('add ke ho',keyframe)
     const keyframeHost = new KeyframeHost(keyframe);
     this.keyframeHosts.set(keyframe, keyframeHost);
   }

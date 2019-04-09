@@ -168,14 +168,14 @@ class Ruler extends React.Component<TimelineViewContentProps, {}> {
   timelineUpdateHandler() {
     const controller = this.props.controller;
 
-    let startCount = Math.floor(controller.startTime / controller.unitMillisecond);
-    let endCount = Math.ceil(controller.endTime / controller.unitMillisecond);
+    let startCount = Math.floor(controller.startTime / controller.unitFrameTime);
+    let endCount = Math.ceil(controller.endTime / controller.unitFrameTime);
 
     const ctx = this.canvasRef.current.getContext('2d');
     this.canvasRef.current.width = controller.scrollViewController.scrollWidth;
     this.canvasRef.current.height = 30;
-    let value = startCount * controller.unitMillisecond;
-    let translateX = (controller.startTime - value) * controller.pxPerMillisecond;
+    let value = startCount * controller.unitFrameTime;
+    let translateX = (controller.startTime - value) * controller.pxPerFrame;
     ctx.save();
     ctx.font ='12px "Noto Sans KR"';
     ctx.fillStyle = '#ccc';
@@ -199,7 +199,7 @@ class Ruler extends React.Component<TimelineViewContentProps, {}> {
         ctx.stroke();
       }
       ctx.translate(controller.unitWidth / 10, 0);
-      value += controller.unitMillisecond;
+      value += controller.unitFrameTime;
     }
     ctx.restore();
   }

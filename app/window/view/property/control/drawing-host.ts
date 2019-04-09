@@ -1,13 +1,16 @@
 import { PropertyHost } from "./property-host";
 import { Property, Drawing, DrawingEvent } from "internal/drawing";
+import { observable } from "window/app-mobx";
 
-export class DrawingHost {
+export class DrawingHost<T extends Drawing> {
   
-  drawing: Drawing;
-  childrenDrawingHosts: Map<Drawing, DrawingHost>;
+  drawing: T;
+  childrenDrawingHosts: Map<Drawing, DrawingHost<any>>;
   propertyHosts: Map<Property<any>, PropertyHost>;
 
-  constructor(drawing: Drawing) {
+  @observable open: boolean = false;
+
+  constructor(drawing: T) {
     this.drawing = drawing;
     this.childrenDrawingHosts =  new Map();
     this.propertyHosts = new Map();
@@ -54,7 +57,7 @@ export class DrawingHost {
     this.childrenDrawingHosts.delete(drawing);
   }
 
-  getChildDrawingHost(drawing: Drawing): DrawingHost {
+  getChildDrawingHost(drawing: Drawing): DrawingHost<any> {
     return this.childrenDrawingHosts.get(drawing);
   }
 

@@ -27,8 +27,8 @@ export default class TimelineViewController {
 
   @observable startTime: number;
   @observable endTime: number;
-  @observable pxPerMillisecond: number;
-  unitMillisecond: number;
+  @observable pxPerFrame: number;
+  unitFrameTime: number;
   unitWidth: number;
 
   tracksViewRef: React.RefObject<any>;
@@ -59,29 +59,29 @@ export default class TimelineViewController {
     let endTime = Math.ceil(timeline.totalTime * controller.end);
     this.startTime = startTime;
     this.endTime = endTime;
-    let unitMillisecond = 30;
-    let unitWidth = controller.scrollWidth / ((endTime - startTime) / unitMillisecond);
+    let unitFrameTime = 30;
+    let unitWidth = controller.scrollWidth / ((endTime - startTime) / unitFrameTime);
     if (unitWidth <= 0) return;
-    let multiplier = [2, 2];
+    let multiplier = [5,2,3,2];
     let multiplierI = 0;
     if (unitWidth > 150) {
       while (true) {
         let cand = unitWidth / multiplier[multiplierI];
         if (cand < 150) break;
         unitWidth = cand;
-        unitMillisecond /= multiplier[multiplierI];
-        multiplierI = (++multiplierI % 2);
+        unitFrameTime /= multiplier[multiplierI];
+        multiplierI = (++multiplierI % multiplier.length);
       }
     }
     else {
       while (unitWidth < 150) {
         unitWidth = unitWidth * multiplier[multiplierI];
-        unitMillisecond *= multiplier[multiplierI];
-        multiplierI = (++multiplierI % 2);
+        unitFrameTime *= multiplier[multiplierI];
+        multiplierI = (++multiplierI % multiplier.length);
       }
     }
-    this.pxPerMillisecond = unitWidth / unitMillisecond;
-    this.unitMillisecond = unitMillisecond;
+    this.pxPerFrame = unitWidth / unitFrameTime;
+    this.unitFrameTime = unitFrameTime;
     this.unitWidth = unitWidth;
 
     this.ee.emit('update');
@@ -168,21 +168,21 @@ export default class TimelineViewController {
   }
 
   getTimeRelativeToTimeline(px: number) {
-    return Math.round(this.startTime + px / this.pxPerMillisecond);
+    return Math.round(this.startTime + px / this.pxPerFrame);
   }
 
   getTimeAmountRelativeToTimeline(px: number) {
-    return px / this.pxPerMillisecond;
+    return px / this.pxPerFrame;
   }
 
   getPositionRelativeToTimeline(time: number) {
     // Touch |endTime| variable so observer can detect the change
     this.endTime;
-    return Math.floor((time - this.startTime) * this.pxPerMillisecond);
+    return Math.floor((time - this.startTime) * this.pxPerFrame);
   }
 
   getPixelAmountRelativeToTimeline(time: number) {
-    return time * this.pxPerMillisecond;
+    return time * this.pxPerFrame;
   }
 
   getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent) {

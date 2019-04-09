@@ -3,10 +3,55 @@ import * as React from 'react'
 import { IReactionDisposer } from "mobx";
 import { observer, autorun } from "window/app-mobx";
 import { PropertyTimelineContentViewProps } from '.';
-
+import ADiv from 'window/view/advanced-div';
+import { MouseUtil } from 'orangeutil';
 
 @observer
 export class PropertyTimelineHeaderView extends React.Component<PropertyTimelineContentViewProps, {}> {
+  
+  rulerViewRef: React.RefObject<HTMLDivElement>;
+
+  constructor(props: any) {
+    super(props);
+
+    this.rulerViewRef = React.createRef();
+
+    this.mouseDownHandler = this.mouseDownHandler.bind(this);
+    this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+  }
+
+  mouseDownHandler(e: React.MouseEvent) {
+    const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
+    const time = this.props.propertyViewController.getTimeRelativeToTimeline(pos.x);
+    
+    document.addEventListener('mousemove', this.mouseMoveHandler);
+    const remover = (e: MouseEvent) => {
+      document.removeEventListener('mousemove', this.mouseMoveHandler);
+      document.removeEventListener('mouseup', remover);
+    }
+    document.addEventListener('mouseup', remover);
+  }
+
+  mouseMoveHandler(e: MouseEvent) {
+    const timeline = this.props.propertyViewController.timeline;
+    const trackItem = this.props.propertyViewController.trackItemHost.trackItem;
+    const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
+    const time = this.props.propertyViewController.getTimeRelativeToTimeline(pos.x);
+    timeline.setCurrentTime(trackItem.time.start + time);
+  }
+
+  render() {
+    return (
+      <ADiv className='header' onMouseDown={this.mouseDownHandler} ref={this.rulerViewRef}>
+        <Ruler {...this.props}/>
+        <Indicator {...this.props}/>
+      </ADiv>
+    )
+  }
+}
+
+@observer
+class Ruler extends React.Component<PropertyTimelineContentViewProps, {}> {
 
   canvasRef: React.RefObject<HTMLCanvasElement>;
 
@@ -85,21 +130,18 @@ export class PropertyTimelineHeaderView extends React.Component<PropertyTimeline
 
   render() {
     return (
-      <div className='header'>
-        <canvas ref={this.canvasRef}></canvas>
-        <PropertyTimelineHeaderViewIndicator {...this.props}/>
-      </div>
+      <canvas ref={this.canvasRef}></canvas>
     )
   }
 }
 
 @observer
-class PropertyTimelineHeaderViewIndicator extends React.Component<PropertyTimelineContentViewProps, {}> {
+class Indicator extends React.Component<PropertyTimelineContentViewProps, {}> {
 
   render() {
     const controller = this.props.propertyViewController;
-    const timeline = this.props.timeline;
-    const trackItem = this.props.trackItem;
+    const timeline = controller.timeline;
+    const trackItem = controller.trackItemHost.trackItem;
     const currentTime = timeline.currentTime - trackItem.time.start;
     const style = {
       left: controller.getPositionRelativeToTimeline(currentTime)

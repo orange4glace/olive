@@ -23,7 +23,6 @@ export class NumberInput extends React.Component<NumberInputProps, {}> {
   }
 
   clickHandler(e: React.MouseEvent) {
-    console.log('click',this.editing)
     if (!this.editing) this.editing = true;
   }
 
@@ -40,7 +39,6 @@ export class NumberInput extends React.Component<NumberInputProps, {}> {
   }
 
   mouseMoveHandler(e: MouseEvent) {
-    console.log(35)
     this.props.onChange(this.props.value + e.movementX);
   }
 

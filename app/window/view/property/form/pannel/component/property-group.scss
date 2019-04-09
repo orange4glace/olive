@@ -1,0 +1,21 @@
+@import "window/theme.scss";
+@import "../../../common.scss";
+
+.component {
+
+  > .group {
+    height: $property-line-height;
+    line-height: $property-line-height;
+
+    > .label {
+      color: $primary-text;
+      font-size: 12px;
+      box-sizing: border-box;
+      padding-left: 5px;
+    }
+  }
+
+  > .content {
+    padding-left: 20px;
+  }
+}

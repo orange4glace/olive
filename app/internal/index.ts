@@ -2,8 +2,6 @@ import * as electron from 'electron';
 import * as mobx from 'mobx';
 import * as mobx_react from 'mobx-react';
 
-import { initialize as DecoderInitializer } from 'internal/decoder/index'
-
 import { context as PostableContext, ref, getPostableID } from 'worker-postable'
 import RendererWorker from 'worker-loader!./renderer/index';
 import App from 'internal/app-interface';
@@ -13,7 +11,6 @@ import DecoderServer from 'internal/decoder/server'
 import Factory from './factory';
 import { Poster } from 'poster';
 
-
 import WindowParam from 'window/window-param'
 
 import {
@@ -22,6 +19,7 @@ import {
   WindowRequestResult,
   WindowRequestWrapResult,
   AppParam } from 'connector'
+import { Project } from './project';
 
   if ((module as any).hot) (module as any).hot.accept();
 
@@ -46,8 +44,8 @@ function initializeApp(): void {
     computed: mobx.computed,
     observer: mobx_react.observer,
   }
+  app.project = new Project();
   app.factory = new Factory();
-  app.decoder = DecoderInitializer();
   app.timeline = new Timeline();
   app.resource = new ResourceManager();
   app.workerPoster = rendererWorkerPoster;
@@ -57,7 +55,7 @@ function initializeApp(): void {
 
   console.log(Timeline, app.timeline)
 
-  const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
+  // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   ref(app.timeline);
   const postableID = getPostableID(app.timeline);

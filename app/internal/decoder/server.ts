@@ -38,7 +38,7 @@ export default class DecoderServer {
 
   decodeHandler(req: ReceivedRequest<DecodeRequest>) {
     const data = req.data;
-    this.decoder.Decode(data.resourceID, data.timecode).then((result: any) => {
+    this.decoder.Decode(data.resourceID, data.timecode, -1).then((result: any) => {
       let res: DecodeResponse = {
         id: this.__next_frame_id++,
         ptr: result.data

@@ -6,6 +6,7 @@ import ADiv from '../advanced-div';
 import TimelineViewState from './controller/state';
 import { TimelineViewController } from './controller';
 import { LeftTimelineView } from './left/left-timeline-view';
+import { TimelineHeaderView } from './header-view';
 
 const style = require('./index.scss');
 
@@ -28,11 +29,16 @@ class TimelineWindow extends React.Component {
   render() {
     return (
       <ADiv className={style.component} onMouseDownCapture={this.mouseDownCaptureHandler}>
-        <div className='left'>
-          <LeftTimelineView timelineViewController={this.timelineViewController}/>
+        <div className='header'>
+          <TimelineHeaderView timelineViewController={this.timelineViewController}/>
         </div>
-        <div className='right'>
-          <TimelineRightView timelineViewController={this.timelineViewController}/>
+        <div className='content'>
+          <div className='left'>
+            <LeftTimelineView timelineViewController={this.timelineViewController}/>
+          </div>
+          <div className='right'>
+            <TimelineRightView timelineViewController={this.timelineViewController}/>
+          </div>
         </div>
       </ADiv>
     )

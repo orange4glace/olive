@@ -23,4 +23,8 @@ export class TrackItemRenderer implements TrackItemBase {
     };
     this.drawing.draw(context, timecode);
   }
+
+  afterDraw(nvg: NVG, timecode: number): void {
+    this.drawing.afterDraw(nvg);
+  }
 }

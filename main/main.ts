@@ -120,32 +120,33 @@ app.on('ready', function () {
   BrowserWindow.addDevToolsExtension(
      path.join(os.homedir(), '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0')
   )
-/*
-  installExtension(REACT_DEVELOPER_TOOLS)
-      .then((name: any) => console.log(`Added Extension:  ${name}`))
-      .catch((err: any) => console.log('An error occurred: ', err));
 */
-
-  createApp().then(appWindow => {
-    console.log("[Node] App Window created");
-    createWorker(appWindow).then(worker => {
-      console.log("[Node] Worker Window created");
-      /*
-      console.log("[Node] Worker created");
-      ipcMain.once('app-window-initiated', (e, appWindowId) => {
-        console.log("[Node] Register main-worker window");
-        let appWindow = BrowserWindow.fromId(appWindowId);
-        worker.webContents.send('register-main-window', appWindow.id);
-        appWindow.webContents.send('register-worker-window', worker.id);
-  
-        appWindow.webContents.send('start');
+    console.log('Install Chrome extensions')
+  installExtension(REACT_DEVELOPER_TOOLS)
+    .then((name: any) => {
+      createApp().then(appWindow => {
+        console.log("[Node] App Window created");
+        createWorker(appWindow).then(worker => {
+          console.log("[Node] Worker Window created");
+          /*
+          console.log("[Node] Worker created");
+          ipcMain.once('app-window-initiated', (e, appWindowId) => {
+            console.log("[Node] Register main-worker window");
+            let appWindow = BrowserWindow.fromId(appWindowId);
+            worker.webContents.send('register-main-window', appWindow.id);
+            appWindow.webContents.send('register-worker-window', worker.id);
+      
+            appWindow.webContents.send('start');
+          })
+          */
+          startApp(appWindow, {
+            resourceWorkerWindowID: -1
+          });
+        })
       })
-      */
-     startApp(appWindow, {
-       resourceWorkerWindowID: -1
-     });
     })
-  })
+    .catch((err: any) => console.log('An error occurred: ', err));
+
 });
 
 function startApp(window: BrowserWindow, param: AppParam) {

@@ -1,37 +1,54 @@
 @import 'window/theme.scss';
+@import "../../../common.scss";
 
 .component {
   display: flex;
   align-items: center;
+  height: $property-line-height;
+  align-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  border-bottom: 1px solid $bright-background;
 
-  > .animated {
-    width: 16px;
-    height: 16px;
-    border-radius: 3px;
-    box-sizing: border-box;
-    border: 1px solid $contrast-background;
-
-    &.true {
-      background: $contrast-background;
-    }
-
-    &.false {
-
-    }
-  }
-
-  &.label {
-
-  }
-
-  &.integer-slider {
+  > .label-space {
     display: flex;
-    
-    > input {
-      width: 100%;
-      height: 100%;
+    overflow: hidden;
+    align-content: center;
+    align-items: center;
+    min-width: 50px;
+    flex: 1;
+
+    > .animated {
+      min-width: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 3px;
       box-sizing: border-box;
+      border: 1px solid $contrast-background;
+
+      &.true {
+        background: $contrast-background;
+      }
+
+      &.false {
+
+      }
     }
+
+    > .label {
+      flex: 1;
+      min-width: 0;
+      box-sizing: border-box;
+      padding-left: 5px;
+      font-size: 12px;
+      color: $primary-text;
+    }
+  }
+
+  > .value-space {
+    display: flex;
+    overflow: hidden;
+    width: 170px;
   }
 
 }

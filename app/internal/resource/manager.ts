@@ -1,18 +1,32 @@
 import app from 'internal/app';
 import { observable, action } from 'mobx';
+import { Probe } from './probe'
+import ResourceType from './type_t';
+import { VideoResource } from './video-resource';
+import { Resource } from './resource';
 
-import { IResourceManager, IResource } from 'standard'
-
-type PathString = string;
-
-export default class ResourceManager implements IResourceManager {
-  @observable resources: Set<IResource> = new Set();
+export default class ResourceManager {
+  @observable resources: Set<Resource> = new Set();
+  probe: Probe;
 
   constructor() {
+    this.probe = new Probe();
   }
 
   @action
-  addResource(resource: IResource): void {
-    this.resources.add(resource);
+  async addResource(path: string) {
+    try {
+      let result = await this.probe.probe(path);
+      switch (result.type) {
+        case ResourceType.VIDEO:
+          const videoResource = new VideoResource(path);
+          this.resources.add(videoResource);
+          return videoResource;
+        default:
+          return null;
+      }
+    } catch (e) {
+      return e;
+    }
   }
 }

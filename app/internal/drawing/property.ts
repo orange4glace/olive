@@ -68,7 +68,7 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
   abstract cloneValue(value: T): T;
   abstract interpolate(lhs: T, rhs: T, t: number): T;
 
-  getValueAt(timeoffset: number): T {
+  getInterpolatedPropertyValue(timeoffset: number): T {
     if (!this.animated) return this.defaultValue;
     // touch getter to observe change
     this.keyframes.values();
@@ -99,12 +99,14 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     let keyframe = new Keyframe<T>(timeoffset, value);
     this.keyframeTreeMap.insert(new Pair(timeoffset, keyframe));
     this.keyframes.add(keyframe);
+    this.ee.emit(PropertyEvent.KEYFRAME_ADDED, keyframe);
   }
 
   removeKeyframe(keyframe: Keyframe<T>) {
     console.assert(this.keyframes.has(keyframe), '[property] no such keyframe', keyframe);
     this.keyframeTreeMap.erase(keyframe.timecode);
     this.keyframes.delete(keyframe);
+    this.ee.emit(PropertyEvent.KEYFRAME_REMOVED, keyframe);
   }
 
   setAnimated(value: boolean) {

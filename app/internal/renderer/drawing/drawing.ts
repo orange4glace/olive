@@ -4,6 +4,7 @@ import { Posted } from "worker-postable";
 import { DrawingContext } from "./drawing-context";
 import { PostableVector2Renderer } from "../renderer-util";
 import { DrawingType } from "internal/drawing/drawing-type";
+import NVG from "../../../../nanovg-webgl";
 
 @Posted('Drawing')
 export default abstract class DrawingRenderer implements DrawingBase {
@@ -12,11 +13,6 @@ export default abstract class DrawingRenderer implements DrawingBase {
   scale: Vector2PropertyRenderer;
   children: Array<DrawingRenderer>;
 
-  draw(context: DrawingContext, timeoffset: number) {
-    this.drawSelf(context, timeoffset);
-    this.children.forEach(child => {
-      child.draw(context, timeoffset);
-    })
-  }
-  protected abstract drawSelf(context: DrawingContext, timeoffset: number): void;
+  abstract draw(context: DrawingContext, timeoffset: number): void;
+  abstract afterDraw(nvg: NVG): void;
 }

@@ -2,23 +2,35 @@ import DecoderClient from 'internal/decoder/client'
 import { Poster, ReceivedRequest } from 'poster'
 import { ObjectStore, postableMessageHandler } from 'worker-postable';
 import { TimelineRenderer } from './timeline';
+import IDecoder from 'internal/decoder/decoder';
 
 // Force-import to fire @Posted
 require('./timeline')
 require('./drawing')
 require('./resource')
 
+function initializeDecoderModule() {
+  // const basepath = electron.remote.app.getAppPath();
+  // console.log(`[Internal] Initilaize Decoder module. basepath=${basepath}`);
+  (self as any).requestVideoRender = ()=>{}
+  const module_initializer = require(`../../../decoder/build/Release/module.node`);
+  const module = module_initializer.initialize(console.log);
+
+  console.log(module);
+  return module;
+}
+
 export class Renderer {
 
   renderingTimeline: TimelineRenderer;
   poster: Poster;
-  decoderClient: DecoderClient;
+  decoder: IDecoder;
   vg: any;
   converter: any;
 
   constructor() {
     this.poster = new Poster(self);
-    this.decoderClient = new DecoderClient(this.poster);
+    this.decoder = initializeDecoderModule();
 
     this.loop = this.loop.bind(this);
     this.handlePostable = this.handlePostable.bind(this);

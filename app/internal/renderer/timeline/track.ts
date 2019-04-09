@@ -75,11 +75,18 @@ export class TrackRenderer implements TrackBase {
     await trackItem.draw(nvg, timecode - trackItem.time.start + trackItem.baseTime);
   }
 
+  async afterDraw(nvg: NVG, timecode: number) {
+    let trackItem = this.getTrackItemAt(timecode);
+    if (trackItem == null) return;
+    await trackItem.afterDraw(nvg, timecode - trackItem.time.start + trackItem.baseTime);
+  }
+
   decode(timecode: number) {
     let trackItem = this.getTrackItemAt(timecode);
     if (trackItem == null) return;
     if (trackItem.type == TrackItemType.VIDEO) {
       let videoTrackItem = trackItem as VideoTrackItemRenderer;
+      console.log(videoTrackItem)
       videoTrackItem.decode(timecode - videoTrackItem.time.start + videoTrackItem.baseTime);
     }
   }
