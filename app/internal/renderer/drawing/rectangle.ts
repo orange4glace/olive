@@ -28,6 +28,8 @@ export class RectangleRenderer extends PolygonRenderer
     const bottom = size.z;
     const left = size.w;
 
+    console.log(size);
+
     vg.save();
     vg.translate(position.x, position.y);
     vg.scale(scale.x, scale.y);
@@ -39,6 +41,8 @@ export class RectangleRenderer extends PolygonRenderer
     vg.closePath();
     vg.fillColor(199, 125, 125, 255);
     vg.fill();
+    vg.strokeColor(35,129,19,255);
+    vg.stroke();
     vg.restore();
   }
 

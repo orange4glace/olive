@@ -14,6 +14,7 @@ import { PropertyViewController } from '../control/property-view-controller';
 import { TrackItemHost } from '../control/track-item-host';
 import { PropertyHost } from '../control/property-host';
 import VideoDrawing from 'internal/drawing/video-drawing';
+import { MaskDrawing } from 'internal/drawing/mask';
 
 interface PropertyFormViewProps {
   propertyViewController: PropertyViewController;
@@ -133,6 +134,7 @@ class VideoDrawingPropertyFormView extends React.Component<DrawingPropertyFormPr
 
   render() {
     const drawingHost = this.props.drawingHost as DrawingHost<VideoDrawing>;
+    const drawing = drawingHost.drawing;
     return (
       <PropertyGroupView label='Video' drawingHost={drawingHost}>
         <Vector2PropertyControl {...this.props} label={'position'} propertyHost={
@@ -146,10 +148,28 @@ class VideoDrawingPropertyFormView extends React.Component<DrawingPropertyFormPr
   }
 }
 
+@observer
+class MaskDrawingPropertyFormView extends React.Component<DrawingPropertyFormProps, {}> {
+
+  constructor(props: DrawingPropertyFormProps) {
+    super(props);
+  }
+
+  render() {
+    const drawingHost = this.props.drawingHost as DrawingHost<MaskDrawing>;
+    const drawing = drawingHost.drawing;
+    return (
+      <PropertyGroupView label='Mask' drawingHost={drawingHost}>
+      </PropertyGroupView>
+    )
+  }
+}
+
 const DrawingPropertyViewMap: any = {
   [DrawingType.PAPER]: PaperDrawingPropertyFormView,
   [DrawingType.RECTANGLE]: RectangleDrawingPropertyFormView,
-  [DrawingType.VIDEO]: VideoDrawingPropertyFormView
+  [DrawingType.VIDEO]: VideoDrawingPropertyFormView,
+  [DrawingType.MASK]: MaskDrawingPropertyFormView
 }
 
 function createDrawingPropertyView(type: DrawingType, props: DrawingPropertyFormProps) {

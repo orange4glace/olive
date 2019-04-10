@@ -10,7 +10,7 @@ export enum PropertyEvent {
   KEYFRAME_REMOVED = 'KEYFRAME_REMOVED'
 }
 
-export type PropertyTypes = number | PostableVector2;
+export type PropertyTypes = number | PostableVector2 | Array<PostableVector2>;
 
 export interface KeyframeBase<T extends PropertyTypes> {
   timecode: number;

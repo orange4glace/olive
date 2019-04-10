@@ -1,7 +1,13 @@
 .component {
 
   > .canvas-container {
+    position: absolute;
     background: grey;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+    margin: auto;
 
     > canvas {
       width: 100%;

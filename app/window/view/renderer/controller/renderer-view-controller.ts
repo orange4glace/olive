@@ -1,7 +1,12 @@
 import { TimelineViewController, TrackItemHost } from "window/view/timeline/controller";
-import { computed } from "window/app-mobx";
+import { computed, observable } from "window/app-mobx";
+import app from "internal/app";
+import { vec2 } from "gl-matrix";
 
 export class RendererViewController {
+
+  @observable viewWidth: number;
+  @observable viewHeight: number;
 
   timelineViewController: TimelineViewController;
 
@@ -23,8 +28,21 @@ export class RendererViewController {
     this.timelineViewController = timelineViewController;
   }
 
-  toScreenSize(px: number) {
-    return px;
+  setViewSize(width: number, height: number) {
+    this.viewWidth = width;
+    this.viewHeight = height;
+  }
+
+  toScreenSize(x: number, y: number): [number, number] {
+    let wr = app.project.sequence.screenWidth / this.viewWidth * x;
+    let hr = app.project.sequence.screenHeight / this.viewHeight * y;
+    return [wr, hr];
+  }
+
+  toViewSize(x: number, y: number): [number, number] {
+    let wr = this.viewWidth / app.project.sequence.screenWidth * x;
+    let hr = this.viewHeight / app.project.sequence.screenHeight * y;
+    return [wr, hr]
   }
 
   // getDrawingAt(x: number, y: number): Drawing {

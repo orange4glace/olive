@@ -4,6 +4,7 @@ import { DrawingType } from './drawing-type';
 import { Vector2Property, Vector2PropertyBase } from './property';
 import PostableVector2 from 'util/postable_vector2';
 import { vec2, vec3, mat3 } from 'gl-matrix';
+import { MaskDrawing } from './mask';
 
 export interface VideoDrawingBase extends DrawingBase {
   size: Vector2PropertyBase;
@@ -13,6 +14,7 @@ export interface VideoDrawingBase extends DrawingBase {
 export default class VideoDrawing extends Drawing implements VideoDrawingBase {
 
   @postable size: Vector2Property;
+  @postable masks: MaskDrawing[] = [];
 
   constructor() {
     super(DrawingType.VIDEO);

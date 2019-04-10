@@ -1,10 +1,52 @@
 import * as React from 'react';
 import app from 'internal/app';
+import { observer, computed } from 'window/app-mobx';
+import { RendererViewController } from './controller/renderer-view-controller';
+import TimelineViewState from '../timeline/controller/state';
 import { RendererUIView } from './ui/renderer-ui-view';
 
 const style = require('./index.scss');
 
-class RendererView extends React.Component<any, any> {
+@observer
+export class RendererView extends React.Component<{}, {}> {
+
+  @computed get rendererViewController(): RendererViewController {
+    return TimelineViewState.focusedTimelineViewController ?
+      new RendererViewController(TimelineViewState.focusedTimelineViewController) :  null;
+  }
+
+  constructor(props: any) {
+    super(props);
+  }
+
+  render() {
+    if (this.rendererViewController) {
+      return (
+        <RendererContentViewWrapper rendererViewController={this.rendererViewController}/>
+      )
+    }
+    else {
+      return <div>NO TrackItem Selected</div>
+    }
+  }
+
+}
+
+interface RendererContentViewProps {
+  rendererViewController: RendererViewController;
+}
+
+class RendererContentViewWrapper extends React.PureComponent<RendererContentViewProps, {}> {
+
+  render() {
+    return (
+      <RendererContentView {...this.props}/>
+    )
+  }
+
+}
+
+class RendererContentView extends React.Component<RendererContentViewProps, any> {
 
   componentRef: React.RefObject<HTMLDivElement>;
   containerRef: React.RefObject<HTMLDivElement>;
@@ -25,34 +67,36 @@ class RendererView extends React.Component<any, any> {
     const canvas: HTMLCanvasElement = app.canvas;
     this.containerRef.current.appendChild(canvas);
     
-    this.props.layoutEventListener.resize = this.resizeHandler;
+    window.addEventListener('resize', this.resizeHandler)
     this.resizeHandler();
   }
 
   resizeHandler() {
-    var width = 1920;
-    var height = 1080;
-    var ratio = 1920 / 1080;
+    const controller = this.props.rendererViewController;
+    var width = app.project.sequence.screenWidth;
+    var height = app.project.sequence.screenHeight;
+    var ratio = width / height;
     var el = this.componentRef.current;
-    var elWidth = el.clientWidth;
-    var elHeight = el.clientHeight;
+    var elWidth = Math.min(width, el.clientWidth);
+    var elHeight = Math.min(height, el.clientHeight);
     var elRatio = elWidth / elHeight;
-
+    console.log(elWidth, elHeight)
+    let w, h;
     if (ratio >= elRatio) {
       // width first
-      this.setState({
-        width: elWidth,
-        height: elWidth / ratio
-      });
+      w = elWidth;
+      h = elWidth / ratio;
     }
     else {
       // height first
-      this.setState({
-        width: elHeight * ratio,
-        height: elHeight
-      });
+      w = elHeight * ratio;
+      h = elHeight;
     }
-
+    controller.setViewSize(w, h);
+    this.setState({
+      width: w,
+      height: h
+    })
   }
 
   render() {
@@ -63,7 +107,7 @@ class RendererView extends React.Component<any, any> {
     return (
       <div className={style.component} ref={this.componentRef}>
         <div className='canvas-container' style={containerStyle} ref={this.containerRef}>
-          <RendererUIView/>
+          <RendererUIView {...this.props}/>
         </div>
       </div>
     )

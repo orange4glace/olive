@@ -6,44 +6,12 @@ import { RendererViewController } from '../controller/renderer-view-controller';
 import TimelineViewState from 'window/view/timeline/controller/state';
 import { RendererUITrackItemView } from './track-item-view';
 
-interface RendererUIViewProps {
-}
-
-@observer
-export class RendererUIView extends React.Component<RendererUIViewProps, {}> {
-
-  @computed get rendererViewController(): RendererViewController {
-    return TimelineViewState.focusedTimelineViewController ?
-      new RendererViewController(TimelineViewState.focusedTimelineViewController) :  null;
-  }
-
-  constructor(props: any) {
-    super(props);
-  }
-
-  render() {
-    if (this.rendererViewController) {
-      return (
-        <RendererUIContentViewWrapper rendererViewController={this.rendererViewController}/>
-      )
-    }
-    else {
-      return <div>NO TrackItem Selected</div>
-    }
-  }
-
-}
-
-export interface RendererUIContentViewProps {
+export interface RendererUIViewProps {
   rendererViewController: RendererViewController;
 }
 
-class RendererUIContentViewWrapper extends React.PureComponent<RendererUIContentViewProps, {}> {
-  render() { return ( <RendererUIContentView {...this.props}/> ) }
-}
-
 @observer
-class RendererUIContentView extends React.PureComponent<RendererUIContentViewProps, {}> {
+export class RendererUIView extends React.PureComponent<RendererUIViewProps, {}> {
 
   render() {
     const controller = this.props.rendererViewController;

@@ -1,4 +1,4 @@
-import Polygon, { PolygonBase } from './polygon'
+import { Polygon, PolygonBase } from './polygon'
 import { Postable, postable } from 'worker-postable';
 import { DrawingType } from './drawing-type';
 import { Vector4PropertyBase, Vector4Property } from './property';

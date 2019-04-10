@@ -4,7 +4,7 @@ import TrackItem, { TrackItemBase } from './track-item'
 import TrackItemType from './track-item-type';
 import { IResource } from 'standard';
 import VideoDrawing from 'internal/drawing/video-drawing';
-import { Rectangle, Paper } from 'internal/drawing';
+import { Rectangle, Paper, Polygon } from 'internal/drawing';
 import { Resource, ResourceBase, VideoResource } from 'internal/resource';
 import { TimePair } from './time-pair';
 import PostableVector2 from 'util/postable_vector2';
@@ -22,15 +22,23 @@ export default class VideoTrackItem extends TrackItem implements VideoTrackItemB
   constructor(resource: VideoResource) {
     super(TrackItemType.VIDEO);
     this.resource = resource;
-    console.log('create video trak item', resource)
 
     this.drawing = new Paper();
+
     // const videoDrawing = new VideoDrawing();
     // videoDrawing.size.defaultValue = new PostableVector2(resource.width, resource.height);
     // this.drawing.addDrawing(videoDrawing);
-    const rectangle = new Rectangle();
-    rectangle.size.defaultValue = new Vector4(-100, 100, 100, -100);
-    this.drawing.addDrawing(rectangle);
+
+    // const rectangle = new Rectangle();
+    // rectangle.size.defaultValue = new Vector4(-100, 100, 100, -100);
+    // this.drawing.addDrawing(rectangle);
+
+    const polygon = new Polygon();
+    polygon.addPoint(0, 0);
+    polygon.addPoint(100, 0);
+    polygon.addPoint(100, 100);
+    polygon.addPoint(0, 100);
+    this.drawing.addDrawing(polygon);
   }
 
   clone(): VideoTrackItem {

@@ -50,7 +50,7 @@ function initializeApp(): void {
   app.resource = new ResourceManager();
   app.workerPoster = rendererWorkerPoster;
   app.canvas = document.createElement('canvas');
-  app.canvas.width = 1280;
+  app.canvas.width = 1080;
   app.canvas.height = 720;
 
   console.log(Timeline, app.timeline)

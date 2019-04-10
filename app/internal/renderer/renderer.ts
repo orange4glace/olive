@@ -57,18 +57,9 @@ export class Renderer {
     const canvas = req.data.data;
     console.log(req, canvas)
     const nanovg = require(`../../../nanovg-webgl/build/Release/nanovg_node_webgl.node`);
-    let gl = canvas.getContext('webgl2');
+    let gl: WebGLRenderingContext = canvas.getContext('webgl2');
+    (self as any).gl = gl;
     this.vg = nanovg.initNanoVG(gl);
-    let buf = new ArrayBuffer(1280 * 720 * 4);
-    let view = new Uint8Array(buf);
-    for (var i = 0; i < 1280 * 720 * 4; i ++) view[i] = Math.floor(Math.random()*255);
-
-    var ff: any = (function f(gl: WebGLRenderingContext) {
-      console.log('CALL FF', view)
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1280, 720, 0, gl.RGBA, gl.UNSIGNED_BYTE, view);
-    }).bind(self, gl)
-    console.log(self);
-    (self as any).func = ff;
 
     // setInterval(this.loop, 100)
     requestAnimationFrame(this.loop);
