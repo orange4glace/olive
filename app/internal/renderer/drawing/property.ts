@@ -1,4 +1,4 @@
-import { KeyframeBase, PropertyBase, PropertyTypes, Vector2PropertyBase, Vector4PropertyBase } from "internal/drawing";
+import { KeyframeBase, PropertyBase, PropertyTypes, Vector2PropertyBase, Vector4PropertyBase, PolyPathPropertyBase } from "internal/drawing";
 import { Posted, listenable, listen } from "worker-postable";
 import { InterpolationType } from "internal/drawing/interpolation-type";
 import { PostableVector2Renderer } from "../renderer-util";
@@ -6,6 +6,7 @@ import { observable, observe, ObservableSet } from "mobx";
 import { TreeMap, Pair } from "tstl";
 import { MapIterator } from "tstl/base";
 import { Vector4Renderer } from "oliveutil/vector4";
+import { Vector2Renderer } from "oliveutil/vector2";
 
 @Posted('Keyframe')
 export class KeyframeRenderer<T extends PropertyTypes> implements KeyframeBase<T> {
@@ -26,7 +27,7 @@ export abstract class PropertyRenderer<T extends PropertyTypes> implements Prope
   animatable: boolean;
   animated: boolean;
   @listenable keyframes: Set<KeyframeRenderer<T>>;
-  defaultValue: T;
+  defaultKeyframe: KeyframeRenderer<T>;
 
   keyframeMap: TreeMap<number, KeyframeRenderer<T>>;
   currentKeyframeIterator: MapIterator<number, KeyframeRenderer<T>, true, TreeMap<number, KeyframeRenderer<T>>>;
@@ -72,7 +73,7 @@ export abstract class PropertyRenderer<T extends PropertyTypes> implements Prope
   }
 
   getInterpolatedPropertyValue(timecode: number): T {
-    if (this.keyframes.size == 0) return this.defaultValue;
+    if (this.keyframes.size == 0) return this.defaultKeyframe.value;
     var bef = this.accessBefore(timecode);
     var aft = this.accessAfter(timecode);
     if (bef == null) return aft.value;
@@ -102,4 +103,22 @@ export class Vector4PropertyRenderer extends PropertyRenderer<Vector4Renderer> i
       lhs.z + (rhs.z - lhs.z) * t,
       lhs.w + (rhs.w - lhs.w) * t);
   }
+}
+
+@Posted('PolyPathProperty')
+export class PolyPathPropertyRenderer extends PropertyRenderer<Vector2Renderer[]> implements PolyPathPropertyBase {
+
+  interpolate(lhs: Vector2Renderer[], rhs: Vector2Renderer[], t: number): Vector2Renderer[] {
+    console.assert(lhs.length == rhs.length);
+    let res: Vector2Renderer[] = [];
+    for (let i = 0; i < lhs.length; i ++) {
+      const vec1 = lhs[i];
+      const vec2 = rhs[i];
+      const vec = new Vector2Renderer(vec1.x + (vec2.x - vec1.x) * t,
+                                      vec1.y + (vec2.y - vec1.y) * t);
+      res.push(vec);
+    }
+    return res;
+  }
+
 }

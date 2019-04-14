@@ -1,5 +1,5 @@
 import TrackHost from './track-host'
-import TrackItemHost from './track-item-host';
+import { TrackItemHost } from './track-item-host';
 import Timeline, { TimelineEvent } from 'internal/timeline/timeline';
 import Track from 'internal/timeline/track';
 import { observable } from 'window/app-mobx';

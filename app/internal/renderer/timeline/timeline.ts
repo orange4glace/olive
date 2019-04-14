@@ -12,9 +12,6 @@ export class TimelineRenderer implements TimelineBase {
   currentTime: number;
 
   async draw(nvg: NVG) {
-    let gl = (self as any).gl
-    gl.disable(gl.STENCIL_TEST)
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT | gl.STENCIL_BUFFER_BIT);
     nvg.beginFrame(1080, 720, 1);
     for (let i = 0; i < this.tracks.length; i++) {
       let track = this.tracks[i];

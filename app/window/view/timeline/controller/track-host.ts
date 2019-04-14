@@ -3,7 +3,7 @@ import { observable, autorun } from 'window/app-mobx';
 import { make_pair ,TreeMap } from 'tstl'
 import IntervalTree from 'node-interval-tree'
 
-import TrackItemHost from "./track-item-host";
+import { TrackItemHost } from "./track-item-host";
 import TrackItem from 'internal/timeline/track-item';
 import Track, { TrackEvent } from 'internal/timeline/track';
 import { IReactionDisposer } from 'mobx';

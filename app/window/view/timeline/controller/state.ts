@@ -1,7 +1,7 @@
 import { observable } from 'window/app-mobx';
 import hotkeys from 'hotkeys-js'
 
-import TrackItemHost from './track-item-host';
+import { TrackItemHost } from './track-item-host';
 import TimelineViewController from './controller';
 
 export class _TimelineState {

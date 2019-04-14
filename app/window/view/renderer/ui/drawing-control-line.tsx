@@ -23,7 +23,6 @@ export class RendererDrawingControlLine extends React.PureComponent<RendererDraw
     const viewVec = vec2.create();
     vec2.sub(viewVec, vec2.fromValues(viewPos2[0], viewPos2[1]), vec2.fromValues(viewPos1[0], viewPos1[1]));
     const angle = Math.atan2(viewVec[1], viewVec[0]) / Math.PI * 180;
-    console.log(this.props, viewPos1, viewPos2, viewVec)
     const style = {
       left: viewPos1[0] + 'px',
       top: viewPos1[1] + 'px',

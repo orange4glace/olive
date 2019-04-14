@@ -1,13 +1,16 @@
 import *  as React from 'react'
 
 import * as style from './property-group.scss'
-import { DrawingHost } from 'window/view/property/control/drawing-host';
 import { observer } from 'window/app-mobx';
+import { Drawing } from 'internal/drawing';
+import { TrackItemHost } from 'window/view/timeline/controller';
+import { DrawingHost } from 'window/view/timeline/controller/drawing-host';
 
 @observer
 export class PropertyGroupView extends React.Component<{
   label: string;
-  drawingHost: DrawingHost<any>;
+  trackItemHost: TrackItemHost;
+  drawingHost: DrawingHost<Drawing>;
 }, {}> {
 
   constructor(props: any) {
@@ -19,6 +22,7 @@ export class PropertyGroupView extends React.Component<{
   clickHandler(e: React.MouseEvent) {
     const drawingHost = this.props.drawingHost;
     drawingHost.open = !drawingHost.open;
+    this.props.trackItemHost.focusDrawingHost(drawingHost);
   }
 
   render() {

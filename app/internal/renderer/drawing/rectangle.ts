@@ -4,9 +4,10 @@ import { Vector4PropertyRenderer } from "./property";
 import { Posted } from "worker-postable";
 import { DrawingContext } from "./drawing-context";
 import NVG from "../../../../nanovg-webgl";
+import DrawingRenderer from "./drawing";
 
 @Posted('Rectangle')
-export class RectangleRenderer extends PolygonRenderer
+export class RectangleRenderer extends DrawingRenderer
     implements RectangleBase {
 
   size: Vector4PropertyRenderer;
@@ -16,7 +17,6 @@ export class RectangleRenderer extends PolygonRenderer
   }
 
   draw(context: DrawingContext, timeoffset: number) {
-    console.log('draw rect')
     const vg = context.nvg;
 
     const position = this.position.getInterpolatedPropertyValue(timeoffset);

@@ -7,7 +7,6 @@ import RendererWorker from 'worker-loader!./renderer/index';
 import App from 'internal/app-interface';
 import Timeline from 'internal/timeline/timeline';
 import ResourceManager from 'internal/resource/manager';
-import DecoderServer from 'internal/decoder/server'
 import Factory from './factory';
 import { Poster } from 'poster';
 

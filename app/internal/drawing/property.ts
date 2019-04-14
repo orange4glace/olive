@@ -4,6 +4,9 @@ import PostableVector2 from 'util/postable_vector2';
 import { TreeMap, Pair } from 'tstl';
 import { EventEmitter2 } from 'eventemitter2';
 import { Vector4 } from 'oliveutil/vector4';
+import { Vector2 } from 'oliveutil/vector2';
+import { action } from 'mobx';
+import { PropertyType } from './property-type';
 
 export enum PropertyEvent {
   KEYFRAME_ADDED = 'KEYFRAME_ADDED',
@@ -20,6 +23,7 @@ export interface KeyframeBase<T extends PropertyTypes> {
   interpolationType: InterpolationType;
 }
 
+@Postable
 export class Keyframe<T extends PropertyTypes> implements KeyframeBase<T> {
   @postable timecode: number;
   @postable value: T;
@@ -38,7 +42,7 @@ export interface PropertyBase<T extends PropertyTypes> {
   animatable: boolean;
   animated: boolean;
   keyframes: Set<KeyframeBase<T>>;
-  defaultValue: T;
+  defaultKeyframe: KeyframeBase<T>;
 
   interpolate(lhs: T, rhs: T, t: number): T;
 }
@@ -46,21 +50,24 @@ export interface PropertyBase<T extends PropertyTypes> {
 @Postable
 export abstract class Property<T extends PropertyTypes> implements PropertyBase<T> {
 
+  readonly type: PropertyType;
+
   evaluatedValue: T;
   @postable animatable: boolean;
   @postable animated: boolean;
   @postable keyframes: Set<Keyframe<T>>;
-  @postable defaultValue: T;
+  @postable defaultKeyframe: Keyframe<T>;
 
   keyframeTreeMap: TreeMap<number, Keyframe<T>>;
 
   ee: EventEmitter2;
 
-  constructor(defaultValue: T) {
+  constructor(type: PropertyType, defaultValue: T) {
+    this.type = type;
     this.animated = false;
     this.keyframes = new Set<Keyframe<T>>();
     this.keyframeTreeMap = new TreeMap<number, Keyframe<T>>();
-    this.defaultValue = defaultValue;
+    this.defaultKeyframe = new Keyframe<T>(0, defaultValue);
 
     this.ee = new EventEmitter2();
   }
@@ -70,13 +77,13 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
   abstract interpolate(lhs: T, rhs: T, t: number): T;
 
   getInterpolatedPropertyValue(timeoffset: number): T {
-    if (!this.animated) return this.defaultValue;
+    if (!this.animated) return this.defaultKeyframe.value;
     // touch getter to observe change
     this.keyframes.values();
     let next = this.keyframeTreeMap.lower_bound(timeoffset);
     if (next.equals(this.keyframeTreeMap.end())) {
       if (this.keyframeTreeMap.size() == 0)
-        return this.defaultValue;
+        return this.defaultKeyframe.value;
       return next.prev().value.second.value;
     }
     if (next.equals(this.keyframeTreeMap.begin()))
@@ -87,22 +94,33 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     return this.interpolate(prevKeyframe.value, nextKeyframe.value, t);
   }
 
-  addKeyframeAt(timeoffset: number, value: T) {
+  getKeyframeAt(timeoffset: number): Keyframe<T> {
+    let lagacy = this.keyframeTreeMap.find(timeoffset);
+    if (!lagacy.equals(this.keyframeTreeMap.end())) return lagacy.value.second;
+    return null;
+  }
+
+  @action
+  addKeyframeAt(timeoffset: number, value: T): Keyframe<T> {
     if (!this.animated) {
-      this.defaultValue = value;
+      this.defaultKeyframe.value = value;
+      return this.defaultKeyframe;
       return;
     }
     let lagacy = this.keyframeTreeMap.find(timeoffset);
     if (!lagacy.equals(this.keyframeTreeMap.end())) {
       lagacy.value.second.value = value;
+      return lagacy.value.second;
       return;
     }
     let keyframe = new Keyframe<T>(timeoffset, value);
     this.keyframeTreeMap.insert(new Pair(timeoffset, keyframe));
     this.keyframes.add(keyframe);
     this.ee.emit(PropertyEvent.KEYFRAME_ADDED, keyframe);
+    return keyframe;
   }
 
+  @action
   removeKeyframe(keyframe: Keyframe<T>) {
     console.assert(this.keyframes.has(keyframe), '[property] no such keyframe', keyframe);
     this.keyframeTreeMap.erase(keyframe.timecode);
@@ -110,6 +128,7 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     this.ee.emit(PropertyEvent.KEYFRAME_REMOVED, keyframe);
   }
 
+  @action
   setAnimated(value: boolean) {
     this.animated = value;
   }
@@ -211,6 +230,10 @@ export interface ScalarPropertyBase extends PropertyBase<number> {
 @Postable
 export class ScalarProperty extends Property<number> implements ScalarPropertyBase {
 
+  constructor(defaultValue: number) {
+    super(PropertyType.SCALAR, defaultValue);
+  }
+
   createValue(val: number): number {
     return val;
   }
@@ -233,6 +256,10 @@ export interface Vector2PropertyBase extends PropertyBase<PostableVector2> {
 }
 @Postable
 export class Vector2Property extends Property<PostableVector2> implements Vector2PropertyBase {
+
+  constructor(defaultValue: PostableVector2) {
+    super(PropertyType.VECTOR2, defaultValue);
+  }
 
   createValue(x: number, y: number): PostableVector2 {
     return new PostableVector2(x, y);
@@ -257,6 +284,10 @@ export interface Vector4PropertyBase extends PropertyBase<Vector4> {
 @Postable
 export class Vector4Property extends Property<Vector4> implements Vector2PropertyBase {
 
+  constructor(defaultValue: Vector4) {
+    super(PropertyType.VECTOR4, defaultValue);
+  }
+
   createValue(x: number, y: number, z: number, w : number): Vector4 {
     return new Vector4(x, y, z, w);
   }
@@ -271,6 +302,63 @@ export class Vector4Property extends Property<Vector4> implements Vector2Propert
       lhs.y + (rhs.y - lhs.y) * t,
       lhs.z + (rhs.z - lhs.z) * t,
       lhs.w + (rhs.w - lhs.w) * t);
+  }
+
+}
+
+export interface PolyPathPropertyBase extends PropertyBase<Vector2[]> {
+}
+@Postable
+export class PolyPathProperty extends Property<Vector2[]> implements PolyPathPropertyBase {
+
+  constructor(defaultValue: Vector2[]) {
+    super(PropertyType.POLYPATH, defaultValue);
+  }
+
+  createValue(path: [[number, number]]): Vector2[] {
+    let res: Vector2[] = [];
+    for (let i = 0; i < path.length; i ++) {
+      const vec = new Vector2(path[i][0], path[i][1]);
+      res.push(vec);
+    }
+    return res;
+  }
+
+  cloneValue(path: Vector2[]): Vector2[] {
+    let res: Vector2[] = [];
+    for (let i = 0; i < path.length; i ++) {
+      const vec = new Vector2(path[i].x, path[i].y);
+      res.push(vec);
+    }
+    return res;
+  }
+
+  @action
+  insertPoint(index: number, ratio: number) {
+    console.log('insert point', index, ratio, this.animated, this.keyframes);
+    (this.animated ? this.keyframes : [this.defaultKeyframe]).forEach((keyframe: Keyframe<Vector2[]>) => {
+      console.log(keyframe);
+      const p1 = keyframe.value[(index - 1 + keyframe.value.length) %  keyframe.value.length];
+      const p2 = keyframe.value[index % keyframe.value.length];
+      const x = (p1.x + (p2.x - p1.x) * ratio);
+      const y = (p1.y + (p2.y - p1.y) * ratio);
+      const p = new Vector2(x, y);
+      keyframe.value.splice(index, 0, p);
+      this.addKeyframeAt(keyframe.timecode, keyframe.value);
+    })
+  }
+
+  interpolate(lhs: Vector2[], rhs: Vector2[], t: number): Vector2[] {
+    console.assert(lhs.length == rhs.length);
+    let res: Vector2[] = [];
+    for (let i = 0; i < lhs.length; i ++) {
+      const vec1 = lhs[i];
+      const vec2 = rhs[i];
+      const vec = new Vector2(vec1.x + (vec2.x - vec1.x) * t,
+                              vec1.y + (vec2.y - vec1.y) * t);
+      res.push(vec);
+    }
+    return res;
   }
 
 }

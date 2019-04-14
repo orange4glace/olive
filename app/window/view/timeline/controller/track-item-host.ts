@@ -5,19 +5,29 @@ import { DrawingHost } from './drawing-host';
 
 let _nextTrackItemID = 0;
 
-export default class TrackItemHost {
+export class TrackItemHost {
 
   readonly id: number;
   trackItem: TrackItem;
-  drawingHost: DrawingHost<Drawing>;
+  videoDrawingHost: DrawingHost<Drawing>;
+  audioDrawingHost: DrawingHost<Drawing>;
 
   @observable focused: boolean;
+  @observable focusedDrawingHost: DrawingHost<Drawing> = null;
 
   constructor(trackItem: TrackItem) {
     this.id = _nextTrackItemID++;
     this.trackItem = trackItem;
-    this.drawingHost = new DrawingHost(this.trackItem.drawing);
+    if (trackItem.videoDrawing)
+      this.videoDrawingHost = new DrawingHost(this.trackItem.videoDrawing);
+    if (trackItem.audioDrawing)
+      this.audioDrawingHost = new DrawingHost(this.trackItem.audioDrawing);
     this.focused = false;
+  }
+
+  focusDrawingHost(drawingHost: DrawingHost<Drawing>) {
+    console.log('focus',this,drawingHost)
+    this.focusedDrawingHost = drawingHost;
   }
 
 }

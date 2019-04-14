@@ -1,14 +1,14 @@
-import { Property, Keyframe, PropertyEvent } from "internal/drawing";
+import { Property, Keyframe, PropertyEvent, PropertyTypes } from "internal/drawing";
 import { KeyframeHost } from "./keyframe-host";
 import { invariant } from "util/debuging";
 import { observable } from "window/app-mobx";
 
-export class PropertyHost {
+export class PropertyHost<T extends Property<PropertyTypes>> {
 
-  property: Property<any>
+  property: T;
   @observable keyframeHosts: Map<Keyframe<any>, KeyframeHost>;
 
-  constructor(property: Property<any>) {
+  constructor(property: T) {
     this.property = property;
     this.keyframeHosts = new Map();
 

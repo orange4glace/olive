@@ -1,7 +1,7 @@
 import DrawingRenderer from "./drawing";
 import { PolygonBase } from "internal/drawing";
 import { Posted } from "worker-postable";
-import { Vector2PropertyRenderer } from "./property";
+import { Vector2PropertyRenderer, PolyPathPropertyRenderer } from "./property";
 import { DrawingContext } from "./drawing-context";
 import { PostableVector2Renderer } from "../renderer-util";
 import NVG from "../../../../nanovg-webgl";
@@ -9,7 +9,7 @@ import NVG from "../../../../nanovg-webgl";
 @Posted('Polygon')
 export class PolygonRenderer extends DrawingRenderer implements PolygonBase {
 
-  points: Vector2PropertyRenderer[];
+  path: PolyPathPropertyRenderer;
 
   constructor() {
     super();
@@ -20,13 +20,14 @@ export class PolygonRenderer extends DrawingRenderer implements PolygonBase {
 
     const position = this.position.getInterpolatedPropertyValue(timeoffset);
     const scale = this.scale.getInterpolatedPropertyValue(timeoffset);
+    const path = this.path.getInterpolatedPropertyValue(timeoffset);
 
-    if (this.points.length < 3) return;
+    if (path.length < 3) return;
 
     let points: PostableVector2Renderer[] = [];
-    for (let i = 0; i < this.points.length; i ++) {
-      const point = this.points[i];
-      const currentPos = point.getInterpolatedPropertyValue(timeoffset);
+    for (let i = 0; i < path.length; i ++) {
+      const point = path[i];
+      const currentPos = point;
       points.push(currentPos);
     }
 
@@ -43,8 +44,6 @@ export class PolygonRenderer extends DrawingRenderer implements PolygonBase {
     vg.closePath();
     vg.fillColor(199, 125, 125, 255);
     vg.fill();
-    vg.strokeColor(35,129,19,255);
-    vg.stroke();
     vg.restore();
   }
 

@@ -64,6 +64,9 @@ class RendererContentView extends React.Component<RendererContentViewProps, any>
   }
 
   componentDidMount() {
+    const controller = this.props.rendererViewController;
+    controller.containerRef =  this.containerRef;
+
     const canvas: HTMLCanvasElement = app.canvas;
     this.containerRef.current.appendChild(canvas);
     

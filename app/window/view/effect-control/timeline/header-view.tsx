@@ -33,7 +33,7 @@ export class PropertyTimelineHeaderView extends React.Component<PropertyTimeline
   }
 
   mouseMoveHandler(e: MouseEvent) {
-    const timeline = this.props.propertyViewController.timeline;
+    const timeline = this.props.propertyViewController.timelineViewController.timelineHost.timeline;
     const trackItem = this.props.propertyViewController.trackItemHost.trackItem;
     const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
     const time = this.props.propertyViewController.getTimeRelativeToTimeline(pos.x);
@@ -140,7 +140,7 @@ class Indicator extends React.Component<PropertyTimelineContentViewProps, {}> {
 
   render() {
     const controller = this.props.propertyViewController;
-    const timeline = controller.timeline;
+    const timeline = controller.timelineViewController.timelineHost.timeline
     const trackItem = controller.trackItemHost.trackItem;
     const currentTime = timeline.currentTime - trackItem.time.start;
     const style = {

@@ -5,22 +5,26 @@ import { TrackItemHost } from 'window/view/timeline/controller';
 import VideoDrawing from 'internal/drawing/video-drawing';
 import { vec2 } from 'gl-matrix';
 import { RendererDrawingControlPoint } from './drawing-control-point';
-import { Drawing, Rectangle, ScalarProperty, Polygon } from 'internal/drawing';
+import { Drawing, Rectangle, ScalarProperty, Polygon, PolyPathProperty } from 'internal/drawing';
 import { DrawingType } from 'internal/drawing/drawing-type';
-import { observer } from 'window/app-mobx';
+import { observer, action } from 'window/app-mobx';
 import { RendererUIViewProps } from './renderer-ui-view';
 import { RendererDrawingControlLine } from './drawing-control-line';
+import { MaskDrawing } from 'internal/drawing/mask';
+import { applyMixins } from 'orangeutil/ts-util';
 
 interface RendererUITrackItemViewProps extends RendererUIViewProps {
   trackItemHost: TrackItemHost;
 }
 
+@observer
 export class RendererUITrackItemView extends React.PureComponent<RendererUITrackItemViewProps, {}> {
 
   render() {
     const trackItemHost = this.props.trackItemHost;
-    return (
-      <RendererUIDrawingViewRenderer {...this.props} drawingHost={trackItemHost.drawingHost}/>)
+    const drawingHost = trackItemHost.focusedDrawingHost;
+    if (!drawingHost) return (<></>)
+    return (<RendererUIDrawingViewRenderer {...this.props} drawingHost={drawingHost}/>)
   }
 
 }
@@ -47,6 +51,10 @@ class RendererUIDrawingViewRenderer extends React.PureComponent<RendererUIDrawin
       case DrawingType.POLYGON:
         let polygonDrawingHost = drawingHost as DrawingHost<Polygon>;
         view = <RendererPolygonDrawingView {...this.props} drawingHost={polygonDrawingHost}/>;
+        break;
+      case DrawingType.MASK:
+        let maskDrawingHost = drawingHost as DrawingHost<MaskDrawing>;
+        view = <RendererMaskDrawingView {...this.props} drawingHost={maskDrawingHost}/>;
         break;
       default:
         view = <></>
@@ -77,10 +85,12 @@ export class RendererVideoDrawingView extends RendererDrawingViewBase<VideoDrawi
     this.pointMouseMoveStartHandler = this.pointMouseMoveStartHandler.bind(this);
   }
 
+  @action
   pointMouseMoveStartHandler(e: MouseEvent) {
 
   }
 
+  @action
   pointMouseMoveHandler(e: MouseEvent) {
 
   }
@@ -92,11 +102,11 @@ export class RendererVideoDrawingView extends RendererDrawingViewBase<VideoDrawi
     const videoDrawingHost = this.props.drawingHost;
     const videoDrawing = videoDrawingHost.drawing;
     const transformMat = videoDrawing.getTransformMatrix(timeoffset);
-    const size = videoDrawing.size.getInterpolatedPropertyValue(timeoffset);
+    const video = videoDrawing.videoResource;
     let p1 = vec2.fromValues(0, 0),
-        p2 = vec2.fromValues(size.x, 0),
-        p3 = vec2.fromValues(0, size.y),
-        p4 = vec2.fromValues(size.x, size.y);
+        p2 = vec2.fromValues(video.width, 0),
+        p3 = vec2.fromValues(0, video.height),
+        p4 = vec2.fromValues(video.width, video.height);
     vec2.transformMat2d(p1, p1, transformMat);
     vec2.transformMat2d(p2, p2, transformMat);
     vec2.transformMat2d(p3, p3, transformMat);
@@ -151,10 +161,12 @@ export class RendererRectangleDrawingView extends RendererDrawingViewBase<Rectan
     this.l4MouseMoveHandler = this.pointMouseMoveHandler.bind(this, [false, false, false, true]);
   }
 
+  @action
   pointMouseMoveStartHandler(targets: [boolean, boolean, boolean, boolean], e: MouseEvent) {
     return true;
   }
 
+  @action
   pointMouseMoveHandler(targets: [boolean, boolean, boolean, boolean], e: MouseEvent) {
     const controller = this.props.rendererViewController
     const timeline = controller.timelineViewController.timelineHost.timeline;
@@ -248,17 +260,12 @@ export class RendererRectangleDrawingView extends RendererDrawingViewBase<Rectan
 
 }
 
-@observer
-export class RendererPolygonDrawingView extends RendererDrawingViewBase<Polygon> {
-
-  constructor(props: RendererUIDrawingProps<Polygon>) {
-    super(props);
-  }
-
+class RendererPolygonDrawingControlRenderer extends RendererDrawingViewBase<Polygon> {
   pointMouseMoveStartHandler(index: number, e: MouseEvent) {
     return true;
   }
 
+  @action
   pointMouseMoveHandler(index: number, e: MouseEvent) {
     const controller = this.props.rendererViewController
     const timeline = controller.timelineViewController.timelineHost.timeline;
@@ -274,11 +281,40 @@ export class RendererPolygonDrawingView extends RendererDrawingViewBase<Polygon>
     vec2.transformMat2d(vec, vec, transMat);
     vec = vec2.sub(vec, vec, ori);
 
-    const pointProperty = drawing.points[index];
-    const currentPos = pointProperty.getInterpolatedPropertyValue(timeoffset);
+    const pathProperty = drawing.path;
+    const path = pathProperty.getInterpolatedPropertyValue(timeoffset);
 
-    pointProperty.addKeyframeAt(timeoffset,
-        pointProperty.createValue(currentPos.x + vec[0], currentPos.y + vec[1]));
+    let keyframe = pathProperty.getKeyframeAt(timeoffset);
+    if (keyframe == null) keyframe = pathProperty.addKeyframeAt(timeoffset,
+        pathProperty.cloneValue(pathProperty.getInterpolatedPropertyValue(timeoffset)));
+    keyframe.value[index].x = keyframe.value[index].x + vec[0]
+    keyframe.value[index].y = keyframe.value[index].y + vec[1]
+    // pointProperty.addKeyframeAt(timeoffset,
+    //     pointProperty.createValue(currentPos.x + vec[0], currentPos.y + vec[1]));
+  }
+
+  @action
+  lineMouseMoveStartHandler(index: number, e: MouseEvent) {
+    const controller = this.props.rendererViewController;
+    const timeline = controller.timelineViewController.timelineHost.timeline;
+    const trackItem = controller.trackItemHost.trackItem;
+    const drawing = this.props.drawingHost.drawing;
+    const timeoffset = trackItem.getTimeoffset(timeline.currentTime);
+    const pathProperty = drawing.path;
+    const path = pathProperty.getInterpolatedPropertyValue(timeoffset);
+    const pos = controller.toScreenPosition(e);
+    const p1 = path[index];
+    const p2 = path[(index + 1) % path.length];
+    const p1p = vec2.len(vec2.fromValues(pos[0] - p1.x, pos[1] - p1.y));
+    const p1p2 = vec2.len(vec2.fromValues(p2.x - p1.x, p2.y - p1.y));
+    const ratio = p1p / p1p2;
+    pathProperty.insertPoint(index + 1, ratio);
+    return true;
+  }
+
+  @action
+  lineMouseMoveHandler(index: number, e: MouseEvent) {
+    this.pointMouseMoveHandler(index + 1, e);
   }
 
   renderPolygonControls(): JSX.Element[] {
@@ -290,21 +326,46 @@ export class RendererPolygonDrawingView extends RendererDrawingViewBase<Polygon>
     const polygonDrawingHost = this.props.drawingHost;
     const polygonDrawing = polygonDrawingHost.drawing;
     const transMat = polygonDrawing.getTransformMatrix(timeoffset);
-    for (let i = 0; i < polygonDrawing.points.length; i ++) {
-      const pointProperty = polygonDrawing.points[i];
+    const pathProprety = polygonDrawing.path;
+    const currentPath = pathProprety.getInterpolatedPropertyValue(timeoffset);
+    for (let i = 0; i < currentPath.length; i ++) {
+      const currentPos1 = currentPath[i];
+      const currentPos2 = currentPath[(i + 1) % currentPath.length];
       const mouseMoveStartHandler = this.pointMouseMoveStartHandler.bind(this, i);
       const mouseMoveHandler = this.pointMouseMoveHandler.bind(this, i);
-      const currentPos = pointProperty.getInterpolatedPropertyValue(timeoffset);
-      let vec = vec2.fromValues(currentPos.x, currentPos.y);
-      vec2.transformMat2d(vec, vec, transMat);
+      let pvec1 = vec2.fromValues(currentPos1.x, currentPos1.y);
+      const lineMouseMoveStartHandler = this.lineMouseMoveStartHandler.bind(this, i);
+      const lineMouseMoveHandler = this.lineMouseMoveHandler.bind(this, i);
+      let pvec2 = vec2.fromValues(currentPos2.x, currentPos2.y);
+      vec2.transformMat2d(pvec1, pvec1, transMat);
+      vec2.transformMat2d(pvec2, pvec2, transMat);
       res.push(
-        <RendererDrawingControlPoint x={vec[0]} y={vec[1]}
+        <RendererDrawingControlPoint x={pvec1[0]} y={pvec1[1]}
             rendererViewController={controller}
             onDocumentMouseMoveStart={mouseMoveStartHandler}
             onDocumentMouseMove={mouseMoveHandler}/>)
+      res.push(
+        <RendererDrawingControlLine x1={pvec1[0]} y1={pvec1[1]} x2={pvec2[0]} y2={pvec2[1]}
+            rendererViewController={controller}
+            onDocumentMouseMoveStart={lineMouseMoveStartHandler}
+            onDocumentMouseMove={lineMouseMoveHandler}/>)
     }
     return res;
   }
+}
+
+@observer
+export class RendererPolygonDrawingView extends RendererDrawingViewBase<Polygon> implements RendererPolygonDrawingControlRenderer {
+
+  constructor(props: RendererUIDrawingProps<Polygon>) {
+    super(props);
+  }
+
+  pointMouseMoveStartHandler: (index: number, e: MouseEvent) => boolean;
+  pointMouseMoveHandler: (index: number, e: MouseEvent) => void;
+  renderPolygonControls: () => JSX.Element[];
+  lineMouseMoveStartHandler(index: number, e: MouseEvent) {return false;}
+  lineMouseMoveHandler(index: number, e: MouseEvent) {}
 
   render() {
     return (
@@ -315,3 +376,28 @@ export class RendererPolygonDrawingView extends RendererDrawingViewBase<Polygon>
   }
 
 }
+applyMixins(RendererPolygonDrawingView, [RendererPolygonDrawingControlRenderer]);
+
+@observer
+export class RendererMaskDrawingView extends RendererDrawingViewBase<MaskDrawing> implements RendererPolygonDrawingControlRenderer {
+
+  constructor(props: RendererUIDrawingProps<Polygon>) {
+    super(props);
+  }
+
+  pointMouseMoveStartHandler (index: number, e: MouseEvent) {return false;}
+  pointMouseMoveHandler(index: number, e: MouseEvent) {}
+  renderPolygonControls():JSX.Element[] {return null;}
+  lineMouseMoveStartHandler(index: number, e: MouseEvent) {return false;}
+  lineMouseMoveHandler(index: number, e: MouseEvent) {}
+
+  render() {
+    return (
+      <div className='drawing polygon-drawing'>
+        {this.renderPolygonControls()}
+      </div>
+    )
+  }
+
+}
+applyMixins(RendererMaskDrawingView, [RendererPolygonDrawingControlRenderer]);

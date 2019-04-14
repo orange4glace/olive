@@ -2,11 +2,14 @@ import { TimelineViewController, TrackItemHost } from "window/view/timeline/cont
 import { computed, observable } from "window/app-mobx";
 import app from "internal/app";
 import { vec2 } from "gl-matrix";
+import { MouseUtil } from "orangeutil";
 
 export class RendererViewController {
 
   @observable viewWidth: number;
   @observable viewHeight: number;
+
+  containerRef: React.RefObject<HTMLDivElement>;
 
   timelineViewController: TimelineViewController;
 
@@ -31,6 +34,14 @@ export class RendererViewController {
   setViewSize(width: number, height: number) {
     this.viewWidth = width;
     this.viewHeight = height;
+  }
+
+  toScreenPosition(e: MouseEvent): [number, number] {
+    const container = this.containerRef.current;
+    const pos = MouseUtil.mousePositionElement(e, container);
+    return [
+      app.project.sequence.screenWidth / this.viewWidth * pos.x,
+      app.project.sequence.screenHeight / this.viewHeight * pos.y];
   }
 
   toScreenSize(x: number, y: number): [number, number] {

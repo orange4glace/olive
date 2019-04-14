@@ -1,24 +1,21 @@
 import { DrawingBase, Drawing } from './drawing';
 import { Postable, postable } from 'worker-postable';
 import { DrawingType } from './drawing-type';
-import PostableVector2 from 'util/postable_vector2';
-import { Vector2Property, Vector2PropertyBase } from './property';
+import { PolyPathProperty, PolyPathPropertyBase, Vector2Property } from './property';
+import { Vector2 } from 'oliveutil/vector2';
 
 export interface PolygonBase extends DrawingBase {
-  points: Vector2PropertyBase[];
+  path: PolyPathPropertyBase;
 }
 
 @Postable
-export class Polygon extends Drawing implements PolygonBase {
+export abstract class Polygon extends Drawing implements PolygonBase {
 
-  @postable points: Vector2Property[] = [];
+  @postable path: PolyPathProperty;
 
-  constructor(type?: DrawingType) {
-    super(type || DrawingType.POLYGON);
-  }
-
-  addPoint(x: number, y: number) {
-    const point = new Vector2Property(new PostableVector2(x, y));
-    this.points.push(point);
+  constructor(type: DrawingType, position: Vector2Property, scale: Vector2Property, path: Vector2[]) {
+    super(type, position, scale);
+    this.path = new PolyPathProperty(path);
+    this.addProperty(this.path);
   }
 }

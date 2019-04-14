@@ -13,7 +13,8 @@ export interface TrackItemBase {
   time: TimePairBase;
   baseTime: number;
 
-  drawing: DrawingBase;
+  videoDrawing: DrawingBase;
+  audioDrawing: DrawingBase;
 }
 
 @Postable
@@ -25,7 +26,8 @@ export default class TrackItem implements TrackItemBase {
   @postable time: TimePair;
   @postable baseTime: number;
 
-  @postable drawing: Drawing;
+  @postable videoDrawing: Drawing;
+  @postable audioDrawing: Drawing;
 
   constructor(type: TrackItemType = TrackItemType.NORMAL) {
     this.id = _nextTrackItemID++;

@@ -1,0 +1,11 @@
+@import "window/theme.scss";
+@import "../common.scss";
+
+.component {
+  min-height: 100%;
+  border-right: 1px solid $bright-background;
+
+  > .header {
+    height: $property-header-height;
+  }
+}

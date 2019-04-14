@@ -6,6 +6,6 @@ import { TimelineRenderer } from './timeline';
 import { renderer } from './renderer';
 
 console.log('render running')
-console.log(ObjectStore);
+console.log(ObjectStore,ConstructorStore);
 
 renderer;

@@ -24,24 +24,23 @@ export interface DrawingBase {
 export abstract class Drawing implements DrawingBase {
 
   @postable type: DrawingType;
+  parent: Drawing;
 
   @postable position: Vector2Property;
   @postable scale: Vector2Property;
   @postable children: Array<Drawing>;
 
-  parent: Drawing;
 
   properties: Property<any>[] = [];
 
   ee: EventEmitter2;
 
-  constructor(type: DrawingType) {
+  constructor(type: DrawingType, position: Vector2Property, scale: Vector2Property) {
     this.type = type;
-    this.position = new Vector2Property(new PostableVector2(0, 0));
-    this.scale = new Vector2Property(new PostableVector2(1, 1));
-
     this.ee = new EventEmitter2();
 
+    this.position = position;
+    this.scale = scale;
     this.children = new Array<Drawing>();
 
     this.addProperty(this.position);

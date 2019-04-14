@@ -1,22 +1,21 @@
 import * as React from 'react'
 
 import ZoomableScrollView, { ZoomableScrollViewController } from "window/view/zoomable-scroll-view";
-import { Property, Keyframe, Rectangle, Paper } from 'internal/drawing';
+import { Property, Keyframe, Rectangle, Paper, PropertyTypes, Drawing } from 'internal/drawing';
 import Timeline from 'internal/timeline/timeline';
 import TrackItem from 'internal/timeline/track-item';
 import { observable, autorun, observer, computed } from 'window/app-mobx';
 import { IReactionDisposer } from 'mobx';
 import { DrawingType } from 'internal/drawing/drawing-type';
 import { PropertyViewController } from '../control/property-view-controller';
-import { TrackItemHost } from '../control/track-item-host';
 import { PropertyTimelineHeaderView } from './header-view';
-
-import { KeyframeHost } from '../control/keyframe-host';
-import { DrawingHost } from '../control/drawing-host';
-import { PropertyHost } from '../control/property-host';
 
 import * as style from './index.scss'
 import VideoDrawing from 'internal/drawing/video-drawing';
+import { DrawingHost } from 'window/view/timeline/controller/drawing-host';
+import { PropertyHost } from 'window/view/timeline/controller/property-host';
+import { KeyframeHost } from 'window/view/timeline/controller/keyframe-host';
+import { MaskDrawing } from 'internal/drawing/mask';
 
 export interface PropertyTimelineViewProps {
   propertyViewController: PropertyViewController;
@@ -205,7 +204,7 @@ class PropertyTimelineDrawingPropertyGroupView extends React.Component<PropertyT
 }
 
 interface PropertyTimelinePropertyViewProps extends PropertyTimelineDrawingViewProps {
-  propertyHost: PropertyHost;
+  propertyHost: PropertyHost<Property<PropertyTypes>>;
 }
 
 @observer
@@ -232,7 +231,7 @@ class PropertyTimelineKeyframeView extends React.Component<PropertyTimelinePrope
 
 interface PropertyTimelineKeyframeViewProps extends PropertyTimelinePropertyViewProps {
   drawingHost: DrawingHost<any>;
-  propertyHost: PropertyHost;
+  propertyHost: PropertyHost<Property<PropertyTypes>>;
   keyframeHost: KeyframeHost;
 }
 
@@ -245,7 +244,7 @@ class KeyframeView extends React.Component<PropertyTimelineKeyframeViewProps, {}
 
   render() {
     const controller = this.props.propertyViewController;
-    const timeline = controller.timeline;
+    const timeline = controller.timelineViewController.timelineHost.timeline;
     const trackItem = controller.trackItemHost.trackItem;
     const keyframeHost = this.props.keyframeHost;
     const keyframe = keyframeHost.keyframe;
@@ -277,16 +276,16 @@ class DrawingKeyframeContentView extends React.Component<PropertyTimelineDrawing
 
 }
 
-interface DrawingKeyframeContentViewProps extends PropertyTimelineDrawingViewProps {
-  drawingHost: DrawingHost<any>
+interface DrawingKeyframeContentViewProps<T extends DrawingHost<Drawing>> extends PropertyTimelineDrawingViewProps {
+  drawingHost: T;
 }
 
 @observer
-class PaperDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps, any> {
+class PaperDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps<DrawingHost<Paper>>, any> {
 
   render() {
     const drawingHost = this.props.drawingHost;
-    const paper = this.props.drawingHost.drawing as Paper;
+    const paper = this.props.drawingHost.drawing;
     const positionPropertyHost = drawingHost.getPropertyHost(paper.position);
     const scalePropertyHost = drawingHost.getPropertyHost(paper.scale);
     return (
@@ -306,11 +305,11 @@ class PaperDrawingKeyframeContentView extends React.Component<DrawingKeyframeCon
 }
 
 @observer
-class RectangleDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps, any> {
+class RectangleDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps<DrawingHost<Rectangle>>, any> {
 
   render() {
     const drawingHost = this.props.drawingHost;
-    const rectangle = this.props.drawingHost.drawing as Rectangle;
+    const rectangle = this.props.drawingHost.drawing;
     const positionPropertyHost = drawingHost.getPropertyHost(rectangle.position);
     const scalePropertyHost = drawingHost.getPropertyHost(rectangle.scale);
     return (
@@ -323,19 +322,39 @@ class RectangleDrawingKeyframeContentView extends React.Component<DrawingKeyfram
 }
 
 @observer
-class VideoDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps, any> {
+class VideoDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps<DrawingHost<VideoDrawing>>, any> {
 
   render() {
     const drawingHost = this.props.drawingHost;
-    const video = this.props.drawingHost.drawing as VideoDrawing;
-    const positionPropertyHost = drawingHost.getPropertyHost(video.position);
-    const scalePropertyHost = drawingHost.getPropertyHost(video.scale);
-    const sizePropertyHost = drawingHost.getPropertyHost(video.size);
+    const videoDrawing = this.props.drawingHost.drawing;
+    const positionPropertyHost = drawingHost.getPropertyHost(videoDrawing.position);
+    const scalePropertyHost = drawingHost.getPropertyHost(videoDrawing.scale);
     return (
       <PropertyTimelineDrawingPropertyGroupView {...this.props}>
         <PropertyTimelineKeyframeView {...this.props} propertyHost={positionPropertyHost}/>
         <PropertyTimelineKeyframeView {...this.props} propertyHost={scalePropertyHost}/>
-        <PropertyTimelineKeyframeView {...this.props} propertyHost={sizePropertyHost}/>
+        {
+          videoDrawing.masks.map(maskDrawing =>
+              createDrawingPropertyKeyframeView(maskDrawing.type, {
+            ...this.props,
+            drawingHost: drawingHost.getChildDrawingHost(maskDrawing)
+          }))
+        }
+      </PropertyTimelineDrawingPropertyGroupView>
+    )
+  }
+}
+
+@observer
+class MaskDrawingKeyframeContentView extends React.Component<DrawingKeyframeContentViewProps<DrawingHost<MaskDrawing>>, any> {
+
+  render() {
+    const drawingHost = this.props.drawingHost;
+    const maskDrawing = this.props.drawingHost.drawing;
+    const pathPropertyHost = drawingHost.getPropertyHost(maskDrawing.path);
+    return (
+      <PropertyTimelineDrawingPropertyGroupView {...this.props}>
+        <PropertyTimelineKeyframeView {...this.props} propertyHost={pathPropertyHost}/>
       </PropertyTimelineDrawingPropertyGroupView>
     )
   }
@@ -344,10 +363,11 @@ class VideoDrawingKeyframeContentView extends React.Component<DrawingKeyframeCon
 const DrawingPropertyKeyframeViewMap: any = {
   [DrawingType.PAPER]: PaperDrawingKeyframeContentView,
   [DrawingType.RECTANGLE]: RectangleDrawingKeyframeContentView,
-  [DrawingType.VIDEO]: VideoDrawingKeyframeContentView
+  [DrawingType.VIDEO]: VideoDrawingKeyframeContentView,
+  [DrawingType.MASK]: MaskDrawingKeyframeContentView,
 }
 
-function createDrawingPropertyKeyframeView(type: DrawingType, props: DrawingKeyframeContentViewProps) {
+function createDrawingPropertyKeyframeView(type: DrawingType, props: DrawingKeyframeContentViewProps<DrawingHost<Drawing>>) {
   return React.createElement(
     DrawingPropertyKeyframeViewMap[type], {
       ...props,

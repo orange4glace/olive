@@ -3,9 +3,9 @@ import Timeline from "internal/timeline/timeline";
 import { ZoomableScrollViewController } from "window/view/zoomable-scroll-view";
 import { MouseUtil } from "orangeutil";
 import TrackItem from "internal/timeline/track-item";
-import { TrackItemHost } from "./track-item-host";
 import { EventEmitter2 } from "eventemitter2";
-import { KeyframeHost } from "./keyframe-host";
+import { TrackItemHost, TimelineViewController } from "window/view/timeline/controller";
+import { KeyframeHost } from "../timeline/controller/keyframe-host";
 
 interface PropertyViewEvent {
   a: number;
@@ -19,9 +19,9 @@ export interface PropertyTimelineKeyframeEvent extends PropertyTimelineEvent {
   keyframeHost: KeyframeHost;
 }
 
-export class PropertyViewController {
+export class EffectControlViewController {
 
-  timeline: Timeline;
+  timelineViewController: TimelineViewController;
   trackItemHost: TrackItemHost;
   
   @observable baseTimecode: number;
@@ -35,9 +35,9 @@ export class PropertyViewController {
 
   private ee: EventEmitter2;
 
-  constructor(timeline: Timeline, trackItem: TrackItem) {
-    this.timeline = timeline;
-    this.trackItemHost = new TrackItemHost(trackItem);
+  constructor(timelineViewController: TimelineViewController, trackItemHost: TrackItemHost) {
+    this.timelineViewController = timelineViewController;
+    this.trackItemHost = trackItemHost;
     this.ee = new EventEmitter2();
   }
   

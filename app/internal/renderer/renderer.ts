@@ -57,7 +57,11 @@ export class Renderer {
     const canvas = req.data.data;
     console.log(req, canvas)
     const nanovg = require(`../../../nanovg-webgl/build/Release/nanovg_node_webgl.node`);
-    let gl: WebGLRenderingContext = canvas.getContext('webgl2');
+    let gl: WebGLRenderingContext = canvas.getContext('webgl2', {
+      alpha: true,
+      premultipliedAlpha: false,
+      stencil: true
+    });
     (self as any).gl = gl;
     this.vg = nanovg.initNanoVG(gl);
 
