@@ -6,10 +6,17 @@ import Track, { TrackBase } from './track'
 import VideoTrackItem from './video-track-item';
 import { Resource } from 'internal/resource';
 import { EventEmitter2 } from 'eventemitter2';
+import { Event, Emitter } from 'base/common/event';
+import TrackItem from 'internal/timeline/track-item';
+import { Disposable } from 'base/common/lifecycle';
 
 export enum TimelineEvent {
   TRACK_ADDED = 'TRACK_ADDED',
   TRACK_REMOVED = 'TRACK_REMOVED',
+}
+
+export interface TimelineTrackEvent {
+  readonly track: Track;
 }
 
 export interface TimelineBase {
@@ -21,7 +28,7 @@ export interface TimelineBase {
 }
 
 @Postable
-export default class Timeline implements TimelineBase {
+export default class Timeline extends Disposable implements TimelineBase {
 
   @postable totalTime: number;
   @postable currentTime: number;
@@ -31,6 +38,7 @@ export default class Timeline implements TimelineBase {
   private ee: EventEmitter2;
 
   constructor() {
+    super();
     this.ee = new EventEmitter2();
     this.tracks = [];
 
@@ -53,27 +61,17 @@ export default class Timeline implements TimelineBase {
   addTrack(): Track {
     let track = new Track();
     this.tracks.push(track);
-    this.emitEvent(TimelineEvent.TRACK_ADDED, track);
+    this.onTrackAdded_.fire({
+      track: track
+    })
     return track;
   }
 
-  
-  // Event Emitter
-  addEventListener(type: (TimelineEvent.TRACK_ADDED | TimelineEvent.TRACK_REMOVED),
-      callback: (track: Track) => void): void;
-  addEventListener(type: TimelineEvent, callback: (...args: any) => void) {
-    this.ee.addListener(type, callback);
-  }
-  
-  removeEventListener(type: (TimelineEvent.TRACK_ADDED | TimelineEvent.TRACK_REMOVED),
-      callback: (track: Track) => void): void;
-      removeEventListener(type: TimelineEvent, callback: (...args: any) => void) {
-    this.ee.removeListener(type, callback);
-  }
-  
-  emitEvent(type: (TimelineEvent.TRACK_ADDED | TimelineEvent.TRACK_REMOVED), track: Track): void;
-  emitEvent(type: TimelineEvent, ...args: any) {
-    this.ee.emit.bind(this.ee, event).apply(this.ee, args);
-  }
-  
+
+  private readonly onTrackAdded_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
+  readonly onTrackAdded: Event<TimelineTrackEvent> = this.onTrackAdded_.event;
+
+  private readonly onTrackWillRemove_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
+  readonly onTrackWillRemove: Event<TimelineTrackEvent> = this.onTrackWillRemove_.event;
+
 }

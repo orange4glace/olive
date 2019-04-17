@@ -2,18 +2,14 @@ import { Postable, postable } from 'worker-postable'
 
 import TrackItem, { TrackItemBase } from './track-item'
 import TrackItemType from './track-item-type';
-import { IResource } from 'standard';
-import VideoDrawing, { VideoDrawingBase } from 'internal/drawing/video-drawing';
-import { Rectangle, Paper, Polygon, Vector2Property } from 'internal/drawing';
-import { Resource, ResourceBase, VideoResource } from 'internal/resource';
+import { ResourceBase, VideoResource } from 'internal/resource';
 import { TimePair } from './time-pair';
-import PostableVector2 from 'util/postable_vector2';
-import { Vector4 } from 'oliveutil/vector4';
-import { MaskDrawing } from 'internal/drawing/mask';
-import { Vector2 } from 'oliveutil/vector2';
+import { VideoRendering, VideoRenderingBase } from 'internal/rendering/rendering/video-rendering';
 
 export interface VideoTrackItemBase extends TrackItemBase {
   resource: ResourceBase;
+
+  videoRendering: VideoRenderingBase;
 }
 
 @Postable
@@ -21,26 +17,13 @@ export default class VideoTrackItem extends TrackItem implements VideoTrackItemB
 
   @postable resource: VideoResource;
 
+  @postable videoRendering: VideoRendering;
+
   constructor(resource: VideoResource) {
     super(TrackItemType.VIDEO);
     this.resource = resource;
 
-    this.videoDrawing = new VideoDrawing(
-        resource,
-        new Vector2Property(new Vector2(0, 0)),
-        new Vector2Property(new Vector2(1, 1)));
-
-    // const rectangle = new Rectangle();
-    // rectangle.size.defaultValue = new Vector4(-100, 100, 100, -100);
-    // this.drawing.addDrawing(rectangle);
-
-    let path: Vector2[] = [];
-    path.push(new Vector2(0, 0));
-    path.push(new Vector2(100, 0));
-    path.push(new Vector2(100, 100));
-    path.push(new Vector2(0, 100));
-    const mask = new MaskDrawing(path);
-    this.videoDrawing.addMask(mask);
+    this.videoRendering = new VideoRendering();
   }
 
   clone(): VideoTrackItem {

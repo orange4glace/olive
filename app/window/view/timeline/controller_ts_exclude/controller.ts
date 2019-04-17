@@ -1,0 +1,253 @@
+import * as React from 'react';
+import { observable, action } from 'window/app-mobx';
+import { EventEmitter2 } from 'eventemitter2'
+
+import { MouseUtil } from 'orangeutil'
+import { ZoomableScrollViewController } from 'window/view/zoomable-scroll-view'
+
+import TimelineHost from './timeline-host'
+import Timeline from 'internal/timeline/timeline';
+
+export enum TimelineViewEventType {
+  TRACKS_MOUSE_MOVE_START = 'TRACKS_MOUSE_MOVE_START',
+  TRACK_DRAG_OVER = 'TRACK_DRAG_OVER',
+  TRACK_DROP = 'TRACK_DROP'
+}
+
+interface ReactComponentClass {
+  new (): React.Component; }
+
+export default class TimelineViewController {
+
+  timelineHost: TimelineHost;
+  scrollViewController: ZoomableScrollViewController;
+
+  @observable active: boolean = false;
+  snapThreshold: number = 10;
+
+  @observable startTime: number;
+  @observable endTime: number;
+  @observable pxPerFrame: number;
+  unitFrameTime: number;
+  unitWidth: number;
+
+  tracksViewRef: React.RefObject<any>;
+
+  ee: EventEmitter2;
+
+  constructor(timeline: Timeline) {
+    this.timelineHost = new TimelineHost(timeline);
+
+    this.tracksViewRef = React.createRef();
+
+    this.ee = new EventEmitter2();
+
+    this.update = this.update.bind(this);
+    // this.commit = this.commit.bind(this);
+  }
+
+  attachScrollViewController(scrollViewController: ZoomableScrollViewController) {
+    this.scrollViewController = scrollViewController
+    scrollViewController.ee.on('update', this.update);
+  }
+
+  @action
+  private update() {
+    const controller = this.scrollViewController;
+    const timeline = this.timelineHost.timeline;
+    let startTime = Math.floor(timeline.totalTime * controller.start);
+    let endTime = Math.ceil(timeline.totalTime * controller.end);
+    this.startTime = startTime;
+    this.endTime = endTime;
+    let unitFrameTime = 30;
+    let unitWidth = controller.scrollWidth / ((endTime - startTime) / unitFrameTime);
+    if (unitWidth <= 0) return;
+    let multiplier = [5,2,3,2];
+    let multiplierI = 0;
+    if (unitWidth > 150) {
+      while (true) {
+        let cand = unitWidth / multiplier[multiplierI];
+        if (cand < 150) break;
+        unitWidth = cand;
+        unitFrameTime /= multiplier[multiplierI];
+        multiplierI = (++multiplierI % multiplier.length);
+      }
+    }
+    else {
+      while (unitWidth < 150) {
+        unitWidth = unitWidth * multiplier[multiplierI];
+        unitFrameTime *= multiplier[multiplierI];
+        multiplierI = (++multiplierI % multiplier.length);
+      }
+    }
+    this.pxPerFrame = unitWidth / unitFrameTime;
+    this.unitFrameTime = unitFrameTime;
+    this.unitWidth = unitWidth;
+
+    this.ee.emit('update');
+  }
+
+  setSnapThreshold(value: number) {
+    this.snapThreshold = value;
+  }
+
+  getClosestSnapTime(time: number) {
+    let result = time;
+    let dt = Infinity;
+    this.timelineHost.trackHosts.forEach(trackHost => {
+      const localSnapTime = trackHost.getClosestSnapTime(time);
+      const localDt = Math.abs(time - localSnapTime);
+      if (localDt < dt) {
+        dt = localDt;
+        result = localSnapTime;
+      }
+    })
+
+    // Finally check currentTime
+    const localDt = Math.abs(time - this.timelineHost.timeline.currentTime)
+    if (localDt < dt) {
+      dt = localDt;
+      result = this.timelineHost.timeline.currentTime;
+    }
+
+    return result;
+  }
+
+
+
+
+
+
+/*
+  commit() {
+    this.timelineHost.trackHosts.forEach(trackHost => {
+      const track = trackHost.track;
+      trackHost.trackItemHostsActive.forEach(trackItemHost => {
+        const trackItem = trackItemHost.trackItem;
+        if (trackItem) track.unlink(trackItem);
+      });
+    });
+    this.timelineHost.trackHosts.forEach(trackHost => {
+      const track = trackHost.track;
+      trackHost.trackItemHostsActive.forEach(trackItemHost => {
+        track.clearTime(trackItemHost.startTimeActive, trackItemHost.endTimeActive);
+      });
+    });
+    this.timelineHost.trackHosts.forEach(trackHost => {
+      const track = trackHost.track;
+      trackHost.trackItemHostsActive.forEach(trackItemHost => {
+        let trackItem = trackItemHost.trackItem;
+        track.setTrackItemTime(trackItem, trackItemHost.startTimeActive, trackItemHost.endTimeActive);
+        track.link(trackItem);
+      });
+    });
+    // clear all activated items
+    this.timelineHost.trackHosts.forEach(trackHost => {
+      trackHost.deactiveTrackItemHostsAll();
+    });
+    this.active = false;
+  }
+*/
+
+
+
+
+
+
+
+
+
+
+
+  getSnappedTime(time: number) {
+    const snap = this.getClosestSnapTime(time);
+    const gap = Math.abs(snap - time);
+    if (gap <= this.getTimeAmountRelativeToTimeline(this.snapThreshold))
+      return snap;
+    return time;
+  }
+
+  getTimeRelativeToTimeline(px: number) {
+    return Math.round(this.startTime + px / this.pxPerFrame);
+  }
+
+  getTimeAmountRelativeToTimeline(px: number) {
+    return px / this.pxPerFrame;
+  }
+
+  getPositionRelativeToTimeline(time: number) {
+    // Touch |endTime| variable so observer can detect the change
+    this.endTime;
+    return Math.floor((time - this.startTime) * this.pxPerFrame);
+  }
+
+  getPixelAmountRelativeToTimeline(time: number) {
+    return time * this.pxPerFrame;
+  }
+
+  getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent) {
+    return MouseUtil.mousePositionElement(e, this.tracksViewRef.current);
+  }
+
+
+  // Event
+  addEventListener(event: TimelineViewEventType.TRACKS_MOUSE_MOVE_START,
+      callback: (e: MouseEvent) => void): void;
+  addEventListener(event: TimelineViewEventType, callback: (...args: any) => void): void {
+    this.ee.addListener(event, callback);
+  }
+
+  removeEventListener(event: TimelineViewEventType.TRACKS_MOUSE_MOVE_START,
+      callback: (e: MouseEvent) => void): void;
+  removeEventListener(event: TimelineViewEventType, callback: (...args: any) => void): void {
+    this.ee.removeListener(event, callback);
+  }
+
+  fireEvent(event: TimelineViewEventType.TRACKS_MOUSE_MOVE_START, e: MouseEvent): void;
+  fireEvent(event: TimelineViewEventType, ...args: any): void {
+    this.ee.emit.bind(this.ee, event).apply(this.ee, args);
+  }
+}
+
+/*
+// Only for rgb-color app
+export class ClipboardExtension {
+  
+  controller: TimelineViewController;
+
+  clipboard: Array<TrackItem> = [];
+
+  constructor(controller: TimelineViewController) {
+    this.controller = controller;
+
+    hotkeys('control+c', () => {
+      this.clipboard = [];
+      let minTime = Infinity;
+      this.controller.timelineHost.trackHosts.forEach(trackHost => {
+        trackHost.trackItemHosts.forEach(trackItemHost => {
+          if (trackItemHost.focused) {
+            this.clipboard.push(trackItemHost.trackItem.clone())
+            minTime = Math.min(trackItemHost.trackItem.startTime, minTime);
+          }
+        })
+      })
+      this.clipboard.forEach(trackItem => {
+        trackItem.startTime -= minTime;
+        trackItem.endTime -= minTime;
+      });
+    })
+
+    hotkeys('control+v', () => {
+      this.controller.timelineHost.trackHosts.forEach(trackHost => {
+        this.clipboard.forEach(trackItem => {
+          const item = trackItem.clone()
+          item.startTime += this.controller.timelineHost.timeline.getCurrentTime();
+          item.endTime += this.controller.timelineHost.timeline.getCurrentTime();
+          trackHost.track.clearTime(item.startTime, item.endTime);
+          trackHost.track.addTrackItem(item);
+        })
+      })
+    })
+  }
+}
+*/

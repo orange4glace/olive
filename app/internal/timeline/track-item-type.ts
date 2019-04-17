@@ -1,6 +1,7 @@
 enum TrackItemType {
-  NORMAL,
-  VIDEO
+  VIDEO,
+  VIDEO_MEDIA,
+  AUDIO,
 }
 
 export default TrackItemType;

@@ -2,18 +2,24 @@ import { Postable, postable } from 'worker-postable';
 
 import TrackItem, { TrackItemBase } from './track-item'
 
-import { TreeMap, Pair, IComparable } from 'tstl';
-import { Iterator, MapIterator } from 'tstl/base';
+import { TreeMap, Pair, } from 'tstl';
+import { MapIterator } from 'tstl/base';
 import { EventEmitter2 } from 'eventemitter2';
 import { TimePair, TimePairBase } from './time-pair';
 import { observable } from 'mobx';
+import { Emitter, Event } from 'base/common/event';
+import { Disposable } from 'base/common/lifecycle';
 
 let _nextTrackID = 0;
 
-export enum TrackEvent {
-  TRACK_ITEM_ADDED = 'TRACK_ITEM_ADDED',
-  TRACK_ITEM_REMOVED = 'TRACK_ITEM_REMOVED',
-  TRACK_ITEM_TIME_CHANGED = 'TRACK_ITEM_CHANGED'
+export interface TrackTrackItemEvent {
+  readonly trackItem: TrackItem;
+}
+
+export interface TrackItemTimeChangedEvent {
+  readonly trackItem: TrackItem;
+  readonly old: TimePair;
+  readonly new: TimePair;
 }
 
 export interface TrackBase {
@@ -23,7 +29,7 @@ export interface TrackBase {
 }
 
 @Postable
-export default class Track implements TrackBase {
+export default class Track extends Disposable implements TrackBase {
 
   readonly id: number;
   @observable name: string;
@@ -34,6 +40,7 @@ export default class Track implements TrackBase {
   private ee: EventEmitter2;
 
   constructor() {
+    super();
     this.name = 'unnamed track';
     // Initialize objects
     this.trackItems = new Map();
@@ -92,15 +99,19 @@ export default class Track implements TrackBase {
   private _addTrackItem(trackItem: TrackItem) {
     this.trackItems.set(trackItem, trackItem.time);
     this.trackItemTreeMap.insert(new Pair(trackItem.time, trackItem));
-    this.ee.emit(TrackEvent.TRACK_ITEM_ADDED, trackItem);
+    this.onTrackItemAdded_.fire({
+      trackItem: trackItem
+    })
   }
 
   private _removeTrackItem(trackItem: TrackItem) {
     console.assert(this.trackItems.has(trackItem));
-    this.trackItems.delete(trackItem);
     console.assert(this.trackItemTreeMap.count(trackItem.time));
+    this.onTrackItemWillRemove_.fire({
+      trackItem: trackItem
+    })
+    this.trackItems.delete(trackItem);
     this.trackItemTreeMap.erase(trackItem.time);
-    this.ee.emit(TrackEvent.TRACK_ITEM_REMOVED, trackItem);
   }
 
   private _setTrackItemTime(trackItem: TrackItem, timePair: TimePair, baseTime: number): void {
@@ -118,7 +129,11 @@ export default class Track implements TrackBase {
     this.trackItems.set(trackItem, timePair);
     this.trackItemTreeMap.insert(new Pair(timePair, trackItem));
     
-    this.ee.emit(TrackEvent.TRACK_ITEM_TIME_CHANGED, trackItem, lastTimePair, timePair);
+    this.onTrackItemTimeChanged_.fire({
+      trackItem: trackItem,
+      old: lastTimePair,
+      new: timePair
+    })
   }
 
   private _clearTime(startTime: number, endTime: number) {
@@ -174,22 +189,12 @@ export default class Track implements TrackBase {
     return it;
   }
 
+  private readonly onTrackItemAdded_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
+  readonly onTrackItemAdded: Event<TrackTrackItemEvent> = this.onTrackItemAdded_.event;
 
-  // Event Emitter
-  addEventListener(type: (TrackEvent.TRACK_ITEM_ADDED | TrackEvent.TRACK_ITEM_REMOVED),
-      callback: (trackItem: TrackItem) => void): void;
-  addEventListener(type: TrackEvent.TRACK_ITEM_TIME_CHANGED,
-      callback: (trackItem: TrackItem, oldTimePair: TimePair, newTimePair: TimePair) => void): void;
-  addEventListener(type: TrackEvent, callback: (...args: any) => void) {
-    this.ee.addListener(type, callback);
-  }
+  private readonly onTrackItemWillRemove_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
+  readonly onTrackItemWillRemove: Event<TrackTrackItemEvent> = this.onTrackItemWillRemove_.event;
 
-  removeEventListener(type: (TrackEvent.TRACK_ITEM_ADDED | TrackEvent.TRACK_ITEM_REMOVED),
-      callback: (trackItem: TrackItem) => void): void;
-  removeEventListener(type: TrackEvent.TRACK_ITEM_TIME_CHANGED,
-      callback: (trackItem: TrackItem, oldTimePair: TimePair, newTimePair: TimePair) => void): void;
-  removeEventListener(type: TrackEvent, callback: (...args: any) => void) {
-    this.ee.removeListener(type, callback);
-  }
-
+  private readonly onTrackItemTimeChanged_: Emitter<TrackItemTimeChangedEvent> = this._register(new Emitter<TrackItemTimeChangedEvent>());
+  readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent> = this.onTrackItemTimeChanged_.event;
 }

@@ -3,27 +3,33 @@ import app from 'internal/app';
 
 import { TimelineView as TimelineRightView } from 'window/view/timeline/right';
 import ADiv from '../advanced-div';
-import TimelineViewState from './controller/state';
-import { TimelineViewController } from './controller';
 import { LeftTimelineView } from './left/left-timeline-view';
 import { TimelineHeaderView } from './header-view';
+import { TimelineViewController } from './controller/controller';
+import Timeline from 'internal/timeline/timeline';
+import { TimelineViewGlobalController } from './controller/global_controller_impl';
 
 const style = require('./index.scss');
 
+interface TimelineViewProps {
+  timeline: Timeline;
+}
+
 @app.mobx.observer
-class TimelineWindow extends React.Component {
+class TimelineWindow extends React.Component<TimelineViewProps, {}> {
 
   timelineViewController: TimelineViewController;
 
   constructor(props: any) {
     super(props);
 
-    this.timelineViewController = new TimelineViewController(app.timeline);
+    const timeline = this.props.timeline;
+    this.timelineViewController = TimelineViewGlobalController.getTimelineViewController(timeline);
     this.mouseDownCaptureHandler = this.mouseDownCaptureHandler.bind(this);
   }
 
   mouseDownCaptureHandler(e: React.MouseEvent) {
-    TimelineViewState.setFocusedTimelineViewController(this.timelineViewController);
+    TimelineViewGlobalController.focusTimelineViewController(this.timelineViewController);
   }
 
   render() {

@@ -1,8 +1,6 @@
 import { Postable, postable } from 'worker-postable';
 
 import TrackItemType from './track-item-type'
-import { DrawingBase } from 'internal/drawing';
-import { Drawing } from 'internal/drawing/drawing';
 import { TimePair, TimePairBase } from './time-pair';
 
 let _nextTrackItemID = 0;
@@ -12,9 +10,6 @@ export interface TrackItemBase {
 
   time: TimePairBase;
   baseTime: number;
-
-  videoDrawing: DrawingBase;
-  audioDrawing: DrawingBase;
 }
 
 @Postable
@@ -26,10 +21,7 @@ export default class TrackItem implements TrackItemBase {
   @postable time: TimePair;
   @postable baseTime: number;
 
-  @postable videoDrawing: Drawing;
-  @postable audioDrawing: Drawing;
-
-  constructor(type: TrackItemType = TrackItemType.NORMAL) {
+  constructor(type: TrackItemType) {
     this.id = _nextTrackItemID++;
     this.type = type;
   }
