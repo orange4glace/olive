@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { KeyCode, KeyCodeUtils, KeyMod, SimpleKeybinding } from 'base/common/keyCodes';
+import { KeyCode, fromString, KeyMod, SimpleKeybinding } from 'base/common/keyCodes';
 import * as platform from 'base/common/platform'
 
 let KEY_CODE_MAP: { [keyCode: number]: KeyCode } = new Array(230);
@@ -169,7 +169,7 @@ function extractKeyCode(e: KeyboardEvent): KeyCode {
 	if (e.charCode) {
 		// "keypress" events mostly
 		let char = String.fromCharCode(e.charCode).toUpperCase();
-		return KeyCodeUtils.fromString(char);
+		return fromString(char);
 	}
 	return KEY_CODE_MAP[e.keyCode] || KeyCode.Unknown;
 }

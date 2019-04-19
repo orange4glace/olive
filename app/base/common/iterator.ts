@@ -18,86 +18,84 @@ export interface Iterator<T> {
 	next(): IteratorResult<T>;
 }
 
-export module Iterator {
-	const _empty: Iterator<any> = {
-		next() {
-			return FIN;
+const _empty: Iterator<any> = {
+	next() {
+		return FIN;
+	}
+};
+
+export function empty<T>(): Iterator<T> {
+	return _empty;
+}
+
+export function fromArray<T>(array: T[], index = 0, length = array.length): Iterator<T> {
+	return {
+		next(): IteratorResult<T> {
+			if (index >= length) {
+				return FIN;
+			}
+
+			return { done: false, value: array[index++] };
 		}
 	};
+}
 
-	export function empty<T>(): Iterator<T> {
-		return _empty;
+export function from<T>(elements: Iterator<T> | T[] | undefined): Iterator<T> {
+	if (!elements) {
+		return empty();
+	} else if (Array.isArray(elements)) {
+		return fromArray(elements);
+	} else {
+		return elements;
 	}
+}
 
-	export function fromArray<T>(array: T[], index = 0, length = array.length): Iterator<T> {
-		return {
-			next(): IteratorResult<T> {
-				if (index >= length) {
-					return FIN;
-				}
-
-				return { done: false, value: array[index++] };
+export function map<T, R>(iterator: Iterator<T>, fn: (t: T) => R): Iterator<R> {
+	return {
+		next() {
+			const element = iterator.next();
+			if (element.done) {
+				return FIN;
+			} else {
+				return { done: false, value: fn(element.value) };
 			}
-		};
-	}
-
-	export function from<T>(elements: Iterator<T> | T[] | undefined): Iterator<T> {
-		if (!elements) {
-			return Iterator.empty();
-		} else if (Array.isArray(elements)) {
-			return Iterator.fromArray(elements);
-		} else {
-			return elements;
 		}
-	}
+	};
+}
 
-	export function map<T, R>(iterator: Iterator<T>, fn: (t: T) => R): Iterator<R> {
-		return {
-			next() {
+export function filter<T>(iterator: Iterator<T>, fn: (t: T) => boolean): Iterator<T> {
+	return {
+		next() {
+			while (true) {
 				const element = iterator.next();
 				if (element.done) {
 					return FIN;
-				} else {
-					return { done: false, value: fn(element.value) };
+				}
+				if (fn(element.value)) {
+					return { done: false, value: element.value };
 				}
 			}
-		};
-	}
-
-	export function filter<T>(iterator: Iterator<T>, fn: (t: T) => boolean): Iterator<T> {
-		return {
-			next() {
-				while (true) {
-					const element = iterator.next();
-					if (element.done) {
-						return FIN;
-					}
-					if (fn(element.value)) {
-						return { done: false, value: element.value };
-					}
-				}
-			}
-		};
-	}
-
-	export function forEach<T>(iterator: Iterator<T>, fn: (t: T) => void): void {
-		for (let next = iterator.next(); !next.done; next = iterator.next()) {
-			fn(next.value);
 		}
-	}
+	};
+}
 
-	export function collect<T>(iterator: Iterator<T>): T[] {
-		const result: T[] = [];
-		forEach(iterator, value => result.push(value));
-		return result;
+export function forEach<T>(iterator: Iterator<T>, fn: (t: T) => void): void {
+	for (let next = iterator.next(); !next.done; next = iterator.next()) {
+		fn(next.value);
 	}
+}
+
+export function collect<T>(iterator: Iterator<T>): T[] {
+	const result: T[] = [];
+	forEach(iterator, value => result.push(value));
+	return result;
 }
 
 export type ISequence<T> = Iterator<T> | T[];
 
 export function getSequenceIterator<T>(arg: Iterator<T> | T[]): Iterator<T> {
 	if (Array.isArray(arg)) {
-		return Iterator.fromArray(arg);
+		return fromArray(arg);
 	} else {
 		return arg;
 	}

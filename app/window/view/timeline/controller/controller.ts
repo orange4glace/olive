@@ -1,9 +1,5 @@
-import { TimelineViewCoreController } from "window/view/timeline/controller/core";
-import { TimelineViewGhostController } from "window/view/timeline/controller/ghost";
+import { TimelineWidgetManipulatorController } from "window/view/timeline/controller/manipulator";
 
-export interface TimelineViewController {
-
-  readonly core: TimelineViewCoreController;
-  readonly ghost: TimelineViewGhostController;
-
+export abstract class TimelineWidgetController {
+  readonly manipulator: TimelineWidgetManipulatorController;
 }

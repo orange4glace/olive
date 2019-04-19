@@ -11,7 +11,7 @@ import { OperatingSystem } from 'base/common/platform'
  * Inspired somewhat from https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
  * But these are "more general", as they should work across browsers & OS`s.
  */
-export const enum KeyCode {
+export enum KeyCode {
 	/**
 	 * Placed first to cover the 0 value of the enum.
 	 */
@@ -359,23 +359,21 @@ const userSettingsGeneralMap = new KeyCodeStrMap();
 
 })();
 
-export namespace KeyCodeUtils {
-	export function toString(keyCode: KeyCode): string {
-		return uiMap.keyCodeToStr(keyCode);
-	}
-	export function fromString(key: string): KeyCode {
-		return uiMap.strToKeyCode(key);
-	}
+export function toString(keyCode: KeyCode): string {
+	return uiMap.keyCodeToStr(keyCode);
+}
+export function fromString(key: string): KeyCode {
+	return uiMap.strToKeyCode(key);
+}
 
-	export function toUserSettingsUS(keyCode: KeyCode): string {
-		return userSettingsUSMap.keyCodeToStr(keyCode);
-	}
-	export function toUserSettingsGeneral(keyCode: KeyCode): string {
-		return userSettingsGeneralMap.keyCodeToStr(keyCode);
-	}
-	export function fromUserSettings(key: string): KeyCode {
-		return userSettingsUSMap.strToKeyCode(key) || userSettingsGeneralMap.strToKeyCode(key);
-	}
+export function toUserSettingsUS(keyCode: KeyCode): string {
+	return userSettingsUSMap.keyCodeToStr(keyCode);
+}
+export function toUserSettingsGeneral(keyCode: KeyCode): string {
+	return userSettingsGeneralMap.keyCodeToStr(keyCode);
+}
+export function fromUserSettings(key: string): KeyCode {
+	return userSettingsUSMap.strToKeyCode(key) || userSettingsGeneralMap.strToKeyCode(key);
 }
 
 /**
@@ -391,7 +389,7 @@ export namespace KeyCodeUtils {
  *  K = bits 0-7 = key code
  * ```
  */
-const enum BinaryKeybindingsMask {
+enum BinaryKeybindingsMask {
 	CtrlCmd = (1 << 11) >>> 0,
 	Shift = (1 << 10) >>> 0,
 	Alt = (1 << 9) >>> 0,
@@ -399,7 +397,7 @@ const enum BinaryKeybindingsMask {
 	KeyCode = 0x000000FF
 }
 
-export const enum KeyMod {
+export enum KeyMod {
 	CtrlCmd = (1 << 11) >>> 0,
 	Shift = (1 << 10) >>> 0,
 	Alt = (1 << 9) >>> 0,

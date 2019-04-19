@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { observer, autorun, computed } from 'window/app-mobx';
-import { TimelineViewProps } from './timeline-view';
 import { MouseUtil } from 'orangeutil';
 import ADiv from 'window/view/advanced-div';
 import { IReactionDisposer } from 'mobx';
+import { TimelineContentViewProps } from 'window/view/timeline/right/timeline-view';
 
 @observer
-export class TimelineRulerView extends React.Component<TimelineViewProps, {}> {
+export class TimelineRulerView extends React.Component<TimelineContentViewProps, {}> {
 
   rulerViewRef: React.RefObject<HTMLDivElement>;
 
@@ -21,7 +21,7 @@ export class TimelineRulerView extends React.Component<TimelineViewProps, {}> {
 
   mouseDownHandler(e: React.MouseEvent) {
     const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
-    const time = this.props.controller.getTimeRelativeToTimeline(pos.x);
+    const time = this.props.widget.model.getTimeRelativeToTimeline(pos.x);
     
     document.addEventListener('mousemove', this.mouseMoveHandler);
     const remover = (e: MouseEvent) => {
@@ -33,8 +33,8 @@ export class TimelineRulerView extends React.Component<TimelineViewProps, {}> {
 
   mouseMoveHandler(e: MouseEvent) {
     const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
-    const time = this.props.controller.getTimeRelativeToTimeline(pos.x);
-    this.props.timeline.setCurrentTime(time);
+    const time = this.props.widget.model.getTimeRelativeToTimeline(pos.x);
+    this.props.widget.model.setCurrentTime(time);
   }
 
   render() {
@@ -53,7 +53,7 @@ export class TimelineRulerView extends React.Component<TimelineViewProps, {}> {
 
 
 @observer
-class Ruler extends React.Component<TimelineViewProps, {}> {
+class Ruler extends React.Component<TimelineContentViewProps, {}> {
 
   canvasRef: React.RefObject<HTMLCanvasElement>;
 
@@ -65,8 +65,7 @@ class Ruler extends React.Component<TimelineViewProps, {}> {
   }
 
   timelineUpdateHandler() {
-    const controller = this.props.controller;
-    const scrollViewState = controller.getScrollViewState();
+    const scrollViewState = this.props.widget.model.scrollViewModel;
 
     let startCount = Math.floor(scrollViewState.startTime / scrollViewState.unitFrameTime);
     let endCount = Math.ceil(scrollViewState.endTime / scrollViewState.unitFrameTime);
@@ -141,16 +140,15 @@ class Ruler extends React.Component<TimelineViewProps, {}> {
 }
 
 @observer
-class Indicator extends React.Component<TimelineViewProps, any> {
+class Indicator extends React.Component<TimelineContentViewProps, any> {
 
   constructor(props: any) {
     super(props);
   }
 
   @computed get position() {
-    const controller = this.props.controller;
-    const timeline = this.props.timeline;
-    const position = controller.getPositionRelativeToTimeline(timeline.currentTime);
+    const model = this.props.widget.model;
+    const position = model.getPositionRelativeToTimeline(model.currentTime);
     return position;
   }
 

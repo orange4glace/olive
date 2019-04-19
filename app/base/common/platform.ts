@@ -76,7 +76,7 @@ if (typeof navigator === 'object' && !isElectronRenderer) {
 	_isNative = true;
 }
 
-export const enum Platform {
+export enum Platform {
 	Web,
 	Mac,
 	Linux,
@@ -120,25 +120,22 @@ export function isRootUser(): boolean {
  */
 export const language = _language;
 
-export namespace Language {
+export function value(): string {
+	return language;
+}
 
-	export function value(): string {
-		return language;
-	}
-
-	export function isDefaultVariant(): boolean {
-		if (language.length === 2) {
-			return language === 'en';
-		} else if (language.length >= 3) {
-			return language[0] === 'e' && language[1] === 'n' && language[2] === '-';
-		} else {
-			return false;
-		}
-	}
-
-	export function isDefault(): boolean {
+export function isDefaultVariant(): boolean {
+	if (language.length === 2) {
 		return language === 'en';
+	} else if (language.length >= 3) {
+		return language[0] === 'e' && language[1] === 'n' && language[2] === '-';
+	} else {
+		return false;
 	}
+}
+
+export function isDefault(): boolean {
+	return language === 'en';
 }
 
 /**
@@ -170,7 +167,7 @@ export function setImmediate(callback: (...args: any[]) => void): number {
 	return _setImmediate!(callback);
 }
 
-export const enum OperatingSystem {
+export enum OperatingSystem {
 	Windows = 1,
 	Macintosh = 2,
 	Linux = 3

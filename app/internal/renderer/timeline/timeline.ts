@@ -1,11 +1,13 @@
-import { TimelineBase } from "internal/timeline";
+import { TimelineBase } from "internal/timeline/timeline";
 import { TrackRenderer } from "./track";
 import { Posted } from "worker-postable";
 import NVG from '../../../../nanovg-webgl'
 
-@Posted('Timeline')
+@Posted('TimelineImpl')
 export class TimelineRenderer implements TimelineBase {
-  
+
+  id: number;
+
   tracks: Array<TrackRenderer>;
 
   totalTime: number;

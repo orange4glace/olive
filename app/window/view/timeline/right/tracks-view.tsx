@@ -1,10 +1,11 @@
 import * as React from 'react'
 import { observer, observable } from 'window/app-mobx';
-import { TimelineViewProps } from './timeline-view';
+import { TimelineContentViewProps } from './timeline-view';
 import ADiv from 'window/view/advanced-div';
 import { MouseUtil } from 'orangeutil';
+import { TrackView } from 'window/view/timeline/right/track-view';
 
-export interface TimelineTracksViewProps extends TimelineViewProps {
+export interface TimelineTracksViewProps extends TimelineContentViewProps {
 }
 
 @observer
@@ -25,19 +26,16 @@ export class TimelineTracksView extends React.Component<TimelineTracksViewProps,
   }
 
   updateGuidelineIndicatorTime(e: React.MouseEvent) {
-    const controller = this.props.controller;
+    const widget = this.props.widget;
     const x = MouseUtil.mousePositionElement(e, this.viewRef.current).x;
-    this.indicatorTime = controller.getTimeRelativeToTimeline(x);
+    this.indicatorTime = widget.model.getTimeRelativeToTimeline(x);
     // if (TimelineState.snap) this.time = controller.getSnappedTime(this.time);
   }
 
   render() {
-    const controller = this.props.controller;
-    const timelineHost = timelineViewController.timelineHost;
     return (
       <ADiv className='timeline-tracks-view' onMouseMove={this.mouseMoveHandler} ref={this.viewRef}>
-        <TracksView timelineViewController={timelineViewController}/>
-        <GhostTracksView timelineViewController={timelineViewController}/>
+        <TracksView {...this.props}/>
         <GuidelineIndicator {...this.props} time={this.indicatorTime}/>
       </ADiv>
     )  
@@ -56,11 +54,10 @@ export class TracksView extends React.Component<TimelineTracksViewProps, {}> {
   }
 
   render() {
-    const controller = this.props.controller;
-    const timeline = this.props.timeline;
+    const widget = this.props.widget;
     return (
       <div className='tracks'>
-        {timeline.tracks.map(track => {
+        {widget.model.timeline.tracks.map(track => {
           return ( <TrackView key={track.id} {...this.props} track={track}/>)})}
       </div>
     )
@@ -82,7 +79,7 @@ class GuidelineIndicator extends React.Component<GuidelineIndicatorProps, {}> {
   }
 
   render() {
-    const position = this.props.controller.getPositionRelativeToTimeline(this.props.time);
+    const position = this.props.widget.model.getPositionRelativeToTimeline(this.props.time);
     const style = {
       left: position + 'px'
     }

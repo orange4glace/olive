@@ -1,7 +1,7 @@
 import VideoTrackItem from "./timeline/video-track-item";
 import { Resource, ResourceType, VideoResource } from "./resource";
-import TrackItem from "./timeline/track-item";
-import { TimePair } from "./timeline/time-pair";
+import { TrackItem } from "internal/timeline/track-item";
+import { TrackItemTime } from "internal/timeline/track-item-time";
 
 export default class Factory {
   createTrackItem(resource: Resource): TrackItem {
@@ -11,7 +11,7 @@ export default class Factory {
       break;
     }
   }
-  createTimePair(start: number, end: number): TimePair {
-    return new TimePair(start, end);
+  createTrackItemTime(start: number, end: number, base: number): TrackItemTime {
+    return new TrackItemTime(start, end, base);
   }
 }

@@ -5,6 +5,7 @@ import Layout from 'window/layout/layout';
 import LayoutDND from 'window/layout/global/layout-dnd';
 
 import LayoutParser from 'window/layout/data';
+import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
  
 interface LayoutRootProps {
   data: any;
@@ -22,66 +23,62 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
       children: [
         {
           direction: 'VIEW',
-          views: ['Empty']
-        },
-        {
-          direction: 'VIEW',
-          views: ['Empty']
+          views: [new TimelineWidgetImpl(app.timeline.getTimeline(0))]
         }
       ]
     })
-    this.data = LayoutParser({
-      direction: 'HORIZONTAL',
-      children: [
-        {
-          direction: 'VERTICAL',
-          children: [
-            {
-              direction: 'HORIZONTAL',
-              children: [
-                {
-                  direction: 'VIEW',
-                  views: ['Timeline']
-                }, {
-                  direction: 'VIEW',
-                  views: ['Property']
-                }
-              ]
-            }, {
-              direction: 'HORIZONTAL',
-              children: [
-                {
-                  direction: 'VIEW',
-                  views: ['Empty']
-                }, {
-                  direction: 'VERTICAL',
-                  children: [
-                    {
-                      direction: 'VIEW',
-                      views: ['Renderer']
-                    }, {
-                      direction: 'HORIZONTAL',
-                      children: [
-                        {
-                          direction: 'VIEW',
-                          views: ['Empty']
-                        }, {
-                          direction: 'VIEW',
-                          views: ['Empty']
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }, {
-          direction: 'VIEW',
-          views: ['Resource']
-        }
-      ]
-    })
+    // this.data = LayoutParser({
+    //   direction: 'HORIZONTAL',
+    //   children: [
+    //     {
+    //       direction: 'VERTICAL',
+    //       children: [
+    //         {
+    //           direction: 'HORIZONTAL',
+    //           children: [
+    //             {
+    //               direction: 'VIEW',
+    //               views: ['Timeline']
+    //             }, {
+    //               direction: 'VIEW',
+    //               views: ['Property']
+    //             }
+    //           ]
+    //         }, {
+    //           direction: 'HORIZONTAL',
+    //           children: [
+    //             {
+    //               direction: 'VIEW',
+    //               views: ['Empty']
+    //             }, {
+    //               direction: 'VERTICAL',
+    //               children: [
+    //                 {
+    //                   direction: 'VIEW',
+    //                   views: ['Renderer']
+    //                 }, {
+    //                   direction: 'HORIZONTAL',
+    //                   children: [
+    //                     {
+    //                       direction: 'VIEW',
+    //                       views: ['Empty']
+    //                     }, {
+    //                       direction: 'VIEW',
+    //                       views: ['Empty']
+    //                     }
+    //                   ]
+    //                 }
+    //               ]
+    //             }
+    //           ]
+    //         }
+    //       ]
+    //     }, {
+    //       direction: 'VIEW',
+    //       views: ['Resource']
+    //     }
+    //   ]
+    // })
   }
 
   render() {

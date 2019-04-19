@@ -1,17 +1,14 @@
-import * as React from 'React'
-import { TimelineViewController } from './controller';
+import * as React from 'react'
 import app from 'internal/app';
 import { observer } from 'window/app-mobx';
+import { TimelineWidgetViewProps } from 'window/view/timeline/view';
 
 @observer
-export class TimelineHeaderView extends React.Component<{
-  timelineViewController: TimelineViewController
-}, {}> {
+export class TimelineHeaderView extends React.Component<TimelineWidgetViewProps, {}> {
 
   render() {
-    const controller = this.props.timelineViewController;
     const formattedCurrentFrameTime = app.project.frameRate.format(
-        controller.timelineHost.timeline.currentTime);
+        this.props.widget.model.currentTime);
     return (
       <>
         <div className='current-frame-time'>

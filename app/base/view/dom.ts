@@ -1,4 +1,4 @@
-import { IDisposable } from "base/common/disposable";
+import { IDisposable } from "base/common/lifecycle";
 import { IMouseEvent, StandardMouseEvent } from "base/view/mouseEvent";
 import { IKeyboardEvent, StandardKeyboardEvent } from "base/view/keyboardEvent";
 

@@ -1,10 +1,11 @@
 import * as React from 'react';
 import app from 'internal/app';
  
-import ViewFactory from 'window/view/view-factory';
 import { LayoutDirection, LayoutViewDirection, LayoutDirectionUtil,LayoutViewDirectionUtil } from './layout-direction';
 
 import LayoutDND from 'window/layout/global/layout-dnd';
+import { Widget } from 'window/view/widget';
+import { observable } from 'window/app-mobx';
 
 const DNDDirection = {
   CENTER: 0,
@@ -23,14 +24,10 @@ interface ViewProps {
   layoutEventListener: any;
 }
 
-interface ViewState {
-  id: number;
-  components: any;
-  componentCount: number;
-}
-
 @app.mobx.observer
-class View extends React.Component<ViewProps, ViewState> {
+class View extends React.Component<ViewProps, {}> {
+
+  @observable focusedWidgetIndex = 0;
 
   constructor(props: any) {
     super(props);
@@ -43,33 +40,6 @@ class View extends React.Component<ViewProps, ViewState> {
 
     this.tabMouseDownHandler = this.tabMouseDownHandler.bind(this);
     this.tabMouseUpHandler = this.tabMouseUpHandler.bind(this);
-  }
-  
-  static getDerivedStateFromProps(props: any, state: any) {
-    if (state.componentCount == props.windows.length) return null;
-    if (state.componentCount < props.windows.length) {
-      for (var i = 0; i < props.windows.length; i ++) {
-        var windowName = props.windows[i];
-        if (!state.components[windowName]) {
-          var window = ViewFactory.create(windowName);
-          state.components[windowName] = window;
-        }
-      }
-    }
-    else if (state.componentCount > props.windows.length) {
-      var newComponents: { [index:string]: any } = {};
-      for (var i = 0; i < props.windows.length; i ++) {
-        var windowName = props.windows[i];
-        newComponents[windowName] = state.components[windowName];
-      }
-      state.components = newComponents;
-    }
-    state.componentCount = props.windows.length;
-    return state;
-  }
-
-  getComponent(name: string) {
-    return this.state.components[name];
   }
 
   generateSide(direction: LayoutViewDirection, wrapperStyle: any, overlayStyle: any, edgeStyle: any, skinStyle: any) {
@@ -102,9 +72,9 @@ class View extends React.Component<ViewProps, ViewState> {
     console.log('mouse leave', direction);
   }
 
-  tabMouseDownHandler(view: any) {
+  tabMouseDownHandler(widget: any) {
     LayoutDND.setHostLayout(this.props.layout);
-    LayoutDND.setTargetView(window);
+    LayoutDND.setTargetView(widget);
     document.addEventListener('mouseup', this.tabMouseUpHandler);
   }
 
@@ -186,14 +156,14 @@ class View extends React.Component<ViewProps, ViewState> {
         bottom: this.props.dnd.side + 'px'
       }
     }
+    const focusedWidget: Widget = this.props.windows[this.focusedWidgetIndex];
     return (
       <React.Fragment>
         <div className='view-tabs'>
           {
-            windows.map((view: any) => {
-              var component = this.getComponent(view);
-              return <div className='tab' key={view}
-                          onMouseDown={()=>this.tabMouseDownHandler(view)}>{component.title}</div>
+            windows.map((widget: Widget) => {
+              return <div className='tab' key={widget.id}
+                          onMouseDown={()=>this.tabMouseDownHandler(widget)}>{widget.name}</div>
             })
           }
         </div>
@@ -210,11 +180,7 @@ class View extends React.Component<ViewProps, ViewState> {
           </div>
         </div>
         <div className='window'>
-          {
-            React.cloneElement(this.getComponent(activeWindow).component, {
-              layoutEventListener: this.props.layoutEventListener
-            })
-          }
+          { focusedWidget.render() }
         </div>
       </React.Fragment>
     )

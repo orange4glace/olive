@@ -1,12 +1,12 @@
 import * as React from 'react';
 import app from 'internal/app';
 import { DNDInstance } from 'window/dragndrop';
-import { IResource } from 'standard';
+import { Resource } from 'internal/resource';
 
 const style = require('./resource-item.scss');
 
 interface ResourceItemViewProps {
-  resource: IResource;
+  resource: Resource;
 }
 
 @app.mobx.observer

@@ -6,7 +6,7 @@ import IDecoder from 'internal/decoder/decoder';
 
 // Force-import to fire @Posted
 require('./timeline')
-require('./drawing')
+// require('./drawing')
 require('./resource')
 
 function initializeDecoderModule() {

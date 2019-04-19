@@ -1,0 +1,177 @@
+@import "window/theme.scss";
+
+.component {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  > .ruler-view {
+    height: 30px;
+    box-sizing: border-box;
+    border-bottom: 1px solid $bright-background;
+
+    > .indicator {
+      position: absolute;
+      z-index: 555;
+      top: 30px;
+      width: 1px;
+      height: 100%;
+      background: rgb(90, 161, 255);
+
+      > .tip {
+        position: absolute;
+        top: -15px;
+        left: -7.5px;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 15px 7.5px 0 7.5px;
+        border-color: #2990ff transparent transparent transparent;
+      }
+    }
+  }
+
+  > .timeline-tracks-view {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    > .tracks {
+      position: absolute;
+      z-index: 2;
+      top: 0; right: 0; bottom: 0; left: 0;
+
+      &.active {
+        pointer-events: none;
+      }
+      
+      > .track {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        border-bottom: 1px solid $bright-background;
+
+        > .preset-drop-handler {
+          position: absolute;
+          top: 0; right: 0; bottom: 0; left: 0;
+          z-index: 10;
+        }
+    
+        > .track-item {
+          position: absolute;
+          height: 30px;
+          box-sizing: border-box;
+          border-right: 1px solid $primary-background;
+
+          > .bar {
+            width: 100%;
+            height: 100%;
+            background: rgb(216, 119, 119);
+          }
+    
+          &.focused {
+            > .bar {
+              background: #ccc;
+            }
+          }
+        }
+
+        &.active {
+          z-index: 3;
+
+          > .track-item {
+            border-left: 1px solid $primary-background;
+
+            > .bar {
+              background: rgb(99, 99, 245);
+              opacity: .3;
+            }
+
+            &.snap-left {
+              &::before {
+                content: '';
+                position: absolute;
+                left: -15px;
+                top: 0;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 0 15px 15px 0;
+                border-color: transparent $bright-background transparent transparent;                
+              }
+            }
+
+            &.snap-right {
+              &::before {
+                content: '';
+                position: absolute;
+                right: -15px;
+                top: 0;
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 15px 15px 0 0;
+                border-color: $bright-background transparent transparent transparent;                
+              }
+            }
+          }
+        }
+      }
+    }
+
+    > .guideline-indicator {
+      position: absolute;
+      z-index: 100;
+      pointer-events: none;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: $bright-background;
+    }
+
+    > .range-selector {
+      position: absolute;
+      z-index: 100;
+      box-sizing: border-box;
+      border: 1px solid black;
+
+      > .b {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background: white;
+        opacity: 0.2;
+      }
+    }
+  }
+
+  // &:not(.tool-selection) {
+  //   .track-item {
+  //     .thumb {
+  //       display: none;
+  //     }
+  //   }
+  // }
+}
+
+
+// Override zoomable-scroll-view style
+.zoomable-scroll-view {
+
+  > .scroll-bar {
+    > .bar {
+      > .handle {
+        background: $bright-background;
+      }
+
+      > .thumb {
+        background: $contrast-background;
+
+        &::before {
+          background: $primary-background;
+        }
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { observer, observable } from 'window/app-mobx';
 import { TimelineTracksViewProps } from './tracks-view';
-import Track from 'internal/timeline/track';
+import { Track } from 'internal/timeline/track';
 import ADiv from 'window/view/advanced-div';
 import { DragAndDrop } from 'window/dragndrop';
 import { TrackItemView } from './track-item-view';
@@ -31,7 +31,6 @@ export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
   }
 
   render() {
-    const controller = this.props.controller;
     const style = {
       height: 30 + 'px'
     }

@@ -1,21 +1,14 @@
-import { TimelineViewController } from "window/view/timeline/controller/controller";
-import { TimelineViewCoreController } from "window/view/timeline/controller/core";
-import { TimelineViewGhostController } from "window/view/timeline/controller/ghost";
-import Timeline from "internal/timeline/timeline";
-import { TimelineViewCoreControllerImpl } from "window/view/timeline/controller/core_impl";
-import { TimelineViewGhostControllerImpl } from "window/view/timeline/controller/ghost_impl";
+import { TimelineWidgetModel } from "window/view/timeline/model/model";
+import { TimelineWidgetController } from "window/view/timeline/controller/controller";
+import { TimelineWidgetManipulatorControllerImpl } from "window/view/timeline/controller/manipulator_impl";
 
-export class TimelineViewControllerImpl implements TimelineViewController {
+export class TimelineWidgetControllerImpl extends TimelineWidgetController {
 
-  private readonly timeline_: Timeline;
+  readonly manipulator: TimelineWidgetManipulatorControllerImpl;
 
-  readonly core: TimelineViewCoreController;
-  readonly ghost: TimelineViewGhostController;
-
-  constructor(timeline: Timeline) {
-    this.timeline_ = timeline;
-    this.core = new TimelineViewCoreControllerImpl(timeline);
-    this.ghost = new TimelineViewGhostControllerImpl(timeline);
+  constructor(model: TimelineWidgetModel) {
+    super();
+    this.manipulator = new TimelineWidgetManipulatorControllerImpl(model);
   }
 
 }
