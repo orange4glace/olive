@@ -1,16 +1,18 @@
 import * as React from 'react';
-import app from 'internal/app';
-import { DNDInstance } from 'window/dragndrop';
-import { Resource } from 'internal/resource';
+import { observer } from 'window/app-mobx';
+import { ResourceWidgetViewProps } from 'window/view/resource/view/widget-view';
+import { ResourceWidgetResourceViewModel } from 'window/view/resource/model/resource-view-model';
+import { StaticDND } from 'base/view/dnd';
+import { ResourceDragAndDropData } from 'window/view/dnd/dnd';
 
-const style = require('./resource-item.scss');
+import * as style from './resource-view.scss'
 
-interface ResourceItemViewProps {
-  resource: Resource;
+export interface ResourceWidgetResourceViweProps extends ResourceWidgetViewProps {
+  resourceViewModel: ResourceWidgetResourceViewModel;
 }
 
-@app.mobx.observer
-class ResourceItemView extends React.Component<ResourceItemViewProps, {}> {
+@observer
+export class ResourceWidgetResourceView extends React.Component<ResourceWidgetResourceViweProps, {}> {
 
   constructor(props: any) {
     super(props);
@@ -21,8 +23,7 @@ class ResourceItemView extends React.Component<ResourceItemViewProps, {}> {
   }
 
   dragStartHandler(e: React.DragEvent) {
-    const resource = this.props.resource;
-    DNDInstance.dragStart(e, 'resource', resource);
+    StaticDND.CurrentDragAndDropData = new ResourceDragAndDropData(this.props.resourceViewModel.resource);
   }
 
   dropHandler(e: React.DragEvent) {
@@ -31,11 +32,11 @@ class ResourceItemView extends React.Component<ResourceItemViewProps, {}> {
   }
 
   dragEndHandler(e: React.DragEvent) {
-    DNDInstance.dragEnd();
+    StaticDND.CurrentDragAndDropData = null;
   }
 
   render() {
-    const resource = this.props.resource;
+    const resource = this.props.resourceViewModel.resource;
     return (
       <div className={style.component} draggable
         onDrop={this.dropHandler}
@@ -58,4 +59,4 @@ class ResourceItemView extends React.Component<ResourceItemViewProps, {}> {
 
 }
 
-export default ResourceItemView;
+export default ResourceWidgetResourceView;

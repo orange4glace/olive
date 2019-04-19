@@ -5,7 +5,6 @@ import { Emitter } from "base/common/event";
 import { Timeline } from "internal/timeline/timeline";
 import TimelineWidgetView, { TimelineWidgetViewProps } from "window/view/timeline/view";
 import { TimelineWidgetModelImpl } from 'window/view/timeline/model/model_impl';
-import { TimelineWidgetController } from 'window/view/timeline/controller/controller';
 import { TimelineWidgetControllerImpl } from 'window/view/timeline/controller/controller_impl';
 
 const TimelineWidgetStaticImpl = (TimelineWidget as any);
