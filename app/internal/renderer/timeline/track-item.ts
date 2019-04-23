@@ -7,7 +7,6 @@ import { TrackItemType } from "internal/timeline/track-item-type";
 @Posted('TrackItemImpl')
 export class TrackItemRenderer implements TrackItemBase {
   type: TrackItemType;
-
   time: TrackItemTimeRenderer;
 
   // drawing: DrawingRenderer;

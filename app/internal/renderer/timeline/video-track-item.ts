@@ -5,14 +5,16 @@ import { ResourceRenderer } from "../resource/resource";
 import NVG from "../../../../nanovg-webgl";
 import { VideoFrameData, DecodeResult } from "internal/decoder/decoder";
 import { VideoTrackItemBase } from "internal/timeline/video-track-item";
+import { VideoDrawingRenderer } from "internal/renderer/rendering/drawing/video-drawing";
 
-@Posted('VideoTrackItem')
+@Posted('VideoTrackItemImpl')
 export class VideoTrackItemRenderer extends TrackItemRenderer
     implements VideoTrackItemBase {
+  
+  drawing: VideoDrawingRenderer;
+  resource: ResourceRenderer;
 
   acquiredDecoderID: number = -1;
-  
-  resource: ResourceRenderer;
 
   decodePromise: Promise<DecodeResult>;
 

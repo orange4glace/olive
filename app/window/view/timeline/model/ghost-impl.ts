@@ -1,7 +1,6 @@
 import { TimelineWidgetGhostTrackItem, TimelineWidgetGhostContainer, TimelineWidgetGhostModel } from "window/view/timeline/model/ghost";
 import { observable } from "window/app-mobx";
 import { Timeline } from "internal/timeline/timeline";
-import { Track } from "internal/timeline/track";
 
 class TimelineWidgetGhostTrackItemImpl implements TimelineWidgetGhostTrackItem {
 
@@ -27,34 +26,41 @@ class TimelineWidgetGhostTrackItemImpl implements TimelineWidgetGhostTrackItem {
 class TimelineWidgetGhostContainerImpl implements TimelineWidgetGhostContainer {
 
   private timeline_: Timeline;
-  private items_: Map<Track, Array<TimelineWidgetGhostTrackItemImpl>>;
+  private items_: Array<Array<TimelineWidgetGhostTrackItemImpl>>;
 
+  @observable private trackOffset_: number;
   @observable private leftExtend_: number;
   @observable private rightExtend_: number;
   @observable private translation_: number;
 
+  get trackOffset() { return this.trackOffset_; }
   get leftExtend() { return this.leftExtend_; }
   get rightExtend() { return this.rightExtend_; }
   get translation() { return this.translation_; }
 
   constructor(timeline: Timeline) {
     this.timeline_ = timeline;
-    this.timeline_.tracks.forEach(track => {
-      this.items_.set(track, []);
-    })
+    this.items_ = [];
+    this.trackOffset_ = 0;
     this.leftExtend_  = 0;
     this.rightExtend_ = 0;
     this.translation_ = 0;
   }
 
-  addGhostTrackItem(track: Track, startTime: number, endTime: number): void {
+  addGhostTrackItem(index: number, startTime: number, endTime: number): void {
     const ghostTrackItem = new TimelineWidgetGhostTrackItemImpl(startTime, endTime);
-    const arr = this.items_.get(track);
+    while (this.items_.length <= index) this.items_.push([]);
+    const arr = this.items_[index];
     arr.push(ghostTrackItem);
   }
 
-  getGhostTrackItems(track: Track): TimelineWidgetGhostTrackItem[] {
-    return this.items_.get(track);
+  getGhostTrackItems(index: number): TimelineWidgetGhostTrackItem[] {
+    console.log('get ', index, ' => ', index + this.trackOffset_);
+    return this.items_[index - this.trackOffset_] ? this.items_[index - this.trackOffset_] : [];
+  }
+
+  setTrackOffset(offset: number): void {
+    this.trackOffset_ = offset;
   }
 
   extendLeft(value: number): void {
@@ -75,6 +81,7 @@ class TimelineWidgetGhostContainerImpl implements TimelineWidgetGhostContainer {
 export class TimelineWidgetGhostModelImpl implements TimelineWidgetGhostModel {
 
   private timeline_: Timeline;
+  @observable currentContainer: TimelineWidgetGhostContainerImpl | null = null;
 
   constructor(timeline: Timeline) {
     this.timeline_ = timeline;
@@ -84,8 +91,9 @@ export class TimelineWidgetGhostModelImpl implements TimelineWidgetGhostModel {
     return new TimelineWidgetGhostContainerImpl(this.timeline_);
   }
 
-  removeGhostContainer(container: TimelineWidgetGhostContainer): void {
-    
+  setCurrentContainer(container: TimelineWidgetGhostContainerImpl): void {
+    this.currentContainer = container;
+    console.log(container)
   }
 
 }

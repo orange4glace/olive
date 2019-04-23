@@ -7,6 +7,7 @@ import LayoutDND from 'window/layout/global/layout-dnd';
 import LayoutParser from 'window/layout/data';
 import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
 import { ResourceWidgetImpl } from 'window/view/resource/widget-impl';
+import { EffectControlWidgetImpl } from 'window/view/effect-control/widget_impl';
  
 interface LayoutRootProps {
   data: any;
@@ -28,6 +29,9 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
         }, {
           direction: 'VIEW',
           views: [new ResourceWidgetImpl(app.resource)]
+        }, {
+          direction: 'VIEW',
+          views: [new EffectControlWidgetImpl()]
         }
       ]
     })

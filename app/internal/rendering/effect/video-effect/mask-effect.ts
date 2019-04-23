@@ -1,12 +1,14 @@
 import { VideoEffect } from "./video-effect";
-import { PolyPathProperty } from "../property/polypath-property";
-import { ScalarProperty } from "../property/scalar-property";
+import { PolyPathProperty } from "../../property/polypath-property";
+import { ScalarProperty } from "../../property/scalar-property";
+import { Postable, postable } from "worker-postable";
 
+@Postable
 export class MaskEffect extends VideoEffect {
-  path: PolyPathProperty;
-  feather: ScalarProperty;
+  @postable path: PolyPathProperty;
+  @postable feather: ScalarProperty;
 
   constructor() {
-    super('Mask')
+    super('MASK')
   }
 }

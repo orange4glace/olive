@@ -6,6 +6,7 @@ import { Event, Emitter } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
 import { Timeline, TimelineTrackEvent } from 'internal/timeline/timeline';
 import TrackImpl from 'internal/timeline/track-impl';
+import { assert } from 'base/common/assert';
 
 @Postable
 export default class TimelineImpl extends Disposable implements Timeline {
@@ -47,6 +48,17 @@ export default class TimelineImpl extends Disposable implements Timeline {
       track: track
     })
     return track;
+  }
+
+  getTrackAt(index: number): TrackImpl {
+    assert(index < this.tracks.length, 'Out of index ' + index + '. Track length = ' + this.tracks.length);
+    return this.tracks[index];
+  }
+
+  getTrackIndex(track: TrackImpl): number {
+    const index = this.tracks.indexOf(track);
+    assert(index != -1, 'Track ' + track.id + ' not exists in ' + this.id);
+    return index;
   }
 
 

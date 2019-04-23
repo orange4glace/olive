@@ -5,6 +5,8 @@ import ResourceType from './type_t';
 import { VideoResource } from './video-resource';
 import { Resource } from './resource';
 import { Emitter, Event } from 'base/common/event';
+import VideoTrackItemImpl from 'internal/timeline/video-track-item';
+import { TrackItemTime } from 'internal/timeline/track-item-time';
 
 export interface ResourceManagerResourceEvent {
   resource: Resource
@@ -35,6 +37,16 @@ export default class ResourceManager {
     } catch (e) {
       return e;
     }
+  }
+
+  trackItemize(resource: Resource) {
+    let trackItem;
+    if (resource.type == ResourceType.VIDEO) {
+      const videoResource = resource as VideoResource;
+      trackItem = new VideoTrackItemImpl(resource as VideoResource);
+      trackItem.__setTime(new TrackItemTime(0, videoResource.duration, 0));
+    }
+    return trackItem;
   }
 
   private onResourceAdded_: Emitter<ResourceManagerResourceEvent> = new Emitter();

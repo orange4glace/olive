@@ -2,8 +2,6 @@ import { Postable, postable } from 'worker-postable';
 import PostableVector2 from 'util/postable_vector2';
 import { TreeMap, Pair } from 'tstl';
 import { EventEmitter2 } from 'eventemitter2';
-import { Vector4 } from 'oliveutil/vector4';
-import { Vector2 } from 'oliveutil/vector2';
 import { action } from 'mobx';
 import { KeyframeBase, Keyframe } from './keyframe';
 
@@ -30,9 +28,12 @@ export interface PropertyBase<T extends PropertyTypes> {
   interpolate(lhs: T, rhs: T, t: number): T;
 }
 
+let __next_id = 0;
+
 @Postable
 export abstract class Property<T extends PropertyTypes> implements PropertyBase<T> {
-
+  
+  readonly id: number;
   readonly type: string;
 
   evaluatedValue: T;
@@ -46,6 +47,7 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
   ee: EventEmitter2;
 
   constructor(type: string, defaultValue: T) {
+    this.id = __next_id++;
     this.type = type;
     this.animated = false;
     this.keyframes = new Set<Keyframe<T>>();

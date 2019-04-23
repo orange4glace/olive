@@ -2,6 +2,7 @@ import ResourceType from "./type_t";
 import app from "internal/app";
 import { Resource, ResourceBase } from "./resource";
 import { Postable, postable } from "worker-postable";
+import { TrackItem } from "internal/timeline/track-item";
 
 export interface VideoResourceBase extends ResourceBase {
 }

@@ -40,13 +40,19 @@ export default class TimelineRightView extends React.Component<TimelineContentVi
 @observer
 class TimelineViewContent extends React.Component<TimelineContentViewProps, {}> {
 
+  contentRef: React.RefObject<HTMLDivElement> = React.createRef();
+
   constructor(props: any) {
     super(props);
   }
 
+  componentDidMount() {
+    this.props.widget.model.scrollViewModel.setElement(this.contentRef.current);
+  }
+
   render() {
     return (
-      <div className={style.component}>
+      <div className={style.component} ref={this.contentRef}>
         <TimelineRulerView {...this.props}/>
         <TimelineTracksView {...this.props}/>
       </div>

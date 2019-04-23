@@ -2,7 +2,7 @@ import { Posted } from "worker-postable";
 import { IComparable } from "tstl";
 import { TrackItemTimeBase } from "internal/timeline/track-item-time";
 
-@Posted('TrackItemTimeImpl')
+@Posted('TrackItemTime')
 export class TrackItemTimeRenderer implements TrackItemTimeBase, IComparable<TrackItemTimeRenderer> {
   start: number;
   end: number;

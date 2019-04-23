@@ -1,9 +1,15 @@
-import { Effect } from "../effect";
+import { Effect, EffectBase } from "../effect";
+import { Postable } from "worker-postable";
 
-export class VideoEffect extends Effect {
+export interface VideoEffectBase extends EffectBase {
+  
+}
 
-  constructor(name: string) {
-    super(name);
+@Postable
+export abstract class VideoEffect extends Effect implements VideoEffectBase {
+
+  constructor(type: string) {
+    super(type);
   }
 
 }

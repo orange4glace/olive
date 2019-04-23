@@ -8,8 +8,10 @@ export interface TrackItemBase {
 
 export interface TrackItem extends TrackItemBase {
 
-  /*postable*/ readonly type: TrackItemType;
-  /*postable*/ readonly time: ConstTrackItemTime;
+  /*@postable*/ readonly type: TrackItemType;
+  /*@postable*/ readonly time: ConstTrackItemTime;
+
+  /*@observable*/ readonly duration: number;
 
   getTimeoffset(time: number): number;
 

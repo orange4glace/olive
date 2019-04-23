@@ -6,8 +6,11 @@ import { Disposable, IDisposable } from "base/common/lifecycle";
 import { TimelineWidgetScrollViewModel, TimelineWidgetModel } from "window/view/timeline/model/model";
 import { TimelineWidgetGhostModelImpl } from "window/view/timeline/model/ghost-impl";
 import { IReactionDisposer } from "mobx";
+import { MouseUtil } from "orangeutil";
+import { TimelineWidgetEvent } from "window/view/timeline/widget-event";
 
 class TimelineWidgetScrollViewModelImpl extends TimelineWidgetScrollViewModel implements IDisposable {
+  private element_: HTMLDivElement;
   @observable private startTime_: number;
   @observable private endTime_: number;
   @observable private pxPerFrame_: number;
@@ -21,6 +24,7 @@ class TimelineWidgetScrollViewModelImpl extends TimelineWidgetScrollViewModel im
   private timeline_: Timeline;
   private autorunDisposer: IReactionDisposer;
 
+  get element(): HTMLDivElement { return this.element_; }
   get startTime() { return this.startTime_; }
   get endTime() { return this.endTime_; }
   get pxPerFrame() { return this.pxPerFrame_; }
@@ -75,6 +79,10 @@ class TimelineWidgetScrollViewModelImpl extends TimelineWidgetScrollViewModel im
     this.unitWidth_ = unitWidth;
   }
 
+  setElement(el: HTMLDivElement) {
+    this.element_ = el;
+  }
+
   @action
   update(px: number, start: number, end: number): void {
     this.width_ = px;
@@ -94,7 +102,7 @@ export class TimelineWidgetModelImpl extends Disposable implements TimelineWidge
   readonly scrollViewModel: TimelineWidgetScrollViewModelImpl;
   readonly ghostModel: TimelineWidgetGhostModelImpl;
 
-  private focusedTrackItems_: Map<Track, Set<TrackItem>> = new Map();
+  @observable private focusedTrackItems_: Set<TrackItem> = new Set();
   private trackListener_: Map<Track, IDisposable> = new Map();
 
   constructor(timeline: Timeline) {
@@ -109,16 +117,16 @@ export class TimelineWidgetModelImpl extends Disposable implements TimelineWidge
   }
 
   private trackAddedHandler(track: Track) {
-    this.focusedTrackItems_.set(track, new Set());
-    const listener = track.onTrackItemWillRemove(e => this.trackItemWillRemoveHandler(track, e.trackItem), this);
-    this.trackListener_.set(track, listener);
+    // this.focusedTrackItems_.set(track, new Set());
+    // const listener = track.onTrackItemWillRemove(e => this.trackItemWillRemoveHandler(track, e.trackItem), this);
+    // this.trackListener_.set(track, listener);
   }
 
   private trackWillRemoveHandler(track: Track) {
-    this.focusedTrackItems_.set(track, null);
-    const listener = this.trackListener_.get(track);
-    listener.dispose();
-    this.trackListener_.set(track, null);
+    // this.focusedTrackItems_.set(track, null);
+    // const listener = this.trackListener_.get(track);
+    // listener.dispose();
+    // this.trackListener_.set(track, null);
   }
 
   private trackItemWillRemoveHandler(track: Track, trackItem: TrackItem) {
@@ -134,19 +142,31 @@ export class TimelineWidgetModelImpl extends Disposable implements TimelineWidge
   }
 
   focusTrackItem(track: Track, trackItem: TrackItem): void {
-    this.focusedTrackItems_.get(track).add(trackItem);
+    // this.focusedTrackItems_.get(track).add(trackItem);
+    const added = this.focusedTrackItems_.add(trackItem);
+    if (added) TimelineWidgetEvent.focusedTrackItemsChanged.fire({
+      timeline: this.timeline,
+      trackItems: this.focusedTrackItems_
+    });
   }
 
   defocusTrackItem(track: Track, trackItem: TrackItem): boolean {
-    return this.focusedTrackItems_.get(track).delete(trackItem);
+    // return this.focusedTrackItems_.get(track).delete(trackItem);
+    const removed = this.focusedTrackItems_.delete(trackItem);
+    if (removed) TimelineWidgetEvent.focusedTrackItemsChanged.fire({
+      timeline: this.timeline,
+      trackItems: this.focusedTrackItems_
+    });
+    return removed;
   }
 
-  getFocusedTrackItems(): ReadonlyMap<Track, ReadonlySet<TrackItem>> {
+  getFocusedTrackItems(): ReadonlySet<TrackItem> {
     return this.focusedTrackItems_;
   }
 
   isTrackItemFocused(track: Track, trackItem: TrackItem): boolean {
-    return this.focusedTrackItems_.get(track).has(trackItem);
+    // return this.focusedTrackItems_.get(track).has(trackItem);
+    return this.focusedTrackItems_.has(trackItem);
   }
 
   getTimeRelativeToTimeline(px: number): number {
@@ -165,6 +185,10 @@ export class TimelineWidgetModelImpl extends Disposable implements TimelineWidge
 
   getPixelAmountRelativeToTimeline(time: number): number {
     return time * this.scrollViewModel.pxPerFrame;
+  }
+
+  getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent): {x: number, y: number} {
+    return MouseUtil.mousePositionElement(e, this.scrollViewModel.element);
   }
 
   // getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent): number {

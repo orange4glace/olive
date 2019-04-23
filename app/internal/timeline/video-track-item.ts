@@ -2,32 +2,37 @@ import { Postable, postable } from 'worker-postable'
 
 import { ResourceBase, VideoResource } from 'internal/resource';
 import TrackItemImpl from 'internal/timeline/track-item-impl';
-import { TrackItemBase } from 'internal/timeline/track-item';
+import { TrackItemBase, TrackItem } from 'internal/timeline/track-item';
 import { TrackItemTime } from 'internal/timeline/track-item-time';
 import { TrackItemType } from 'internal/timeline/track-item-type';
+import { VideoDrawingBase, VideoDrawing } from 'internal/rendering/drawing/video-drawing';
+import { RectangleDrawing } from 'internal/rendering/drawing/rectangle-drawing';
 
 export interface VideoTrackItemBase extends TrackItemBase {
+  drawing: VideoDrawingBase;
   resource: ResourceBase;
+}
 
-  // videoRendering: VideoRenderingBase;
+export interface VideoTrackItem extends TrackItem {
+  readonly drawing: VideoDrawing;
+  readonly resource: VideoResource;
 }
 
 @Postable
-export default class VideoTrackItem extends TrackItemImpl implements VideoTrackItemBase {
+export default class VideoTrackItemImpl extends TrackItemImpl implements VideoTrackItemBase {
 
+  @postable drawing: VideoDrawing;
   @postable resource: VideoResource;
-
-  // @postable videoRendering: VideoRendering;
 
   constructor(resource: VideoResource) {
     super(TrackItemType.VIDEO);
     this.resource = resource;
+    this.drawing = new RectangleDrawing();
 
-    // this.videoRendering = new VideoRendering();
   }
 
-  clone(): VideoTrackItem {
-    let trackItem = new VideoTrackItem(this.resource);
+  clone(): VideoTrackItemImpl {
+    let trackItem = new VideoTrackItemImpl(this.resource);
     this.__setTime(this.time);
     return trackItem;
   }

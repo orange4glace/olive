@@ -18,7 +18,7 @@ class MouseMoveMonitor extends Disposable {
     this.keydownListener_ = null;
   }
 
-  public startMonitoring(mouseMoveCallback: (e: StandardMouseEvent) => void, onStopCallback: () => void): void {
+  startMonitoring(mouseMoveCallback: (e: StandardMouseEvent) => void, onStopCallback: () => void): void {
 		// Add a <<capture>> keydown event listener that will cancel the monitoring
 		// if something other than a modifier key is pressed
 		this.keydownListener_ = dom.addStandardDisposableListener(<any>document, 'keydown', (e) => {
@@ -69,11 +69,11 @@ export class TimelineWidgetManipulatorControllerImpl implements TimelineWidgetMa
 
   private createGhostContainerFromFocused() {
     this.ghostContainer_ = this.model_.ghostModel.createGhostContainer();
-    this.model_.getFocusedTrackItems().forEach((trackItemSet, track) => {
-      trackItemSet.forEach(trackItem => {
-        this.ghostContainer_.addGhostTrackItem(track, trackItem.time.start, trackItem.time.end);
-      })
-    })
+    // this.model_.getFocusedTrackItems().forEach((trackItemSet, track) => {
+    //   trackItemSet.forEach(trackItem => {
+    //     this.ghostContainer_.addGhostTrackItem(track, trackItem.time.start, trackItem.time.end);
+    //   })
+    // })
   }
 
   startResizeLeft(): void {
@@ -104,7 +104,6 @@ export class TimelineWidgetManipulatorControllerImpl implements TimelineWidgetMa
   private cleanState_() {
     this.movementXSum_ = 0;
     this.movementYSum_ = 0;
-    this.model_.ghostModel.removeGhostContainer(this.ghostContainer_!);
     this.ghostContainer_ = null;
   }
 

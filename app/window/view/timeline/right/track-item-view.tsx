@@ -14,6 +14,13 @@ export class TrackItemView extends React.Component<TimelineTrackItemViewProps, {
 
   constructor(props: any) {
     super(props);
+
+    this.mouseDownHandler = this.mouseDownHandler.bind(this);
+  }
+
+  mouseDownHandler(e: React.MouseEvent) {
+    const controller = this.props.widget.controller;
+    controller.trackItemMouseDownHandler(this.props.track, this.props.trackItem, e);
   }
 
   render() {
@@ -32,7 +39,7 @@ export class TrackItemView extends React.Component<TimelineTrackItemViewProps, {
     return (
       <ADiv className={className} style={style}>
         <ADiv className='bar'
-          onMouseDown={EventUtil.stopPropagation}
+          onMouseDown={this.mouseDownHandler}
           onDocumentMouseMoveStart={manipulator.startMove}>
           <ADiv className='thumb left-inner'
               onMouseDown={EventUtil.stopPropagation}

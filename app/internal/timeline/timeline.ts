@@ -23,6 +23,8 @@ export interface Timeline extends TimelineBase {
   setCurrentTime(time: number): void;
   
   addTrack(): Track;
+  getTrackAt(index: number): Track;
+  getTrackIndex(track: Track): number;
 
   readonly onTrackAdded: Event<TimelineTrackEvent>;
   readonly onTrackWillRemove: Event<TimelineTrackEvent>;
