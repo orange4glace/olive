@@ -1,5 +1,5 @@
 export enum TrackItemType {
-  VIDEO,
+  VIDEO_FIGURE,
   VIDEO_MEDIA,
   AUDIO,
 }

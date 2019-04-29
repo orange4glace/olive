@@ -1,3 +1,5 @@
+import { StandardMouseEvent } from "base/view/mouseEvent";
+
 export interface TimelineWidgetManipulationGhostTrackItem {
   /*observable*/ readonly startTime: number;
   /*observable*/ readonly endTime: number;
@@ -7,8 +9,8 @@ export interface TimelineWidgetManipulationGhostTrackItem {
 
 export interface TimelineWidgetManipulatorController {
   
-  startResizeRight(): void;
-  startResizeLeft(): void;
-  startMove(): void;
+  startResizeRight(e: StandardMouseEvent): void;
+  startResizeLeft(e: StandardMouseEvent): void;
+  startMove(e: StandardMouseEvent): void;
 
 }

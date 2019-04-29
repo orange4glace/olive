@@ -1,11 +1,11 @@
-import { Vector2 } from "oliveutil/vector2";
+import { Vector2, Vector2Base } from "oliveutil/vector2";
 import { PropertyBase, Property } from "./property";
 import { action } from "mobx";
 import { Postable } from "worker-postable";
 import { Keyframe } from "./keyframe";
 
 
-export interface PolyPathPropertyBase extends PropertyBase<Vector2[]> {
+export interface PolyPathPropertyBase extends PropertyBase<Vector2Base[]> {
 }
 
 @Postable

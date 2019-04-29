@@ -1,6 +1,7 @@
 import { TrackItem, TrackItemBase } from "internal/timeline/track-item";
 import { Event } from "base/common/event";
 import { TrackItemTime, TrackItemTimeBase, ConstTrackItemTime } from "internal/timeline/track-item-time";
+import { Cloneable } from "base/common/cloneable";
 
 export interface TrackTrackItemEvent {
   readonly trackItem: TrackItem;
@@ -18,7 +19,7 @@ export interface TrackBase {
 
 }
 
-export interface Track extends TrackBase {
+export interface Track extends TrackBase, Cloneable {
 
   readonly id: number;
   /*@observable*/ readonly name: string;
@@ -35,6 +36,7 @@ export interface Track extends TrackBase {
   
   readonly onTrackItemAdded: Event<TrackTrackItemEvent>;
   readonly onTrackItemWillRemove: Event<TrackTrackItemEvent>;
+  readonly onTrackItemRemoved: Event<TrackTrackItemEvent>;
   readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent>;
 
 }

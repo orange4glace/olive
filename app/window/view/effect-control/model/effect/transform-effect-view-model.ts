@@ -4,8 +4,10 @@ import { EffectControlWidgetVideoEffectViewModelImpl } from "window/view/effect-
 import { TrackItem } from "internal/timeline/track-item";
 import { Timeline } from "internal/timeline/timeline";
 import { EffectControlWidgetVector2PropertyViewModel, EffectControlWidgetVector2PropertyViewModelImpl } from "window/view/effect-control/model/property/vector2-property-view-model";
-import { ViewModel } from "window/view/view-model";
+import { ViewModel, declareViewModel } from "window/view/view-model";
 
+export const EffectControlWidgetTransformEffectViewModel =
+    declareViewModel<EffectControlWidgetTransformEffectViewModel>('EffectControlWidgetTransformEffectViewModel')
 
 export interface EffectControlWidgetTransformEffectViewModel
     extends EffectControlWidgetVideoEffectViewModel<TransformEffect> {
@@ -15,7 +17,7 @@ export interface EffectControlWidgetTransformEffectViewModel
 
 }
 
-@ViewModel('EffectControlWidgetTransformEffectViewModel')
+@EffectControlWidgetTransformEffectViewModel
 export class EffectControlWidgetTransformEffectViewModelImpl
     extends EffectControlWidgetVideoEffectViewModelImpl<TransformEffect>
     implements EffectControlWidgetTransformEffectViewModel {

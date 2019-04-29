@@ -4,11 +4,15 @@ import ZoomableScrollView, { ZoomableScrollViewController } from 'window/view/zo
 import { observer } from 'window/app-mobx';
 import { TimelineRulerView } from './timeline-ruler-view';
 import { TimelineTracksView } from 'window/view/timeline/right/tracks-view';
-import { TimelineWidgetViewProps } from 'window/view/timeline/view';
+import { TimelineWidgetViewProps } from 'window/view/timeline/widget-view';
 
 import * as style from './style.scss'
+import { TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
+import { TimelineWidgetViewOutgoingEvents } from 'window/view/timeline/view-outgoing-events';
 
 export interface TimelineContentViewProps extends TimelineWidgetViewProps {
+  outgoingEvents: TimelineWidgetViewOutgoingEvents;
+  timelineViewModel: TimelineWidgetTimelineViewModel;
 }
 
 export default class TimelineRightView extends React.Component<TimelineContentViewProps, {}> {

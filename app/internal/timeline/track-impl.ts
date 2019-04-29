@@ -9,6 +9,7 @@ import { Disposable } from 'base/common/lifecycle';
 import { Track, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/timeline/track';
 import TrackItemImpl from 'internal/timeline/track-item-impl';
 import { TrackItemTime } from 'internal/timeline/track-item-time';
+import { clone } from 'base/common/cloneable';
 
 let _nextTrackID = 0;
 
@@ -48,13 +49,10 @@ export default class TrackImpl extends Disposable implements Track {
   getTrackItemAt(time: number): TrackItemImpl {
     let q = new TrackItemTime(time, time, 0);
     let it = this.trackItemTreeMap.lower_bound(q);
-    let test = null;
-    if (it.equals(this.trackItemTreeMap.end())) {
-      if (this.trackItemTreeMap.size() == 0) return null;
-      test = this.trackItemTreeMap.rbegin().value;
-    }
-    else test = it.value;
-    if (test.first.start <= time && time < test.first.end) return test.second;
+    if (it.equals(this.trackItemTreeMap.end()) || time < it.value.first.start)
+      if (it.equals(this.trackItemTreeMap.begin())) return null;
+      else it = it.prev();
+    if (time < it.value.first.end) return it.value.second;
     return null;
   }
 
@@ -115,8 +113,8 @@ export default class TrackImpl extends Disposable implements Track {
     
     this.onTrackItemTimeChanged_.fire({
       trackItem: trackItem,
-      old: lastTime.clone(),
-      new: time.clone()
+      old: clone(lastTime),
+      new: clone(time)
     })
   }
 
@@ -140,8 +138,8 @@ export default class TrackImpl extends Disposable implements Track {
       else {
         if (endTime <= timePair.end) {
           // Complete inside of current box
-          const currentLeft = current.clone();
-          const currentRight = current.clone();
+          const currentLeft = clone(current);
+          const currentRight = clone(current);
           currentLeft.__setTime(new TrackItemTime(current.time.start, startTime, current.time.base));
           currentRight.__setTime(new TrackItemTime(endTime, current.time.end, current.time.base + (endTime - current.time.start)));
           additions.push(currentLeft);
@@ -173,11 +171,18 @@ export default class TrackImpl extends Disposable implements Track {
     return it;
   }
 
+  clone(obj: TrackImpl): Object {
+    throw "Not implemented";
+  }
+
   private readonly onTrackItemAdded_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
   readonly onTrackItemAdded: Event<TrackTrackItemEvent> = this.onTrackItemAdded_.event;
 
   private readonly onTrackItemWillRemove_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
   readonly onTrackItemWillRemove: Event<TrackTrackItemEvent> = this.onTrackItemWillRemove_.event;
+
+  private readonly onTrackItemRemoved_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
+  readonly onTrackItemRemoved: Event<TrackTrackItemEvent> = this.onTrackItemRemoved_.event;
 
   private readonly onTrackItemTimeChanged_: Emitter<TrackItemTimeChangedEvent> = this._register(new Emitter<TrackItemTimeChangedEvent>());
   readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent> = this.onTrackItemTimeChanged_.event;

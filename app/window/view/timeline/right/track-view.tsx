@@ -1,36 +1,47 @@
 import * as React from 'react'
 import { observer, observable } from 'window/app-mobx';
 import { TimelineTracksViewProps } from './tracks-view';
-import { Track } from 'internal/timeline/track';
 import { TrackItemView } from './track-item-view';
-import { TimelineWidgetGhostTrackItem, TimelineWidgetGhostContainer } from 'window/view/timeline/model/ghost';
+import { TimelineWidgetTrackViewModel } from 'window/view/timeline/model/track-view-model';
+import { TimelineWidgetGhostContainerViewModel, TimelineWidgetGhostTrackItemViewModel } from 'window/view/timeline/model/ghost-view-model';
+import { StandardMouseEvent } from 'base/view/mouseEvent';
 
 export interface TimelineTrackViewProps extends TimelineTracksViewProps {
   index: number;
-  track: Track;
-  ghostContainer: TimelineWidgetGhostContainer | null;
+  trackViewModel: TimelineWidgetTrackViewModel;
+  ghostContainerViewModel: TimelineWidgetGhostContainerViewModel | null;
 }
 
 @observer
 export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
 
-  dragOverHandler: (e: React.MouseEvent)=>void;
-  dragLeaveHandler: (e: React.MouseEvent)=>void;
-
   constructor(props: any) {
     super(props);
 
-    this.onDrop = this.onDrop.bind(this);
-
-    const controller = this.props.widget.controller;
-    const track = this.props.track;
-    this.dragOverHandler = e => {controller.trackDragOverHandler(track, e);}
-    this.dragLeaveHandler = e => {controller.trackDragLeaveHandler(track, e);}    
+    this.dragOverHandler = this.dragOverHandler.bind(this);
+    this.dragLeaveHandler = this.dragLeaveHandler.bind(this);
+    this.dropHandler = this.dropHandler.bind(this);
   }
 
-  onDrop(e: React.MouseEvent) {
-    const controller = this.props.widget.controller;
-    controller.trackDropHandler(this.props.track, e);
+  dragOverHandler(e: React.MouseEvent) {
+    this.props.outgoingEvents.emitTrackDragOver({
+      trackViewModel: this.props.trackViewModel,
+      e: new StandardMouseEvent(e)
+    });
+  }
+
+  dragLeaveHandler(e: React.MouseEvent) {
+    this.props.outgoingEvents.emitTrackDragLeave({
+      trackViewModel: this.props.trackViewModel,
+      e: new StandardMouseEvent(e)
+    });
+  }
+
+  dropHandler(e: React.MouseEvent) {
+    this.props.outgoingEvents.emitTrackDrop({
+      trackViewModel: this.props.trackViewModel,
+      e: new StandardMouseEvent(e)
+    });
   }
 
   render() {
@@ -41,7 +52,7 @@ export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
       <div className='track' style={style}
         onDragOver={this.dragOverHandler}
         onDragLeave={this.dragLeaveHandler}
-        onDrop={this.onDrop}>
+        onDrop={this.dropHandler}>
         <TrackItemViewRenderer {...this.props}/>
         <GhostTrackItemRenderer {...this.props}/>
       </div>
@@ -53,10 +64,11 @@ export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
 export class TrackItemViewRenderer extends React.Component<TimelineTrackViewProps, {}> {
 
   render() {
+    const trackVM = this.props.trackViewModel;
     return (
       <> 
-        {[...this.props.track.trackItems].map(([trackItem, _]) =>
-            <TrackItemView {...this.props} trackItem={trackItem}/>)}
+        {[...trackVM.trackItemViewModels].map(trackItemVM =>
+            <TrackItemView key={trackItemVM.viewModelID} {...this.props} trackItemViewModel={trackItemVM}/>)}
       </>
     )
   }
@@ -69,15 +81,16 @@ export class GhostTrackItemRenderer extends React.Component<TimelineTrackViewPro
   render() {
     return (
       <>
-        {this.props.ghostContainer && this.props.ghostContainer.getGhostTrackItems(this.props.index).map(ghostTrackItem =>
-            <TimelineWidgetGhostTrackItemView {...this.props} ghostTrackItem={ghostTrackItem}/>)}
+        {this.props.ghostContainerViewModel &&
+            this.props.ghostContainerViewModel.getGhostTrackItems(this.props.index).map(ghostTrackItemVM =>
+            <TimelineWidgetGhostTrackItemView key={ghostTrackItemVM.viewModelID} {...this.props} ghostTrackItemViewModel={ghostTrackItemVM}/>)}
       </>
     )
   }
 }
 
 interface TimelineWidgetGhostTrackItemViewProps extends TimelineTrackViewProps {
-  ghostTrackItem: TimelineWidgetGhostTrackItem;
+  ghostTrackItemViewModel: TimelineWidgetGhostTrackItemViewModel;
 }
 
 @observer
@@ -88,11 +101,11 @@ export class TimelineWidgetGhostTrackItemView extends React.Component<TimelineWi
   }
 
   render() {
-    const ghostTrackItem = this.props.ghostTrackItem;
+    const ghostTrackItemVM = this.props.ghostTrackItemViewModel;
     const widget = this.props.widget;
-    const container = this.props.ghostContainer;
-    const left = widget.model.getPositionRelativeToTimeline(ghostTrackItem.startTime + container.leftExtend + container.translation);
-    const right = widget.model.getPositionRelativeToTimeline(ghostTrackItem.endTime + container.rightExtend + container.translation);
+    const containerVM = this.props.ghostContainerViewModel;
+    const left = widget.model.getPositionRelativeToTimeline(ghostTrackItemVM.startTime + containerVM.leftExtend + containerVM.translation);
+    const right = widget.model.getPositionRelativeToTimeline(ghostTrackItemVM.endTime + containerVM.rightExtend + containerVM.translation);
     const style = {
       left: left + 'px',
       width: (right - left) + 'px'

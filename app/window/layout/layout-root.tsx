@@ -8,6 +8,9 @@ import LayoutParser from 'window/layout/data';
 import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
 import { ResourceWidgetImpl } from 'window/view/resource/widget-impl';
 import { EffectControlWidgetImpl } from 'window/view/effect-control/widget_impl';
+import { MonitorWidgetImpl } from 'window/view/monitor/widget';
+import { getService } from 'window/service/services';
+import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
  
 interface LayoutRootProps {
   data: any;
@@ -21,17 +24,28 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
   constructor(props: any) {
     super(props);
     this.data = LayoutParser({
-      direction: 'HORIZONTAL',
+      direction: 'VERTICAL',
       children: [
         {
-          direction: 'VIEW',
-          views: [new TimelineWidgetImpl(app.timeline.getTimeline(0))]
+          direction: 'HORIZONTAL',
+          children: [
+            {
+              direction: 'VIEW',
+              views: [new TimelineWidgetImpl(
+                getService(ITimelineWidgetService),
+                app.timeline.getTimeline(0))]
+            }, {
+              direction: 'VIEW',
+              views: [new ResourceWidgetImpl(app.resource)]
+            }, {
+              direction: 'VIEW',
+              views: [new EffectControlWidgetImpl(
+                getService(ITimelineWidgetService))]
+            }
+          ],
         }, {
           direction: 'VIEW',
-          views: [new ResourceWidgetImpl(app.resource)]
-        }, {
-          direction: 'VIEW',
-          views: [new EffectControlWidgetImpl()]
+          views: [new MonitorWidgetImpl(app.timeline)]
         }
       ]
     })

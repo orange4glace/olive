@@ -3,8 +3,9 @@ import { TrackItemTime } from 'internal/timeline/track-item-time';
 import { TrackItem } from 'internal/timeline/track-item';
 import { TrackItemType } from 'internal/timeline/track-item-type';
 import { computed } from 'mobx';
+import { clone } from 'base/common/cloneable';
 
-let _nextTrackItemID = 0;
+let __next_id = 0;
 
 @Postable
 export default class TrackItemImpl implements TrackItem {
@@ -19,7 +20,7 @@ export default class TrackItemImpl implements TrackItem {
   }
 
   constructor(type: TrackItemType) {
-    this.id = _nextTrackItemID++;
+    this.id = __next_id++;
     this.type = type;
   }
 
@@ -28,13 +29,14 @@ export default class TrackItemImpl implements TrackItem {
   }
 
   __setTime(time: TrackItemTime) {
-    this.time = time.clone();
+    this.time = clone(time);
   }
 
-  clone(): TrackItemImpl {
-    let trackItem = new TrackItemImpl(this.type);
-    trackItem.__setTime(this.time);
-    return trackItem;
+  clone(obj: TrackItemImpl): Object {
+    obj.id = __next_id++;
+    obj.type = this.type;
+    obj.time = clone(this.time);
+    return obj;
   }
 
 }

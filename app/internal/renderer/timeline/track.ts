@@ -3,7 +3,7 @@ import { Posted, listen, listenable } from "worker-postable";
 import NVG from "../../../../nanovg-webgl";
 import { ObservableSet } from "mobx";
 import { TreeMap, make_pair } from "tstl";
-import { VideoTrackItemRenderer } from "./video-track-item";
+import { VideoTrackItemRenderer } from "./track-item/video-track-item";
 import { TrackBase } from "internal/timeline/track";
 import { TrackItemTimeRenderer } from "internal/renderer/timeline/track-item-time";
 import { TrackItemType } from "internal/timeline/track-item-type";
@@ -34,6 +34,7 @@ export class TrackRenderer implements TrackBase {
       if (change.type == 'add') {
         let trackItem = change.name as TrackItemRenderer;
         let timePair = change.newValue as TrackItemTimeRenderer;
+        console.log(trackItem, timePair);
         this.trackItemTreeMap.insert(make_pair(timePair, trackItem));
       }
       else if (change.type == 'update') {
@@ -53,16 +54,12 @@ export class TrackRenderer implements TrackBase {
 
   getTrackItemAt(time: number): TrackItemRenderer {
     let q = new TrackItemTimeRenderer();
-    q.start = time;
-    q.end = time;
+    q.start = q.end = time;
     let it = this.trackItemTreeMap.lower_bound(q);
-    let test = null;
-    if (it.equals(this.trackItemTreeMap.end())) {
-      if (this.trackItemTreeMap.size() == 0) return null;
-      test = this.trackItemTreeMap.rbegin().value;
-    }
-    else test = it.value;
-    if (test.first.start <= time && time < test.first.end) return test.second;
+    if (it.equals(this.trackItemTreeMap.end()) || time < it.value.first.start)
+      if (it.equals(this.trackItemTreeMap.begin())) return null;
+      else it = it.prev();
+    if (time < it.value.first.end) return it.value.second;
     return null;
   }
 
@@ -85,9 +82,8 @@ export class TrackRenderer implements TrackBase {
   decode(timecode: number) {
     let trackItem = this.getTrackItemAt(timecode);
     if (trackItem == null) return;
-    if (trackItem.type == TrackItemType.VIDEO) {
+    if (trackItem.type == TrackItemType.VIDEO_MEDIA) {
       let videoTrackItem = trackItem as VideoTrackItemRenderer;
-      console.log(videoTrackItem)
       videoTrackItem.decode(timecode - videoTrackItem.time.start + videoTrackItem.time.base);
     }
   }

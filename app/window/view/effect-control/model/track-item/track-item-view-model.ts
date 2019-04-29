@@ -1,11 +1,14 @@
 import { TrackItem } from "internal/timeline/track-item";
-import { ViewModel, ViewModelImpl } from "window/view/view-model";
+import { ViewModel, ViewModelImpl, declareViewModel } from "window/view/view-model";
 import { Timeline } from "internal/timeline/timeline";
+
+export const EffectControlWidgetTrackItemViewModel = declareViewModel('EffectControlWidgetTrackItemViewModel');
 
 export interface EffectControlWidgetTrackItemViewModel<T extends TrackItem> extends ViewModel {
 
 }
 
+@EffectControlWidgetTrackItemViewModel
 export abstract class EffectControlWidgetTrackItemViewModelImpl<T extends TrackItem>
     extends ViewModelImpl
     implements EffectControlWidgetTrackItemViewModel<T> {

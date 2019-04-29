@@ -1,7 +1,6 @@
 import { Postable, postable } from 'worker-postable';
 import { action } from 'mobx'
 
-import { EventEmitter2 } from 'eventemitter2';
 import { Event, Emitter } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
 import { Timeline, TimelineTrackEvent } from 'internal/timeline/timeline';
@@ -38,6 +37,7 @@ export default class TimelineImpl extends Disposable implements Timeline {
 
   setCurrentTime(time: number) {
     this.currentTime = time;
+    this.onCurrentTimeChanged_.fire();
   }
 
   @action
@@ -45,7 +45,8 @@ export default class TimelineImpl extends Disposable implements Timeline {
     let track = new TrackImpl();
     this.tracks.push(track);
     this.onTrackAdded_.fire({
-      track: track
+      track: track,
+      index: this.tracks.length - 1
     })
     return track;
   }
@@ -61,6 +62,8 @@ export default class TimelineImpl extends Disposable implements Timeline {
     return index;
   }
 
+  private readonly onCurrentTimeChanged_: Emitter<void> = this._register(new Emitter<void>());
+  readonly onCurrentTimeChanged: Event<void> = this.onCurrentTimeChanged_.event;
 
   private readonly onTrackAdded_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
   readonly onTrackAdded: Event<TimelineTrackEvent> = this.onTrackAdded_.event;

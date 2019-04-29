@@ -6,12 +6,12 @@
 import * as platform from 'base/common/platform'
 
 export interface IMouseEvent {
-	readonly browserEvent: MouseEvent;
+	readonly browserEvent: MouseEvent | React.MouseEvent;
 	readonly leftButton: boolean;
 	readonly middleButton: boolean;
 	readonly rightButton: boolean;
 	readonly target: HTMLElement;
-	readonly detail: number;
+	// readonly detail: number;
 	readonly posx: number;
 	readonly posy: number;
 	readonly ctrlKey: boolean;
@@ -26,13 +26,13 @@ export interface IMouseEvent {
 
 export class StandardMouseEvent implements IMouseEvent {
 
-	public readonly browserEvent: MouseEvent;
+	public readonly browserEvent: MouseEvent | React.MouseEvent;
 
 	public readonly leftButton: boolean;
 	public readonly middleButton: boolean;
 	public readonly rightButton: boolean;
 	public readonly target: HTMLElement;
-	public detail: number;
+	// public detail: number;
 	public readonly posx: number;
 	public readonly posy: number;
 	public readonly ctrlKey: boolean;
@@ -43,7 +43,7 @@ export class StandardMouseEvent implements IMouseEvent {
   public readonly movementX: number;
   public readonly movementY: number;
 
-	constructor(e: MouseEvent) {
+	constructor(e: MouseEvent | React.MouseEvent) {
 		this.timestamp = Date.now();
 		this.browserEvent = e;
 		this.leftButton = e.button === 0;
@@ -52,10 +52,10 @@ export class StandardMouseEvent implements IMouseEvent {
 
 		this.target = <HTMLElement>e.target;
 
-		this.detail = e.detail || 1;
-		if (e.type === 'dblclick') {
-			this.detail = 2;
-		}
+		// this.detail = e.detail || 1;
+		// if (e.type === 'dblclick') {
+		// 	this.detail = 2;
+		// }
 		this.ctrlKey = e.ctrlKey;
 		this.shiftKey = e.shiftKey;
 		this.altKey = e.altKey;
@@ -90,6 +90,28 @@ export class StandardMouseEvent implements IMouseEvent {
 			this.browserEvent.stopPropagation();
 		}
 	}
+
+	mousePositionElement(el: Window | Document | HTMLElement) {
+		let elPos = findPos(el);
+		return {
+			x: this.posx - elPos.left,
+			y: this.posy - elPos.top
+		};
+	}
+}
+
+function findPos(obj: any) {
+	var curleft = 0; var curtop = 0;
+	if (obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return {
+		left : curleft,
+		top : curtop
+	};
 }
 
 export interface IDataTransfer {

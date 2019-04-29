@@ -1,5 +1,6 @@
 import { Postable } from "worker-postable";
 import { Effect } from "internal/rendering/effect/effect";
+import { Cloneable } from "base/common/cloneable";
 
 let __next_id = 0;
 
@@ -13,7 +14,7 @@ export interface DrawingBase {
 }
 
 @Postable
-export abstract class Drawing {
+export abstract class Drawing implements Cloneable {
 
   readonly id: number;
   readonly type: string;
@@ -21,6 +22,12 @@ export abstract class Drawing {
   constructor(type: string) {
     this.id = __next_id++;
     this.type = type;
+  }
+
+  clone(obj: Drawing): Object {
+    (obj as any).id = __next_id++;
+    (obj as any).type = this.type;
+    return obj;
   }
 
 }

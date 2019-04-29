@@ -3,6 +3,7 @@ import { Event } from "base/common/event";
 
 export interface TimelineTrackEvent {
   readonly track: Track;
+  readonly index: number;
 }
 
 export interface TimelineBase {
@@ -26,6 +27,7 @@ export interface Timeline extends TimelineBase {
   getTrackAt(index: number): Track;
   getTrackIndex(track: Track): number;
 
+  readonly onCurrentTimeChanged: Event<void>;
   readonly onTrackAdded: Event<TimelineTrackEvent>;
   readonly onTrackWillRemove: Event<TimelineTrackEvent>;
 

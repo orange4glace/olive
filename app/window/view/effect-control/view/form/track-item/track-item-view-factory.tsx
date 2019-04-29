@@ -13,7 +13,6 @@ export class EffectControlWidgetTrackItemViewFactory
   private static factory_: Map<string | Symbol, EffectControlWidgetTrackViewType> = new Map();
 
   static register(key: string | Symbol, view: any) {
-    console.log('reigst', key, view);
     EffectControlWidgetTrackItemViewFactory.factory_.set(key, view);
   }
 

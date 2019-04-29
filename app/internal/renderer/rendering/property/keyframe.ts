@@ -6,8 +6,6 @@ import { InterpolationType, KeyframeBase } from "internal/rendering/property/key
 export class KeyframeRenderer<T extends PropertyTypes> implements KeyframeBase<T> {
   timecode: number;
   value: T;
-  next: KeyframeRenderer<T>;
-  prev: KeyframeRenderer<T>;
   interpolationType: InterpolationType;
 
   constructor(timecode: number, value: T) {

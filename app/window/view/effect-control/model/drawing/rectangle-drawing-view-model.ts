@@ -6,7 +6,10 @@ import { EffectControlWidgetTransformEffectViewModel, EffectControlWidgetTransfo
 import { EffectControlWidgetVideoDrawingViewModelImpl } from "window/view/effect-control/model/drawing/drawing-view-model-impl";
 import { TrackItem } from "internal/timeline/track-item";
 import { Timeline } from "internal/timeline/timeline";
-import { ViewModel } from "window/view/view-model";
+import { declareViewModel } from "window/view/view-model";
+
+export const EffectControlWidgetRectangleDrawingViewModel =
+    declareViewModel<EffectControlWidgetRectangleDrawingViewModel>('EffectControlWidgetRectangleDrawingViewModel')
 
 export interface EffectControlWidgetRectangleDrawingViewModel
     extends EffectControlWidgetVideoDrawingViewModel<RectangleDrawing> {
@@ -18,7 +21,7 @@ export interface EffectControlWidgetRectangleDrawingViewModel
 
 }
 
-@ViewModel('EffectControlWidgetRectangleDrawingViewModel')
+@EffectControlWidgetRectangleDrawingViewModel
 export class EffectControlWidgetRectangleDrawingViewModelImpl 
     extends EffectControlWidgetVideoDrawingViewModelImpl<RectangleDrawing>
     implements EffectControlWidgetRectangleDrawingViewModel {

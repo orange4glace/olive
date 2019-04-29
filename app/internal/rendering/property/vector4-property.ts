@@ -1,8 +1,8 @@
 import { PropertyBase, Property } from "./property";
 import { Postable } from "worker-postable";
-import { Vector4 } from "oliveutil/vector4";
+import { Vector4, Vector4Base } from "oliveutil/vector4";
 
-export interface Vector4PropertyBase extends PropertyBase<Vector4> {
+export interface Vector4PropertyBase extends PropertyBase<Vector4Base> {
 }
 
 @Postable

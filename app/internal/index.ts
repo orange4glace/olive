@@ -18,7 +18,7 @@ import {
   WindowRequestWrapResult,
   AppParam } from 'connector'
 import { Project } from './project';
-import { TimelineManagerImpl } from 'internal/timeline/manager_impl';
+import { TimelineManagerImpl } from 'internal/timeline/timeline-manager';
 
   if ((module as any).hot) (module as any).hot.accept();
 
@@ -53,12 +53,13 @@ function initializeApp(): void {
   app.canvas.height = 720;
 
   const timeline = app.timeline.createTimeline();
+  app.timeline.setTargetTimeline(timeline);
 
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
-  ref(timeline);
-  const postableID = getPostableID(timeline);
-  rendererWorkerPoster.send('timeline', postableID);
+  ref(app.timeline);
+  const postableID = getPostableID(app.timeline);
+  rendererWorkerPoster.send('initTimelineManager', postableID);
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
   rendererWorkerPoster.send('canvas', {

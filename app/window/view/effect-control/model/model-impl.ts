@@ -6,15 +6,16 @@ import { EffectControlWidgetTrackItemViewModelImpl } from "window/view/effect-co
 import { TrackItemType } from "internal/timeline/track-item-type";
 import { EffectControlWidgetVideoTrackItemViewModelImpl } from "window/view/effect-control/model/track-item/video-track-item-model";
 import { VideoTrackItem } from "internal/timeline/video-track-item";
-import { ViewModel } from "window/view/view-model";
+import { TimelineScrollViewModel, TimelineScrollViewModelImpl } from "window/view/common/timeline-scroll-view-model";
 
-@ViewModel('EffectControlWidgetModel')
+@EffectControlWidgetModel
 export class EffectControlWidgetModelImpl extends Disposable implements EffectControlWidgetModel {
 
   protected readonly timeline_: Timeline;
   protected readonly trackItem_: TrackItem;
 
   readonly trackItemViewModel: EffectControlWidgetTrackItemViewModelImpl<any>;
+  readonly timelineScrollViewModel: TimelineScrollViewModel;
 
   constructor(timeline: Timeline, trackItem: TrackItem) {
     super();
@@ -22,10 +23,12 @@ export class EffectControlWidgetModelImpl extends Disposable implements EffectCo
     this.trackItem_ = trackItem;
 
     switch (trackItem.type) {
-      case TrackItemType.VIDEO:
+      case TrackItemType.VIDEO_MEDIA:
         this.trackItemViewModel = new EffectControlWidgetVideoTrackItemViewModelImpl(timeline, trackItem as VideoTrackItem);
         break;
     }
+
+    this.timelineScrollViewModel = new TimelineScrollViewModelImpl(timeline);
   }
 
 }

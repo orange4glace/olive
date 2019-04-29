@@ -5,8 +5,10 @@ import { EffectControlWidgetVideoDrawingViewModelImpl } from "window/view/effect
 import { Timeline } from "internal/timeline/timeline";
 import { DrawingType } from "internal/rendering/drawing/drawing";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
-import { ViewModel } from "window/view/view-model";
+import { ViewModel, declareViewModel } from "window/view/view-model";
 import { EffectControlWidgetRectangleDrawingViewModelImpl } from "window/view/effect-control/model/drawing/rectangle-drawing-view-model";
+
+export const EffectControlWidgetVideoTrackItemViewModel = declareViewModel('EffectControlWidgetVideoTrackItemViewModel');
 
 export interface EffectControlWidgetVideoTrackItemViewModel
     extends EffectControlWidgetTrackItemViewModel<VideoTrackItem> {
@@ -15,7 +17,7 @@ export interface EffectControlWidgetVideoTrackItemViewModel
 
 }
 
-@ViewModel('EffectControlWidgetVideoTrackItemViewModel')
+@EffectControlWidgetVideoTrackItemViewModel
 export class EffectControlWidgetVideoTrackItemViewModelImpl
     extends EffectControlWidgetTrackItemViewModelImpl<VideoTrackItem>
     implements EffectControlWidgetVideoTrackItemViewModel {

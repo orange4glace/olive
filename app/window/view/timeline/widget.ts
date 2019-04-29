@@ -1,22 +1,37 @@
 import { Widget } from "window/view/widget";
+import { TimelineWidgetTimelineViewModel } from "window/view/timeline/model/timeline-view-model";
 import { Event } from "base/common/event";
-import { TimelineWidgetModel } from "window/view/timeline/model/model";
-import { TimelineWidgetController } from "window/view/timeline/controller/controller";
+import { Timeline } from "internal/timeline/timeline";
+import { TrackItem } from "internal/timeline/track-item";
+import { TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent } from "window/view/timeline/event";
+import { TimelineWidgetViewOutgoingEvents } from "window/view/timeline/view-outgoing-events";
 
-export interface TimelineWidgetFocusedWidgetChangedEvent {
-  widget: TimelineWidget;
-}
+export interface TimelineWidget extends Widget {
 
-export abstract class TimelineWidget extends Widget {
+  readonly timeline: Timeline;
 
-  static readonly focusedWidget: TimelineWidget;
-  static readonly onFocusedWidgetChanged: Event<TimelineWidgetFocusedWidgetChangedEvent>;
-  
-  static setFocusedTimelineWidget(widget: TimelineWidget): void {}
+  // UI Event
+  onTrackItemMouseDown: Event<TimelineWidgetTrackItemUIEvent>;
+  onTrackItemMouseMoveStart: Event<TimelineWidgetTrackItemUIEvent>;
+  onTrackItemThumbMouseMoveStart: Event<TimelineWidgetTrackItemThumbUIEvent>;
+  onTrackMouseMove: Event<TimelineWidgetTrackUIEvent>;
+  onTrackDragOver: Event<TimelineWidgetTrackUIEvent>;
+  onTrackDragLeave: Event<TimelineWidgetTrackUIEvent>;
+  onTrackDrop: Event<TimelineWidgetTrackUIEvent>;
 
-  model: TimelineWidgetModel;
-  controller: TimelineWidgetController;
+  readonly onFocused: Event<void>;
+  readonly onTrackItemFocused: Event<TimelineWidgetTrackItemEvent>;
+  readonly onTrackItemBlured: Event<TimelineWidgetTrackItemEvent>;
 
-  abstract dispose(): void;
+  readonly model: TimelineWidgetTimelineViewModel;
+
+  registerViewOutgoingEvents(outingEvents: TimelineWidgetViewOutgoingEvents): void;
+
+  getFocusedTrackItems(): ReadonlySet<TrackItem>;
+
+  focus(): void;
+  blur(): void;
+
+  setActive(value: boolean): void;
 
 }

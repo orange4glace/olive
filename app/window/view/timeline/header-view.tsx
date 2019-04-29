@@ -1,7 +1,7 @@
 import * as React from 'react'
 import app from 'internal/app';
 import { observer } from 'window/app-mobx';
-import { TimelineWidgetViewProps } from 'window/view/timeline/view';
+import { TimelineWidgetViewProps } from 'window/view/timeline/widget-view';
 
 @observer
 export class TimelineHeaderView extends React.Component<TimelineWidgetViewProps, {}> {

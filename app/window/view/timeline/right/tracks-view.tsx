@@ -55,15 +55,15 @@ export class TracksView extends React.Component<TimelineTracksViewProps, {}> {
 
   render() {
     const widget = this.props.widget;
-    const ghostContainer = widget.model.ghostModel.currentContainer;
+    const ghostContainerVM = widget.model.ghostViewModel.currentContainer;
     let trackIndex = 0;
     return (
       <div className='tracks'>
-        {widget.model.timeline.tracks.map(track => {
+        {widget.model.trackViewModels.map(trackVM => {
           const index = trackIndex++;
           return ( 
-            <div className='track-wrap' key={track.id}>
-              <TrackView key={track.id} {...this.props} track={track} ghostContainer={ghostContainer} index={index}/>
+            <div className='track-wrap' key={trackVM.viewModelID}>
+              <TrackView {...this.props} trackViewModel={trackVM} ghostContainerViewModel={ghostContainerVM} index={index}/>
             </div>
           )
         })}

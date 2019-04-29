@@ -1,5 +1,6 @@
 import { postable } from "worker-postable";
 import { IComparable } from "tstl";
+import { Cloneable } from "base/common/cloneable";
 
 export interface TrackItemTimeBase {
   start: number;
@@ -7,7 +8,7 @@ export interface TrackItemTimeBase {
   base: number;
 }
 
-export class TrackItemTime implements TrackItemTimeBase, IComparable<TrackItemTime> {
+export class TrackItemTime implements TrackItemTimeBase, Cloneable, IComparable<TrackItemTime> {
   @postable start: number;
   @postable end: number;
   @postable base: number;
@@ -32,8 +33,11 @@ export class TrackItemTime implements TrackItemTimeBase, IComparable<TrackItemTi
     return this.start < rhs.start;
   }
 
-  clone(): TrackItemTime {
-    return new TrackItemTime(this.start, this.end, this.base);
+  clone(obj: TrackItemTime): Object {
+    obj.start = this.start;
+    obj.end = this.end;
+    obj.base = this.base;
+    return obj;
   }
 }
 

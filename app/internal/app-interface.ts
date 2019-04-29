@@ -4,7 +4,7 @@ import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
 import { Poster } from 'poster';
 import { Project } from './project';
-import { TimelineManager } from 'internal/timeline/manager';
+import { TimelineManager } from 'internal/timeline/timeline-manager';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {

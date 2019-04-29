@@ -1,17 +1,16 @@
-import VideoTrackItem from "./timeline/video-track-item";
 import { Resource, ResourceType, VideoResource } from "./resource";
 import { TrackItem } from "internal/timeline/track-item";
 import { TrackItemTime } from "internal/timeline/track-item-time";
 
 export default class Factory {
-  createTrackItem(resource: Resource): TrackItem {
-    switch (resource.type) {
-      case ResourceType.VIDEO:
-        return new VideoTrackItem((resource as VideoResource));
-      break;
-    }
-  }
-  createTrackItemTime(start: number, end: number, base: number): TrackItemTime {
-    return new TrackItemTime(start, end, base);
-  }
+  // createTrackItem(resource: Resource): TrackItem {
+  //   switch (resource.type) {
+  //     case ResourceType.VIDEO:
+  //       return new VideoTrackItem((resource as VideoResource));
+  //     break;
+  //   }
+  // }
+  // createTrackItemTime(start: number, end: number, base: number): TrackItemTime {
+  //   return new TrackItemTime(start, end, base);
+  // }
 }

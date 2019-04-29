@@ -1,9 +1,9 @@
 import { Postable, postable } from 'worker-postable';
-import PostableVector2 from 'util/postable_vector2';
-import { TreeMap, Pair } from 'tstl';
+import { TreeMap, Pair, make_pair } from 'tstl';
 import { EventEmitter2 } from 'eventemitter2';
 import { action } from 'mobx';
 import { KeyframeBase, Keyframe } from './keyframe';
+import { Cloneable, clone } from 'base/common/cloneable';
 
 export enum PropertyType {
   SCALAR,
@@ -17,7 +17,7 @@ export enum PropertyEvent {
   KEYFRAME_REMOVED = 'KEYFRAME_REMOVED'
 }
 
-export type PropertyTypes = number | PostableVector2 | Array<PostableVector2>;
+export type PropertyTypes = any;
 
 export interface PropertyBase<T extends PropertyTypes> {
   animatable: boolean;
@@ -31,12 +31,11 @@ export interface PropertyBase<T extends PropertyTypes> {
 let __next_id = 0;
 
 @Postable
-export abstract class Property<T extends PropertyTypes> implements PropertyBase<T> {
+export abstract class Property<T extends PropertyTypes> implements PropertyBase<T>, Cloneable {
   
   readonly id: number;
   readonly type: string;
 
-  evaluatedValue: T;
   @postable animatable: boolean;
   @postable animated: boolean;
   @postable keyframes: Set<Keyframe<T>>;
@@ -118,80 +117,21 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     this.animated = value;
   }
 
-  /*
-  private access(timecode: number): Keyframe<T> {
-    var bef = this.accessBefore(timecode);
-    if (bef.timecode == timecode) return bef;
-    var aft = this.accessAfter(timecode);
-    var keyframe: Keyframe<T> = new Keyframe<T>(timecode, null);
-    keyframe.prev = bef;
-    keyframe.next = aft;
-    if (bef != null) bef.next = keyframe;
-    if (aft != null) aft.prev = keyframe;
-    this.lastAccessedKeyframe = keyframe;
-    return keyframe;
+  clone(obj: Property<T>): Object {
+    (obj as any).id = __next_id++;
+    (obj as any).type = this.type;
+    obj.animatable = this.animatable;
+    obj.animated = this.animated;
+    obj.keyframes = new Set();
+    obj.keyframeTreeMap = new TreeMap();
+    this.keyframes.forEach(keyframe => {
+      const clonedValue = (typeof keyframe.value == 'object' ? clone(keyframe.value as any) : keyframe.value);
+      obj.addKeyframeAt(keyframe.timecode, clonedValue);
+    });
+    obj.defaultKeyframe = clone<Keyframe<T>>(this.defaultKeyframe);
+    obj.ee = new EventEmitter2();
+    return obj;
   }
-
-  private accessBefore(timecode: number): Keyframe<T> {
-    let after = this.accessAfter(timecode);
-    if (after == null) return this.lastAccessedKeyframe;
-    else {
-      if (after.timecode == timecode) return after;
-      return after.prev;
-    }
-  }
-
-  private accessAfter(timecode: number): Keyframe<T> {
-    if (this.lastAccessedKeyframe == null) return null;
-    var lastAccessed = this.lastAccessedKeyframe;
-    if (lastAccessed.timecode == timecode) return lastAccessed;
-
-    if (lastAccessed.timecode > timecode) {
-      var candidate = lastAccessed;
-      while (true) {
-        candidate = lastAccessed;
-        lastAccessed = lastAccessed.prev;
-        this.lastAccessedKeyframe = lastAccessed;
-        if (lastAccessed.timecode < timecode) break;
-      }
-      return candidate;
-    }
-
-    else {
-      while (lastAccessed != null) {
-        this.lastAccessedKeyframe = lastAccessed;
-        if (lastAccessed.timecode >= timecode) break;
-        lastAccessed = lastAccessed.next;
-      }
-      return lastAccessed;
-    }
-  }
-
-  setKeyframe(timecode: number, value: T) {
-    if (!this.animated) {
-      console.log(' set keyframe ', value);
-      this.defaultValue.value = value;
-      return;
-    }
-    var keyframe = this.access(timecode);
-    keyframe.value.value = value;
-  }
-
-  getKeyframeAt(timecode: number): T {
-    if (!this.animated) return this.defaultValue;
-    return this.access(timecode);
-  }
-
-  getInterpolatedPropertyValue(timecode: number): PropertyValue<T> {
-    if (this.keyframes.size == 0) return this.defaultValue;
-    var bef = this.accessBefore(timecode);
-    var aft = this.accessAfter(timecode);
-    if (bef == null) return aft.value;
-    if (aft == null) return bef.value;
-    var t = (timecode - bef.timecode) / (aft.timecode - bef.timecode);
-    return bef.value.interpolate(aft.value, t);
-  }
-  */
 
 
   // Event Emitter

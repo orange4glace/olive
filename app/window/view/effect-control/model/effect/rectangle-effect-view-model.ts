@@ -4,7 +4,10 @@ import { EffectControlWidgetVector4PropertyViewModel, EffectControlWidgetVector4
 import { EffectControlWidgetVideoEffectViewModelImpl } from "window/view/effect-control/model/effect/effect-view-model-impl";
 import { Timeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item";
-import { ViewModel } from "window/view/view-model";
+import { ViewModel, declareViewModel } from "window/view/view-model";
+
+export const EffectControlWidgetRectangleEffectViewModel =
+    declareViewModel<EffectControlWidgetRectangleEffectViewModel>('EffectControlWidgetRectangleEffectViewModel')
 
 export interface EffectControlWidgetRectangleEffectViewModel
     extends EffectControlWidgetVideoEffectViewModel<RectangleEffect> {
@@ -13,7 +16,7 @@ export interface EffectControlWidgetRectangleEffectViewModel
 
 }
 
-@ViewModel('EffectControlWidgetRectangleEffectViewModel')
+@EffectControlWidgetRectangleEffectViewModel
 export class EffectControlWidgetRectangleEffectViewModelImpl 
     extends EffectControlWidgetVideoEffectViewModelImpl<RectangleEffect> 
     implements EffectControlWidgetRectangleEffectViewModel{

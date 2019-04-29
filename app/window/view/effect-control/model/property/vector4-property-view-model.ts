@@ -2,7 +2,10 @@ import { EffectControlWidgetPropertyViewModel } from "window/view/effect-control
 import { Vector4Property } from "internal/rendering/property/vector4-property";
 import { EffectControlWidgetPropertyViewModelImpl } from "window/view/effect-control/model/property/property-view-model-impl";
 import { Vector4 } from "oliveutil/vector4";
-import { ViewModel } from "window/view/view-model";
+import { ViewModel, declareViewModel } from "window/view/view-model";
+
+export const EffectControlWidgetVector4PropertyViewModel =
+    declareViewModel<EffectControlWidgetVector4PropertyViewModel>('EffectControlWidgetVector4PropertyViewModel')
 
 export interface EffectControlWidgetVector4PropertyViewModel
     extends EffectControlWidgetPropertyViewModel<Vector4Property> {
@@ -14,7 +17,7 @@ export interface EffectControlWidgetVector4PropertyViewModel
 
 }
 
-@ViewModel('EffectControlWidgetVector4PropertyViewModel')
+@EffectControlWidgetVector4PropertyViewModel
 export class EffectControlWidgetVector4PropertyViewModelImpl
     extends EffectControlWidgetPropertyViewModelImpl<Vector4Property>
     implements EffectControlWidgetVector4PropertyViewModel {

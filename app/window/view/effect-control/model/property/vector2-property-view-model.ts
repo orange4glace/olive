@@ -1,28 +1,31 @@
 import { EffectControlWidgetPropertyViewModel } from "window/view/effect-control/model/property/property-view-model";
 import { Vector2Property } from "internal/rendering/property/vector2-property";
-import PostableVector2 from "util/postable_vector2";
 import { EffectControlWidgetPropertyViewModelImpl } from "window/view/effect-control/model/property/property-view-model-impl";
 import { TrackItem } from "internal/timeline/track-item";
 import { Timeline } from "internal/timeline/timeline";
 import { computed } from "window/app-mobx";
-import { ViewModel } from "window/view/view-model";
+import { ViewModel, declareViewModel } from "window/view/view-model";
+import { Vector2 } from "oliveutil/vector2";
+
+export const EffectControlWidgetVector2PropertyViewModel =
+    declareViewModel<EffectControlWidgetVector2PropertyViewModel>('EffectControlWidgetVector2PropertyViewModel')
 
 export interface EffectControlWidgetVector2PropertyViewModel
     extends EffectControlWidgetPropertyViewModel<Vector2Property> {
 
-  /*@observable*/ readonly currentValue: PostableVector2;
+  /*@observable*/ readonly currentValue: Vector2;
 
   xValueChangeHandler(val: number): void;
   yValueChangeHandler(val: number): void;
 
 }
 
-@ViewModel('EffectControlWidgetVector2PropertyViewModel')
+@EffectControlWidgetVector2PropertyViewModel
 export class EffectControlWidgetVector2PropertyViewModelImpl
     extends EffectControlWidgetPropertyViewModelImpl<Vector2Property>
     implements EffectControlWidgetVector2PropertyViewModel {
 
-  @computed get currentValue(): PostableVector2 {
+  @computed get currentValue(): Vector2 {
     const property = this.property_;
     const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
     return property.getInterpolatedPropertyValue(timeOffset);
