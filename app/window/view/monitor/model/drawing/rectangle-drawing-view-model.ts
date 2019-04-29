@@ -6,7 +6,7 @@ import { StandardMouseEvent } from "base/view/mouseEvent";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { Timeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item";
-import { MonitorWidgetSelectableViewModel } from "window/view/monitor/model/selectable-view-model";
+import { MonitorWidgetSelectableViewModelImpl, MonitorWidgetSelectableViewModelEvent } from "window/view/monitor/model/selectable-view-model";
 
 export const MonitorWidgetRectangleDrawingViewModel =
     declareViewModel<MonitorWidgetRectangleDrawingViewModel>('MonitorWidgetRectangleDrawingViewModel')
@@ -27,15 +27,18 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
 
   private readonly mouseMoveMonitor = new InterruptableMouseMoveMonitor();
 
-  constructor(parent: MonitorWidgetSelectableViewModel, timeline: Timeline, trackItem: TrackItem, drawing: RectangleDrawing) {
+  constructor(parent: MonitorWidgetSelectableViewModelImpl, timeline: Timeline, trackItem: TrackItem, drawing: RectangleDrawing) {
     super(parent, timeline, trackItem, drawing);
 
+    this.moveHandler = this.moveHandler.bind(this);
+
     this._register(this.mouseMoveMonitor);
+    this._register(this.onMouseDown(e => this.mouseDownHandler(e)));
   }
 
   getControlPoints() {
     const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
-    const transMat = this.getTransformMatrix(timeOffset);
+    const transMat = this.__getTransformMatrix();
 
     const size = this.drawing.rectangleEffect.size.getInterpolatedPropertyValue(timeOffset);
     const topLeft = vec2.fromValues(size.w, size.x);
@@ -73,7 +76,7 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
     const [dx, dy] = [e.movementX, e.movementY];
     let ori = vec2.fromValues(0, 0);
     let vec = vec2.fromValues(dx, dy);
-    const invTransMat = this.getInverseTransformMatrix(timeoffset);
+    const invTransMat = this.__getInverseTransformMatrix();
     vec2.transformMat2d(ori, ori, invTransMat);
     vec2.transformMat2d(vec, vec, invTransMat);
     vec2.sub(vec, vec, ori);
@@ -94,8 +97,37 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
     sizeProperty.addKeyframeAt(timeoffset, sizeProperty.createValue(top, right, bottom, left));
   }
 
-  select(timeOffset: number, x: number, y: number) {
+  mouseDownHandler(e: MonitorWidgetSelectableViewModelEvent) {
+    console.log(e);
+    this.mouseMoveMonitor.startMonitoring(this.moveHandler, null);
+  }
+
+  moveHandler(e: StandardMouseEvent) {
+    const timeline = this.timeline_;
+    const trackItem = this.trackItem_;
     const drawing = this.drawing;
+    const timeoffset = trackItem.getTimeoffset(timeline.currentTime);
+
+    const [dx, dy] = [e.movementX, e.movementY];
+    let ori = vec2.fromValues(0, 0);
+    let vec = vec2.fromValues(dx, dy);
+    const invTransMat = this.__getInverseTransformMatrix();
+    vec2.transformMat2d(ori, ori, invTransMat);
+    vec2.transformMat2d(vec, vec, invTransMat);
+    vec2.sub(vec, vec, ori);
+    
+    const positionProperty = drawing.transformEffect.position;
+    const position = positionProperty.getInterpolatedPropertyValue(timeoffset);
+
+    const x = position.x + vec[0];
+    const y = position.y + vec[1];
+
+    positionProperty.addKeyframeAt(timeoffset, positionProperty.createValue(x, y));
+  }
+
+  __select(x: number, y: number) {
+    const drawing = this.drawing;
+    const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
     const vec: vec2 = vec2.fromValues(x, y);
     const transMat: mat2d = mat2d.create();
     mat2d.identity(transMat);
@@ -114,9 +146,14 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
     return false;
   }
 
-  getTransformMatrix(timeOffset: number): mat2d {
+  __getChildren() {
+    return [] as any;
+  }
+
+  __getLocalTransformMatrix(): mat2d {
     const drawing = this.drawing;
-    const transMat: mat2d = this.parent.getTransformMatrix(timeOffset);
+    const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
+    const transMat: mat2d = mat2d.create();
 
     const position = drawing.transformEffect.position.getInterpolatedPropertyValue(timeOffset);
     mat2d.translate(transMat, transMat, [position.x, position.y]);
@@ -126,9 +163,10 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
     return transMat;
   }
 
-  getInverseTransformMatrix(timeOffset: number): mat2d {
+  __getLocalInverseTransformMatrix(): mat2d {
     const drawing = this.drawing;
-    const transMat: mat2d = this.parent.getInverseTransformMatrix(timeOffset);
+    const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
+    const transMat: mat2d = mat2d.create();
 
     const position = drawing.transformEffect.position.getInterpolatedPropertyValue(timeOffset);
     mat2d.translate(transMat, transMat, [-position.x, -position.y]);

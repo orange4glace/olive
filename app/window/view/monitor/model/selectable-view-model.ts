@@ -1,23 +1,27 @@
 import { Event, Emitter } from "base/common/event";
 import { ViewModel, ViewModelImpl } from "window/view/view-model";
-import { mat2d } from "gl-matrix";
+import { mat2d, vec2 } from "gl-matrix";
 import { observable } from "window/app-mobx";
 
-export interface MonitorWidgetSelectableViewModelSelectedEvent {
+export class MonitorWidgetSelectableViewModelEvent {
+  type: 'mousedown' | 'mousemovestart';
   target: MonitorWidgetSelectableViewModel;
-  capture: boolean;
+  stopped: boolean;
+
+  constructor(type: 'mousedown' | 'mousemovestart') {
+    this.type = type;
+  }
+
+  stopPropagation(): void {
+    this.stopped = true;
+  }
 }
 
 export interface MonitorWidgetSelectableViewModel extends ViewModel {
 
-  readonly parent: MonitorWidgetSelectableViewModel;
-  readonly onFocused: Event<MonitorWidgetSelectableViewModelSelectedEvent>;
+  readonly onMouseDown: Event<MonitorWidgetSelectableViewModelEvent>;
 
-  /*@observable*/ readonly focused: boolean;
-
-  select(timeOFfset: number, x: number, y: number): boolean;
-  getTransformMatrix(timeOffset: number): mat2d;
-  getInverseTransformMatrix(timeOffset: number): mat2d;
+  fireMouseDown(x: number, y: number): void;
 
 }
 
@@ -25,18 +29,52 @@ export interface MonitorWidgetSelectableViewModel extends ViewModel {
     extends ViewModelImpl
     implements MonitorWidgetSelectableViewModel {
 
-  onFocused_: Emitter<MonitorWidgetSelectableViewModelSelectedEvent> = new Emitter();
-  readonly onFocused: Event<MonitorWidgetSelectableViewModelSelectedEvent> = this.onFocused_.event;
+  onMouseDown_: Emitter<MonitorWidgetSelectableViewModelEvent> = new Emitter();
+  readonly onMouseDown: Event<MonitorWidgetSelectableViewModelEvent> = this.onMouseDown_.event;
 
-  @observable focused: boolean;
-
-  constructor(readonly parent: MonitorWidgetSelectableViewModel) {
+  constructor(readonly parent: MonitorWidgetSelectableViewModelImpl) {
     super();
-    this.focused = false;
   }
 
-  abstract select(timeOffset: number, x: number, y: number): boolean;
-  abstract getTransformMatrix(timeOffset: number): mat2d;
-  abstract getInverseTransformMatrix(timeOffset: number): mat2d;
+  fireMouseDown(x: number, y: number): void {
+    const e = new MonitorWidgetSelectableViewModelEvent('mousedown');
+    this.__fireMouseDown(x, y, x, y, e);
+  }
+
+  protected __fireMouseDown(x: number, y: number, localX: number, localY: number, e: MonitorWidgetSelectableViewModelEvent): void {
+    const children = this.__getChildren();
+    for (let i = 0; i < children.length; i ++) {
+      const child = children[i];
+      let localVec = vec2.fromValues(localX, localY);
+      vec2.transformMat2d(localVec, localVec, this.__getLocalInverseTransformMatrix());
+      child.__fireMouseDown(x, y, localVec[0], localVec[1], e);
+      if (e.stopped) break;
+    }
+    if (e.target == null && this.__select(localX, localY))
+      e.target = this as MonitorWidgetSelectableViewModel;
+    if (e.target != null && !e.stopped) {
+      this.onMouseDown_.fire(e);
+    }
+  }
+
+  protected __getTransformMatrix(): mat2d {
+    let mat = this.__getLocalTransformMatrix();
+    if (this.parent)
+      mat2d.mul(mat, this.parent.__getTransformMatrix(), mat);
+    return mat;
+  }
+
+  protected __getInverseTransformMatrix(): mat2d {
+    let mat = this.__getLocalInverseTransformMatrix();
+    if (this.parent)
+      mat2d.mul(mat, this.parent.__getInverseTransformMatrix(), mat);
+    return mat;
+  }
+
+  protected abstract __getChildren(): MonitorWidgetSelectableViewModelImpl[];
+  protected abstract __select(localX: number, localY: number): boolean;
+
+  protected abstract __getLocalTransformMatrix(): mat2d;
+  protected abstract __getLocalInverseTransformMatrix(): mat2d;
 
 }

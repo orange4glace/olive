@@ -8,6 +8,7 @@ import { MonitorWidgetVideoTrackItemView } from 'window/view/monitor/view/track-
 import { MonitorWidgetDrawingViewSelector } from 'window/view/monitor/view/drawing/drawing-view';
 import { MonitorWidgetRectangleDrawingViewModel } from 'window/view/monitor/model/drawing/rectangle-drawing-view-model';
 import { MonitorWidgetRectangleDrawingView } from 'window/view/monitor/view/drawing/rectangle-drawing-view';
+import { MouseUtil } from 'orangeutil';
 
 export interface MonitorWidgetTimelineViewProps extends MonitorWidgetViewProps {
   timelineViewModel: MonitorWidgetTimelineViewModel;
@@ -16,9 +17,26 @@ export interface MonitorWidgetTimelineViewProps extends MonitorWidgetViewProps {
 @observer
 export class MonitorWidgetTimelineView extends React.Component<MonitorWidgetTimelineViewProps, {}> {
 
+  ref: React.RefObject<any> = React.createRef();
+
+  constructor(props: MonitorWidgetTimelineViewProps) {
+    super(props);
+    this.mouseDownHandler = this.mouseDownHandler.bind(this);
+  }
+
+  componentDidMount() {
+
+  }
+
+  mouseDownHandler(e: React.MouseEvent) {
+    const pos = MouseUtil.mousePositionElement(e, this.ref.current);
+    this.props.timelineViewModel.fireMouseDown(pos.x, pos.y);
+  }
+
   render() {
     return (
-      <div className='timeline'>
+      <div className='timeline' ref={this.ref}
+          onMouseDown={this.mouseDownHandler}>
         {this.props.timelineViewModel.trackItemViewModels.map(trackItemViewModel =>
           !trackItemViewModel ? null :
           <MonitorWidgetTrackItemSelectorView key={trackItemViewModel.viewModelID}

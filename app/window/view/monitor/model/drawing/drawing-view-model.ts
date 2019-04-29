@@ -15,7 +15,7 @@ export abstract class MonitorWidgetDrawingViewModelImpl<T extends Drawing>
     implements MonitorWidgetDrawingViewModel<T> {
 
   constructor(
-      parent: MonitorWidgetSelectableViewModel,
+      parent: MonitorWidgetSelectableViewModelImpl,
       protected readonly timeline_: Timeline,
       protected readonly trackItem_: TrackItem,
       readonly drawing: T) {

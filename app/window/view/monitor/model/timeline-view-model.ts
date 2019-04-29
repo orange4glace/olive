@@ -1,6 +1,5 @@
 import { Timeline } from "internal/timeline/timeline";
-import { ViewModel, ViewModelImpl } from "window/view/view-model";
-import { MonitorWidgetTrackItemViewModel } from "window/view/monitor/model/track-item/track-item-view-model";
+import { MonitorWidgetTrackItemViewModel, MonitorWidgetTrackItemViewModelImpl } from "window/view/monitor/model/track-item/track-item-view-model";
 import { Track } from "internal/timeline/track";
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { TrackItem } from "internal/timeline/track-item";
@@ -29,7 +28,7 @@ export interface MonitorWidgetTimelineViewModel extends MonitorWidgetSelectableV
 export class MonitorWidgetTimelineViewModelImpl extends MonitorWidgetSelectableViewModelImpl 
     implements MonitorWidgetTimelineViewModel {
 
-  @observable trackItemViewModels: (MonitorWidgetTrackItemViewModel<any> | null)[];
+  @observable trackItemViewModels: (MonitorWidgetTrackItemViewModelImpl<any> | null)[];
 
   @observable width: number;
   @observable height: number;
@@ -88,7 +87,7 @@ export class MonitorWidgetTimelineViewModelImpl extends MonitorWidgetSelectableV
       this.trackItemViewModels[index] = null;
       if (!current) return;
 
-      let currentVM: MonitorWidgetTrackItemViewModel<any> = null;
+      let currentVM: MonitorWidgetTrackItemViewModelImpl<any> = null;
       switch (current.type) {
         case TrackItemType.VIDEO_FIGURE:
         case TrackItemType.VIDEO_MEDIA:
@@ -115,12 +114,8 @@ export class MonitorWidgetTimelineViewModelImpl extends MonitorWidgetSelectableV
       y: y * hr
     };
   }
-  
-  select(timeOffset: number, x: number, y: number) {
-    return false;
-  }
 
-  getTransformMatrix() {
+  __getLocalTransformMatrix() {
     const wr = this.screenWidth / this.width;
     const hr = this.screenHeight / this.height;
     let mat = mat2d.create();
@@ -129,13 +124,21 @@ export class MonitorWidgetTimelineViewModelImpl extends MonitorWidgetSelectableV
     return mat;
   }
 
-  getInverseTransformMatrix() {
+  __getLocalInverseTransformMatrix() {
     const wr = this.screenWidth / this.width;
     const hr = this.screenHeight / this.height;
     let mat = mat2d.create();
     mat2d.identity(mat);
     mat2d.scale(mat, mat, [1 / wr, 1 / hr]);
     return mat;
+  }
+
+  __getChildren() {
+    return this.trackItemViewModels.filter(e => e);
+  }
+
+  __select(x: number, y: number): boolean {
+    return false;
   }
 
 }
