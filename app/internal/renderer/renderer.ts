@@ -1,12 +1,11 @@
-import DecoderClient from 'internal/decoder/client'
 import { Poster, ReceivedRequest } from 'poster'
 import { ObjectStore, postableMessageHandler } from 'worker-postable';
-import { TimelineRenderer } from './timeline';
 import IDecoder from 'internal/decoder/decoder';
+import { TimelineManagerRenderer } from 'internal/renderer/timeline/timeline-manager';
 
 // Force-import to fire @Posted
 require('./timeline')
-require('./drawing')
+require('./rendering')
 require('./resource')
 
 function initializeDecoderModule() {
@@ -22,7 +21,7 @@ function initializeDecoderModule() {
 
 export class Renderer {
 
-  renderingTimeline: TimelineRenderer;
+  timelineManager: TimelineManagerRenderer;
   poster: Poster;
   decoder: IDecoder;
   vg: any;
@@ -34,13 +33,13 @@ export class Renderer {
 
     this.loop = this.loop.bind(this);
     this.handlePostable = this.handlePostable.bind(this);
-    this.initTimeline = this.initTimeline.bind(this);
+    this.initTimelineManager = this.initTimelineManager.bind(this);
     this.initNanovg = this.initNanovg.bind(this);
 
     this.initConverter();
     
     this.poster.addRequestListener('post', this.handlePostable);
-    this.poster.addRequestListener('timeline', this.initTimeline);
+    this.poster.addRequestListener('initTimelineManager', this.initTimelineManager);
     this.poster.addRequestListener('canvas', this.initNanovg);
   }
 
@@ -48,9 +47,9 @@ export class Renderer {
     postableMessageHandler(req.data);
   }
 
-  private initTimeline(req: ReceivedRequest) {
+  private initTimelineManager(req: ReceivedRequest) {
     console.log('[Renderer] initTimeline', req)
-    this.renderingTimeline = ObjectStore.get(req.data);
+    this.timelineManager = ObjectStore.get(req.data);
   }
 
   private initNanovg(req: ReceivedRequest) {
@@ -75,8 +74,9 @@ export class Renderer {
   }
 
   private async loop() {
-    this.renderingTimeline.decode();
-    await this.renderingTimeline.draw(this.vg);
+    const targetTimeline = this.timelineManager.targetTimeline;
+    targetTimeline.decode();
+    await targetTimeline.draw(this.vg);
     requestAnimationFrame(this.loop);
   }
 

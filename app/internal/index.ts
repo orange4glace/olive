@@ -5,7 +5,6 @@ import * as mobx_react from 'mobx-react';
 import { context as PostableContext, ref, getPostableID } from 'worker-postable'
 import RendererWorker from 'worker-loader!./renderer/index';
 import App from 'internal/app-interface';
-import Timeline from 'internal/timeline/timeline';
 import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
 import { Poster } from 'poster';
@@ -19,6 +18,7 @@ import {
   WindowRequestWrapResult,
   AppParam } from 'connector'
 import { Project } from './project';
+import { TimelineManagerImpl } from 'internal/timeline/timeline-manager';
 
   if ((module as any).hot) (module as any).hot.accept();
 
@@ -45,20 +45,21 @@ function initializeApp(): void {
   }
   app.project = new Project();
   app.factory = new Factory();
-  app.timeline = new Timeline();
+  app.timeline = new TimelineManagerImpl();
   app.resource = new ResourceManager();
   app.workerPoster = rendererWorkerPoster;
   app.canvas = document.createElement('canvas');
   app.canvas.width = 1080;
   app.canvas.height = 720;
 
-  console.log(Timeline, app.timeline)
+  const timeline = app.timeline.createTimeline();
+  app.timeline.setTargetTimeline(timeline);
 
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   ref(app.timeline);
   const postableID = getPostableID(app.timeline);
-  rendererWorkerPoster.send('timeline', postableID);
+  rendererWorkerPoster.send('initTimelineManager', postableID);
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
   rendererWorkerPoster.send('canvas', {

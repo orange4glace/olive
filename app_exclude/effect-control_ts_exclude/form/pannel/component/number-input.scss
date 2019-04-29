@@ -1,0 +1,32 @@
+@import "window/theme.scss";
+
+.component {
+  display: flex;
+  width: 50px;
+
+  > .value {
+    width: 100%;
+    color: $highlight-text;
+    font-size: 12px;
+    box-sizing: border-box;
+    line-height: 20px;
+    cursor: e-resize;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  > input {
+    width: 100%;
+    background: $bright-background;
+    color: $primary-text;
+    border: none;
+    box-sizing: border-box;
+    padding: 0;
+    line-height: 20px;
+    font-size: 12px;
+    text-align: center;
+    outline: none;
+  }
+
+}

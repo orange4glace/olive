@@ -4,6 +4,13 @@ import { Probe, VideoProbeResult } from './probe'
 import ResourceType from './type_t';
 import { VideoResource } from './video-resource';
 import { Resource } from './resource';
+import { Emitter, Event } from 'base/common/event';
+import { TrackItemTime } from 'internal/timeline/track-item-time';
+import { VideoMediaTrackItemImpl } from 'internal/timeline/video-media-track-item';
+
+export interface ResourceManagerResourceEvent {
+  resource: Resource
+}
 
 export default class ResourceManager {
   @observable resources: Set<Resource> = new Set();
@@ -22,6 +29,7 @@ export default class ResourceManager {
           const videoResult = result as VideoProbeResult;
           const videoResource = new VideoResource(path, videoResult.width, videoResult.height, videoResult.duration);
           this.resources.add(videoResource);
+          this.onResourceAdded_.fire({resource: videoResource});
           return videoResource;
         default:
           return null;
@@ -30,4 +38,18 @@ export default class ResourceManager {
       return e;
     }
   }
+
+  trackItemize(resource: Resource) {
+    let trackItem;
+    if (resource.type == ResourceType.VIDEO) {
+      const videoResource = resource as VideoResource;
+      trackItem = new VideoMediaTrackItemImpl(resource as VideoResource);
+      trackItem.__setTime(new TrackItemTime(0, videoResource.duration, 0));
+    }
+    return trackItem;
+  }
+
+  private onResourceAdded_: Emitter<ResourceManagerResourceEvent> = new Emitter();
+  onResourceAdded: Event<ResourceManagerResourceEvent> = this.onResourceAdded_.event;
+
 }

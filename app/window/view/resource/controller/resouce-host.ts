@@ -1,10 +1,10 @@
-import { IResource } from 'standard'
+import { Resource } from "internal/resource";
 
 export default class ResourceHost {
 
-  resource: IResource;
+  resource: Resource;
 
-  constructor(resource: IResource) {
+  constructor(resource: Resource) {
     this.resource = resource;
   }
 

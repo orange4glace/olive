@@ -1,5 +1,8 @@
 import WindowParam from 'window/window-param';
 import app from 'internal/app';
+import { setService } from 'window/service/services';
+import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
+import { TimelineWidgetServiceImpl } from 'window/view/timeline/widget-service-impl';
 
 function initialize(param: WindowParam) {
   app.project = param.app.project;
@@ -11,6 +14,7 @@ function initialize(param: WindowParam) {
   app.canvas = param.app.canvas;
   console.log('[Window] Initialize', app);
   console.log('initilaize', param.app);
+
   let bundleScript = document.createElement('script');
   bundleScript.src = './window.js';
   document.head.appendChild(bundleScript);

@@ -9,7 +9,7 @@ export interface ResourceBase {
 }
 
 @Postable
-export class Resource implements ResourceBase {
+export abstract class Resource implements ResourceBase {
   @postable readonly id: number;
   @postable readonly path: string;
   readonly type: ResourceType;
