@@ -23,17 +23,13 @@ export class MonitorWidgetImpl extends MonitorWidget {
 
   private toDispose_: IDisposable[] = [];
 
-  get name(): string {
-    return 'Resource'
-  }
-
   constructor(timelineManager: TimelineManager) {
-    super();
+    super('Monitor');
 
     this.model_ = observable.box(null);
     
     this.timelineManagerTargetTimelineChangedHandler(timelineManager.targetTimeline);
-    this.toDispose_.push(timelineManager.onTargetTimelineChangedEvent(
+    this.toDispose_.push(timelineManager.onTargetTimelineChanged(
         e => this.timelineManagerTargetTimelineChangedHandler(e.timeline), this));
   }
 

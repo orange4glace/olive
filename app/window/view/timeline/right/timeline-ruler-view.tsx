@@ -34,7 +34,7 @@ export class TimelineRulerView extends React.Component<TimelineContentViewProps,
   mouseMoveHandler(e: MouseEvent) {
     const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
     const time = this.props.widget.model.getTimeRelativeToTimeline(pos.x);
-    this.props.widget.model.setCurrentTime(time);
+    this.props.widget.model.seekTo(time);
   }
 
   render() {

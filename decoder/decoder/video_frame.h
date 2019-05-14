@@ -45,8 +45,6 @@ struct VideoFrame : Frame {
   bool scaled;
   bool transferred;
 
-  int id;
-
 }; // struct VideoFrame
 
 } // namespace olive

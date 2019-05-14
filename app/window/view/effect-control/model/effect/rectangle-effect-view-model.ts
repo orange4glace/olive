@@ -27,6 +27,9 @@ export class EffectControlWidgetRectangleEffectViewModelImpl
     super(timeline, trackItem, effect);
     this.sizePropertyViewModel =
         new EffectControlWidgetVector4PropertyViewModelImpl('Size', timeline, trackItem, this.effect_.size);
+
+    this._register(this.sizePropertyViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
+    this._register(this.sizePropertyViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
   }
 
 }

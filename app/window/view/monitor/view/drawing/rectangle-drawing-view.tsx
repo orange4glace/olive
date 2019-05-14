@@ -9,10 +9,10 @@ import { StandardMouseEvent } from 'base/view/mouseEvent';
 export class MonitorWidgetRectangleDrawingView extends
     MonitorWidgetDrawingView<MonitorWidgetRectangleDrawingViewModel> {
 
-  readonly p0ControlPointMouseDownHandler: (e: StandardMouseEvent) => void;
-  readonly p1ControlPointMouseDownHandler: (e: StandardMouseEvent) => void;
-  readonly p2ControlPointMouseDownHandler: (e: StandardMouseEvent) => void;
-  readonly p3ControlPointMouseDownHandler: (e: StandardMouseEvent) => void;
+  readonly p0ControlPointMouseDownHandler: (e: React.MouseEvent) => void;
+  readonly p1ControlPointMouseDownHandler: (e: React.MouseEvent) => void;
+  readonly p2ControlPointMouseDownHandler: (e: React.MouseEvent) => void;
+  readonly p3ControlPointMouseDownHandler: (e: React.MouseEvent) => void;
 
   readonly p0ControlPointMouseMoveStartHandler: (e: MouseEvent) => void;
   readonly p1ControlPointMouseMoveStartHandler: (e: MouseEvent) => void;
@@ -50,23 +50,29 @@ export class MonitorWidgetRectangleDrawingView extends
   }
 
   render() {
-    const points = this.props.drawingViewModel.getControlPoints();
+    const model = this.props.drawingViewModel;
+    const points = model.getControlPoints();
     const topLeft = points[0];
     const topRight = points[1];
     const bottomRight = points[2];
     const bottomLeft = points[3];
-    return (
-      <div className='drawing-view'>
-        <MonitorWidgetDrawingControlPoint x={topLeft[0]} y={topLeft[1]}
-            onMouseMoveStart={this.p0ControlPointMouseMoveStartHandler}/>
-        <MonitorWidgetDrawingControlPoint x={topRight[0]} y={topRight[1]}
-            onMouseMoveStart={this.p1ControlPointMouseMoveStartHandler}/>
-        <MonitorWidgetDrawingControlPoint x={bottomRight[0]} y={bottomRight[1]}
-            onMouseMoveStart={this.p2ControlPointMouseMoveStartHandler}/>
-        <MonitorWidgetDrawingControlPoint x={bottomLeft[0]} y={bottomLeft[1]}
-            onMouseMoveStart={this.p3ControlPointMouseMoveStartHandler}/>
-      </div>
-    )
+
+    if (model.focused) return (
+        <div className='drawing-view'>
+          <MonitorWidgetDrawingControlPoint x={topLeft[0]} y={topLeft[1]}
+              onMouseDown={this.p0ControlPointMouseDownHandler}
+              onMouseMoveStart={this.p0ControlPointMouseMoveStartHandler}/>
+          <MonitorWidgetDrawingControlPoint x={topRight[0]} y={topRight[1]}
+              onMouseDown={this.p1ControlPointMouseDownHandler}
+              onMouseMoveStart={this.p1ControlPointMouseMoveStartHandler}/>
+          <MonitorWidgetDrawingControlPoint x={bottomRight[0]} y={bottomRight[1]}
+              onMouseDown={this.p2ControlPointMouseDownHandler}
+              onMouseMoveStart={this.p2ControlPointMouseMoveStartHandler}/>
+          <MonitorWidgetDrawingControlPoint x={bottomLeft[0]} y={bottomLeft[1]}
+              onMouseDown={this.p3ControlPointMouseDownHandler}
+              onMouseMoveStart={this.p3ControlPointMouseMoveStartHandler}/>
+        </div>)
+    else return null;
   }
 
 }

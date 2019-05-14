@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { EffectControlWidgetTrackItemViewModel } from 'window/view/effect-control/model/track-item/track-item-view-model';
 import { EffectControlWidgetViewProps } from 'window/view/effect-control/view/widget-view';
+import { EffectControlWidgetTimelineContentViewProps } from 'window/view/effect-control/view/timeline/widget-timeline-view';
 
 export interface EffectControlWidgetTrackItemTimelineViewProps<T extends EffectControlWidgetTrackItemViewModel<any>>
-    extends EffectControlWidgetViewProps {
+    extends EffectControlWidgetTimelineContentViewProps {
   trackItemViewModel: T;
 }
 

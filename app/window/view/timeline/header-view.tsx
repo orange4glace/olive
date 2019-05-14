@@ -7,7 +7,8 @@ import { TimelineWidgetViewProps } from 'window/view/timeline/widget-view';
 export class TimelineHeaderView extends React.Component<TimelineWidgetViewProps, {}> {
 
   render() {
-    const formattedCurrentFrameTime = app.project.frameRate.format(
+    console.log(app.project.sequence)
+    const formattedCurrentFrameTime = app.project.sequence.videoSetting.frameRate.format(
         this.props.widget.model.currentTime);
     return (
       <>

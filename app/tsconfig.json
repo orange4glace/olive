@@ -15,15 +15,7 @@
     "allowSyntheticDefaultImports": true
   },
   "exclude": [
-    "node_modules",
-    "./internal/timeline_ts_exclude/**/*.ts",
-    "./internal/drawing_ts_exclude/**/*.ts",
-    "./internal/renderer/drawing_ts_exclude/**/*.ts",
-    "./internal/renderer/drawing/**/*.ts",
-    "./window/view/effect-control_ts_exclude/**/*.ts",
-    "./window/view/effect-control__ts_exclude/**/*.ts",
-    "./window/view/timeline/controller_ts_exclude/**/*.ts",
-    "./window/view/timeline/right_ts_exclude/**/*.ts"
+    "node_modules"
   ]/*,
   "files": [
     "typings.d.ts",

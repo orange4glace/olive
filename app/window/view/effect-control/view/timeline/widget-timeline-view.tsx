@@ -2,19 +2,34 @@ import * as React from 'react'
 import { EffectControlWidgetViewProps } from 'window/view/effect-control/view/widget-view';
 import { EffectControlWidgetModel } from 'window/view/effect-control/model/model';
 import { EffectControlWidgetTrackItemTimelineViewFactory } from 'window/view/effect-control/view/timeline/track-item/track-item-view-factory';
-import { observer } from 'window/app-mobx';
+import { observer, autorun } from 'window/app-mobx';
 import ZoomableScrollView, { ZoomableScrollViewController } from 'window/view/zoomable-scroll-view';
 import { IReactionDisposer } from 'mobx';
+import { EffectControlViewOutgoingEvents } from 'window/view/effect-control/view-outgoing-events';
+import { EffectControlWidgetVideoTrackItemViewModel } from 'window/view/effect-control/model/track-item/video-track-item-model';
+import { EffectControlDrawingTimelineViewSelector } from 'window/view/effect-control/view/timeline/drawing/drawing-view';
+import { EffectControlWidgetRectangleDrawingViewModel } from 'window/view/effect-control/model/drawing/rectangle-drawing-view-model';
+import { EffectControlWidgetRectangleDrawingTimelineView } from 'window/view/effect-control/view/timeline/drawing/rectangle-drawing-view';
+import { EffectControlWidgetVideoTrackItemTimelineView } from 'window/view/effect-control/view/timeline/track-item/video-track-item-view';
+import { EffectControlWidgetVideoMediaDrawingViewModel } from 'window/view/effect-control/model/drawing/video-media-drawing.view';
+import { EffectControlWidgetVideoMediaDrawingTimelineView } from 'window/view/effect-control/view/timeline/drawing/video-media-drawing-view';
+
+EffectControlWidgetTrackItemTimelineViewFactory.register(
+    EffectControlWidgetVideoTrackItemViewModel.viewModelName, EffectControlWidgetVideoTrackItemTimelineView);
+EffectControlDrawingTimelineViewSelector.registerView(
+    EffectControlWidgetRectangleDrawingViewModel, EffectControlWidgetRectangleDrawingTimelineView);
+EffectControlDrawingTimelineViewSelector.registerView(
+    EffectControlWidgetVideoMediaDrawingViewModel, EffectControlWidgetVideoMediaDrawingTimelineView);
 
 export interface EffectControlWidgetTimelineContentViewProps extends EffectControlWidgetViewProps {
   model: EffectControlWidgetModel;
+  outgoingEvents: EffectControlViewOutgoingEvents;
 }
 
 @observer
 export class EffectControlWidgetTimelineView extends React.Component<EffectControlWidgetTimelineContentViewProps, {}> {
 
   scrollViewController: ZoomableScrollViewController;
-  updateViewDisposer: IReactionDisposer;
 
   constructor(props: any) {
     super(props);
@@ -22,10 +37,6 @@ export class EffectControlWidgetTimelineView extends React.Component<EffectContr
     this.scrollViewUpdateHandler = this.scrollViewUpdateHandler.bind(this);
     this.scrollViewController = new ZoomableScrollViewController();
     this.scrollViewController.ee.on('update', this.scrollViewUpdateHandler);
-  }
-
-  componentWillUnmount() {
-    this.updateViewDisposer();
   }
 
   scrollViewUpdateHandler() {
@@ -36,10 +47,99 @@ export class EffectControlWidgetTimelineView extends React.Component<EffectContr
   render() {
     return (
       <ZoomableScrollView controller={this.scrollViewController}>
+        <Ruler {...this.props}/>
         <EffectControlWidgetTrackItemTimelineViewFactory {...this.props}
             trackItemViewModel={this.props.widget.model.trackItemViewModel}/>
       </ZoomableScrollView>
     )
   }
 
+}
+
+
+@observer
+class Ruler extends React.Component<EffectControlWidgetTimelineContentViewProps, {}> {
+
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+
+  rulerUpdateDipsoser: IReactionDisposer;
+
+  constructor(props: any) {
+    super(props);
+    this.canvasRef = React.createRef();
+  }
+
+  timelineUpdateHandler() {
+    const scrollViewState = this.props.widget.model.timelineScrollViewModel;
+
+    let startCount = Math.floor(scrollViewState.startTime / scrollViewState.unitFrameTime);
+    let endCount = Math.ceil(scrollViewState.endTime / scrollViewState.unitFrameTime);
+
+    const ctx = this.canvasRef.current.getContext('2d');
+    this.canvasRef.current.width = scrollViewState.width;
+    this.canvasRef.current.height = 30;
+    let value = startCount * scrollViewState.unitFrameTime;
+    let translateX = (scrollViewState.startTime - value) * scrollViewState.pxPerFrame;
+    ctx.save();
+    ctx.font ='12px "Noto Sans KR"';
+    ctx.fillStyle = '#ccc';
+    ctx.strokeStyle = '#ccc';
+    ctx.translate(-translateX, 0);
+    // Font align
+    for (let i = 0; i < endCount - startCount; i ++) {
+      ctx.save();
+      ctx.translate(-33, 0);
+      ctx.fillText(this.format(Math.floor(value)), 0, 10);
+      ctx.restore();
+      ctx.beginPath();
+      ctx.moveTo(0, 15);
+      ctx.lineTo(0, 29);
+      ctx.stroke();
+      for (let j = 0; j < 9; j ++) {
+        ctx.translate(scrollViewState.unitWidth / 10, 0);
+        ctx.beginPath();
+        ctx.moveTo(0, 22.5);
+        ctx.lineTo(0, 29);
+        ctx.stroke();
+      }
+      ctx.translate(scrollViewState.unitWidth / 10, 0);
+      value += scrollViewState.unitFrameTime;
+    }
+    ctx.restore();
+  }
+
+  format(milliseconds: number): string {
+    function dd(num: number): string {
+      let s = num + '';
+      if (s.length == 0) return '00';
+      else if (s.length == 1) return '0'+s;
+      else if (s.length > 2) return s.slice(0, 2);
+      return s;
+    }
+    let milli = milliseconds % 30;
+    milliseconds = Math.floor(milliseconds / 30);
+    let sec = milliseconds % 60;
+    milliseconds = Math.floor(milliseconds / 60);
+    let min = milliseconds % 60;
+    milliseconds = Math.floor(milliseconds / 60);
+    let hour = milliseconds;
+    return `${dd(hour)}:${dd(min)}:${dd(sec)}:${dd(milli)}`;
+  }
+
+  componentDidMount() {
+    this.timelineUpdateHandler = this.timelineUpdateHandler.bind(this);
+    this.rulerUpdateDipsoser = autorun(this.timelineUpdateHandler);
+  }
+
+  componentWillUnmount() {
+    this.rulerUpdateDipsoser();
+  }
+
+  render() {
+    return (
+      <div style={{height: '30px'}}>
+        <canvas ref={this.canvasRef}></canvas>
+      </div>
+    )
+  }
 }

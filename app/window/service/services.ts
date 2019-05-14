@@ -16,7 +16,7 @@ function storeServiceDependency(id: Function, target: any, index: number, option
 	}
 }
 
-export function createDecorator<T>(serviceId: string): { (...args: any[]): void; type: T; } {
+export function createService<T>(serviceId: string): { (...args: any[]): void; type: T; } {
 
 	if (serviceIds.has(serviceId)) {
 		return serviceIds.get(serviceId)!;

@@ -5,20 +5,29 @@ import { observable } from "window/app-mobx";
 import { EffectControlWidgetModelImpl } from "window/view/effect-control/model/model-impl";
 import { EffectControlWidgetViewProps, EffectControlWidgetView } from "window/view/effect-control/view/widget-view";
 import { IObservableValue } from 'mobx';
-import { EffectControlWidgetTrackItemViewFactory } from 'window/view/effect-control/view/form/track-item/track-item-view-factory';
-import { EffectControlWidgetVideoTrackItemViewModelImpl } from 'window/view/effect-control/model/track-item/video-track-item-model';
-import { EffectControlWidgetVideoTrackItemView } from 'window/view/effect-control/view/form/track-item/video-track-item-view';
-import { EffectControlWidgetDrawingViewFactory } from 'window/view/effect-control/view/form/drawing/drawing-view-factory';
-import { EffectControlWidgetRectangleDrawingViewModelImpl } from 'window/view/effect-control/model/drawing/rectangle-drawing-view-model';
-import { EffectControlWidgetRectangleDrawingView } from 'window/view/effect-control/view/form/drawing/drawing-view';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
 import { TimelineWidget } from 'window/view/timeline/widget';
 import { TrackItem } from 'internal/timeline/track-item';
 import { Timeline } from 'internal/timeline/timeline';
+import { Event, Emitter } from 'base/common/event';
+import { EffectControlWidgetKeyframeEvent, EffectControlWidgetKeyframeUIEvent } from 'window/view/effect-control/event';
+import { Widget } from 'window/view/widget';
+import { EffectControlViewOutgoingEvents } from 'window/view/effect-control/view-outgoing-events';
+import { EffectControlManipulatorController } from 'window/view/effect-control/controller/manipulator';
 
-export class EffectControlWidgetImpl extends EffectControlWidget {
+export class EffectControlWidgetImpl extends Widget implements EffectControlWidget {
 
   private toDispose_: Array<IDisposable> = [];
+
+  private onKeyframeMouseDown_: Emitter<EffectControlWidgetKeyframeUIEvent> = new Emitter();
+  readonly onKeyframeMouseDown: Event<EffectControlWidgetKeyframeUIEvent> = this.onKeyframeMouseDown_.event;
+  private onKeyframeMouseMoveStart_: Emitter<EffectControlWidgetKeyframeUIEvent> = new Emitter();
+  readonly onKeyframeMouseMoveStart: Event<EffectControlWidgetKeyframeUIEvent> = this.onKeyframeMouseMoveStart_.event;
+
+  private onKeyframeFocused_: Emitter<EffectControlWidgetKeyframeEvent> = new Emitter();
+  readonly onKeyframeFocused: Event<EffectControlWidgetKeyframeEvent> = this.onKeyframeFocused_.event;
+  private onKeyframeBlured_: Emitter<EffectControlWidgetKeyframeEvent> = new Emitter();
+  readonly onKeyframeBlured: Event<EffectControlWidgetKeyframeEvent> = this.onKeyframeBlured_.event;
 
   get name(): string { return 'EffectControl'; }
   
@@ -26,34 +35,48 @@ export class EffectControlWidgetImpl extends EffectControlWidget {
   get model(): EffectControlWidgetModelImpl { return this.model_.get(); }
   
   private timelineWidgetDisposables_: IDisposable[] = [];
+  private modelDisposables_: IDisposable[] = [];
 
   constructor(timelineWidgetService: ITimelineWidgetService) {
-    super();
+    super('EffectControl');
     this.model_ = observable.box(null);
 
     this.activateTimelineWidgetChangedHandler(timelineWidgetService.activeWidget);
     this.toDispose_.push(timelineWidgetService.onActiveWidgetChanged(this.activateTimelineWidgetChangedHandler, this));
+
+    this.toDispose_.push(new EffectControlManipulatorController(this));
   }
 
   private activateTimelineWidgetChangedHandler(timelineWidget: TimelineWidget) {
     const timeline = timelineWidget.timeline;
     this.timelineWidgetDisposables_ = dispose(this.timelineWidgetDisposables_);
     this.model_.set(dispose(this.model_.get()));
-    this.timelineWidgetDisposables_.push(timelineWidget.onTrackItemFocused(e => {
+
+    // TimelineWidget Event Listener
+    timelineWidget.onTrackItemFocused(e => {
       const focuses = timelineWidget.getFocusedTrackItems();
       this.updateViewModel(timeline, focuses);
-    }), this);
-    this.timelineWidgetDisposables_.push(timelineWidget.onTrackItemBlured(e => {
+    }, this, this.timelineWidgetDisposables_);
+    timelineWidget.onTrackItemBlured(e => {
       const focuses = timelineWidget.getFocusedTrackItems();
       this.updateViewModel(timeline, focuses);
-    }), this);
+    }, this, this.timelineWidgetDisposables_);
   }
 
   private updateViewModel(timeline: Timeline, set: ReadonlySet<TrackItem>) {
-    if (set.size != 1) 
-      return this.model_.set(dispose(this.model_.get()));
+    dispose(this.model_.get());
+    dispose(this.modelDisposables_);
+    if (set.size != 1) return;
     const trackItem = set.values().next().value;
-    this.model_.set(new EffectControlWidgetModelImpl(timeline, trackItem));
+    const model = new EffectControlWidgetModelImpl(timeline, trackItem);
+    model.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this, this.modelDisposables_);
+    model.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this, this.modelDisposables_);
+    this.model_.set(model);
+  }
+
+  registerViewOutgoingEvents(outgoingEvents: EffectControlViewOutgoingEvents) {
+    outgoingEvents.onKeyframeMouseDown = e => this.onKeyframeMouseDown_.fire(e);
+    outgoingEvents.onKeyframeMouseMoveStart = e => this.onKeyframeMouseMoveStart_.fire(e);
   }
 
   render(): JSX.Element {

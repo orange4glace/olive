@@ -5,6 +5,7 @@ import { VideoResourceBase, VideoResource } from "internal/resource";
 import { TrackItemTime } from "internal/timeline/track-item-time";
 import { clone } from "base/common/cloneable";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
+import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
 
 export interface VideoMediaTrackItemBase extends VideoTrackItemBase {
   readonly resource: VideoResourceBase;
@@ -22,7 +23,7 @@ export class VideoMediaTrackItemImpl extends VideoTrackItemImpl implements Video
   constructor(resource: VideoResource) {
     super(TrackItemType.VIDEO_MEDIA);
     this.resource = resource;
-    this.drawing = new RectangleDrawing();
+    this.drawing = new VideoMediaDrawing(resource);
   }
 
   __setTime(time: TrackItemTime) {
@@ -35,6 +36,7 @@ export class VideoMediaTrackItemImpl extends VideoTrackItemImpl implements Video
     if (dur > this.resource.duration)
       time.end -= dur - this.resource.duration;
     this.time = time;
+    this.onTimeChanged_.fire();
   }
 
   clone(obj: VideoMediaTrackItemImpl): Object {

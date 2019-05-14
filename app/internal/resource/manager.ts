@@ -1,12 +1,12 @@
-import app from 'internal/app';
 import { observable, action } from 'mobx';
-import { Probe, VideoProbeResult } from './probe'
+import { Probe, VideoProbeResult, AudioProbeResult } from './probe'
 import ResourceType from './type_t';
 import { VideoResource } from './video-resource';
 import { Resource } from './resource';
 import { Emitter, Event } from 'base/common/event';
 import { TrackItemTime } from 'internal/timeline/track-item-time';
 import { VideoMediaTrackItemImpl } from 'internal/timeline/video-media-track-item';
+import { AudioResource } from 'internal/resource/audio-resource';
 
 export interface ResourceManagerResourceEvent {
   resource: Resource
@@ -23,17 +23,25 @@ export default class ResourceManager {
   @action
   async addResource(path: string) {
     try {
-      let result = await this.probe.probe(path);
-      switch (result.type) {
-        case ResourceType.VIDEO:
-          const videoResult = result as VideoProbeResult;
-          const videoResource = new VideoResource(path, videoResult.width, videoResult.height, videoResult.duration);
-          this.resources.add(videoResource);
-          this.onResourceAdded_.fire({resource: videoResource});
-          return videoResource;
-        default:
-          return null;
-      }
+      let results = await this.probe.probe(path);
+      results.forEach(result => {
+        switch (result.type) {
+          case ResourceType.VIDEO:
+            const videoResult = result as VideoProbeResult;
+            const videoResource = new VideoResource(path, videoResult.width, videoResult.height, videoResult.duration);
+            this.resources.add(videoResource);
+            this.onResourceAdded_.fire({resource: videoResource});
+            break;
+          case ResourceType.AUDIO:
+            const audioResult = result as AudioProbeResult;
+            const audioResource = new AudioResource(path, audioResult.duration);
+            this.resources.add(audioResource);
+            this.onResourceAdded_.fire({resource: audioResource});
+            break;
+          default:
+            return null;
+        }
+      })
     } catch (e) {
       return e;
     }

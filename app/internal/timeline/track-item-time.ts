@@ -9,6 +9,7 @@ export interface TrackItemTimeBase {
 }
 
 export class TrackItemTime implements TrackItemTimeBase, Cloneable, IComparable<TrackItemTime> {
+
   @postable start: number;
   @postable end: number;
   @postable base: number;

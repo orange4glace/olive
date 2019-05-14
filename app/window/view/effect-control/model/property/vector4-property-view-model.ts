@@ -8,7 +8,7 @@ export const EffectControlWidgetVector4PropertyViewModel =
     declareViewModel<EffectControlWidgetVector4PropertyViewModel>('EffectControlWidgetVector4PropertyViewModel')
 
 export interface EffectControlWidgetVector4PropertyViewModel
-    extends EffectControlWidgetPropertyViewModel<Vector4Property> {
+    extends EffectControlWidgetPropertyViewModel<Vector4> {
 
   xValueChangeHandler(val: number): void;
   yValueChangeHandler(val: number): void;
@@ -19,7 +19,7 @@ export interface EffectControlWidgetVector4PropertyViewModel
 
 @EffectControlWidgetVector4PropertyViewModel
 export class EffectControlWidgetVector4PropertyViewModelImpl
-    extends EffectControlWidgetPropertyViewModelImpl<Vector4Property>
+    extends EffectControlWidgetPropertyViewModelImpl<Vector4>
     implements EffectControlWidgetVector4PropertyViewModel {
 
   /*@observable*/ readonly currentValue: Vector4;

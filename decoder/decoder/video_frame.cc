@@ -43,7 +43,6 @@ VideoFrame::VideoFrame(AVFrame* f) :
 }
 
 VideoFrame::~VideoFrame() {
-  logger::get()->warn("[Frame] Free frame {}", id);
   av_frame_free(&frame);
   if (data.data) MemoryPool::Free(data.data, data.width * data.height * 4);
 }

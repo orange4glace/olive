@@ -1,0 +1,24 @@
+@import "window/theme.scss";
+@import "./../../common.scss";
+
+.component {
+  position: relative;
+
+  > .keyframe-timeline {
+    position: relative;
+    box-sizing: border-box;
+    height: $effect-control-widget-header-height;
+    border-bottom: 1px solid $bright-background;
+
+    > .keyframe {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      top: 15px;
+      margin-left: -1px;
+
+      transform: rotate(45deg) translateX(-50%);
+      background: grey;
+    }
+  }
+}

@@ -4,6 +4,7 @@ import { EventEmitter2 } from 'eventemitter2';
 import { action } from 'mobx';
 import { KeyframeBase, Keyframe } from './keyframe';
 import { Cloneable, clone } from 'base/common/cloneable';
+import { Event, Emitter } from 'base/common/event';
 
 export enum PropertyType {
   SCALAR,
@@ -36,14 +37,17 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
   readonly id: number;
   readonly type: string;
 
+  onKeyframeAdded_: Emitter<Keyframe<T>> = new Emitter();
+  onKeyframeAdded: Event<Keyframe<T>> = this.onKeyframeAdded_.event;
+  onKeyframeWillRemove_: Emitter<Keyframe<T>> = new Emitter();
+  onKeyframeWillRemove: Event<Keyframe<T>> = this.onKeyframeWillRemove_.event;
+
   @postable animatable: boolean;
   @postable animated: boolean;
   @postable keyframes: Set<Keyframe<T>>;
   @postable defaultKeyframe: Keyframe<T>;
 
   keyframeTreeMap: TreeMap<number, Keyframe<T>>;
-
-  ee: EventEmitter2;
 
   constructor(type: string, defaultValue: T) {
     this.id = __next_id++;
@@ -52,8 +56,6 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     this.keyframes = new Set<Keyframe<T>>();
     this.keyframeTreeMap = new TreeMap<number, Keyframe<T>>();
     this.defaultKeyframe = new Keyframe<T>(0, defaultValue);
-
-    this.ee = new EventEmitter2();
   }
 
   abstract createValue(...args: any): T;
@@ -89,27 +91,25 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     if (!this.animated) {
       this.defaultKeyframe.value = value;
       return this.defaultKeyframe;
-      return;
     }
     let lagacy = this.keyframeTreeMap.find(timeoffset);
     if (!lagacy.equals(this.keyframeTreeMap.end())) {
       lagacy.value.second.value = value;
       return lagacy.value.second;
-      return;
     }
     let keyframe = new Keyframe<T>(timeoffset, value);
     this.keyframeTreeMap.insert(new Pair(timeoffset, keyframe));
     this.keyframes.add(keyframe);
-    this.ee.emit(PropertyEvent.KEYFRAME_ADDED, keyframe);
+    this.onKeyframeAdded_.fire(keyframe);
     return keyframe;
   }
 
   @action
   removeKeyframe(keyframe: Keyframe<T>) {
     console.assert(this.keyframes.has(keyframe), '[property] no such keyframe', keyframe);
+    this.onKeyframeWillRemove_.fire(keyframe);
     this.keyframeTreeMap.erase(keyframe.timecode);
     this.keyframes.delete(keyframe);
-    this.ee.emit(PropertyEvent.KEYFRAME_REMOVED, keyframe);
   }
 
   @action
@@ -129,22 +129,7 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
       obj.addKeyframeAt(keyframe.timecode, clonedValue);
     });
     obj.defaultKeyframe = clone<Keyframe<T>>(this.defaultKeyframe);
-    obj.ee = new EventEmitter2();
     return obj;
-  }
-
-
-  // Event Emitter
-  addEventListener(type: (PropertyEvent.KEYFRAME_ADDED | PropertyEvent.KEYFRAME_REMOVED),
-      callback: (keyframe: Keyframe<any>) => void): void;
-  addEventListener(type: PropertyEvent, callback: (...args: any) => void) {
-    this.ee.addListener(type, callback);
-  }
-
-  removeEventListener(type: (PropertyEvent.KEYFRAME_ADDED | PropertyEvent.KEYFRAME_REMOVED),
-      callback: (keyframe: Keyframe<any>) => void): void;
-  removeEventListener(type: PropertyEvent, callback: (...args: any) => void) {
-    this.ee.removeListener(type, callback);
   }
 }
 

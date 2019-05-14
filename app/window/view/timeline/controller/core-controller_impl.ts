@@ -57,8 +57,8 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
       const container = this.dragGhostContainer_;
       const targetTrack = this.widget_.model.trackViewModels[this.dragGhostContainer_.trackOffset];
       const targetTrackItem = this.dragTrackItem_;
-      const start = container.translation;
-      const end = targetTrackItem.duration + container.translation;
+      const start = container.leftExtend;
+      const end = targetTrackItem.duration + container.rightExtend;
       targetTrack.addTrackItem(targetTrackItem, start, end, 0);
       this.widget_.model.ghostViewModel.setCurrentContainer(null);
       this.dragTrackItem_ = null;

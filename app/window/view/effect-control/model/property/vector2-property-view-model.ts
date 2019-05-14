@@ -11,7 +11,7 @@ export const EffectControlWidgetVector2PropertyViewModel =
     declareViewModel<EffectControlWidgetVector2PropertyViewModel>('EffectControlWidgetVector2PropertyViewModel')
 
 export interface EffectControlWidgetVector2PropertyViewModel
-    extends EffectControlWidgetPropertyViewModel<Vector2Property> {
+    extends EffectControlWidgetPropertyViewModel<Vector2> {
 
   /*@observable*/ readonly currentValue: Vector2;
 
@@ -22,11 +22,11 @@ export interface EffectControlWidgetVector2PropertyViewModel
 
 @EffectControlWidgetVector2PropertyViewModel
 export class EffectControlWidgetVector2PropertyViewModelImpl
-    extends EffectControlWidgetPropertyViewModelImpl<Vector2Property>
+    extends EffectControlWidgetPropertyViewModelImpl<Vector2>
     implements EffectControlWidgetVector2PropertyViewModel {
 
   @computed get currentValue(): Vector2 {
-    const property = this.property_;
+    const property = this.property;
     const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
     return property.getInterpolatedPropertyValue(timeOffset);
   }
@@ -36,7 +36,7 @@ export class EffectControlWidgetVector2PropertyViewModelImpl
   }
 
   xValueChangeHandler(val: number): void {
-    const property = this.property_;
+    const property = this.property;
     const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
     const currentValue = property.getInterpolatedPropertyValue(timeOffset);
     const value = property.createValue(val, currentValue.y);
@@ -44,7 +44,7 @@ export class EffectControlWidgetVector2PropertyViewModelImpl
   }
 
   yValueChangeHandler(val: number): void {
-    const property = this.property_;
+    const property = this.property;
     const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
     const currentValue = property.getInterpolatedPropertyValue(timeOffset);
     const value = property.createValue(currentValue.x, val);

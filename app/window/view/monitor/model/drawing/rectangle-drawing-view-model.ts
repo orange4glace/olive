@@ -52,11 +52,11 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
   }
   
   onControlPointMouseDown(controlPointIndex: number, e: StandardMouseEvent): void {
-    
-
+    e.stopPropagation();
   }
 
   onControlPointMouseMoveStart(controlPointIndex: number, e: StandardMouseEvent): void {
+    e.stopPropagation();
     const flagMap = [
       [true, false, false, true],
       [true, true, false, false],
@@ -98,7 +98,7 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
   }
 
   mouseDownHandler(e: MonitorWidgetSelectableViewModelEvent) {
-    console.log(e);
+    this.__setFocused(true);
     this.mouseMoveMonitor.startMonitoring(this.moveHandler, null);
   }
 
@@ -126,6 +126,8 @@ export class MonitorWidgetRectangleDrawingViewModelImpl
   }
 
   __select(x: number, y: number) {
+    if (!this.trackItem_.isInTime(this.timeline_.currentTime)) return false;
+    
     const drawing = this.drawing;
     const timeOffset = this.trackItem_.getTimeoffset(this.timeline_.currentTime);
     const vec: vec2 = vec2.fromValues(x, y);

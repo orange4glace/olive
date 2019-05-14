@@ -9,6 +9,7 @@ export class ScalarProperty extends Property<number> implements ScalarPropertyBa
 
   constructor(defaultValue: number) {
     super('SCALAR', defaultValue);
+    this.animatable = true;
   }
 
   createValue(val: number): number {

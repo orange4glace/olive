@@ -1,27 +1,22 @@
-import { observable } from "window/app-mobx";
+import { observable, computed } from "window/app-mobx";
 import { Timeline } from "internal/timeline/timeline";
 import { TimelineWidgetGhostTrackItemViewModel, TimelineWidgetGhostContainerViewModel, TimelineWidgetGhostViewModel } from "window/view/timeline/model/ghost-view-model";
 import { ViewModelImpl } from "window/view/view-model";
+import { TimelineWidgetTimelineViewModel } from "window/view/timeline/model/timeline-view-model";
 
 class TimelineWidgetGhostTrackItemViewModelImpl extends ViewModelImpl
     implements TimelineWidgetGhostTrackItemViewModel {
 
   @observable private startTime_: number;
   @observable private endTime_: number;
-  @observable private snapLeft_: boolean;
-  @observable private snapRight_: boolean;
 
   get startTime(): number { return this.startTime_; }
   get endTime(): number { return this.endTime_; }
-  get snapLeft(): boolean { return this.snapLeft_; }
-  get snapRight(): boolean { return this.snapRight_; }
 
   constructor(startTime: number, endTime: number) {
     super();
     this.startTime_ = startTime;
     this.endTime_ = endTime;
-    this.snapLeft_ = false;
-    this.snapRight_ = false;
   }
 
   dispose(): void {}
@@ -31,27 +26,44 @@ class TimelineWidgetGhostTrackItemViewModelImpl extends ViewModelImpl
 class TimelineWidgetGhostContainerViewModelImpl extends ViewModelImpl
     implements TimelineWidgetGhostContainerViewModel {
 
-  private timeline_: Timeline;
   private items_: Array<Array<TimelineWidgetGhostTrackItemViewModelImpl>>;
 
   @observable private trackOffset_: number;
+  maxTrackOffset: number;
+  minTrackOffset: number;
+
   @observable private leftExtend_: number;
   @observable private rightExtend_: number;
-  @observable private translation_: number;
+
+  @observable private leftMagnetExtent_: number;
+  @observable private rightMagnetExtent_: number;
+
+  @observable magnetTime: number;
+  @computed get magnetTimePx(): number {
+    return this.timelineViewModel_.getPositionRelativeToTimeline(this.magnetTime);}
+  @observable private trackMagnetFlag_: boolean[];
+  @observable private indicatorMagnetFlag_: boolean;
 
   get trackOffset() { return this.trackOffset_; }
-  get leftExtend() { return this.leftExtend_; }
-  get rightExtend() { return this.rightExtend_; }
-  get translation() { return this.translation_; }
+  get leftExtend() { return this.leftExtend_ + this.leftMagnetExtent_; }
+  get rightExtend() { return this.rightExtend_ + this.rightMagnetExtent_; }
 
-  constructor(timeline: Timeline) {
+  get trackMagnetFlag() { return this.trackMagnetFlag_; }
+  get indicatorMagnetFlag() { return this.indicatorMagnetFlag_; }
+
+  constructor(private readonly timelineViewModel_: TimelineWidgetTimelineViewModel) {
     super();
-    this.timeline_ = timeline;
     this.items_ = [];
     this.trackOffset_ = 0;
+    this.minTrackOffset = 0;
+    this.maxTrackOffset = Infinity;
     this.leftExtend_  = 0;
     this.rightExtend_ = 0;
-    this.translation_ = 0;
+    this.leftMagnetExtent_ = 0;
+    this.rightMagnetExtent_ = 0;
+
+    this.trackMagnetFlag_ = [];
+    timelineViewModel_.trackViewModels.forEach(tvm => this.trackMagnetFlag_.push(false));
   }
 
   addGhostTrackItem(index: number, startTime: number, endTime: number): void {
@@ -62,24 +74,105 @@ class TimelineWidgetGhostContainerViewModelImpl extends ViewModelImpl
   }
 
   getGhostTrackItems(index: number): TimelineWidgetGhostTrackItemViewModel[] {
-    console.log('get ', index, ' => ', index + this.trackOffset_);
     return this.items_[index - this.trackOffset_] ? this.items_[index - this.trackOffset_] : [];
   }
 
   setTrackOffset(offset: number): void {
-    this.trackOffset_ = offset;
+    this.trackOffset_ = 
+        Math.max(this.minTrackOffset, Math.min(this.maxTrackOffset, offset));
+  }
+
+  setMaxTrackOffset(offset: number): void {
+    this.maxTrackOffset = offset;
+  }
+
+  setMinTrackOffset(offset: number): void {
+    this.minTrackOffset = offset;
   }
 
   extendLeft(value: number): void {
     this.leftExtend_ = value;
+    let magnet = this.calculateMagnet(value, 0);
+    if (magnet) {
+      this.magnetTime = magnet[0];
+      let magnetDT = magnet[1];
+      this.leftMagnetExtent_ = magnetDT;
+    }
+    else {
+      this.leftMagnetExtent_ = 0;
+    }
   }
 
   extendRight(value: number): void {
     this.rightExtend_ = value;
+    let magnet = this.calculateMagnet(0, value);
+    if (magnet) {
+      this.magnetTime = magnet[0];
+      let magnetDT = magnet[1];
+      this.rightMagnetExtent_ = magnetDT;
+    }
+    else {
+      this.rightMagnetExtent_ = 0;
+    }
   }
 
   translate(value: number): void {
-    this.translation_ = value;
+    this.leftExtend_ = value;
+    this.rightExtend_ = value;
+    let magnet = this.calculateMagnet(value, value);
+    if (magnet) {
+      this.magnetTime = magnet[0];
+      let magnetDT = magnet[1];
+      this.leftMagnetExtent_ = magnetDT;
+      this.rightMagnetExtent_ = magnetDT;
+    }
+    else {
+      this.leftMagnetExtent_ = 0;
+      this.rightMagnetExtent_ = 0;
+    }
+  }
+
+  private calculateMagnet(startExtent: number, endExtent: number): [number, number] | null {
+    let adt = Infinity;
+    let dt = Infinity;
+    let ret = Infinity;
+    let pxThreshold = this.timelineViewModel_.getTimeAmountRelativeToTimeline(5);
+    this.items_.forEach(items => {
+      items.forEach(item => {
+        let t, ldt: number;
+        if (startExtent != 0) {
+          t = this.timelineViewModel_.getClosestTime(item.startTime + startExtent);
+          ldt = Math.abs(t - (item.startTime + startExtent));
+          if (adt > ldt) {
+            adt = ldt;
+            dt = t - (item.startTime + startExtent);
+            ret = t;
+          }
+        }
+        if (endExtent != 0) {
+          t = this.timelineViewModel_.getClosestTime(item.endTime + endExtent);
+          ldt = Math.abs(t - (item.endTime + endExtent));
+          if (adt > ldt) {
+            adt = ldt;
+            dt = t - (item.endTime + endExtent);
+            ret = t;
+          }
+        }
+      })
+    })
+    if (pxThreshold >= adt) {
+      for (let i = 0; i < this.timelineViewModel_.trackViewModels.length; i ++) {
+        const tvm = this.timelineViewModel_.trackViewModels[i];
+        let clo = tvm.getClosestTime(ret);
+        this.trackMagnetFlag_[i] = (clo == ret);
+      }
+      return [ret, dt];
+    }
+    else {
+      for (let i = 0; i < this.timelineViewModel_.trackViewModels.length; i ++)
+        this.trackMagnetFlag_[i] = false;
+      return null;
+    }
   }
 
   dispose(): void {}
@@ -89,15 +182,13 @@ class TimelineWidgetGhostContainerViewModelImpl extends ViewModelImpl
 
 export class TimelineWidgetGhostViewModelImpl implements TimelineWidgetGhostViewModel {
 
-  private timeline_: Timeline;
   @observable currentContainer: TimelineWidgetGhostContainerViewModelImpl | null = null;
 
-  constructor(timeline: Timeline) {
-    this.timeline_ = timeline;
+  constructor(private readonly timelineViewModel_: TimelineWidgetTimelineViewModel) {
   }
 
   createGhostContainer(): TimelineWidgetGhostContainerViewModel {
-    return new TimelineWidgetGhostContainerViewModelImpl(this.timeline_);
+    return new TimelineWidgetGhostContainerViewModelImpl(this.timelineViewModel_);
   }
 
   setCurrentContainer(container: TimelineWidgetGhostContainerViewModelImpl): void {

@@ -1,5 +1,5 @@
 export interface Serializable {
 
-  serialize(): Object;
+  serialize(): any;
 
 }

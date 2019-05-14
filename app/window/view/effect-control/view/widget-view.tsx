@@ -3,17 +3,7 @@ import { EffectControlWidget } from 'window/view/effect-control/widget';
 import { observer } from 'window/app-mobx';
 import { EffectControlWidgetFormView } from 'window/view/effect-control/view/form/widget-form-view';
 import { EffectControlWidgetTimelineView } from 'window/view/effect-control/view/timeline/widget-timeline-view';
-import { EffectControlWidgetTrackItemTimelineViewFactory } from 'window/view/effect-control/view/timeline/track-item/track-item-view-factory';
-import { EffectControlWidgetDrawingTimelineViewFactory } from 'window/view/effect-control/view/timeline/drawing/drawing-view-factotry';
-import { EffectControlWidgetVideoTrackItemViewModel } from 'window/view/effect-control/model/track-item/video-track-item-model';
-import { EffectControlWidgetRectangleDrawingViewModel } from 'window/view/effect-control/model/drawing/rectangle-drawing-view-model';
-import { EffectControlWidgetVideoTrackItemTimelineView } from 'window/view/effect-control/view/timeline/track-item/video-track-item-view';
-import { EffectControlWidgetRectangleDrawingTimelineView } from 'window/view/effect-control/view/timeline/drawing/drawing-view';
-
-EffectControlWidgetTrackItemTimelineViewFactory.register(
-    EffectControlWidgetVideoTrackItemViewModel.viewModelName, EffectControlWidgetVideoTrackItemTimelineView);
-EffectControlWidgetDrawingTimelineViewFactory.register(
-    EffectControlWidgetRectangleDrawingViewModel.viewModelName, EffectControlWidgetRectangleDrawingTimelineView);
+import { EffectControlViewOutgoingEvents } from 'window/view/effect-control/view-outgoing-events';
 
 export interface EffectControlWidgetViewProps {
   widget: EffectControlWidget;
@@ -22,13 +12,22 @@ export interface EffectControlWidgetViewProps {
 @observer
 export class EffectControlWidgetView extends React.Component<EffectControlWidgetViewProps, {}> {
 
+  outgoingEvents: EffectControlViewOutgoingEvents;
+
+  constructor(props: any) {
+    super(props);
+
+    this.outgoingEvents = new EffectControlViewOutgoingEvents();
+    this.props.widget.registerViewOutgoingEvents(this.outgoingEvents);
+  }
+
   render() {
     if (this.props.widget.model) {
       const model = this.props.widget.model;
       return (
         <>
-          <EffectControlWidgetFormView {...this.props} model={model}/>
-          <EffectControlWidgetTimelineView {...this.props} model={model}/>
+          <EffectControlWidgetFormView {...this.props} model={model} outgoingEvents={this.outgoingEvents}/>
+          <EffectControlWidgetTimelineView key={model.viewModelID} {...this.props} model={model} outgoingEvents={this.outgoingEvents}/>
         </>
       )
     }

@@ -7,6 +7,8 @@ import { DrawingType } from "internal/rendering/drawing/drawing";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
 import { ViewModel, declareViewModel } from "window/view/view-model";
 import { EffectControlWidgetRectangleDrawingViewModelImpl } from "window/view/effect-control/model/drawing/rectangle-drawing-view-model";
+import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
+import { EffectControlWidgetVideoMediaDrawingViewModelImpl } from "window/view/effect-control/model/drawing/video-media-drawing.view";
 
 export const EffectControlWidgetVideoTrackItemViewModel = declareViewModel('EffectControlWidgetVideoTrackItemViewModel');
 
@@ -31,8 +33,20 @@ export class EffectControlWidgetVideoTrackItemViewModelImpl
     switch (drawing.type) {
       case DrawingType.RECTANGLE:
         this.drawingViewModel = new EffectControlWidgetRectangleDrawingViewModelImpl(timeline, trackItem, drawing as RectangleDrawing);
+      case DrawingType.VIDEO_MEDIA:
+        this.drawingViewModel = new EffectControlWidgetVideoMediaDrawingViewModelImpl(timeline, trackItem, drawing as VideoMediaDrawing);
         break;
     }
+    this._register(this.drawingViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire({
+      trackViewModel: this,
+      propertyViewModel: e.propertyViewModel,
+      keyframeViewModel: e.keyframeViewModel
+    }), this))
+    this._register(this.drawingViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire({
+      trackViewModel: this,
+      propertyViewModel: e.propertyViewModel,
+      keyframeViewModel: e.keyframeViewModel
+    }), this))
   }
 
 }

@@ -10,6 +10,7 @@ export class Vector2Property extends Property<Vector2> implements Vector2Propert
 
   constructor(defaultValue: Vector2) {
     super('VECTOR2', defaultValue);
+    this.animatable = true;
   }
 
   createValue(x: number, y: number): Vector2 {

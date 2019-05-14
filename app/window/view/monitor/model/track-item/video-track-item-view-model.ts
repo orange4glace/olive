@@ -5,9 +5,10 @@ import { MonitorWidgetDrawingViewModel, MonitorWidgetDrawingViewModelImpl } from
 import { DrawingType } from "internal/rendering/drawing/drawing";
 import { MonitorWidgetRectangleDrawingViewModelImpl } from "window/view/monitor/model/drawing/rectangle-drawing-view-model";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
-import { mat2d } from "gl-matrix";
 import { Timeline } from "internal/timeline/timeline";
-import { MonitorWidgetSelectableViewModel, MonitorWidgetSelectableViewModelImpl } from "window/view/monitor/model/selectable-view-model";
+import { MonitorWidgetSelectableViewModelImpl } from "window/view/monitor/model/selectable-view-model";
+import { MonitorWidgetVideoMediaDrawingViewModelImpl } from "window/view/monitor/model/drawing/video-media-drawing-view-moodel";
+import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
 
 export const MonitorWidgetVideoTrackItemViewModel =
     declareViewModel<MonitorWidgetVideoTrackItemViewModel>('MonitorWidgetVideoTrackItemViewModel')
@@ -35,6 +36,9 @@ export class MonitorWidgetVideoTrackItemViewModelImpl
         this.drawingViewModel = new MonitorWidgetRectangleDrawingViewModelImpl(
             this, this.timeline_, this.trackItem, drawing as RectangleDrawing);
         break;
+      case DrawingType.VIDEO_MEDIA:
+        this.drawingViewModel = new MonitorWidgetVideoMediaDrawingViewModelImpl(
+            this, this.timeline_, this.trackItem, drawing as VideoMediaDrawing);
     }
   }
 

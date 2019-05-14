@@ -13,6 +13,7 @@ export class PolyPathProperty extends Property<Vector2[]> implements PolyPathPro
 
   constructor(defaultValue: Vector2[]) {
     super('POLYPATH', defaultValue);
+    this.animatable = true;
   }
 
   createValue(path: [[number, number]]): Vector2[] {

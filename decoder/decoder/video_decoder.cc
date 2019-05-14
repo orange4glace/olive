@@ -107,7 +107,6 @@ napi_promise VideoDecoder::Decode(timecode_t timecode) {
   int64_t pts = av_rescale_q(timecode, AVRational{1, 30}, fmt_ctx_->streams[stream_index_]->time_base);
   if (pts < fmt_ctx_->streams[stream_index_]->start_time) pts = fmt_ctx_->streams[stream_index_]->start_time;
   VideoFrame* target_frame = PeekQueueTo(pts);
-  logger::get()->critical("{} {}", fmt_ctx_->streams[stream_index_]->r_frame_rate.den, fmt_ctx_->streams[stream_index_]->r_frame_rate.num);
   logger::get()->info("[Decoder] Decode request Rescale timecode = {} pts = {} found = {} start = {} timebase = {} / {}",
       timecode, pts, target_frame ? true : false, fmt_ctx_->streams[stream_index_]->start_time,
       fmt_ctx_->streams[stream_index_]->time_base.den,

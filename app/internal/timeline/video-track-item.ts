@@ -31,6 +31,7 @@ export abstract class VideoTrackItemImpl extends TrackItemImpl implements VideoT
       time.base = 0;
     }
     this.time = time;
+    this.onTimeChanged_.fire();
   }
 
   clone(obj: VideoTrackItemImpl): Object {

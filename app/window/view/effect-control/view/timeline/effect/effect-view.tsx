@@ -21,5 +21,5 @@ export class EffectControlWidgetEffectTimelineViewComponent
   }
 }
 
-export abstract class EffectControlWidgetEffectFormView<T extends EffectControlWidgetEffectViewModel<any>>
+export abstract class EffectControlWidgetEffectTimelineView<T extends EffectControlWidgetEffectViewModel<any>>
     extends React.Component<EffectControlWidgetEffectTimelineViewProps<T>, {}> {}

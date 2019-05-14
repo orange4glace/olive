@@ -1,5 +1,6 @@
 enum ResourceType {
-  VIDEO
+  VIDEO,
+  AUDIO
 }
 
 export default ResourceType;

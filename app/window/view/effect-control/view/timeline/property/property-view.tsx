@@ -2,10 +2,12 @@ import * as React from 'react'
 
 import { EffectControlWidgetPropertyViewModel } from "window/view/effect-control/model/property/property-view-model";
 import { observer } from 'window/app-mobx';
-import { EffectControlWidgetDrawingViewProps } from 'window/view/effect-control/view/form/drawing/drawing-view-factory';
+
+import * as style from './style.scss'
+import { EffectControlWidgetDrawingTimelineViewProps } from 'window/view/effect-control/view/timeline/drawing/drawing-view';
 
 export interface EffectControlWidgetPropertyTimelineViewProps<T extends EffectControlWidgetPropertyViewModel<any>>
-    extends EffectControlWidgetDrawingViewProps<any> {
+    extends EffectControlWidgetDrawingTimelineViewProps<any> {
   propertyViewModel: T;
 }
 
@@ -14,7 +16,7 @@ export class EffectControlWidgetPropertyTimelineViewComponent
     extends React.Component<EffectControlWidgetPropertyTimelineViewProps<any>, {}> {
   render() {
     return (
-      <div className='property-view'>
+      <div className={style.component}>
         {this.props.children}
       </div>
     )

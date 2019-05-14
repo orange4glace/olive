@@ -27,6 +27,7 @@ export interface Track extends TrackBase, Cloneable {
   /*@postable*/ readonly trackItems: Map<TrackItem, TrackItemTime>;
 
   addTrackItem(trackItem: TrackItem, start: number, end: number, base: number): void;
+  removeTrackItem(trackItem: TrackItem): void;
   setTrackItemTime(trackIte: TrackItem, startTime: number, endTime: number, baseTime: number): void;
   clearTime(startTime: number, endTime: number): void;
 

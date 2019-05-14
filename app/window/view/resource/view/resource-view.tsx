@@ -42,16 +42,8 @@ export class ResourceWidgetResourceView extends React.Component<ResourceWidgetRe
         onDrop={this.dropHandler}
         onDragStart={this.dragStartHandler}
         onDragEnd={this.dragEndHandler}>
-        <div className='ratio-4x3'>
-          <div className='fill-absolute body'>
-            <div className='content'>
-            </div>
-            <div className='title-bar'>
-              <div className='inner'>
-                <div className='title'></div>
-              </div>
-            </div>
-          </div>
+        <div className='title'>
+          {resource.path}
         </div>
       </div>
     )

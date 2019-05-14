@@ -18,9 +18,17 @@ export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
   constructor(props: any) {
     super(props);
 
+    this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     this.dragOverHandler = this.dragOverHandler.bind(this);
     this.dragLeaveHandler = this.dragLeaveHandler.bind(this);
     this.dropHandler = this.dropHandler.bind(this);
+  }
+
+  mouseMoveHandler(e: React.MouseEvent) {
+    this.props.outgoingEvents.emitTrackMouseMove({
+      trackViewModel: this.props.trackViewModel,
+      e: new StandardMouseEvent(e)
+    })
   }
 
   dragOverHandler(e: React.MouseEvent) {
@@ -50,6 +58,7 @@ export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
     }
     return (
       <div className='track' style={style}
+        onMouseMove={this.mouseMoveHandler}
         onDragOver={this.dragOverHandler}
         onDragLeave={this.dragLeaveHandler}
         onDrop={this.dropHandler}>
@@ -79,10 +88,15 @@ export class TrackItemViewRenderer extends React.Component<TimelineTrackViewProp
 export class GhostTrackItemRenderer extends React.Component<TimelineTrackViewProps, {}> {
 
   render() {
+    const gcVM = this.props.ghostContainerViewModel;
     return (
       <>
-        {this.props.ghostContainerViewModel &&
-            this.props.ghostContainerViewModel.getGhostTrackItems(this.props.index).map(ghostTrackItemVM =>
+        {gcVM && gcVM.trackMagnetFlag[this.props.index]
+         && <div className='ghost-track-magnet-guide' style={
+           {left: gcVM.magnetTimePx + 'px'}
+        }></div>}
+        {gcVM &&
+            gcVM.getGhostTrackItems(this.props.index).map(ghostTrackItemVM =>
             <TimelineWidgetGhostTrackItemView key={ghostTrackItemVM.viewModelID} {...this.props} ghostTrackItemViewModel={ghostTrackItemVM}/>)}
       </>
     )
@@ -104,8 +118,8 @@ export class TimelineWidgetGhostTrackItemView extends React.Component<TimelineWi
     const ghostTrackItemVM = this.props.ghostTrackItemViewModel;
     const widget = this.props.widget;
     const containerVM = this.props.ghostContainerViewModel;
-    const left = widget.model.getPositionRelativeToTimeline(ghostTrackItemVM.startTime + containerVM.leftExtend + containerVM.translation);
-    const right = widget.model.getPositionRelativeToTimeline(ghostTrackItemVM.endTime + containerVM.rightExtend + containerVM.translation);
+    const left = widget.model.getPositionRelativeToTimeline(ghostTrackItemVM.startTime + containerVM.leftExtend);
+    const right = widget.model.getPositionRelativeToTimeline(ghostTrackItemVM.endTime + containerVM.rightExtend);
     const style = {
       left: left + 'px',
       width: (right - left) + 'px'

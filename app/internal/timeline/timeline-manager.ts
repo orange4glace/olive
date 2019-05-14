@@ -1,11 +1,16 @@
 import { Timeline, TimelineBase } from "internal/timeline/timeline";
 import { assert } from "base/common/assert";
 import TimelineImpl from "internal/timeline/timeline_impl";
-import { Postable, postable } from "worker-postable";
+import { Postable, postable, PostableEvent, PostableEventBase } from "worker-postable";
 import { Event, Emitter } from "base/common/event";
+import { ISequence } from "internal/project/sequence/sequence";
 
 export interface TimelineManagerTimelineEvent {
   timeline: Timeline;
+}
+
+export interface TimelineManagerPostableEvent {
+  timelineID: number;
 }
 
 export interface TimelineManager {
@@ -13,14 +18,15 @@ export interface TimelineManager {
   readonly targetTimeline: Timeline;
 
   getTimeline(id: number): Timeline;
-  createTimeline(): Timeline;
+  createTimeline(sequence: ISequence): Timeline;
   setTargetTimeline(timeline: Timeline): void;
 
-  onTargetTimelineChangedEvent: Event<TimelineManagerTimelineEvent>;
+  onTargetTimelineChanged: Event<TimelineManagerTimelineEvent>;
 
 }
 
 export interface TimelineManagerBase {
+
   timelines: Map<number, TimelineBase>;
   targetTimeline: TimelineBase;
 }
@@ -28,8 +34,8 @@ export interface TimelineManagerBase {
 @Postable
 export class TimelineManagerImpl implements TimelineManager, TimelineManagerBase {
 
-  @postable timelines: Map<number, Timeline>;
-  @postable targetTimeline: Timeline;
+  @postable timelines: Map<number, TimelineImpl>;
+  @postable targetTimeline: TimelineImpl;
 
   constructor() {
     this.timelines = new Map();
@@ -41,17 +47,17 @@ export class TimelineManagerImpl implements TimelineManager, TimelineManagerBase
     return timeline;
   }
 
-  createTimeline(): Timeline {
-    const timeline = new TimelineImpl();
+  createTimeline(sequence: ISequence): Timeline {
+    const timeline = new TimelineImpl(sequence);
     this.timelines.set(timeline.id, timeline);
     return timeline;
   }
 
-  setTargetTimeline(timeline: Timeline): void {
+  setTargetTimeline(timeline: TimelineImpl): void {
     this.targetTimeline = timeline;
   }
 
-  private onTargetTimelineChangedEvent_: Emitter<TimelineManagerTimelineEvent> = new Emitter();
-  onTargetTimelineChangedEvent: Event<TimelineManagerTimelineEvent> = this.onTargetTimelineChangedEvent_.event;
+  private onTargetTimelineChanged_: Emitter<TimelineManagerTimelineEvent> = new Emitter();
+  onTargetTimelineChanged: Event<TimelineManagerTimelineEvent> = this.onTargetTimelineChanged_.event;
 
 }

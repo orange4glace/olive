@@ -1,8 +1,5 @@
 import WindowParam from 'window/window-param';
 import app from 'internal/app';
-import { setService } from 'window/service/services';
-import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
-import { TimelineWidgetServiceImpl } from 'window/view/timeline/widget-service-impl';
 
 function initialize(param: WindowParam) {
   app.project = param.app.project;
@@ -10,7 +7,6 @@ function initialize(param: WindowParam) {
   app.mobx = param.app.mobx;
   app.timeline = param.app.timeline;
   app.resource = param.app.resource;
-  app.workerPoster = param.app.workerPoster;
   app.canvas = param.app.canvas;
   console.log('[Window] Initialize', app);
   console.log('initilaize', param.app);

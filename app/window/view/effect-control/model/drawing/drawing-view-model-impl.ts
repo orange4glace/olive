@@ -4,10 +4,17 @@ import { Timeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item";
 import { VideoDrawing } from "internal/rendering/drawing/video-drawing";
 import { ViewModelImpl } from "window/view/view-model";
+import { EffectControlWidgetPropertyViewModelKeyframeEvent } from "window/view/effect-control/model/property/property-view-model";
+import { Emitter, Event } from "base/common/event";
 
 export class EffectControlWidgetDrawingViewModelImpl<T extends Drawing>
     extends ViewModelImpl
     implements EffectControlWidgetDrawingViewModel<T> {
+
+  protected onKeyframeFocused_: Emitter<EffectControlWidgetPropertyViewModelKeyframeEvent> = new Emitter();
+  readonly onKeyframeFocused: Event<EffectControlWidgetPropertyViewModelKeyframeEvent> = this.onKeyframeFocused_.event;
+  protected onKeyframeBlured_: Emitter<EffectControlWidgetPropertyViewModelKeyframeEvent> = new Emitter();
+  readonly onKeyframeBlured: Event<EffectControlWidgetPropertyViewModelKeyframeEvent> = this.onKeyframeBlured_.event;
 
   protected readonly timeline_: Timeline;
   protected readonly trackItem_: TrackItem;

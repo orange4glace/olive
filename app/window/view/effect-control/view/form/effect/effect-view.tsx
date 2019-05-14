@@ -1,11 +1,11 @@
 import * as React from 'react'
 
 import { observer } from 'window/app-mobx';
-import { EffectControlWidgetDrawingViewProps } from 'window/view/effect-control/view/form/drawing/drawing-view-factory';
 import { EffectControlWidgetEffectViewModel } from 'window/view/effect-control/model/effect/effect-view-model';
+import { EffectControlWidgetDrawingFormViewProps } from 'window/view/effect-control/view/form/drawing/drawing-view';
 
 export interface EffectControlWidgetEffectViewProps<T extends EffectControlWidgetEffectViewModel<any>>
-    extends EffectControlWidgetDrawingViewProps<any> {
+    extends EffectControlWidgetDrawingFormViewProps<any> {
   effectViewModel: T;
 }
 

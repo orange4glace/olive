@@ -1,8 +1,8 @@
 import { Event } from "base/common/event";
 import { TimelineWidget } from "window/view/timeline/widget";
-import { createDecorator } from "window/service/services";
+import { createService } from "window/service/services";
 
-export const ITimelineWidgetService = createDecorator<ITimelineWidgetService>('TimelineWidgetService');
+export const ITimelineWidgetService = createService<ITimelineWidgetService>('TimelineWidgetService');
 
 export interface ITimelineWidgetService {
 

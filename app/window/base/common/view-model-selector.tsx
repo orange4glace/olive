@@ -19,7 +19,7 @@ export class ViewModelSelector<ViewPropType, ViewModelType extends ViewModel> {
   }
 
   getView(vm: ViewModel) {
-    assert(this.factory_.has(vm.viewModelName))
+    assert(this.factory_.has(vm.viewModelName), 'view not exists ' + vm.viewModelName);
     return this.factory_.get(vm.viewModelName);
   }
 

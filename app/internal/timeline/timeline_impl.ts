@@ -1,43 +1,96 @@
-import { Postable, postable } from 'worker-postable';
-import { action } from 'mobx'
+import { Postable, postable, PostableEvent } from 'worker-postable';
+import { action, observable, computed } from 'mobx'
 
 import { Event, Emitter } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
-import { Timeline, TimelineTrackEvent } from 'internal/timeline/timeline';
+import { Timeline, TimelineTrackEvent, TimelineBase, TimelinePostableStatusEvent } from 'internal/timeline/timeline';
 import TrackImpl from 'internal/timeline/track-impl';
 import { assert } from 'base/common/assert';
+import { ISequence } from 'internal/project/sequence/sequence';
 
 @Postable
-export default class TimelineImpl extends Disposable implements Timeline {
+export default class TimelineImpl extends Disposable implements Timeline, TimelineBase {
 
   private static __next_id = 0;
 
   @postable id: number;
   @postable totalTime: number;
-  @postable currentTime: number;
+  @postable currentTimePausing: number;
+
+  @postable sequence: ISequence;
+
+  @observable currentTimePlaying: number;
+  private playingInterval_: number;
+  private lastPlayingCallbackTime_: number;
+
+  @observable paused: boolean = true;
+
+  get currentTime() {
+    if (this.paused) return this.currentTimePausing;
+    else return this.currentTimePlaying;
+  }
 
   @postable tracks: Array<TrackImpl>;
 
-  constructor() {
+  constructor(sequence: ISequence) {
     super();
     this.id = TimelineImpl.__next_id++;
+    this.sequence = sequence;
+
+    this.playingCallback_ = this.playingCallback_.bind(this);
     
     this.tracks = [];
 
-    this.currentTime = 17000;
     this.totalTime = 35000;
+    this.seekTo(2000);
 
     this.addTrack();
     this.addTrack();
+
+    // setTimeout(() => {
+    //   this.resume();
+    // },3000)
+  }
+
+  resume() {
+    if (!this.paused) return;
+    this.paused = false;
+    const now = Date.now();
+    this.currentTimePlaying = this.currentTimePausing;
+    this.lastPlayingCallbackTime_ = now;
+    this.playingInterval_ = requestAnimationFrame(this.playingCallback_);
+  }
+
+  pause() {
+    if (this.paused) return;
+    this.currentTimePausing = this.currentTimePlaying;
+    cancelAnimationFrame(this.playingInterval_);
   }
 
   getCurrentTime() {
     return this.currentTime;
   }
 
-  setCurrentTime(time: number) {
-    this.currentTime = time;
-    this.onCurrentTimeChanged_.fire();
+  private playingCallback_() {
+    const now = Date.now();
+    const dt = now - this.lastPlayingCallbackTime_;
+    this.lastPlayingCallbackTime_ = now;
+    this.setCurrentTimePlaying(this.currentTimePlaying + dt / 30);
+    requestAnimationFrame(this.playingCallback_);
+  }
+
+  private setCurrentTimePausing(time: number) {
+    this.currentTimePausing = time;
+  }
+
+  private setCurrentTimePlaying(time: number) {
+    this.currentTimePlaying = time;
+  }
+
+  seekTo(time: number) {
+    this.pause();
+    this.setCurrentTimePausing(time);
+    this.onSeek_.fire();
   }
 
   @action
@@ -62,8 +115,14 @@ export default class TimelineImpl extends Disposable implements Timeline {
     return index;
   }
 
-  private readonly onCurrentTimeChanged_: Emitter<void> = this._register(new Emitter<void>());
-  readonly onCurrentTimeChanged: Event<void> = this.onCurrentTimeChanged_.event;
+  private readonly onPlay_: Emitter<void> = this._register(new Emitter<void>());
+  readonly onPlay: Event<void> = this.onPlay_.event;
+
+  private readonly onPause_: Emitter<void> = this._register(new Emitter<void>());
+  readonly onPause: Event<void> = this.onPause_.event;
+
+  private readonly onSeek_: Emitter<void> = this._register(new Emitter<void>());
+  readonly onSeek: Event<void> = this.onSeek_.event;
 
   private readonly onTrackAdded_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
   readonly onTrackAdded: Event<TimelineTrackEvent> = this.onTrackAdded_.event;

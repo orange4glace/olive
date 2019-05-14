@@ -31,6 +31,11 @@ export class EffectControlWidgetTransformEffectViewModelImpl
         'Position', timeline, trackItem, effect.position)
     this.scalePropertyViewModel = new EffectControlWidgetVector2PropertyViewModelImpl(
         'Scale', timeline, trackItem, effect.scale)
+
+    this._register(this.positionPropertyViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
+    this._register(this.positionPropertyViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
+    this._register(this.scalePropertyViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
+    this._register(this.scalePropertyViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
   }
 
 }

@@ -17,8 +17,6 @@ export interface EffectControlWidgetRectangleDrawingViewModel
   readonly transformEffectViewModel: EffectControlWidgetTransformEffectViewModel;
   readonly rectagleEffectViewModel: EffectControlWidgetRectangleEffectViewModel;
 
-  /*@observable*/ getControlPointCoordinates(): [Vector2, Vector2, Vector2, Vector2];
-
 }
 
 @EffectControlWidgetRectangleDrawingViewModel
@@ -35,10 +33,11 @@ export class EffectControlWidgetRectangleDrawingViewModelImpl
         new EffectControlWidgetTransformEffectViewModelImpl(timeline, trackItem, this.drawing_.transformEffect);
     this.rectagleEffectViewModel = 
         new EffectControlWidgetRectangleEffectViewModelImpl(timeline, trackItem, this.drawing_.rectangleEffect);
-  }
 
-  getControlPointCoordinates(): [Vector2, Vector2, Vector2, Vector2] {
-    return null;
+    this._register(this.transformEffectViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
+    this._register(this.transformEffectViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
+    this._register(this.rectagleEffectViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
+    this._register(this.rectagleEffectViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
   }
 
 }

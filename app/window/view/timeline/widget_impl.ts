@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 import { Timeline } from "internal/timeline/timeline";
-import { TimelineWidgetTimelineViewModelImpl, TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
+import { TimelineWidgetTimelineViewModelImpl } from 'window/view/timeline/model/timeline-view-model-impl';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
 import { Widget } from 'window/view/widget';
 import { Event, Emitter } from 'base/common/event';
@@ -13,6 +13,14 @@ import { TimelineWidget } from 'window/view/timeline/widget';
 import { TimelineWidgetViewOutgoingEvents } from 'window/view/timeline/view-outgoing-events';
 import { TimelineWidgetCoreControllerImpl } from 'window/view/timeline/controller/core-controller_impl';
 import { TimelineWidgetManipulatorControllerImpl } from 'window/view/timeline/controller/manipulator_impl';
+import { WidgetRegistry, IWidgetProvider } from 'window/view/widget-registry';
+import { IServiceProvider } from 'window/service/provider';
+import app from 'internal/app';
+import { TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
+
+interface Serial {
+  timelineID: number;
+}
 
 export class TimelineWidgetImpl extends Widget implements TimelineWidget {
 
@@ -47,8 +55,8 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
 
   constructor(
     private readonly timelineWidgetService_: ITimelineWidgetService,
-    readonly timeline: Timeline) {
-    super();
+    public readonly timeline: Timeline) {
+    super('TimelineWidget');
 
     this.active_ = false;
 
@@ -112,13 +120,40 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
     return React.createElement(TimelineWidgetView, props);
   }
 
-  serialize(): Object { 
-    return null;
+  serialize(): Serial {
+    return {
+      timelineID: this.timeline.id
+    }
   }
-
 
   dispose(): void {
     this.toDispose_ = dispose(this.toDispose_);
   }
 
 }
+
+interface InitializationData {
+  timeline: Timeline;
+}
+
+class TimelineWidgetProvider implements IWidgetProvider<TimelineWidget> {
+
+  create(initializationData: InitializationData, serviceProvider: IServiceProvider): TimelineWidget {
+    return new TimelineWidgetImpl(
+        serviceProvider.getService(ITimelineWidgetService),
+        initializationData.timeline);
+  }
+
+  serialize(widget: TimelineWidgetImpl) {
+    return widget.serialize();
+  }
+
+  deserialize(obj: Serial, serviceProvider: IServiceProvider) {
+    return this.create({
+      timeline: app.timeline.getTimeline(obj.timelineID)
+    }, serviceProvider);
+  }
+
+}
+
+WidgetRegistry.registerWidget('TimelineWidget', new TimelineWidgetProvider());

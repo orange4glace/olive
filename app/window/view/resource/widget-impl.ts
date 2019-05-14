@@ -8,13 +8,9 @@ import { ResourceWidgetView, ResourceWidgetViewProps } from "window/view/resourc
 export class ResourceWidgetImpl extends ResourceWidget {
 
   constructor(resourceManager: ResourceManager) {
-    super();
+    super('Resource');
     this.model = new ResourceWidgetModelImpl(resourceManager);
     this.controller = new ResourceWidgetControllerImpl(this.model);
-  }
-
-  get name(): string {
-    return 'Resource'
   }
 
   render(): JSX.Element {

@@ -3,7 +3,6 @@ import * as mobx from 'mobx';
 import * as mobx_react from 'mobx-react';
 
 import { context as PostableContext, ref, getPostableID } from 'worker-postable'
-import RendererWorker from 'worker-loader!./renderer/index';
 import App from 'internal/app-interface';
 import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
@@ -17,8 +16,12 @@ import {
   WindowRequestResult,
   WindowRequestWrapResult,
   AppParam } from 'connector'
-import { Project } from './project';
 import { TimelineManagerImpl } from 'internal/timeline/timeline-manager';
+import { HistoryImpl } from 'internal/history/history';
+import { VideoRendererNode } from 'internal/renderer/video-renderer/renderer-node';
+import { AudioRendererNode } from 'internal/renderer/audio-renderer/renderer-node';
+import { Project } from 'internal/project/project';
+import { createAudioRendererOption, createAudioRendererBuffers } from 'internal/renderer/audio-renderer/common';
 
   if ((module as any).hot) (module as any).hot.accept();
 
@@ -31,9 +34,22 @@ const remote = electron.remote,
 function initializeApp(): void {
   let internalPoster = new Poster(window);
 
-  let rendererWorker = new RendererWorker();
-  const rendererWorkerPoster = new Poster(rendererWorker);
-  PostableContext.onMessage = msg => rendererWorkerPoster.send('post', msg);
+  const videoRendererNode = new VideoRendererNode();
+
+  const audioRendererOption = createAudioRendererOption({
+    frequency: 48000,
+    maxSlot: 8,
+    kernelsPerSlot: 8
+  });
+  const audioRendererNode = new AudioRendererNode({
+    option: audioRendererOption,
+    buffers: createAudioRendererBuffers(audioRendererOption)
+  });
+
+  PostableContext.onMessage = msg => {
+    videoRendererNode.sendPostableMessage(msg);
+    audioRendererNode.sendPostableMessage(msg);
+  }
   
   app = ((window as any).app) as App;
   app.mobx = {
@@ -44,27 +60,24 @@ function initializeApp(): void {
     observer: mobx_react.observer,
   }
   app.project = new Project();
+  app.history = new HistoryImpl();
   app.factory = new Factory();
   app.timeline = new TimelineManagerImpl();
   app.resource = new ResourceManager();
-  app.workerPoster = rendererWorkerPoster;
   app.canvas = document.createElement('canvas');
   app.canvas.width = 1080;
   app.canvas.height = 720;
 
-  const timeline = app.timeline.createTimeline();
+  ref(app.project);
+  ref(app.timeline);
+
+  const timeline = app.timeline.createTimeline(app.project.sequence);
   app.timeline.setTargetTimeline(timeline);
 
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
-  ref(app.timeline);
-  const postableID = getPostableID(app.timeline);
-  rendererWorkerPoster.send('initTimelineManager', postableID);
-
   let offscreen = (app.canvas as any).transferControlToOffscreen();
-  rendererWorkerPoster.send('canvas', {
-    data: offscreen,
-  }, [offscreen])
+  videoRendererNode.initialize(app.timeline, offscreen);
 }
 
 // function initDecoder(): any {

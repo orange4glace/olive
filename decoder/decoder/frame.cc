@@ -12,6 +12,7 @@ namespace {
 }
 
 Frame::Frame() :
+    id(next_frame_id++),
     ref_count(1) {
 }
 
@@ -27,6 +28,7 @@ void Frame::ref() {
 void Frame::unref() {
   std::unique_lock<std::mutex> lock(m);
   ref_count--;
+  if (ref_count < 0) logger::get()->critical("ERR {}", ref_count);
   assert(ref_count >= 0);
   if (ref_count == 0) DeleteMe();
 }

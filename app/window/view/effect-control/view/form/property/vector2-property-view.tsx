@@ -26,14 +26,8 @@ export class EffectControlWidgetVector2PropertyFormView extends EffectControlWid
     const model = this.props.propertyViewModel;
     return (
       <EffectControlWidgetPropertyFormViewComponent {...this.props}>
-        <div className='label-space'>
-          {/* <PropertyAnimatedDecorator {...this.props}/> */}
-          <div className='label'>{model.name}</div>
-        </div>
-        <div className='value-space'>
-          <NumberInput value={model.currentValue.x} onChange={this.xValueChangeHandler}/>
-          <NumberInput value={model.currentValue.y} onChange={this.yValueChangeHandler}/>
-        </div>
+        <NumberInput value={model.currentValue.x} onChange={this.xValueChangeHandler}/>
+        <NumberInput value={model.currentValue.y} onChange={this.yValueChangeHandler}/>
       </EffectControlWidgetPropertyFormViewComponent>
     )
   }

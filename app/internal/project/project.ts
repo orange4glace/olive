@@ -1,23 +1,21 @@
-import { FrameRate } from "./frame_rate";
-import { observable } from "mobx";
-import { Sequence } from "./sequence";
-import { Postable } from "worker-postable";
+import { Sequence, SequenceBase } from "./sequence/sequence";
+import { Postable, postable } from "worker-postable";
+
+export interface IProject {
+  readonly sequence: Sequence;
+}
+
+export interface ProjectBase {
+  sequence: SequenceBase;
+}
 
 @Postable
-export class Project {
+export class Project implements IProject, ProjectBase {
 
-  @observable private frameRate_: FrameRate;
-  get frameRate() { return this.frameRate_; }
-
-  private timebase_: number;
-  get timebase() { return this.timebase_; }
-
-  sequence: Sequence;
+  @postable sequence: Sequence;
 
   constructor() {
-    this.frameRate_ = new FrameRate(30, 1);
     this.sequence = new Sequence();
-    this.sequence.setScreenSize(1080, 720);
   }
 
 }

@@ -32,6 +32,9 @@ export interface MonitorWidgetSelectableViewModel extends ViewModel {
   onMouseDown_: Emitter<MonitorWidgetSelectableViewModelEvent> = new Emitter();
   readonly onMouseDown: Event<MonitorWidgetSelectableViewModelEvent> = this.onMouseDown_.event;
 
+  protected onMouseDownFailed_: Emitter<MonitorWidgetSelectableViewModelEvent> = new Emitter();
+  protected readonly onMouseDownFailed: Event<MonitorWidgetSelectableViewModelEvent> = this.onMouseDownFailed_.event;
+
   constructor(readonly parent: MonitorWidgetSelectableViewModelImpl) {
     super();
   }
@@ -41,20 +44,37 @@ export interface MonitorWidgetSelectableViewModel extends ViewModel {
     this.__fireMouseDown(x, y, x, y, e);
   }
 
-  protected __fireMouseDown(x: number, y: number, localX: number, localY: number, e: MonitorWidgetSelectableViewModelEvent): void {
+  private __fireMouseDown(x: number, y: number, localX: number, localY: number, e: MonitorWidgetSelectableViewModelEvent): void {
+    let localVec = vec2.fromValues(localX, localY);
+    vec2.transformMat2d(localVec, localVec, this.__getLocalInverseTransformMatrix());
+    const children = this.__getChildren();
+
+    for (let i = 0; i < children.length; i ++) {
+      const child = children[i];
+      if (e.target) child.__fireMouseDownFailed(x, y, localX, localY, e);
+      else {
+        child.__fireMouseDown(x, y, localVec[0], localVec[1], e);
+        if (!e.target) child.onMouseDownFailed_.fire(e);
+      }
+    }
+
+    if (e.target == null && this.__select(localX, localY))
+        e.target = this as MonitorWidgetSelectableViewModel;
+    if (e.target != null) {
+      if (!e.stopped) this.onMouseDown_.fire(e);
+      else this.onMouseDownFailed_.fire(e);
+    }
+  }
+
+  private __fireMouseDownFailed(x: number, y: number, localX: number, localY: number, e: MonitorWidgetSelectableViewModelEvent): void {
+    let localVec = vec2.fromValues(localX, localY);
+    vec2.transformMat2d(localVec, localVec, this.__getLocalInverseTransformMatrix());
     const children = this.__getChildren();
     for (let i = 0; i < children.length; i ++) {
       const child = children[i];
-      let localVec = vec2.fromValues(localX, localY);
-      vec2.transformMat2d(localVec, localVec, this.__getLocalInverseTransformMatrix());
-      child.__fireMouseDown(x, y, localVec[0], localVec[1], e);
-      if (e.stopped) break;
+      child.__fireMouseDownFailed(x, y, localVec[0], localVec[1], e);
     }
-    if (e.target == null && this.__select(localX, localY))
-      e.target = this as MonitorWidgetSelectableViewModel;
-    if (e.target != null && !e.stopped) {
-      this.onMouseDown_.fire(e);
-    }
+    this.onMouseDownFailed_.fire(e);
   }
 
   protected __getTransformMatrix(): mat2d {

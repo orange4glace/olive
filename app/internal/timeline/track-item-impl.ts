@@ -4,11 +4,15 @@ import { TrackItem } from 'internal/timeline/track-item';
 import { TrackItemType } from 'internal/timeline/track-item-type';
 import { computed } from 'mobx';
 import { clone } from 'base/common/cloneable';
+import { Emitter, Event } from 'base/common/event';
 
 let __next_id = 0;
 
 @Postable
 export default class TrackItemImpl implements TrackItem {
+
+  readonly onTimeChanged_: Emitter<void> = new Emitter();
+  readonly onTimeChanged: Event<void> = this.onTimeChanged_.event;
 
   id: number;
   @postable type: TrackItemType;
@@ -27,9 +31,14 @@ export default class TrackItemImpl implements TrackItem {
   getTimeoffset(time: number) {
     return time - this.time.start + this.time.base;
   }
+  
+  isInTime(time: number): boolean {
+    return this.time.start <= time && time < this.time.end;
+  }
 
   __setTime(time: TrackItemTime) {
     this.time = clone(time);
+    this.onTimeChanged_.fire();
   }
 
   clone(obj: TrackItemImpl): Object {

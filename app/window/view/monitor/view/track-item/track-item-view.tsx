@@ -2,7 +2,6 @@ import * as React from 'react'
 import { MonitorWidgetTrackItemViewModel } from 'window/view/monitor/model/track-item/track-item-view-model';
 import { MonitorWidgetViewProps } from 'window/view/monitor/view/widget-view';
 import { ViewModelSelector, ViewModelSelectorView } from 'window/base/common/view-model-selector';
-import { MonitorWidgetVideoTrackItemViewModel } from 'window/view/monitor/model/track-item/video-track-item-view-model';
 import { observer } from 'window/app-mobx';
 
 export interface MonitorWidgetTrackItemViewProps<T extends MonitorWidgetTrackItemViewModel<any>> 

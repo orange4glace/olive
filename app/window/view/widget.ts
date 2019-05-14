@@ -5,13 +5,14 @@ export abstract class Widget implements Serializable, IDisposable {
 
   private static __next_id = 0;
 
+  private name_: string;
+  get name() { return this.name_; }
   readonly id: number;
 
-  constructor() {
+  constructor(name: string) {
+    this.name_ = name;
     this.id = Widget.__next_id++;
   }
-
-  abstract get name(): string;
   
   abstract render(): JSX.Element;
 

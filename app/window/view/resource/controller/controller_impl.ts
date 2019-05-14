@@ -23,7 +23,6 @@ export class ResourceWidgetControllerImpl implements ResourceWidgetController {
     if (!this.currentDragData) {
       this.currentDragData = new DesktopDragAndDropData();
     }
-    console.log('drag ov')
   }
 
   widgetViewDropHandler(e: React.DragEvent): void {
