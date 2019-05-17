@@ -41,10 +41,7 @@ function initializeApp(): void {
     maxSlot: 8,
     kernelsPerSlot: 8
   });
-  const audioRendererNode = new AudioRendererNode({
-    option: audioRendererOption,
-    buffers: createAudioRendererBuffers(audioRendererOption)
-  });
+  const audioRendererNode = new AudioRendererNode();
 
   PostableContext.onMessage = msg => {
     videoRendererNode.sendPostableMessage(msg);
@@ -78,6 +75,10 @@ function initializeApp(): void {
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
   videoRendererNode.initialize(app.timeline, offscreen);
+  audioRendererNode.initialize(app.timeline, {
+    option: audioRendererOption,
+    buffers: createAudioRendererBuffers(audioRendererOption)
+  });
 }
 
 // function initDecoder(): any {

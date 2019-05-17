@@ -7,6 +7,7 @@ import { Emitter, Event } from 'base/common/event';
 import { TrackItemTime } from 'internal/timeline/track-item-time';
 import { VideoMediaTrackItemImpl } from 'internal/timeline/video-media-track-item';
 import { AudioResource } from 'internal/resource/audio-resource';
+import { AudioTrackItemImpl } from 'internal/timeline/track-item/audio-track-item';
 
 export interface ResourceManagerResourceEvent {
   resource: Resource
@@ -53,6 +54,11 @@ export default class ResourceManager {
       const videoResource = resource as VideoResource;
       trackItem = new VideoMediaTrackItemImpl(resource as VideoResource);
       trackItem.__setTime(new TrackItemTime(0, videoResource.duration, 0));
+    }
+    if (resource.type == ResourceType.AUDIO) {
+      const audioResource = resource as AudioResource;
+      trackItem = new AudioTrackItemImpl(resource as AudioResource);
+      trackItem.__setTime(new TrackItemTime(0, audioResource.duration, 0));
     }
     return trackItem;
   }

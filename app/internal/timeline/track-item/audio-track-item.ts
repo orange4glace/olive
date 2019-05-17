@@ -7,22 +7,27 @@ import { TrackItemType } from 'internal/timeline/track-item-type';
 import { VideoDrawing } from 'internal/rendering/drawing/video-drawing';
 import { clone } from 'base/common/cloneable';
 import { AudioDrawingBase, AudioDrawing } from 'internal/rendering/drawing/audio-drawing';
+import { AudioResourceBase, AudioResource } from 'internal/resource/audio-resource';
 
 export interface AudioTrackItemBase extends TrackItemBase {
-  drawing: AudioDrawingBase;
+  readonly resource: AudioResourceBase;
+  readonly drawing: AudioDrawingBase;
 }
 
 export interface AudioTrackItem extends TrackItem {
+  readonly resource: AudioResource;
   readonly drawing: AudioDrawing;
 }
 
 @Postable
-export abstract class AudioTrackItemImpl extends TrackItemImpl implements AudioTrackItem, AudioTrackItemBase {
+export class AudioTrackItemImpl extends TrackItemImpl implements AudioTrackItem, AudioTrackItemBase {
 
+  @postable resource: AudioResource;
   @postable drawing: AudioDrawing;
 
-  constructor(type: TrackItemType) {
-    super(type);
+  constructor(resource: AudioResource) {
+    super(TrackItemType.AUDIO);
+    this.resource = resource;
   }
 
   __setTime(time: TrackItemTime) {

@@ -13,4 +13,8 @@ export class AudioSetting implements IAudioSetting, AudioSettingBase {
 
   @postable sampleRate: number;
 
+  constructor() {
+    this.sampleRate = 48000;
+  }
+
 }

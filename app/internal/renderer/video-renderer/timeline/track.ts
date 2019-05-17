@@ -13,13 +13,15 @@ export class TrackVideoRenderer extends TrackRenderer<TrackItemVideoRenderer> {
   async draw(nvg: NVG, timecode: number) {
     let trackItem = this.getTrackItemAt(timecode);
     if (trackItem == null) return;
-    await trackItem.draw(nvg, timecode - trackItem.time.start + trackItem.time.base);
+    if (trackItem.type == TrackItemType.VIDEO_MEDIA)
+      await trackItem.draw(nvg, timecode - trackItem.time.start + trackItem.time.base);
   }
 
   async afterDraw(nvg: NVG, timecode: number) {
     let trackItem = this.getTrackItemAt(timecode);
     if (trackItem == null) return;
-    await trackItem.afterDraw(nvg, timecode - trackItem.time.start + trackItem.time.base);
+    if (trackItem.type == TrackItemType.VIDEO_MEDIA)
+      await trackItem.afterDraw(nvg, timecode - trackItem.time.start + trackItem.time.base);
   }
 
   decode(timecode: number) {

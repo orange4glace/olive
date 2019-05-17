@@ -2,7 +2,9 @@ import { AudioRendererOption, AudioRendererInitializationData } from "internal/r
 
 export enum AudioRendererMessageEventType {
   INIT,
-  REQUEST
+  PLAY_RENDER,
+  PAUSE_RENDER,
+  RENDER,
 }
 
 export interface AudioRendererMessageEvent {
@@ -10,10 +12,13 @@ export interface AudioRendererMessageEvent {
 }
 
 export interface AudioRendererInitMessageEvent extends AudioRendererMessageEvent {
+  timelineManagerID: number;
   data: AudioRendererInitializationData;
 }
 
-export interface AudioRendererRequestMessageEvent extends AudioRendererMessageEvent {
+export interface AudioRendererRenderMessageEvent extends AudioRendererMessageEvent {
+  requestID: number;
   timelineID: number;
   time: number;
+  systemTime: number;
 }

@@ -14,11 +14,17 @@ declare module "worklet-loader!*" {
   export default exportString;
 }
 
+declare module "arraybuffer-loader!*" {
+}
+
 declare module 'ffprobe' {
   function getInfo(filePath: string, opts: {
     path: string
   }, cb: (err: any, info: any)=>void): void;
   export = getInfo;
+}
+
+declare module 'ffmpeg-static' {
 }
 
 declare const AudioWorkletProcessor: any;

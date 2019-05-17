@@ -4,10 +4,8 @@ import { AudioTrackItemRenderer } from "internal/renderer/base/timeline/track-it
 import { AudioRendererInitializationData } from "internal/renderer/audio-renderer/common";
 import { AudioRendererOption, AudioRendererStateIndex, AudioRendererSlotState, getSlotBufferView } from "internal/renderer/audio-renderer/common";
 import { postableMessageHandler } from "worker-postable";
-
-interface RenderJob {
-  
-}
+import { AudioTrackItemAudioRenderer } from "internal/renderer/audio-renderer/timeline/track-item/audio-track-item";
+import { read, openSync } from "fs";
 
 export class AudioRenderer {
 
@@ -31,8 +29,10 @@ export class AudioRenderer {
     console.log('AudioRenderer initiailzed', this.option);
   }
 
-  startRender(timeline: TimelineAudioRenderer, startTime: number) {
-
+  startRender(timeline: TimelineAudioRenderer, startTime: number, requestID: number) {
+    console.log('start render', timeline, startTime);
+    this.currentRequestID = requestID;
+    this._startRender(timeline, startTime);
   }
 
   private async _startRender(timeline: TimelineAudioRenderer, startTime: number) {
@@ -48,13 +48,17 @@ export class AudioRenderer {
 
     let lastFrameTime = timeline.sequence.timeToAudioFrame(startTime);
 
-    const tmpFrameBuffer = new Float32Array(new ArrayBuffer(this.option.bytesPerSlot * 2));
+    const tmpFrameBuffer = new Float32Array(new ArrayBuffer(this.option.bytesPerSlot));
     while (true) {
       Atomics.wait(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET, this.option.maxSlot);
-      const lastRequestID = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_REQUEST);
-      if (lastRequestID != this.currentRequestID) return false;
 
+      // Request guard
+      let lastRequestID = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_REQUEST);
+      if (lastRequestID != this.currentRequestID) return false;
       await this.getRenderData(timeline, lastFrameTime, lastFrameTime + this.option.framesPerSlot, tmpFrameBuffer);
+      lastRequestID = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_REQUEST);
+      if (lastRequestID != this.currentRequestID) return false;
+      // Request guard
 
       const currentProducerOffset = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET);
       if (currentProducerOffset < 0) {
@@ -91,19 +95,36 @@ export class AudioRenderer {
     const startTime = timeline.sequence.audioFrameToTime(startFrame);
     const endTime = timeline.sequence.audioFrameToTime(endFrame);
 
+    const promises: Promise<Float32Array>[] = [];
     timeline.tracks.forEach(track => {
       const trackItems = track.getTrackItemBetween(startTime, endTime);
       trackItems.forEach(trackItem => {
         if (trackItem.type != TrackItemType.AUDIO) return;
-        const audioTrackItem = trackItem as AudioTrackItemRenderer;
-          const localStartFrame = sequence.timeToAudioFrame(
-              audioTrackItem.time.start + audioTrackItem.time.base - startFrame);
-          const localEndFrame = sequence.timeToAudioFrame(Math.min(
-              audioTrackItem.time.end + audioTrackItem.time.base - startFrame,
-              audioTrackItem.time.start + audioTrackItem.time.base - startFrame + endFrame));
-          
+        const audioTrackItem = trackItem as AudioTrackItemAudioRenderer;
+        const trackItemStartFrame = sequence.timeToAudioFrame(audioTrackItem.time.start + audioTrackItem.time.base);
+        const localStartFrame = startFrame - trackItemStartFrame;
+        const localEndFrame = endFrame - trackItemStartFrame;
+        promises.push(this.getTrackItemRenderData(audioTrackItem, localStartFrame, localEndFrame));
       })
     })
+    try {
+      const values = await Promise.all(promises)
+      values.forEach(value => outBuffer.set(value));
+    } catch (err) {
+      console.error(err);
+    }
+    return;
+  }
+
+  async getTrackItemRenderData(trackItem: AudioTrackItemAudioRenderer, startFrame: number, endFrame: number): Promise<Float32Array> {
+    const fd = openSync(trackItem.resource.path + '.raw', 'r');
+    const buffer = new Float32Array(endFrame - startFrame);
+    return new Promise<Float32Array>((resolve, reject) => {
+      read(fd, buffer, 0, (endFrame - startFrame) * 4, startFrame * 4, (err, bytesRead, buffer) => {
+        if (err) return reject(err);
+        resolve(buffer);
+      });
+    });
   }
 
 }

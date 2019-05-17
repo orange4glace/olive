@@ -12,3 +12,13 @@
     at Socket.stream.socket.on (internal/child_process.js:381:11)
     at Socket.emit (events.js:182:13)
     at Pipe._handle.close (net.js:606:12)
+[2019-05-17T14:29:30.407] [ERROR] olive - Command failed: \bin\win32\x64\ffmpeg.exe -i "E:\Torrents\도망치는 건 부끄럽지만 도움이 된다 CH W 11부작 HDTV KorSub x264 450p-Ernie\[CH W] 도망치는 건 부끄럽지만 도움이 된다 E01 HDTV KorSub x264 450p-Ernie.mp4" -f f32le -ac 1 -ar 48000 -acodec pcm_f32le "E:\Torrents\도망치는 건 부끄럽지만 도움이 된다 CH W 11부작 HDTV KorSub x264 450p-Ernie\[CH W] 도망치는 건 부끄럽지만 도움이 된다 E01 HDTV KorSub x264 450p-Ernie.mp4.raw"
+������ ��θ� ã�� �� �����ϴ�.
+
+[2019-05-17T14:31:02.145] [ERROR] olive - Command failed: \bin\win32\x64\ffmpeg.exe -i "E:\Torrents\도망치는 건 부끄럽지만 도움이 된다 CH W 11부작 HDTV KorSub x264 450p-Ernie\[CH W] 도망치는 건 부끄럽지만 도움이 된다 E01 HDTV KorSub x264 450p-Ernie.mp4" -f f32le -ac 1 -ar 48000 -acodec pcm_f32le "E:\Torrents\도망치는 건 부끄럽지만 도움이 된다 CH W 11부작 HDTV KorSub x264 450p-Ernie\[CH W] 도망치는 건 부끄럽지만 도움이 된다 E01 HDTV KorSub x264 450p-Ernie.mp4.raw"
+������ ��θ� ã�� �� �����ϴ�.
+
+[2019-05-17T14:39:48.246] [ERROR] olive - Command failed: ./\bin\win32\x64\ffmpeg.exe -i "E:\Torrents\도망치는 건 부끄럽지만 도움이 된다 CH W 11부작 HDTV KorSub x264 450p-Ernie\[CH W] 도망치는 건 부끄럽지만 도움이 된다 E01 HDTV KorSub x264 450p-Ernie.mp4" -f f32le -ac 1 -ar 48000 -acodec pcm_f32le "E:\Torrents\도망치는 건 부끄럽지만 도움이 된다 CH W 11부작 HDTV KorSub x264 450p-Ernie\[CH W] 도망치는 건 부끄럽지만 도움이 된다 E01 HDTV KorSub x264 450p-Ernie.mp4.raw"
+'.'��(��) ���� �Ǵ� �ܺ� ����, ������ �� �ִ� ���α׷�, �Ǵ�
+��ġ ������ �ƴմϴ�.
+

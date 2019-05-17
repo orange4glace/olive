@@ -69,8 +69,9 @@ export class TrackRenderer<TrackItemRendererT extends TrackItemRenderer = TrackI
     let it = this.trackItemEndTimeTreeMap.upper_bound(startTime);
     while (!it.equals(this.trackItemEndTimeTreeMap.end())) {
       const cur = it.value;
-      if (cur.first >= endTime) break;
+      if (cur.second.time.start >= endTime) break;
       ret.push(cur.second);
+      it = it.next();
     }
     return ret;
   }

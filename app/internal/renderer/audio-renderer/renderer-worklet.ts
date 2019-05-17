@@ -24,21 +24,22 @@ class AudioRendererWorkletProcessor extends AudioWorkletProcessor {
   }
 
   private handleMessage(e: MessageEvent) {
-    this.port.onmessage = (e: MessageEvent) => {
-      const data = e.data;
-      switch (data.type) {
-        case AudioRendererMessageEventType.INIT: 
-          this.initialize(data.data);
-          break;
-      }
+    const data = e.data;
+    switch (data.type) {
+      case AudioRendererMessageEventType.INIT:
+        this.initialize(data.data);
+        break;
     }
   }
 
   private initialize(data: AudioRendererInitializationData) {
+    console.log(data);
     const buffers = data.buffers;
-    this.buffers.state = new Int32Array(buffers.state);
-    this.buffers.slotState = new Int32Array(buffers.slotState);
-    this.buffers.slotData = buffers.slotData;
+    this.buffers = {
+      state: new Int32Array(buffers.state),
+      slotState: new Int32Array(buffers.slotState),
+      slotData: buffers.slotData
+    }
     this.option = data.option;
 
     this.ZERO_FILLED_SLOT_BUFFER = new Float32Array(new ArrayBuffer(this.option.bytesPerSlot));
@@ -88,7 +89,7 @@ class AudioRendererWorkletProcessor extends AudioWorkletProcessor {
     const slotOffset = slotIndex % option.maxSlot;
     if (Atomics.compareExchange(this.buffers.slotState, slotOffset, AudioRendererSlotState.IDLE, AudioRendererSlotState.BUSY)
         == AudioRendererSlotState.IDLE) {
-      const slotView = getSlotBufferView(option, this.buffers.slotState, slotOffset);
+      const slotView = getSlotBufferView(option, this.buffers.slotData, slotOffset);
       const slotHeaderView = slotView.header;
       const slotDataView = slotView.data;
       if (slotHeaderView[option.slotLayout.INDEX] != slotIndex) {

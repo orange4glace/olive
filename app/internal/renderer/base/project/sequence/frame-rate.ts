@@ -9,7 +9,7 @@ export class FrameRateRenderer implements FrameRateBase {
   @posted den: number;
 
   millisecondToTime(millisecond: number) {
-    return Math.floor(millisecond * this.num / this.den);
+    return Math.floor(millisecond * this.num / this.den / 1000);
   }
 
   systemTimeToTime(systemTime: number) {
