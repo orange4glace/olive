@@ -5,6 +5,9 @@ import { AudioSetting, AudioSettingBase, IAudioSetting } from "internal/project/
 export interface ISequence {
   videoSetting: IVideoSetting;
   audioSetting: IAudioSetting;
+
+  audioFrameToTime(frame: number): number;
+  timeToAudioFrame(time: number): number;
 }
 
 export interface SequenceBase {
@@ -26,6 +29,10 @@ export class Sequence implements ISequence, SequenceBase {
   audioFrameToTime(frame: number) {
     return this.videoSetting.frameRate.millisecondToTime(
         Math.floor(frame / this.audioSetting.sampleRate * 1000));
+  }
+
+  timeToAudioFrame(time: number) {
+    return Math.floor(time * this.audioSetting.sampleRate * this.videoSetting.frameRate.den / this.videoSetting.frameRate.num);
   }
 
 }

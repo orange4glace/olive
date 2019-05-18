@@ -13,6 +13,7 @@ import { MonitorWidgetVideoMediaDrawingViewModel } from 'window/view/monitor/mod
 import { MonitorWidgetVideoMediaDrawingView } from 'window/view/monitor/view/drawing/video-media-drawing-view';
 
 import * as style from './widget-view.scss';
+import { MonitorWidgetControlView } from 'window/view/monitor/view/control/control-view';
 
 MonitorWidgetTrackItemViewSelector.registerView(MonitorWidgetVideoTrackItemViewModel, MonitorWidgetVideoTrackItemView);
 MonitorWidgetDrawingViewSelector.registerView(MonitorWidgetRectangleDrawingViewModel, MonitorWidgetRectangleDrawingView);
@@ -100,6 +101,9 @@ class RendererContentViewWrapper extends React.Component<MonitorWidgetViewProps,
         <div className='container' style={containerStyle} ref={this.containerRef}>>
           <MonitorWidgetTimelineView {...this.props} timelineViewModel={this.props.widget.model}/>
           <RendererContentView {...this.props}/>
+        </div>
+        <div className='controls'>
+          <MonitorWidgetControlView {...this.props}/>
         </div>
       </div>
     )

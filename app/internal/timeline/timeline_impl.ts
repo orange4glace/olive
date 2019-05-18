@@ -7,6 +7,7 @@ import { Timeline, TimelineTrackEvent, TimelineBase, TimelinePostableStatusEvent
 import TrackImpl from 'internal/timeline/track-impl';
 import { assert } from 'base/common/assert';
 import { ISequence } from 'internal/project/sequence/sequence';
+import { getCurrentSystemTime } from 'base/common/time';
 
 @Postable
 export default class TimelineImpl extends Disposable implements Timeline, TimelineBase {
@@ -21,7 +22,7 @@ export default class TimelineImpl extends Disposable implements Timeline, Timeli
 
   @observable currentTimePlaying: number;
   private playingInterval_: number;
-  private lastPlayingCallbackTime_: number;
+  private lastPlaySystemTime: number;
 
   @observable paused: boolean = true;
 
@@ -57,14 +58,17 @@ export default class TimelineImpl extends Disposable implements Timeline, Timeli
     this.paused = false;
     const now = Date.now();
     this.currentTimePlaying = this.currentTimePausing;
-    this.lastPlayingCallbackTime_ = now;
+    this.lastPlaySystemTime = getCurrentSystemTime();
     this.playingInterval_ = requestAnimationFrame(this.playingCallback_);
+    this.onPlay_.fire();
   }
 
   pause() {
     if (this.paused) return;
+    this.paused = true;
     this.currentTimePausing = this.currentTimePlaying;
     cancelAnimationFrame(this.playingInterval_);
+    this.onPause_.fire();
   }
 
   getCurrentTime() {
@@ -72,11 +76,10 @@ export default class TimelineImpl extends Disposable implements Timeline, Timeli
   }
 
   private playingCallback_() {
-    const now = Date.now();
-    const dt = now - this.lastPlayingCallbackTime_;
-    this.lastPlayingCallbackTime_ = now;
-    this.setCurrentTimePlaying(this.currentTimePlaying + dt / 30);
-    requestAnimationFrame(this.playingCallback_);
+    const now = getCurrentSystemTime();
+    const dt = now - this.lastPlaySystemTime;
+    this.setCurrentTimePlaying(this.currentTimePausing + this.sequence.videoSetting.frameRate.systemTimeToTime(dt));
+    this.playingInterval_ = requestAnimationFrame(this.playingCallback_);
   }
 
   private setCurrentTimePausing(time: number) {

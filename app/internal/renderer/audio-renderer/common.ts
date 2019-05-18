@@ -72,6 +72,6 @@ export function getSlotBufferView(option: AudioRendererOption, slotBuffer: Array
   const slotLayout = option.slotLayout;
   return {
     header: new Int32Array(slotBuffer, slotLayout.__SIZE * slotOffset, slotLayout.DATA / 4),
-    data: new Float32Array(slotBuffer, slotLayout.__SIZE + slotLayout.DATA, option.bytesPerSlot / 4)
+    data: new Float32Array(slotBuffer, slotLayout.__SIZE * slotOffset + slotLayout.DATA, option.bytesPerSlot / 4)
   };
 }

@@ -1,4 +1,5 @@
 import { postable, Postable } from "worker-postable";
+import { systemTimeToMilliseconds } from "base/common/time";
 
 export enum FrameRateType {
   F30 = 0,
@@ -14,6 +15,7 @@ export interface IFrameRate {
   readonly type: FrameRateType;
 
   format(frameTime: number): string;
+  systemTimeToTime(systemTime: number): number;
 }
 
 export interface FrameRateBase {
@@ -68,7 +70,11 @@ export class FrameRate implements IFrameRate, FrameRateBase {
   }
 
   millisecondToTime(millisecond: number) {
-    return Math.floor(millisecond * this.num / this.den);
+    return Math.floor(millisecond * this.num / this.den / 1000);
+  }
+
+  systemTimeToTime(systemTime: number) {
+    return this.millisecondToTime(systemTimeToMilliseconds(systemTime));
   }
 
   static fromString(str: string): FrameRate {

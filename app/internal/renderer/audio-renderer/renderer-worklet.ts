@@ -94,7 +94,7 @@ class AudioRendererWorkletProcessor extends AudioWorkletProcessor {
       const slotDataView = slotView.data;
       if (slotHeaderView[option.slotLayout.INDEX] != slotIndex) {
         outBuffer.set(this.ZERO_FILLED_SLOT_BUFFER);
-        console.warn('miss! ' + 'expected = ' + slotIndex + ', got = ' + slotHeaderView[option.slotLayout.INDEX]);
+        // console.warn('miss! ' + 'expected = ' + slotIndex + ', got = ' + slotHeaderView[option.slotLayout.INDEX]);
       }
       else {
         outBuffer.set(slotDataView);
@@ -103,7 +103,7 @@ class AudioRendererWorkletProcessor extends AudioWorkletProcessor {
     }
     else {
       outBuffer.set(this.ZERO_FILLED_SLOT_BUFFER);
-      console.warn('Slot is busy by Producer');
+      // console.warn('Slot is busy by Producer');
     }
   }
 

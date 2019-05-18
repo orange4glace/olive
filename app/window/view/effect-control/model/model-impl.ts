@@ -1,7 +1,6 @@
 import { EffectControlWidgetModel } from "window/view/effect-control/model/model";
 import { Timeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item";
-import { Disposable } from "base/common/lifecycle";
 import { EffectControlWidgetTrackItemViewModelImpl } from "window/view/effect-control/model/track-item/track-item-view-model";
 import { TrackItemType } from "internal/timeline/track-item-type";
 import { EffectControlWidgetVideoTrackItemViewModelImpl } from "window/view/effect-control/model/track-item/video-track-item-model";

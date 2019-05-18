@@ -61,7 +61,6 @@ export class Renderer {
     const msg = e.data;
     switch (msg.type) {
       case 'POST':
-        console.log(msg);
         postableMessageHandler(msg.data);
         break;
       case 'INIT':
@@ -86,8 +85,7 @@ export class Renderer {
 
   private onPlayRender(e: VideoRendererRenderMessageEvent) {
     const timeline = this.timelineManager_.getTimeline(e.timelineID);
-    const elapsedTime = timeline.sequence.videoSetting.frameRate.systemTimeToTime(Date.now() - e.systemTime);
-    this.startTimelineRenderCallback(timeline, e.currentTime + elapsedTime);
+    this.startTimelineRenderCallback(timeline, e.currentTime, e.systemTime);
   }
 
   private onPauseRender(e: VideoRendererRenderMessageEvent) {
@@ -99,11 +97,11 @@ export class Renderer {
   private onRender(e: VideoRendererRenderMessageEvent) {
     const timeline = this.timelineManager_.getTimeline(e.timelineID);
     assert(timeline, 'Timeline ' + e.timelineID + ' not found!');
-    const elapsedTime = timeline.sequence.videoSetting.frameRate.systemTimeToTime(Date.now() - e.systemTime);
-    this.seekTimeline(timeline, e.currentTime + elapsedTime);
+    this.seekTimeline(timeline, e.currentTime);
   }
 
-  private startTimelineRenderCallback(timeline: TimelineVideoRenderer, time: number) {
+  private startTimelineRenderCallback(timeline: TimelineVideoRenderer, time: number, startSystemTime: number) {
+    console.log('video render start = ',time);
     this.stopTimelineRender(() => {
       const disposer: RenderCallbackDisposer = {
         dispose: function() {
@@ -119,7 +117,7 @@ export class Renderer {
         onDispose: null
       }
       this.renderCallbackDisposer_ = disposer;
-      requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, time, Date.now(), disposer));
+      requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, time, startSystemTime, disposer));
     });
   }
 
@@ -169,7 +167,7 @@ export class Renderer {
       disposer.fireDispose();
       return;
     }
-    requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, startTime, startSystemTime));
+    requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, startTime, startSystemTime, disposer));
   }
 
   private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {

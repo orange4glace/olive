@@ -184,6 +184,8 @@ void VideoDecoder::loop() {
         target_frame->ref();
         // Decode done, resolve promise
         NAPI_CALL(napi_call_threadsafe_function(tsfn_callback_, target_frame, napi_tsfn_nonblocking));
+        // CRITICAL : 'napi_queue_full' error frequently
+        // But WHY?
         decode_request_resolved_ = true;
         logger::get()->info("[VideoDecoder] External decode done. counter");
       }

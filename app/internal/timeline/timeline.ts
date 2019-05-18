@@ -34,6 +34,7 @@ export interface Timeline {
   /*@observable*/ readonly paused: boolean;
 
   resume(): void;
+  pause(): void;
 
   seekTo(time: number): void;
   

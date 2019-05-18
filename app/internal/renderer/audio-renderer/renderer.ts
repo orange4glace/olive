@@ -5,7 +5,14 @@ import { AudioRendererInitializationData } from "internal/renderer/audio-rendere
 import { AudioRendererOption, AudioRendererStateIndex, AudioRendererSlotState, getSlotBufferView } from "internal/renderer/audio-renderer/common";
 import { postableMessageHandler } from "worker-postable";
 import { AudioTrackItemAudioRenderer } from "internal/renderer/audio-renderer/timeline/track-item/audio-track-item";
-import { read, openSync } from "fs";
+import { read, openSync, close } from "fs";
+import { getCurrentSystemTime } from "base/common/time";
+
+interface RenderingRequest {
+  requestID: number;
+  startTime: number;
+  play: boolean;
+}
 
 export class AudioRenderer {
 
@@ -16,7 +23,11 @@ export class AudioRenderer {
     slotData: ArrayBuffer
   }
   private currentSlotIndex = 0;
-  private currentRequestID = 0;
+  private currentRequest: RenderingRequest = {
+    requestID: 0,
+    startTime: 0,
+    play: false
+  };
 
   initialize(initData: AudioRendererInitializationData) {
     const buffers = initData.buffers;
@@ -29,20 +40,34 @@ export class AudioRenderer {
     console.log('AudioRenderer initiailzed', this.option);
   }
 
-  startRender(timeline: TimelineAudioRenderer, startTime: number, requestID: number) {
-    console.log('start render', timeline, startTime);
-    this.currentRequestID = requestID;
+  render(timeline: TimelineAudioRenderer, startTime: number, requestID: number) {
+    this.currentRequest.requestID = requestID;
+    this.currentRequest.startTime = startTime;
+    this.currentRequest.play = false;
     this._startRender(timeline, startTime);
   }
 
+  stopRender(requestID: number) {
+    this.currentRequest.requestID = requestID;
+    this.currentRequest.play = false;
+  }
+
+  startRender(timeline: TimelineAudioRenderer, startTime: number, startSystemTime: number, requestID: number) {
+    this.currentRequest.requestID = requestID;
+    this.currentRequest.startTime = startTime;
+    this.currentRequest.play = true;
+    const dt = getCurrentSystemTime() - startSystemTime;
+    this._startRender(timeline, startTime + dt);
+  }
+
   private async _startRender(timeline: TimelineAudioRenderer, startTime: number) {
-    let dt = Date.now();
+    let dt = getCurrentSystemTime();
     Atomics.store(this.buffers.state, AudioRendererStateIndex.PRODUCER_SIGNAL, 1);
     Atomics.wait(this.buffers.state, AudioRendererStateIndex.PRODUCER_SIGNAL, 1);
     const startProducerOffset = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_SIGNAL_RESPONSE);
-    let startedSystemTime = Date.now();
+    let startedSystemTime = getCurrentSystemTime();
     dt = startedSystemTime - dt;
-    startTime += dt;
+    startTime += timeline.sequence.videoSetting.frameRate.systemTimeToTime(dt);
     Atomics.sub(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET, startProducerOffset);
     this.currentSlotIndex -= startProducerOffset;
 
@@ -54,10 +79,10 @@ export class AudioRenderer {
 
       // Request guard
       let lastRequestID = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_REQUEST);
-      if (lastRequestID != this.currentRequestID) return false;
+      if (lastRequestID != this.currentRequest.requestID) return;
       await this.getRenderData(timeline, lastFrameTime, lastFrameTime + this.option.framesPerSlot, tmpFrameBuffer);
       lastRequestID = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_REQUEST);
-      if (lastRequestID != this.currentRequestID) return false;
+      if (lastRequestID != this.currentRequest.requestID) return;
       // Request guard
 
       const currentProducerOffset = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET);
@@ -87,6 +112,9 @@ export class AudioRenderer {
       }
       Atomics.add(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET, 1);
       this.currentSlotIndex += 1;
+
+      const lastTime = timeline.sequence.audioFrameToTime(lastFrameTime);
+      if (!this.currentRequest.play && lastTime - startTime >= 0.1) return;
     }
   }
 
@@ -123,6 +151,9 @@ export class AudioRenderer {
       read(fd, buffer, 0, (endFrame - startFrame) * 4, startFrame * 4, (err, bytesRead, buffer) => {
         if (err) return reject(err);
         resolve(buffer);
+        close(fd, err => {
+          if (err) console.error(err)
+        });
       });
     });
   }

@@ -32,21 +32,20 @@ self.onmessage = function (e: MessageEvent) {
       {
       msg = data as AudioRendererRenderMessageEvent;
       const timeline = timelineManager.getTimeline(msg.timelineID);
-      renderer.startRender(timeline, msg.time, msg.requestID);
+      renderer.startRender(timeline, msg.time, msg.systemTime, msg.requestID);
       }
       break;
     case AudioRendererMessageEventType.PAUSE_RENDER:
       {
       msg = data as AudioRendererRenderMessageEvent;
-      const timeline = timelineManager.getTimeline(msg.timelineID);
-      renderer.startRender(timeline, msg.time, msg.requestID);
+      renderer.stopRender(msg.requestID);
       }
       break;
     case AudioRendererMessageEventType.RENDER:
       {
       msg = data as AudioRendererRenderMessageEvent;
       const timeline = timelineManager.getTimeline(msg.timelineID);
-      renderer.startRender(timeline, msg.time, msg.requestID);
+      renderer.render(timeline, msg.time, msg.requestID);
       }
       break;
   }

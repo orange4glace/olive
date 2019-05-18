@@ -8,6 +8,8 @@ import { MonitorWidgetTrackViewModel, MonitorWidgetTrackViewModelImpl } from "wi
 
 export interface MonitorWidgetTimelineViewModel extends MonitorWidgetSelectableViewModel {
 
+  readonly timeline: Timeline;
+
   /*@observable*/ readonly width: number;
   /*@observable*/ readonly height: number;
   /*@observable*/ readonly screenWidth: number;
@@ -36,7 +38,7 @@ export class MonitorWidgetTimelineViewModelImpl extends MonitorWidgetSelectableV
   private timeline_: Timeline;
 
 
-  constructor(timeline: Timeline) {
+  constructor(public readonly timeline: Timeline) {
     super(null);
     this.timeline_ = timeline;
     this.trackViewModels = [];

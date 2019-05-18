@@ -12,7 +12,6 @@ export class TimelineManagerRenderer
   @posted targetTimeline: TimelineRendererT;
   
   getTimeline(id: number): TimelineRendererT {
-    console.log(this, this.timelines);
     const timeline = this.timelines.get(id);
     assert(timeline, 'Timeline ' + id + ' not found.')
     return timeline;

@@ -47,6 +47,7 @@ export class MonitorWidgetTrackViewModelImpl extends MonitorWidgetSelectableView
         tiVM = new MonitorWidgetVideoTrackItemViewModelImpl(this, this.timeline_, trackItem as VideoTrackItem);
       break;
     }
+    if (!tiVM) return;
     this.trackItemViewModels.add(tiVM);
     this.trackItemViewModelMap_.set(trackItem, tiVM);
     this.updateCurrentTrackItemViewModel();
