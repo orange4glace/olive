@@ -32,7 +32,7 @@ export class TimelineWidgetTimelineViewModelImpl
   private trackViewModelMap_: Map<Track, TimelineWidgetTrackViewModel>;
   private trackViewModelDisposables_: Map<TimelineWidgetTrackViewModel, IDisposable[]>;
 
-  constructor(timeline: Timeline) {
+  constructor(readonly timeline: Timeline) {
     super();
     this.timeline_ = timeline;
     
@@ -138,8 +138,33 @@ export class TimelineWidgetTimelineViewModelImpl
   }
 
   getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent | StandardMouseEvent): {x: number, y: number} {
-    if (e instanceof StandardMouseEvent) return e.mousePositionElement(this.scrollViewModel.element);
+    if ((e as any).posx) return this.getMousePostionRelativeToTimeline_(e as any);
     return MouseUtil.mousePositionElement(e, this.scrollViewModel.element);
+  }
+
+  private getMousePostionRelativeToTimeline_(e: {
+    posx: number,
+    posy: number
+  }){
+    function findPos(obj: any) {
+      var curleft = 0; var curtop = 0;
+      if (obj.offsetParent) {
+        do {
+          curleft += obj.offsetLeft;
+          curtop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+      }
+      return {
+        left : curleft,
+        top : curtop
+      };
+    }
+
+		let elPos = findPos(this.scrollViewModel.element);
+		return {
+			x: e.posx - elPos.left,
+			y: e.posy - elPos.top
+		};
   }
 
   dispose(): void {

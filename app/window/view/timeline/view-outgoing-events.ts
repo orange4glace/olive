@@ -1,5 +1,5 @@
 import { Disposable } from "base/common/lifecycle";
-import { TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackItemThumbUIEvent } from "window/view/timeline/event";
+import { TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from "window/view/timeline/event";
 
 export interface EventCallback<T> {
 	(event: T): void;
@@ -10,11 +10,13 @@ export class TimelineWidgetViewOutgoingEvents extends Disposable {
   // UI Event
   onTrackItemMouseDown: EventCallback<TimelineWidgetTrackItemUIEvent>;
   onTrackItemMouseMoveStart: EventCallback<TimelineWidgetTrackItemUIEvent>;
+  onTrackItemThumbMouseDown: EventCallback<TimelineWidgetTrackItemThumbUIEvent>;
   onTrackItemThumbMouseMoveStart: EventCallback<TimelineWidgetTrackItemThumbUIEvent>;
   onTrackMouseMove: EventCallback<TimelineWidgetTrackUIEvent>;
   onTrackDragOver: EventCallback<TimelineWidgetTrackUIEvent>;
   onTrackDragLeave: EventCallback<TimelineWidgetTrackUIEvent>;
   onTrackDrop: EventCallback<TimelineWidgetTrackUIEvent>;
+  onTimelineMouseDown: EventCallback<TimelineWidgetTimelineUIEvent>;
 
   constructor() {
     super();
@@ -26,6 +28,10 @@ export class TimelineWidgetViewOutgoingEvents extends Disposable {
 
   emitTrackItemMouseMoveStart(e: TimelineWidgetTrackItemUIEvent) {
     if (this.onTrackItemMouseMoveStart) this.onTrackItemMouseMoveStart(e);
+  }
+
+  emitTrackItemThumbMouseDown(e: TimelineWidgetTrackItemThumbUIEvent) {
+    if (this.onTrackItemThumbMouseDown) this.onTrackItemThumbMouseDown(e);
   }
 
   emitTrackItemThumbMouseMoveStart(e: TimelineWidgetTrackItemThumbUIEvent) {
@@ -46,6 +52,10 @@ export class TimelineWidgetViewOutgoingEvents extends Disposable {
 
   emitTrackDrop(e: TimelineWidgetTrackUIEvent) {
     if (this.onTrackDrop) this.onTrackDrop(e);
+  }
+
+  emitTimelineMouseDown(e: TimelineWidgetTimelineUIEvent) {
+    if (this.onTimelineMouseDown) this.onTimelineMouseDown(e);
   }
 
 }

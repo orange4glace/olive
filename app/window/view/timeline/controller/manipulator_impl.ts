@@ -1,42 +1,12 @@
-import * as dom from 'base/view/dom'
 import { TimelineWidgetManipulatorController } from "window/view/timeline/controller/manipulator";
 import { IDisposable, dispose, Disposable } from "base/common/lifecycle";
-import { GlobalMouseMoveMonitor, standardMouseMoveMerger, IStandardMouseMoveEventData } from 'base/view/globalMouseMoveMonitor';
 import { StandardMouseEvent } from 'base/view/mouseEvent';
 import { TimelineWidgetGhostContainerViewModel } from 'window/view/timeline/model/ghost-view-model';
 import { TimelineWidget } from 'window/view/timeline/widget';
 import { TrackItem } from 'internal/timeline/track-item';
-
-class MouseMoveMonitor extends Disposable {
-
-  private readonly mouseMoveMonitor_: GlobalMouseMoveMonitor<IStandardMouseMoveEventData>;
-  private keydownListener_: IDisposable;
-
-  constructor() {
-    super();
-		this.mouseMoveMonitor_ = this._register(new GlobalMouseMoveMonitor<IStandardMouseMoveEventData>());
-    this.keydownListener_ = null;
-  }
-
-  startMonitoring(mouseMoveCallback: (e: StandardMouseEvent) => void, onStopCallback: () => void): void {
-		// Add a <<capture>> keydown event listener that will cancel the monitoring
-		// if something other than a modifier key is pressed
-		this.keydownListener_ = dom.addStandardDisposableListener(<any>document, 'keydown', (e) => {
-			const kb = e.toKeybinding();
-			if (kb.isModifierKey()) {
-				// Allow modifier keys
-				return;
-			}
-			this.mouseMoveMonitor_.stopMonitoring(true);
-		}, true);
-
-		this.mouseMoveMonitor_.startMonitoring(standardMouseMoveMerger, mouseMoveCallback, () => {
-			this.keydownListener_!.dispose();
-			onStopCallback();
-		});
-  }
-
-}
+import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
+import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-view-model";
+import { TimelineWidgetTrackItemViewModel } from "window/view/timeline/model/track-item-view-model";
 
 class ManipulationState implements IDisposable {
   dtSum: number;
@@ -64,13 +34,13 @@ class ManipulationState implements IDisposable {
 export class TimelineWidgetManipulatorControllerImpl extends Disposable 
     implements TimelineWidgetManipulatorController {
 
-  private mouseMoveMonitor_: MouseMoveMonitor;
+  private mouseMoveMonitor_: InterruptableMouseMoveMonitor;
 
   private ghostContainer_: TimelineWidgetGhostContainerViewModel;
   
   constructor(private readonly widget_: TimelineWidget) {
     super();
-    this.mouseMoveMonitor_ = new MouseMoveMonitor();
+    this.mouseMoveMonitor_ = new InterruptableMouseMoveMonitor();
     this._register(this.mouseMoveMonitor_);
 
     this.startMove = this.startMove.bind(this);
@@ -84,9 +54,15 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
       const trackOffset = this.widget_.model.getTrackViewModelIndex(e.trackViewModel);
       this.startMove(trackOffset, e.e);
     }));
+    this._register(widget_.onTrackItemMouseDown(e => {
+      this.trackItemMouseDownHandler(e.trackViewModel, e.trackItemViewModel, e.e);
+    }));
     this._register(widget_.onTrackItemThumbMouseMoveStart(e => {
       if (e.direction == 'LEFT') this.startResizeLeft(e.e);
       else this.startResizeRight(e.e);
+    }));
+    this._register(widget_.onTrackItemThumbMouseDown(e => {
+      e.e.stopPropagation();
     }));
   }
 
@@ -111,7 +87,25 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
     return ghostContainer;
   }
 
-  startResizeLeft(e: StandardMouseEvent): void {
+  private trackItemMouseDownHandler(trackVM: TimelineWidgetTrackViewModel, trackItemVM: TimelineWidgetTrackItemViewModel, e: StandardMouseEvent) {
+    e.stopPropagation();
+    this.trackItemFocusHandler(trackVM, trackItemVM, e.ctrlKey);
+  }
+
+  private trackItemFocusHandler(trackVM: TimelineWidgetTrackViewModel, trackItemVM: TimelineWidgetTrackItemViewModel,
+      ctrlKey: boolean) {
+    if (ctrlKey) {
+      if (trackItemVM.focused) trackItemVM.blur();
+      else trackItemVM.focus();
+    }
+    else {
+      if (trackItemVM.focused) return;
+      this.widget_.model.blurAllTrackItems();
+      trackItemVM.focus();
+    }
+  }
+
+  private startResizeLeft(e: StandardMouseEvent): void {
     e.stopPropagation();
     let state: ManipulationState = new ManipulationState();
     const handler = this.handleResizeLeft_.bind(this, state);
@@ -142,7 +136,7 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
     this.cleanState_();
   }
 
-  startResizeRight(e: StandardMouseEvent): void {
+  private startResizeRight(e: StandardMouseEvent): void {
     e.stopPropagation();
     let state: ManipulationState = new ManipulationState();
     const handler = this.handleResizeRight_.bind(this, state);
@@ -172,7 +166,7 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
     this.cleanState_();
   }
 
-  startMove(targetTrackItemTackOffset: number, e: StandardMouseEvent): void {
+  private startMove(targetTrackItemTackOffset: number, e: StandardMouseEvent): void {
     e.stopPropagation();
     let state: ManipulationState = new ManipulationState();
     const handler = this.handleMove_.bind(this, state);

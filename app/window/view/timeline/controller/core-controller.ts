@@ -7,7 +7,6 @@ export abstract class TimelineWidgetCoreController implements IDisposable {
   abstract trackDragOverHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent): void;
   abstract trackDragLeaveHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent): void;
   abstract trackDropHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent): void;
-  abstract trackItemMouseDownHandler(trackVM: TimelineWidgetTrackViewModel, trackItemVM: TimelineWidgetTrackItemViewModel, e: StandardMouseEvent): void;
 
   abstract dispose(): void;
 }

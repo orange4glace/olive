@@ -1,8 +1,11 @@
 import { IHistoryCommand } from "internal/history/command";
 import { observable, computed } from "mobx";
 import { assert } from "base/common/assert";
+import { createDecorator } from "platform/instantiation/common/instantiation";
 
-export interface IHistory {
+export const IHistoryService = createDecorator<IHistoryService>('olive.HistoryService');
+
+export interface IHistoryService {
 
   /*@observable*/ readonly canUndo: boolean;
   /*@observable*/ readonly canRedo: boolean;
@@ -46,7 +49,7 @@ class HistoryStackElement implements IHistoryStackElement{
 
 }
 
-export class HistoryImpl implements IHistory {
+export class HistoryService implements IHistoryService {
 
   @computed get canUndo(): boolean {
     if (this.undoStack_.length == 0) return false;

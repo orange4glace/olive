@@ -17,13 +17,15 @@ import {
   WindowRequestWrapResult,
   AppParam } from 'connector'
 import { TimelineManagerImpl } from 'internal/timeline/timeline-manager';
-import { HistoryImpl } from 'internal/history/history';
 import { VideoRendererNode } from 'internal/renderer/video-renderer/renderer-node';
 import { AudioRendererNode } from 'internal/renderer/audio-renderer/renderer-node';
 import { Project } from 'internal/project/project';
 import { createAudioRendererOption, createAudioRendererBuffers } from 'internal/renderer/audio-renderer/common';
+import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
+import { IHistoryService, HistoryService } from 'internal/history/history';
+import { InstantiationService } from 'platform/instantiation/common/instantiationService';
 
-  if ((module as any).hot) (module as any).hot.accept();
+if ((module as any).hot) (module as any).hot.accept();
 
 var app: App;
 
@@ -31,8 +33,15 @@ const remote = electron.remote,
       ipcRenderer = electron.ipcRenderer,
       BrowserWindow = remote.BrowserWindow;
 
+
 function initializeApp(): void {
-  let internalPoster = new Poster(window);
+  
+  const serviceCollection = new ServiceCollection(
+    [IHistoryService, new HistoryService()]
+  );
+  const instantiationService = new InstantiationService(serviceCollection);
+
+
 
   const videoRendererNode = new VideoRendererNode();
 
@@ -56,8 +65,8 @@ function initializeApp(): void {
     computed: mobx.computed,
     observer: mobx_react.observer,
   }
+  app.service = instantiationService;
   app.project = new Project();
-  app.history = new HistoryImpl();
   app.factory = new Factory();
   app.timeline = new TimelineManagerImpl();
   app.resource = new ResourceManager();

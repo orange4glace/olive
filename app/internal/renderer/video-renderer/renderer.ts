@@ -160,6 +160,8 @@ export class Renderer {
       return;
     }
     const elapsedSystemTime = getCurrentSystemTime() - startSystemTime;
+    if (Math.floor(elapsedSystemTime / 16.67) % 2 == 0) 
+      return requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, startTime, startSystemTime, disposer));
     const elapsedTime = timeline.sequence.videoSetting.frameRate.systemTimeToTime(elapsedSystemTime);
     const currentTime = startTime + elapsedTime;
     await this.renderTimeline(timeline, currentTime);

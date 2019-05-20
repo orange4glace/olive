@@ -10,6 +10,7 @@ import { Track, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/
 import TrackItemImpl from 'internal/timeline/track-item-impl';
 import { TrackItemTime } from 'internal/timeline/track-item-time';
 import { clone } from 'base/common/cloneable';
+import { TrackItem } from 'internal/timeline/track-item';
 
 let _nextTrackID = 0;
 
@@ -70,6 +71,19 @@ export default class TrackImpl extends Disposable implements Track {
     return it.value.second;
   }
 
+  getTrackItemsBetween(startTime: number, endTime: number): TrackItem[] {
+    const result: TrackItem[] = [];
+    const first = this.getTrackItemAt(startTime);
+    if (first) result.push(first);
+    let q = new TrackItemTime(startTime + 1, startTime + 1, 0);
+    let it = this.trackItemTreeMap.lower_bound(q);
+    while (!it.equals(this.trackItemTreeMap.end())) {
+      if (it.second.time.start <= endTime) result.push(it.second);
+      else break;
+      it = it.next();
+    }
+    return result;
+  }
   setTrackItemTime(trackItem: TrackItemImpl, startTime: number, endTime: number, baseTime: number): void {
     this._setTrackItemTime(trackItem, new TrackItemTime(startTime, endTime, baseTime));
   }

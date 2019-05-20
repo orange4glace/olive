@@ -19,6 +19,7 @@ export interface TimelineWidgetTrackViewModel extends ViewModel {
   /*@observable*/ readonly name: string;
   /*@observable*/ readonly trackItemViewModels: ReadonlySet<TimelineWidgetTrackItemViewModel>;
 
+  getTrackItemViewModel(trackItem: TrackItem): TimelineWidgetTrackItemViewModel;
   getFocusedTrackItemViewModels(): ReadonlySet<TimelineWidgetTrackItemViewModel>;
   blurAllTrackItems(): void;
 
@@ -115,6 +116,10 @@ export class TimelineWidgetTrackViewModelImpl
   private trackItemBluredHandler(trackItemVM: TimelineWidgetTrackItemViewModel) {
     this.focusedTrackItemModelViews_.delete(trackItemVM);
     this.onTrackItemBlured_.fire(trackItemVM);
+  }
+
+  getTrackItemViewModel(trackItem: TrackItem) {
+    return this.trackItemViewModelMap_.get(trackItem);
   }
 
   getFocusedTrackItemViewModels(): ReadonlySet<TimelineWidgetTrackItemViewModel> {

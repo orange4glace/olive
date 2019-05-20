@@ -6,6 +6,7 @@ import { TimelineWidgetGhostViewModel } from "window/view/timeline/model/ghost-v
 import { TrackItem } from "internal/timeline/track-item";
 import { StandardMouseEvent } from "base/view/mouseEvent";
 import { Event } from "base/common/event";
+import { Timeline } from "internal/timeline/timeline";
 
 export interface TimelineViewModelTrackItemEvent {
   trackViewModel: TimelineWidgetTrackViewModel;
@@ -13,6 +14,8 @@ export interface TimelineViewModelTrackItemEvent {
 }
 
 export interface TimelineWidgetTimelineViewModel extends ViewModel {
+
+  readonly timeline: Timeline;
 
   onTrackItemFocused: Event<TimelineViewModelTrackItemEvent>;
   onTrackItemBlured: Event<TimelineViewModelTrackItemEvent>;

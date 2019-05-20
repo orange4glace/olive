@@ -21,8 +21,6 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   constructor(private readonly widget_: TimelineWidget) {
     super();
 
-    this.toDispose_.push(widget_.onTrackItemMouseDown(e => this.trackItemMouseDownHandler(e.trackViewModel, e.trackItemViewModel, e.e), this));
-
     this.toDispose_.push(widget_.onTrackDragOver(e => this.trackDragOverHandler(e.trackViewModel, e.e), this));
     this.toDispose_.push(widget_.onTrackDragLeave(e => this.trackDragLeaveHandler(e.trackViewModel, e.e), this));
     this.toDispose_.push(widget_.onTrackDrop(e => this.trackDropHandler(e.trackViewModel, e.e), this));
@@ -64,11 +62,6 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
       this.dragTrackItem_ = null;
       this.dragGhostContainer_ = null;
     }
-  }
-
-  trackItemMouseDownHandler(trackVM: TimelineWidgetTrackViewModel, trackItemVM: TimelineWidgetTrackItemViewModel, e?: StandardMouseEvent) {
-    this.widget_.model.blurAllTrackItems();
-    trackItemVM.focus();
   }
 
   dispose(): void {

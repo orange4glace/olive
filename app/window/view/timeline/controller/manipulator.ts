@@ -8,9 +8,5 @@ export interface TimelineWidgetManipulationGhostTrackItem {
 }
 
 export interface TimelineWidgetManipulatorController {
-  
-  startResizeRight(e: StandardMouseEvent): void;
-  startResizeLeft(e: StandardMouseEvent): void;
-  startMove(targetTrackItemTackOffset: number, e: StandardMouseEvent): void;
 
 }

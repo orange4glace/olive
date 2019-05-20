@@ -58,7 +58,7 @@
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
     "tstl": "^2.1.2",
-    "worker-postable": "^1.4.4"
+    "worker-postable": "^1.4.8"
   },
   "babel": {
     "presets": [

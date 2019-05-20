@@ -13,11 +13,11 @@ export abstract class PropertyRenderer<T extends PropertyTypes>
   /*@postable*/ @listenable keyframes: Set<KeyframeRenderer<T>>;
   /*@postable*/ defaultKeyframe: KeyframeRenderer<T>;
 
-  protected keyframeMap: TreeMap<number, KeyframeRenderer<T>>;
+  protected keyframeTreeMap: TreeMap<number, KeyframeRenderer<T>>;
   protected currentKeyframeIterator: MapIterator<number, KeyframeRenderer<T>, true, TreeMap<number, KeyframeRenderer<T>>>;
   
   constructor() {
-    this.keyframeMap = new TreeMap();
+    this.keyframeTreeMap = new TreeMap();
 
     this.observeKeyframes = this.observeKeyframes.bind(this);
     listen(this, (change: any) => {
@@ -30,36 +30,29 @@ export abstract class PropertyRenderer<T extends PropertyTypes>
     listen(keyframes, change => {
       if (change.type == 'add') {
         let keyframe = change.newValue as KeyframeRenderer<T>;
-        this.keyframeMap.insert(make_pair(keyframe.timecode, keyframe));
+        this.keyframeTreeMap.insert(make_pair(keyframe.timecode, keyframe));
       }
     });
   }
 
   abstract interpolate(lhs: T, rhs: T, t: number): T;
 
-  protected accessBefore(timeoffset: number): KeyframeRenderer<T> {
-    let it = this.keyframeMap.lower_bound(timeoffset);
-    if (it.equals(this.keyframeMap.end())) 
-      if (this.keyframeMap.size() > 0) return this.keyframeMap.rbegin().value.second;
-      else return null;
-    if (it.value.second.timecode == timeoffset) return it.value.second;
-    if (it.equals(this.keyframeMap.begin())) return null;
-    return it.prev().value.second;
+  getInterpolatedPropertyValue(timeoffset: number): T {
+    if (!this.animated) return this.defaultKeyframe.value;
+    // touch getter to observe change
+    this.keyframes.values();
+    let next = this.keyframeTreeMap.lower_bound(timeoffset);
+    if (next.equals(this.keyframeTreeMap.end())) {
+      if (this.keyframeTreeMap.size() == 0)
+        return this.defaultKeyframe.value;
+      return next.prev().value.second.value;
+    }
+    if (next.equals(this.keyframeTreeMap.begin()))
+      return next.value.second.value;
+    let prevKeyframe = next.prev().value.second;
+    let nextKeyframe = next.value.second;
+    let t = (timeoffset - prevKeyframe.timecode) / (nextKeyframe.timecode - prevKeyframe.timecode);
+    return this.interpolate(prevKeyframe.value, nextKeyframe.value, t);
   }
-
-  protected accessAfter(timeoffset: number): KeyframeRenderer<T> {
-    let it = this.keyframeMap.lower_bound(timeoffset);
-    if (it.equals(this.keyframeMap.end())) return null;
-    return it.value.second;
-  }
-
-  getInterpolatedPropertyValue(timecode: number): T {
-    if (this.keyframes.size == 0) return this.defaultKeyframe.value;
-    var bef = this.accessBefore(timecode);
-    var aft = this.accessAfter(timecode);
-    if (bef == null) return aft.value;
-    if (aft == null) return bef.value;
-    var t = (timecode - bef.timecode) / (aft.timecode - bef.timecode);
-    return this.interpolate(bef.value, aft.value, t);
-  }
+  
 }

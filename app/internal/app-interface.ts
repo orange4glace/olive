@@ -3,8 +3,8 @@ import { IReactComponent } from 'mobx-react';
 import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
 import { TimelineManager } from 'internal/timeline/timeline-manager';
-import { IHistory } from 'internal/history/history';
 import { IProject } from 'internal/project/project';
+import { InstantiationService } from 'platform/instantiation/common/instantiationService';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {
@@ -17,11 +17,11 @@ interface mobxExport {
 }
 
 export default interface App {
+  service: InstantiationService;
   project: IProject;
   factory: Factory;
   // decoder: IDecoder;
   mobx: mobxExport;
-  history: IHistory;
   timeline: TimelineManager;
   resource: ResourceManager;
   canvas: HTMLCanvasElement;

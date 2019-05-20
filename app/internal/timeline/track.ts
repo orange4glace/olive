@@ -34,6 +34,7 @@ export interface Track extends TrackBase, Cloneable {
   getTrackItemAt(time: number): TrackItem;
   getTrackItemBefore(trackItem: TrackItem): TrackItem;
   getTrackItemAfter(trackItem: TrackItem): TrackItem;
+  getTrackItemsBetween(startTime: number, endTime: number): TrackItem[];
   
   readonly onTrackItemAdded: Event<TrackTrackItemEvent>;
   readonly onTrackItemWillRemove: Event<TrackTrackItemEvent>;
