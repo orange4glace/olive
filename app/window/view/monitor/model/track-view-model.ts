@@ -1,11 +1,11 @@
 import { MonitorWidgetTrackItemViewModel, MonitorWidgetTrackItemViewModelImpl } from "window/view/monitor/model/track-item/track-item-view-model";
-import { Track } from "internal/timeline/track";
+import { Track } from "internal/timeline/track/track";
 import { dispose } from "base/common/lifecycle";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItemType } from "internal/timeline/track-item-type";
+import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { MonitorWidgetVideoTrackItemViewModelImpl } from "window/view/monitor/model/track-item/video-track-item-view-model";
-import { VideoTrackItem } from "internal/timeline/video-track-item";
+import { VideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { MonitorWidgetSelectableViewModel, MonitorWidgetSelectableViewModelImpl } from "window/view/monitor/model/selectable-view-model";
 import { mat2d } from "gl-matrix";
 import { observable } from "window/app-mobx";
@@ -68,7 +68,6 @@ export class MonitorWidgetTrackViewModelImpl extends MonitorWidgetSelectableView
     if (!trackItem) this.currentTrackItemViewModel = null;
     const tiVM = this.trackItemViewModelMap_.get(trackItem);
     this.currentTrackItemViewModel = tiVM;
-    console.log('track item view model update', this.currentTrackItemViewModel);
   }
 
   __getChildren() {

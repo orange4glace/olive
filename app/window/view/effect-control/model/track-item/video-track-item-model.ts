@@ -1,5 +1,5 @@
 import { EffectControlWidgetTrackItemViewModel, EffectControlWidgetTrackItemViewModelImpl } from "window/view/effect-control/model/track-item/track-item-view-model";
-import { VideoTrackItem } from 'internal/timeline/video-track-item'
+import { VideoTrackItem } from 'internal/timeline/track-item/video-track-item'
 import { EffectControlWidgetVideoDrawingViewModel } from "window/view/effect-control/model/drawing/drawing-view-model";
 import { EffectControlWidgetVideoDrawingViewModelImpl } from "window/view/effect-control/model/drawing/drawing-view-model-impl";
 import { Timeline } from "internal/timeline/timeline";
@@ -47,6 +47,10 @@ export class EffectControlWidgetVideoTrackItemViewModelImpl
       propertyViewModel: e.propertyViewModel,
       keyframeViewModel: e.keyframeViewModel
     }), this))
+  }
+
+  blurAllKeyframes() {
+    this.drawingViewModel.blurAllKeyframes();
   }
 
 }

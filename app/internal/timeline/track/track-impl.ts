@@ -6,11 +6,11 @@ import { EventEmitter2 } from 'eventemitter2';
 import { observable } from 'mobx';
 import { Emitter, Event } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
-import { Track, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/timeline/track';
-import TrackItemImpl from 'internal/timeline/track-item-impl';
-import { TrackItemTime } from 'internal/timeline/track-item-time';
+import { Track, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/timeline/track/track';
+import TrackItemImpl from 'internal/timeline/track-item/track-item-impl';
+import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { clone } from 'base/common/cloneable';
-import { TrackItem } from 'internal/timeline/track-item';
+import { TrackItem } from 'internal/timeline/track-item/track-item';
 
 let _nextTrackID = 0;
 

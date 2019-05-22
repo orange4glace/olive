@@ -164,6 +164,8 @@ void VideoDecoder::loop() {
       }
       if (need_seek) {
         // Clear the queue
+        for (auto& frame : frame_queue_)
+          frame->unref();
         frame_queue_.clear();
       }
     }

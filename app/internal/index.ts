@@ -41,8 +41,6 @@ function initializeApp(): void {
   );
   const instantiationService = new InstantiationService(serviceCollection);
 
-
-
   const videoRendererNode = new VideoRendererNode();
 
   const audioRendererOption = createAudioRendererOption({
@@ -65,26 +63,21 @@ function initializeApp(): void {
     computed: mobx.computed,
     observer: mobx_react.observer,
   }
-  app.service = instantiationService;
+  app.services = instantiationService;
   app.project = new Project();
   app.factory = new Factory();
-  app.timeline = new TimelineManagerImpl();
   app.resource = new ResourceManager();
   app.canvas = document.createElement('canvas');
   app.canvas.width = 1080;
   app.canvas.height = 720;
 
   ref(app.project);
-  ref(app.timeline);
-
-  const timeline = app.timeline.createTimeline(app.project.sequence);
-  app.timeline.setTargetTimeline(timeline);
 
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
-  videoRendererNode.initialize(app.timeline, offscreen);
-  audioRendererNode.initialize(app.timeline, {
+  videoRendererNode.initialize(app.project, offscreen);
+  audioRendererNode.initialize(app.project, {
     option: audioRendererOption,
     buffers: createAudioRendererBuffers(audioRendererOption)
   });

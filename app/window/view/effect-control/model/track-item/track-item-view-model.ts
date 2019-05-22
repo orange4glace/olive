@@ -1,4 +1,4 @@
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModel, ViewModelImpl, declareViewModel } from "window/view/view-model";
 import { Timeline } from "internal/timeline/timeline";
 import { EffectControlWidgetKeyframeEvent } from "window/view/effect-control/event";
@@ -10,6 +10,8 @@ export interface EffectControlWidgetTrackItemViewModel<T extends TrackItem> exte
 
   readonly onKeyframeFocused: Event<EffectControlWidgetKeyframeEvent>;
   readonly onKeyframeBlured: Event<EffectControlWidgetKeyframeEvent>;
+
+  blurAllKeyframes(): void;
 
 }
 
@@ -31,6 +33,8 @@ export abstract class EffectControlWidgetTrackItemViewModelImpl<T extends TrackI
     this.timeline_ = timeline;
     this.trackItem_ = trackItem;
   }
+
+  abstract blurAllKeyframes(): void;
 
   dispose(): void {}
 

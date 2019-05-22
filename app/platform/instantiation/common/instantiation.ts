@@ -8,16 +8,13 @@ import * as descriptors from './descriptors';
 
 // ------ internal util
 
-export namespace _util {
+export const _utilServiceIds = new Map<string, ServiceIdentifier<any>>();
 
-	export const serviceIds = new Map<string, ServiceIdentifier<any>>();
+export const _util_DI_TARGET = '$di$target';
+export const _util_DI_DEPENDENCIES = '$di$dependencies';
 
-	export const DI_TARGET = '$di$target';
-	export const DI_DEPENDENCIES = '$di$dependencies';
-
-	export function getServiceDependencies(ctor: any): { id: ServiceIdentifier<any>, index: number, optional: boolean }[] {
-		return ctor[DI_DEPENDENCIES] || [];
-	}
+export function getServiceDependencies(ctor: any): { id: ServiceIdentifier<any>, index: number, optional: boolean }[] {
+	return ctor[_util_DI_DEPENDENCIES] || [];
 }
 
 // --- interfaces ------
@@ -114,11 +111,11 @@ export interface ServiceIdentifier<T> {
 }
 
 function storeServiceDependency(id: Function, target: Function, index: number, optional: boolean): void {
-	if ((target as any)[_util.DI_TARGET] === target) {
-		(target as any)[_util.DI_DEPENDENCIES].push({ id, index, optional });
+	if ((target as any)[_util_DI_TARGET] === target) {
+		(target as any)[_util_DI_DEPENDENCIES].push({ id, index, optional });
 	} else {
-		(target as any)[_util.DI_DEPENDENCIES] = [{ id, index, optional }];
-		(target as any)[_util.DI_TARGET] = target;
+		(target as any)[_util_DI_DEPENDENCIES] = [{ id, index, optional }];
+		(target as any)[_util_DI_TARGET] = target;
 	}
 }
 
@@ -127,8 +124,8 @@ function storeServiceDependency(id: Function, target: Function, index: number, o
  */
 export function createDecorator<T>(serviceId: string): { (...args: any[]): void; type: T; } {
 
-	if (_util.serviceIds.has(serviceId)) {
-		return _util.serviceIds.get(serviceId)!;
+	if (_utilServiceIds.has(serviceId)) {
+		return _utilServiceIds.get(serviceId)!;
 	}
 
 	const id = <any>function (target: Function, key: string, index: number): any {
@@ -140,7 +137,7 @@ export function createDecorator<T>(serviceId: string): { (...args: any[]): void;
 
 	id.toString = () => serviceId;
 
-	_util.serviceIds.set(serviceId, id);
+	_utilServiceIds.set(serviceId, id);
 	return id;
 }
 

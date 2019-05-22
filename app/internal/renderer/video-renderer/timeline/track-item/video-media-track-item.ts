@@ -3,7 +3,7 @@ import { renderer } from "../../renderer";
 import NVG from "../../../../../../nanovg-webgl";
 import { VideoFrameData, DecodeResult } from "internal/decoder/decoder";
 import { RenderingContext } from "internal/renderer/video-renderer/rendering/context/rendering-context";
-import { VideoMediaTrackItemBase } from "internal/timeline/video-media-track-item";
+import { VideoMediaTrackItemBase } from "internal/timeline/track-item/video-media-track-item";
 import { VideoMediaTrackItemRenderer } from "internal/renderer/base/all";
 import { VideoTrackItemVideoRenderer } from "internal/renderer/video-renderer/timeline/track-item/video-track-item";
 import { VideoResourceVideoRenderer } from "internal/renderer/video-renderer/resource/video-resource";

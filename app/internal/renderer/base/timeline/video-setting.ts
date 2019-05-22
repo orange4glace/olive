@@ -1,6 +1,6 @@
 import { Posted, posted } from "worker-postable";
-import { VideoSettingBase } from "internal/project/sequence/video-setting";
-import { FrameRateRenderer } from "internal/renderer/base/project/sequence/frame-rate";
+import { VideoSettingBase } from "internal/timeline/video-setting";
+import { FrameRateRenderer } from "internal/renderer/base/timeline/frame-rate";
 
 @Posted('VideoSetting')
 export class VideoSettingRenderer implements VideoSettingBase {

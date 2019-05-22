@@ -1,13 +1,13 @@
 import { EffectControlWidgetDrawingViewModel, EffectControlWidgetVideoDrawingViewModel } from "window/view/effect-control/model/drawing/drawing-view-model";
 import { Drawing } from "internal/rendering/drawing/drawing";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { VideoDrawing } from "internal/rendering/drawing/video-drawing";
-import { ViewModelImpl } from "window/view/view-model";
+import { ViewModelImpl, ViewModelIdentifier } from "window/view/view-model";
 import { EffectControlWidgetPropertyViewModelKeyframeEvent } from "window/view/effect-control/model/property/property-view-model";
 import { Emitter, Event } from "base/common/event";
 
-export class EffectControlWidgetDrawingViewModelImpl<T extends Drawing>
+export abstract class EffectControlWidgetDrawingViewModelImpl<T extends Drawing>
     extends ViewModelImpl
     implements EffectControlWidgetDrawingViewModel<T> {
 
@@ -26,6 +26,8 @@ export class EffectControlWidgetDrawingViewModelImpl<T extends Drawing>
     this.trackItem_ = trackItem;
     this.drawing_ = drawing;
   }
+
+  abstract blurAllKeyframes(): void;
 
   dispose(): void {}
 

@@ -1,5 +1,5 @@
-import { TrackItemRenderer } from "internal/renderer/base/timeline/track-item";
-import { VideoTrackItemBase } from "internal/timeline/video-track-item";
+import { TrackItemRenderer } from "internal/renderer/base/timeline/track-item/track-item";
+import { VideoTrackItemBase } from "internal/timeline/track-item/video-track-item";
 import { VideoDrawingRenderer } from "internal/renderer/base/rendering/drawing/video-drawing";
 
 export abstract class VideoTrackItemRenderer

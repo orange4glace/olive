@@ -1,6 +1,6 @@
-import { VideoTrackItemImpl, VideoTrackItemBase, VideoTrackItem } from "internal/timeline/video-track-item";
+import { VideoTrackItemImpl, VideoTrackItemBase, VideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { Postable } from "worker-postable";
-import { TrackItemType } from "internal/timeline/track-item-type";
+import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 
 export interface VideoFigureTrackItemBase extends VideoTrackItemBase {
 

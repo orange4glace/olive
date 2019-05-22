@@ -65,8 +65,9 @@ class RendererContentViewWrapper extends React.Component<MonitorWidgetViewProps,
 
   @action
   resizeHandler() {
-    var width = app.project.sequence.videoSetting.screenWidth;
-    var height = app.project.sequence.videoSetting.screenHeight;
+    const timeline = this.props.widget.model.timeline;
+    var width = timeline.videoSetting.screenWidth;
+    var height = timeline.videoSetting.screenHeight;
     var ratio = width / height;
     var el = this.componentRef.current;
     var elWidth = Math.min(width, el.clientWidth);

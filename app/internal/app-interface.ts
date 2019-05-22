@@ -4,7 +4,7 @@ import ResourceManager from 'internal/resource/manager';
 import Factory from './factory';
 import { TimelineManager } from 'internal/timeline/timeline-manager';
 import { IProject } from 'internal/project/project';
-import { InstantiationService } from 'platform/instantiation/common/instantiationService';
+import { IInstantiationService } from 'platform/instantiation/common/instantiation';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {
@@ -17,12 +17,11 @@ interface mobxExport {
 }
 
 export default interface App {
-  service: InstantiationService;
+  services: IInstantiationService;
   project: IProject;
   factory: Factory;
   // decoder: IDecoder;
   mobx: mobxExport;
-  timeline: TimelineManager;
   resource: ResourceManager;
   canvas: HTMLCanvasElement;
 }

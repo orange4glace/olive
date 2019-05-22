@@ -1,7 +1,7 @@
 import { EffectControlWidgetPropertyViewModel } from "window/view/effect-control/model/property/property-view-model";
 import { Vector2Property } from "internal/rendering/property/vector2-property";
 import { EffectControlWidgetPropertyViewModelImpl } from "window/view/effect-control/model/property/property-view-model-impl";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { Timeline } from "internal/timeline/timeline";
 import { computed } from "window/app-mobx";
 import { ViewModel, declareViewModel } from "window/view/view-model";

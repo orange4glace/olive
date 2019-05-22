@@ -1,6 +1,6 @@
 import { declareViewModel } from "window/view/view-model";
 import { MonitorWidgetTrackItemViewModel, MonitorWidgetTrackItemViewModelImpl } from "window/view/monitor/model/track-item/track-item-view-model";
-import { VideoTrackItem } from "internal/timeline/video-track-item";
+import { VideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { MonitorWidgetDrawingViewModel, MonitorWidgetDrawingViewModelImpl } from "window/view/monitor/model/drawing/drawing-view-model";
 import { DrawingType } from "internal/rendering/drawing/drawing";
 import { MonitorWidgetRectangleDrawingViewModelImpl } from "window/view/monitor/model/drawing/rectangle-drawing-view-model";

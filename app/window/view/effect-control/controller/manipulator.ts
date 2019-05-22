@@ -11,8 +11,9 @@ export class EffectControlManipulatorController extends Disposable {
   }
 
   keyframeMouseDownHandler(e: EffectControlWidgetKeyframeUIEvent) {
-    e.keyframeViewModel.focus();
     e.e.stopPropagation();
+    this.widget_.model.blurAllKeyframes();
+    e.keyframeViewModel.focus();
   }
 
 }

@@ -1,5 +1,5 @@
 import { TimelineAudioRenderer } from "internal/renderer/audio-renderer/timeline/timeline";
-import { TrackItemType } from "internal/timeline/track-item-type";
+import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { AudioTrackItemRenderer } from "internal/renderer/base/timeline/track-item/audio-track-item";
 import { AudioRendererInitializationData } from "internal/renderer/audio-renderer/common";
 import { AudioRendererOption, AudioRendererStateIndex, AudioRendererSlotState, getSlotBufferView } from "internal/renderer/audio-renderer/common";
@@ -67,11 +67,11 @@ export class AudioRenderer {
     const startProducerOffset = Atomics.load(this.buffers.state, AudioRendererStateIndex.PRODUCER_SIGNAL_RESPONSE);
     let startedSystemTime = getCurrentSystemTime();
     dt = startedSystemTime - dt;
-    startTime += timeline.sequence.videoSetting.frameRate.systemTimeToTime(dt);
+    startTime += timeline.videoSetting.frameRate.systemTimeToTime(dt);
     Atomics.sub(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET, startProducerOffset);
     this.currentSlotIndex -= startProducerOffset;
 
-    let lastFrameTime = timeline.sequence.timeToAudioFrame(startTime);
+    let lastFrameTime = timeline.timeToAudioFrame(startTime);
 
     const tmpFrameBuffer = new Float32Array(new ArrayBuffer(this.option.bytesPerSlot));
     while (true) {
@@ -113,15 +113,14 @@ export class AudioRenderer {
       Atomics.add(this.buffers.state, AudioRendererStateIndex.PRODUCER_OFFSET, 1);
       this.currentSlotIndex += 1;
 
-      const lastTime = timeline.sequence.audioFrameToTime(lastFrameTime);
+      const lastTime = timeline.audioFrameToTime(lastFrameTime);
       if (!this.currentRequest.play && lastTime - startTime >= 0.1) return;
     }
   }
 
   async getRenderData(timeline: TimelineAudioRenderer, startFrame: number, endFrame: number, outBuffer: Float32Array) {
-    const sequence = timeline.sequence;
-    const startTime = timeline.sequence.audioFrameToTime(startFrame);
-    const endTime = timeline.sequence.audioFrameToTime(endFrame);
+    const startTime = timeline.audioFrameToTime(startFrame);
+    const endTime = timeline.audioFrameToTime(endFrame);
 
     const promises: Promise<Float32Array>[] = [];
     timeline.tracks.forEach(track => {
@@ -129,7 +128,7 @@ export class AudioRenderer {
       trackItems.forEach(trackItem => {
         if (trackItem.type != TrackItemType.AUDIO) return;
         const audioTrackItem = trackItem as AudioTrackItemAudioRenderer;
-        const trackItemStartFrame = sequence.timeToAudioFrame(audioTrackItem.time.start + audioTrackItem.time.base);
+        const trackItemStartFrame = timeline.timeToAudioFrame(audioTrackItem.time.start + audioTrackItem.time.base);
         const localStartFrame = startFrame - trackItemStartFrame;
         const localEndFrame = endFrame - trackItemStartFrame;
         promises.push(this.getTrackItemRenderData(audioTrackItem, localStartFrame, localEndFrame));

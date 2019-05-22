@@ -9,6 +9,8 @@ export interface EffectControlWidgetEffectViewModel<T extends Effect> extends Vi
   readonly onKeyframeFocused: Event<EffectControlWidgetPropertyViewModelKeyframeEvent>;
   readonly onKeyframeBlured: Event<EffectControlWidgetPropertyViewModelKeyframeEvent>;
 
+  blurAllKeyframes(): void;
+
 }
 
 export interface EffectControlWidgetVideoEffectViewModel<T extends VideoEffect> extends EffectControlWidgetEffectViewModel<T> {

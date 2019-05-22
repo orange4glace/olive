@@ -1,7 +1,7 @@
 import app from "internal/app";
 import { StaticDND, IDragAndDropData } from "base/view/dnd";
 import { ResourceDragAndDropData } from "window/view/dnd/dnd";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetCoreController } from "window/view/timeline/controller/core-controller";
 import { TimelineWidgetGhostContainerViewModel } from "window/view/timeline/model/ghost-view-model";
 import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-view-model";
@@ -9,6 +9,9 @@ import { TimelineWidgetTrackItemViewModel } from "window/view/timeline/model/tra
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { TimelineWidget } from "window/view/timeline/widget";
 import { StandardMouseEvent } from "base/view/mouseEvent";
+import { IHistoryCommand } from "internal/history/command";
+import { IHistoryService } from "internal/history/history";
+import { AddTrackItemCommand } from "internal/history/timeline/commands";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
@@ -18,7 +21,8 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   private dragTrackItem_: TrackItem = null;
   private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
 
-  constructor(private readonly widget_: TimelineWidget) {
+  constructor(private readonly widget_: TimelineWidget,
+    @IHistoryService private readonly historyService_: IHistoryService) {
     super();
 
     this.toDispose_.push(widget_.onTrackDragOver(e => this.trackDragOverHandler(e.trackViewModel, e.e), this));
@@ -53,11 +57,12 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   trackDropHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent) {
     if (this.dragTrackItem_) {
       const container = this.dragGhostContainer_;
-      const targetTrack = this.widget_.model.trackViewModels[this.dragGhostContainer_.trackOffset];
+      const targetTrackVM = this.widget_.model.trackViewModels[this.dragGhostContainer_.trackOffset];
       const targetTrackItem = this.dragTrackItem_;
       const start = container.leftExtend;
       const end = targetTrackItem.duration + container.rightExtend;
-      targetTrack.addTrackItem(targetTrackItem, start, end, 0);
+      this.historyService_.execute(new AddTrackItemCommand(targetTrackVM.track, targetTrackItem, start, end, 0));
+      this.historyService_.close();
       this.widget_.model.ghostViewModel.setCurrentContainer(null);
       this.dragTrackItem_ = null;
       this.dragGhostContainer_ = null;

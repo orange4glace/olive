@@ -7,7 +7,7 @@ import { Widget } from 'window/view/widget';
 import { Event, Emitter } from 'base/common/event';
 import { IDisposable, dispose } from 'base/common/lifecycle';
 import TimelineWidgetView, { TimelineWidgetViewProps } from 'window/view/timeline/widget-view';
-import { TrackItem } from 'internal/timeline/track-item';
+import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from 'window/view/timeline/event';
 import { TimelineWidget } from 'window/view/timeline/widget';
 import { TimelineWidgetViewOutgoingEvents } from 'window/view/timeline/view-outgoing-events';
@@ -19,6 +19,9 @@ import app from 'internal/app';
 import { TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
 import { ITimelineWidgetRangeSelector, TimelineWidgetRangeSelector } from 'window/view/timeline/model/range-selector';
 import { TimelineWidgetRangeSelectorController } from 'window/view/timeline/controller/range-selector-controller';
+import { InstantiationService } from 'platform/instantiation/common/instantiationService';
+import { IInstantiationService, ServicesAccessor } from 'platform/instantiation/common/instantiation';
+import { IHistoryService } from 'internal/history/history';
 
 interface Serial {
   timelineID: number;
@@ -61,10 +64,11 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   private active_: boolean;
 
   constructor(
+    public readonly timeline: Timeline,
     private readonly timelineWidgetService_: ITimelineWidgetService,
-    public readonly timeline: Timeline) {
+    @IHistoryService private readonly historyService_: IHistoryService) {
     super('TimelineWidget');
-
+    
     this.active_ = false;
 
     this.model = new TimelineWidgetTimelineViewModelImpl(timeline);
@@ -85,7 +89,8 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
       })
     }))
 
-    this.toDispose_.push(new TimelineWidgetCoreControllerImpl(this));
+    this.toDispose_.push(new TimelineWidgetCoreControllerImpl(this,
+        historyService_));
     this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
     this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
 
@@ -149,20 +154,23 @@ interface InitializationData {
 
 class TimelineWidgetProvider implements IWidgetProvider<TimelineWidget> {
 
-  create(initializationData: InitializationData, serviceProvider: IServiceProvider): TimelineWidget {
+  create(initializationData: InitializationData,
+      internalServices: ServicesAccessor,
+      serviceProvider: IServiceProvider): TimelineWidget {
     return new TimelineWidgetImpl(
+        initializationData.timeline,
         serviceProvider.getService(ITimelineWidgetService),
-        initializationData.timeline);
+        internalServices.get(IHistoryService));
   }
 
   serialize(widget: TimelineWidgetImpl) {
     return widget.serialize();
   }
 
-  deserialize(obj: Serial, serviceProvider: IServiceProvider) {
+  deserialize(obj: Serial, internalServices: ServicesAccessor, serviceProvider: IServiceProvider) {
     return this.create({
-      timeline: app.timeline.getTimeline(obj.timelineID)
-    }, serviceProvider);
+      timeline: app.project.timelineManager.getTimeline(obj.timelineID)
+    }, internalServices, serviceProvider);
   }
 
 }

@@ -1,7 +1,7 @@
 import { PropertyTypes, Property } from "internal/rendering/property/property";
 import { EffectControlWidgetPropertyViewModel, EffectControlWidgetPropertyViewModelKeyframeEvent } from "window/view/effect-control/model/property/property-view-model";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModelImpl } from "window/view/view-model";
 import { Keyframe } from "internal/rendering/property/keyframe";
 import { EffectControlKeyframeViewModel, EffectControlKeyframeViewModelImpl } from "window/view/effect-control/model/property/keyframe-view-model";
@@ -70,6 +70,10 @@ export abstract class EffectControlWidgetPropertyViewModelImpl<T extends Propert
     dispose(this.keyframeViewModelDisposables_.get(vm));
     this.keyframeViewModelDisposables_.delete(vm);
     dispose(vm);
+  }
+
+  blurAllKeyframes() {
+    this.keyframeViewModels.forEach(kfvm => kfvm.blur());
   }
 
   toggleAnimated() {

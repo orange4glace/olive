@@ -1,6 +1,6 @@
-import { TrackBase } from "internal/timeline/track";
-import { TrackItemRenderer } from "internal/renderer/base/timeline/track-item";
-import { TrackItemTimeRenderer } from "internal/renderer/base/timeline/track-item-time";
+import { TrackBase } from "internal/timeline/track/track";
+import { TrackItemRenderer } from "internal/renderer/base/timeline/track-item/track-item";
+import { TrackItemTimeRenderer } from "internal/renderer/base/timeline/track-item/track-item-time";
 import { TreeMap, make_pair } from "tstl";
 import { listenable, listen, Posted } from "worker-postable";
 import { ObservableSet } from "mobx";

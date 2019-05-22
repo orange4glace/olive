@@ -19,6 +19,10 @@
 
       transform: rotate(45deg) translateX(-50%);
       background: grey;
+
+      &.focused {
+        background: $primaryColor;
+      }
     }
   }
 }

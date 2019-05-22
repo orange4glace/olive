@@ -1,7 +1,7 @@
 import { Postable, postable } from 'worker-postable';
-import { TrackItemTime } from 'internal/timeline/track-item-time';
-import { TrackItem } from 'internal/timeline/track-item';
-import { TrackItemType } from 'internal/timeline/track-item-type';
+import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
+import { TrackItem } from 'internal/timeline/track-item/track-item';
+import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
 import { computed } from 'mobx';
 import { clone } from 'base/common/cloneable';
 import { Emitter, Event } from 'base/common/event';

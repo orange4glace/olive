@@ -1,6 +1,6 @@
 import { Resource, ResourceType, VideoResource } from "./resource";
-import { TrackItem } from "internal/timeline/track-item";
-import { TrackItemTime } from "internal/timeline/track-item-time";
+import { TrackItem } from "internal/timeline/track-item/track-item";
+import { TrackItemTime } from "internal/timeline/track-item/track-item-time";
 
 export default class Factory {
   // createTrackItem(resource: Resource): TrackItem {

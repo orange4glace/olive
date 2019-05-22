@@ -18,6 +18,7 @@
       width: 1px;
       height: 100%;
       background: rgb(90, 161, 255);
+      pointer-events: none;
 
       > .tip {
         position: absolute;
@@ -188,6 +189,8 @@
     z-index: 100;
     box-sizing: border-box;
     border: 1px solid black;
+    background: $highlight-text;
+    opacity: 0.3;
 
     > .b {
       position: relative;

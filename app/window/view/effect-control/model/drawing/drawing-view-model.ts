@@ -9,6 +9,8 @@ export interface EffectControlWidgetDrawingViewModel<T extends Drawing> extends 
   readonly onKeyframeFocused: Event<EffectControlWidgetPropertyViewModelKeyframeEvent>;
   readonly onKeyframeBlured: Event<EffectControlWidgetPropertyViewModelKeyframeEvent>;
 
+  blurAllKeyframes(): void;
+
 }
 
 export interface EffectControlWidgetVideoDrawingViewModel<T extends VideoDrawing>

@@ -2,10 +2,10 @@ import WindowParam from 'window/window-param';
 import app from 'internal/app';
 
 function initialize(param: WindowParam) {
+  app.services = param.app.services;
   app.project = param.app.project;
   app.factory = param.app.factory;
   app.mobx = param.app.mobx;
-  app.timeline = param.app.timeline;
   app.resource = param.app.resource;
   app.canvas = param.app.canvas;
   console.log('[Window] Initialize', app);

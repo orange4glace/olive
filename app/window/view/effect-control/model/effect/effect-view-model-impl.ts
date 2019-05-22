@@ -2,7 +2,7 @@ import { EffectControlWidgetEffectViewModel, EffectControlWidgetVideoEffectViewM
 import { Effect } from "internal/rendering/effect/effect";
 import { VideoEffect } from "internal/rendering/effect/video-effect/video-effect";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModelImpl } from "window/view/view-model";
 import { Emitter, Event } from "base/common/event";
 import { EffectControlWidgetPropertyViewModelKeyframeEvent } from "window/view/effect-control/model/property/property-view-model";
@@ -26,6 +26,8 @@ export abstract class EffectControlWidgetEffectViewModelImpl<T extends Effect>
     this.trackItem_ = trackItem;
     this.effect_ = effect;
   }
+
+  abstract blurAllKeyframes(): void;
 
   dispose(): void {}
 

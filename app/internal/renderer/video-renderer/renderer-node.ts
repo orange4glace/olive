@@ -1,16 +1,19 @@
 import VideoRendererWorker from 'worker-loader!./worker';
 import { TimelineManager } from 'internal/timeline/timeline-manager';
 import { getPostableID } from 'worker-postable';
-import { Timeline } from 'internal/timeline/timeline';
+import { Timeline, ITimeline } from 'internal/timeline/timeline';
 import { VideoRendererRenderMessageEvent, VideoRendererMessageEventType } from 'internal/renderer/video-renderer/message';
 import { IDisposable, dispose, Disposable } from 'base/common/lifecycle';
+import { ProjectRenderer } from 'internal/renderer/base/all';
+import { TimelineManagerVideoRenderer } from 'internal/renderer/video-renderer/timeline/timeline-manager';
+import { IProject } from 'internal/project/project';
 
 export class VideoRendererNode extends Disposable {
   
   private readonly worker: Worker;
 
-  private timelineManager_: TimelineManager;
-  private targetTimeline_: Timeline;
+  private project_: IProject;
+  private targetTimeline_: ITimeline;
   private timelineDisposers_: IDisposable[] = [];
 
   constructor() {
@@ -18,25 +21,25 @@ export class VideoRendererNode extends Disposable {
     this.worker = new VideoRendererWorker();
   }
 
-  initialize(timelineManager: TimelineManager, canvas: HTMLCanvasElement) {
-    this.timelineManager_ = timelineManager;
+  initialize(project: IProject, canvas: HTMLCanvasElement) {
+    this.project_ = project;
     this.worker.postMessage({
       type: 'INIT',
       data: {
-        timelineManager: getPostableID(timelineManager),
+        project: getPostableID(project),
         canvas: canvas
       }
     }, [canvas as any])
 
     this.targetTimelineChangedHandler();
-    this._register(timelineManager.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
+    this._register(this.project_.timelineManager.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
   }
 
   private targetTimelineChangedHandler() {
     const lastTargetTimeline = this.targetTimeline_;
     this.timelineDisposers_ = dispose(this.timelineDisposers_);
 
-    const timeline = this.timelineManager_.targetTimeline;
+    const timeline = this.project_.timelineManager.targetTimeline;
     this.targetTimeline_ = timeline;
     if (!timeline) return;
 
@@ -75,7 +78,8 @@ export class VideoRendererNode extends Disposable {
   sendPostableMessage(msg: any) {
     this.worker.postMessage({
       type: 'POST',
-      data: msg
+      data: msg,
+      timelineID: (this.targetTimeline_ ? this.targetTimeline_.id : -1)
     })
   }
 

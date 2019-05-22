@@ -4,8 +4,8 @@ import ResourceType from './type_t';
 import { VideoResource } from './video-resource';
 import { Resource } from './resource';
 import { Emitter, Event } from 'base/common/event';
-import { TrackItemTime } from 'internal/timeline/track-item-time';
-import { VideoMediaTrackItemImpl } from 'internal/timeline/video-media-track-item';
+import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
+import { VideoMediaTrackItemImpl } from 'internal/timeline/track-item/video-media-track-item';
 import { AudioResource } from 'internal/resource/audio-resource';
 import { AudioTrackItemImpl } from 'internal/timeline/track-item/audio-track-item';
 

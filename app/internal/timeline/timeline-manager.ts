@@ -1,28 +1,11 @@
-import { Timeline, TimelineBase } from "internal/timeline/timeline";
+import { Timeline, TimelineBase, ITimeline } from "internal/timeline/timeline";
 import { assert } from "base/common/assert";
 import TimelineImpl from "internal/timeline/timeline_impl";
 import { Postable, postable, PostableEvent, PostableEventBase } from "worker-postable";
 import { Event, Emitter } from "base/common/event";
-import { ISequence } from "internal/project/sequence/sequence";
 
 export interface TimelineManagerTimelineEvent {
   timeline: Timeline;
-}
-
-export interface TimelineManagerPostableEvent {
-  timelineID: number;
-}
-
-export interface TimelineManager {
-
-  readonly targetTimeline: Timeline;
-
-  getTimeline(id: number): Timeline;
-  createTimeline(sequence: ISequence): Timeline;
-  setTargetTimeline(timeline: Timeline): void;
-
-  onTargetTimelineChanged: Event<TimelineManagerTimelineEvent>;
-
 }
 
 export interface TimelineManagerBase {
@@ -31,24 +14,45 @@ export interface TimelineManagerBase {
   targetTimeline: TimelineBase;
 }
 
+export interface TimelineManagerPostableEvent extends TimelineManagerBase {
+  timelineID: number;
+}
+
+export interface TimelineManager {
+
+  readonly timelines: Map<number, ITimeline>;
+  readonly targetTimeline: Timeline;
+
+  getTimeline(id: number): Timeline;
+  setTargetTimeline(timeline: Timeline): void;
+
+  onTargetTimelineChanged: Event<TimelineManagerTimelineEvent>;
+
+}
+
+export interface ITimelineManager extends TimelineManager {}
+
 @Postable
-export class TimelineManagerImpl implements TimelineManager, TimelineManagerBase {
+export class TimelineManagerImpl implements TimelineManager {
 
   @postable timelines: Map<number, TimelineImpl>;
   @postable targetTimeline: TimelineImpl;
 
   constructor() {
     this.timelines = new Map();
+
+    this.setTargetTimeline(this.createTimeline());
+    
   }
 
-  getTimeline(id: number): Timeline {
+  getTimeline(id: number): TimelineImpl {
     const timeline = this.timelines.get(id);
     assert(timeline, 'Timeline ' + id + ' not found.')
     return timeline;
   }
 
-  createTimeline(sequence: ISequence): Timeline {
-    const timeline = new TimelineImpl(sequence);
+  createTimeline(): TimelineImpl {
+    const timeline = new TimelineImpl();
     this.timelines.set(timeline.id, timeline);
     return timeline;
   }

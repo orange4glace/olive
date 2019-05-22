@@ -3,10 +3,10 @@ import { AudioRendererMessageEventType, AudioRendererInitMessageEvent, AudioRend
 import { AudioRendererWorkletNode } from "internal/renderer/audio-renderer/renderer-worklet-node";
 import AudioRendererWorker from 'worker-loader!./worker'
 import AudioRendererWorklet from 'worklet-loader!./renderer-worklet';
-import { TimelineManager } from "internal/timeline/timeline-manager";
 import { getPostableID } from "worker-postable";
 import { Disposable, IDisposable, dispose } from "base/common/lifecycle";
-import { Timeline } from "internal/timeline/timeline";
+import { ITimeline } from "internal/timeline/timeline";
+import { IProject } from "internal/project/project";
 
 export class AudioRendererNode extends Disposable {
 
@@ -15,8 +15,8 @@ export class AudioRendererNode extends Disposable {
   worker: AudioRendererWorker;
   worklet: AudioRendererWorkletNode;
 
-  private timelineManager_: TimelineManager;
-  private targetTimeline_: Timeline;
+  private project_: IProject;
+  private targetTimeline_: ITimeline;
   private timelineDisposers_: IDisposable[] = [];
 
   buffers: {
@@ -28,8 +28,8 @@ export class AudioRendererNode extends Disposable {
     this.worker = new AudioRendererWorker();
   }
 
-  initialize(timelineManager: TimelineManager, initData: AudioRendererInitializationData) {
-    this.timelineManager_ = timelineManager;
+  initialize(project: IProject, initData: AudioRendererInitializationData) {
+    this.project_ = project;
     
     const context = new AudioContext();
     const source = context.createBufferSource();
@@ -47,19 +47,19 @@ export class AudioRendererNode extends Disposable {
     }
     this.worker.postMessage({
       type: AudioRendererMessageEventType.INIT,
-      timelineManagerID: getPostableID(timelineManager),
+      timelineManagerID: getPostableID(this.project_.timelineManager),
       data: initData
     } as AudioRendererInitMessageEvent)
 
     this.targetTimelineChangedHandler();
-    this._register(timelineManager.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
+    this._register(this.project_.timelineManager.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
   }
 
   private targetTimelineChangedHandler() {
     const lastTargetTimeline = this.targetTimeline_;
     this.timelineDisposers_ = dispose(this.timelineDisposers_);
 
-    const timeline = this.timelineManager_.targetTimeline;
+    const timeline = this.project_.timelineManager.targetTimeline;
     this.targetTimeline_ = timeline;
     if (!timeline) return;
 

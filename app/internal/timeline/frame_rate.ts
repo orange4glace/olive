@@ -9,18 +9,19 @@ export enum FrameRateType {
   CUSTOM
 }
 
-export interface IFrameRate {
+export interface FrameRateBase {
+  num: number;
+  den: number;
+}
+
+export interface IFrameRate extends FrameRateBase {
   readonly num: number;
   readonly den: number;
   readonly type: FrameRateType;
 
   format(frameTime: number): string;
   systemTimeToTime(systemTime: number): number;
-}
-
-export interface FrameRateBase {
-  num: number;
-  den: number;
+  millisecondToTime(millisecond: number): number;
 }
 
 @Postable

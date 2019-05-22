@@ -1,5 +1,5 @@
 import { MonitorWidgetSelectableViewModel, MonitorWidgetSelectableViewModelImpl } from "window/view/monitor/model/selectable-view-model";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { declareViewModel } from "window/view/view-model";
 import { Timeline } from "internal/timeline/timeline";
 import { mat2d } from "gl-matrix";

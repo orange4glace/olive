@@ -8,7 +8,8 @@ import { SyncDescriptor } from './descriptors';
 
 export class ServiceCollection {
 
-	private _entries = new Map<ServiceIdentifier<any>, any>();
+	private _entries = new Map<string, any>();
+	private _entries2 = new Map<ServiceIdentifier<any>, any>();
 
 	constructor(...entries: [ServiceIdentifier<any>, any][]) {
 		for (let [id, service] of entries) {
@@ -17,20 +18,21 @@ export class ServiceCollection {
 	}
 
 	set<T>(id: ServiceIdentifier<T>, instanceOrDescriptor: T | SyncDescriptor<T>): T | SyncDescriptor<T> {
-		const result = this._entries.get(id);
-		this._entries.set(id, instanceOrDescriptor);
+		const result = this._entries.get(id.toString());
+		this._entries.set(id.toString(), instanceOrDescriptor);
+		this._entries2.set(id, instanceOrDescriptor);
 		return result;
 	}
 
 	forEach(callback: (id: ServiceIdentifier<any>, instanceOrDescriptor: any) => any): void {
-		this._entries.forEach((value, key) => callback(key, value));
+		this._entries2.forEach((value, key) => callback(key, value));
 	}
 
 	has(id: ServiceIdentifier<any>): boolean {
-		return this._entries.has(id);
+		return this._entries.has(id.toString());
 	}
 
 	get<T>(id: ServiceIdentifier<T>): T | SyncDescriptor<T> {
-		return this._entries.get(id);
+		return this._entries.get(id.toString());
 	}
 }

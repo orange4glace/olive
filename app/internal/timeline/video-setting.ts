@@ -1,11 +1,5 @@
-import { IFrameRate, FrameRateBase, FrameRate } from "internal/project/sequence/frame_rate";
+import { IFrameRate, FrameRateBase, FrameRate } from "internal/timeline/frame_rate";
 import { postable, Postable } from "worker-postable";
-
-export interface IVideoSetting {
-  /*@observable*/ readonly screenWidth: number;
-  /*@observable*/ readonly screenHeight: number;
-  readonly frameRate: IFrameRate;
-}
 
 export interface VideoSettingBase {
   screenWidth: number;
@@ -13,8 +7,14 @@ export interface VideoSettingBase {
   frameRate: FrameRateBase;
 }
 
+export interface IVideoSetting extends VideoSettingBase {
+  /*@observable*/ readonly screenWidth: number;
+  /*@observable*/ readonly screenHeight: number;
+  readonly frameRate: IFrameRate;
+}
+
 @Postable
-export class VideoSetting implements IVideoSetting, VideoSettingBase {
+export class VideoSetting implements IVideoSetting {
   
   @postable screenWidth: number;
   @postable screenHeight: number;

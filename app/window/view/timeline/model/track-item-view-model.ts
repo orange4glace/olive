@@ -1,4 +1,4 @@
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { observable, computed } from "window/app-mobx";
 import { ViewModelImpl, ViewModel } from "window/view/view-model";
 import { Event, Emitter } from "base/common/event";

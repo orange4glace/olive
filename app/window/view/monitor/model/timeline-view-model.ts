@@ -1,5 +1,5 @@
 import { Timeline } from "internal/timeline/timeline";
-import { Track } from "internal/timeline/track";
+import { Track } from "internal/timeline/track/track";
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { observable, action } from "window/app-mobx";
 import { MonitorWidgetSelectableViewModel, MonitorWidgetSelectableViewModelImpl } from "window/view/monitor/model/selectable-view-model";

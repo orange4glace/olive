@@ -4,7 +4,7 @@ import { declareViewModel } from "window/view/view-model";
 import { StandardMouseEvent } from "base/view/mouseEvent";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { MonitorWidgetSelectableViewModelImpl, MonitorWidgetSelectableViewModelEvent } from "window/view/monitor/model/selectable-view-model";
 import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
 

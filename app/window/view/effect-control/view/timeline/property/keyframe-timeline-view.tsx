@@ -70,7 +70,7 @@ export class MonitorWidgetKeyframeView<T extends PropertyTypes>
       left: timelineScrollVM.getPositionRelativeToTimeline(vm.getTimeRelativeToTimeline()) + 'px'
     }
     return (
-      <ADiv className='keyframe' style={style}
+      <ADiv className={`keyframe ${vm.focused ? 'focused' : ''}`} style={style}
           onMouseDown={this.mouseDownHandler}
           onDocumentMouseMoveStart={this.mouseDownMoveStartHandler}>
       </ADiv>

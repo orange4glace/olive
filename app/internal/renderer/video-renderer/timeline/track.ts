@@ -1,7 +1,7 @@
 import { TrackItemVideoRenderer } from "./track-item";
 import { Posted, listen, listenable } from "worker-postable";
 import NVG from "../../../../../nanovg-webgl";
-import { TrackItemType } from "internal/timeline/track-item-type";
+import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { TrackRenderer } from "internal/renderer/base/all";
 import { VideoTrackItemVideoRenderer } from "internal/renderer/video-renderer/timeline/track-item/video-track-item";
 

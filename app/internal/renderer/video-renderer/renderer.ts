@@ -1,4 +1,4 @@
-import { forceImport as baseForceImport, TimelineRenderer } from 'internal/renderer/base/all'
+import { forceImport as baseForceImport, TimelineRenderer, ProjectRenderer } from 'internal/renderer/base/all'
 import { forceImport as videoRendererForceImport } from 'internal/renderer/video-renderer/all'
 
 import { Poster, ReceivedRequest } from 'poster'
@@ -31,10 +31,21 @@ interface RenderCallbackDisposer {
   onDispose: () => void;
 }
 
+interface RenderRequest {
+  timeline: TimelineVideoRenderer;
+  time: number;
+  systemTime: number;
+}
+
 export class Renderer {
 
-  private timelineManager_: TimelineManagerVideoRenderer;
-  poster: Poster;
+  private project_: ProjectRenderer;
+
+  private playing_: boolean = false;
+  private playingRequest_: RenderRequest = null;
+  private dirty_: boolean = false;
+  private renderReqest_: RenderRequest = null;
+
   decoder: IDecoder;
   vg: any;
   converter: any;
@@ -45,26 +56,27 @@ export class Renderer {
 
 
   constructor() {
-    this.poster = new Poster(self);
+    this.loop_ = this.loop_.bind(this);
     this.decoder = initializeDecoderModule();
 
-    this.handlePostable = this.handlePostable.bind(this);
-    this.initTimelineManager = this.initTimelineManager.bind(this);
+    this.initProject = this.initProject.bind(this);
     this.initNanovg = this.initNanovg.bind(this);
 
     this.initConverter();
     
     self.onmessage = this.messageHandler.bind(this);
+
+    requestAnimationFrame(this.loop_);
   }
 
   private messageHandler(e: MessageEvent) {
     const msg = e.data;
     switch (msg.type) {
       case 'POST':
-        postableMessageHandler(msg.data);
+        this.handlePostableMessage(msg);
         break;
       case 'INIT':
-        this.initTimelineManager(msg.data.timelineManager);
+        this.initProject(msg.data.project);
         this.initNanovg(msg.data.canvas);
         break;
       case VideoRendererMessageEventType.PLAY_RENDER:
@@ -79,12 +91,17 @@ export class Renderer {
     }
   }
 
-  private handlePostable(req: ReceivedRequest) {
-    postableMessageHandler(req.data);
+  private handlePostableMessage(msg: any) {
+    postableMessageHandler(msg.data);
+    const targetTimelineID = msg.timelineID;
+    if (targetTimelineID != -1) {
+      const timeline = this.project_.timelineManager.getTimeline(targetTimelineID) as TimelineVideoRenderer;
+      this.seekTimeline(timeline, timeline.currentTimePausing);
+    }
   }
 
   private onPlayRender(e: VideoRendererRenderMessageEvent) {
-    const timeline = this.timelineManager_.getTimeline(e.timelineID);
+    const timeline = this.project_.timelineManager.getTimeline(e.timelineID) as TimelineVideoRenderer;
     this.startTimelineRenderCallback(timeline, e.currentTime, e.systemTime);
   }
 
@@ -95,81 +112,44 @@ export class Renderer {
   }
 
   private onRender(e: VideoRendererRenderMessageEvent) {
-    const timeline = this.timelineManager_.getTimeline(e.timelineID);
-    assert(timeline, 'Timeline ' + e.timelineID + ' not found!');
-    this.seekTimeline(timeline, e.currentTime);
+    const timeline = this.project_.timelineManager.getTimeline(e.timelineID) as TimelineVideoRenderer;;
+    this.seekTimeline(timeline, e.currentTime); 
   }
 
   private startTimelineRenderCallback(timeline: TimelineVideoRenderer, time: number, startSystemTime: number) {
-    console.log('video render start = ',time);
-    this.stopTimelineRender(() => {
-      const disposer: RenderCallbackDisposer = {
-        dispose: function() {
-          this.disposed = true;
-          if (this.callback) this.callback();
-          return null;
-        },
-        fireDispose: function() {
-          if (typeof this.onDispose == 'function')
-            this.onDispose();
-        },
-        disposed: false,
-        onDispose: null
-      }
-      this.renderCallbackDisposer_ = disposer;
-      requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, time, startSystemTime, disposer));
-    });
+    this.playing_ = true;
+    this.dirty_ = false;
+    this.playingRequest_ = {
+      timeline: timeline,
+      time: time,
+      systemTime: startSystemTime
+    };
   }
 
   private async seekTimeline(timeline: TimelineVideoRenderer, time: number) {
-    this.stopTimelineRender(async () => {
-      const disposer: RenderCallbackDisposer = {
-        dispose: function() {
-          if (this.disposed) return null;
-          this.disposed = true;
-          if (this.callback) this.callback();
-          return null;
-        },
-        fireDispose: function() {
-          if (typeof this.onDispose == 'function')
-            this.onDispose();
-        },
-        disposed: false,
-        onDispose: null
-      }
-      this.renderCallbackDisposer_ = disposer;
-      await this.renderTimeline(timeline, time);
-      disposer.dispose();
-      disposer.fireDispose();
-    });
+    this.dirty_ = true;
+    this.renderReqest_ = {
+      timeline: timeline,
+      time: time,
+      systemTime: 0
+    }
   }
 
   private stopTimelineRender(onStopCallback: () => void) {
-    if (!this.renderCallbackDisposer_ || this.renderCallbackDisposer_.disposed) {
-      onStopCallback();
-      return;
-    }
-    this.renderCallbackDisposer_.onDispose = onStopCallback;
-    this.renderCallbackDisposer_ = this.renderCallbackDisposer_.dispose();
+    this.playing_ = false;
   }
 
-  private async renderTimelineCallback(timeline: TimelineVideoRenderer, startTime: number,
-      startSystemTime: number, disposer: RenderCallbackDisposer) {
-    if (disposer.disposed) {
-      disposer.fireDispose();
-      return;
-    }
-    const elapsedSystemTime = getCurrentSystemTime() - startSystemTime;
-    if (Math.floor(elapsedSystemTime / 16.67) % 2 == 0) 
-      return requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, startTime, startSystemTime, disposer));
-    const elapsedTime = timeline.sequence.videoSetting.frameRate.systemTimeToTime(elapsedSystemTime);
-    const currentTime = startTime + elapsedTime;
-    await this.renderTimeline(timeline, currentTime);
-    if (disposer.disposed) {
-      disposer.fireDispose();
-      return;
-    }
-    requestAnimationFrame(this.renderTimelineCallback.bind(this, timeline, startTime, startSystemTime, disposer));
+  private async playingCallback_() {
+    const elapsedSystemTime = getCurrentSystemTime() - this.playingRequest_.systemTime;
+    const elapsedTime = this.playingRequest_.timeline.videoSetting.frameRate.systemTimeToTime(elapsedSystemTime);
+    const currentTime = this.playingRequest_.time + elapsedTime;
+    await this.renderTimeline(this.playingRequest_.timeline, currentTime);
+  }
+
+  private async dirtyCallback_() {
+    const currentTime = this.renderReqest_.time;
+    await this.renderTimeline(this.renderReqest_.timeline, currentTime);
+    this.dirty_ = false;
   }
 
   private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {
@@ -177,9 +157,17 @@ export class Renderer {
     await timeline.render(time, this.vg);
   }
 
-  private initTimelineManager(timelineManagerPostableID: number) {
-    console.log('[Renderer] initTimeline', timelineManagerPostableID);
-    this.timelineManager_ = ObjectStore.get(timelineManagerPostableID);
+  private async loop_() {
+    if (this.playing_)
+      await this.playingCallback_();
+    else if (this.dirty_)
+      await this.dirtyCallback_();
+    requestAnimationFrame(this.loop_);
+  }
+
+  private initProject(projectPostableID: number) {
+    console.log('[Renderer] Initialze project', projectPostableID);
+    this.project_ = ObjectStore.get(projectPostableID);
   }
 
   private initNanovg(canvas: HTMLCanvasElement) {

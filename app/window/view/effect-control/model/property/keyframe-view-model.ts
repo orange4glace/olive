@@ -1,7 +1,7 @@
 import { Keyframe } from "internal/rendering/property/keyframe";
 import { PropertyTypes, Property } from "internal/rendering/property/property";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModel, ViewModelImpl } from "window/view/view-model";
 import { Event, Emitter } from "base/common/event";
 import { observable } from "window/app-mobx";

@@ -6,7 +6,7 @@
 import { illegalState } from 'base/common/errors';
 import { Graph } from 'platform/instantiation/common/graph';
 import { SyncDescriptor } from 'platform/instantiation/common/descriptors';
-import { ServiceIdentifier, IInstantiationService, ServicesAccessor, _util, optional } from 'platform/instantiation/common/instantiation';
+import { ServiceIdentifier, IInstantiationService, ServicesAccessor, optional, getServiceDependencies } from 'platform/instantiation/common/instantiation';
 import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
 import { IdleValue } from 'base/common/async';
 
@@ -81,7 +81,7 @@ export class InstantiationService implements IInstantiationService {
 	private _createInstance<T>(ctor: any, args: any[] = [], _trace: Trace): T {
 
 		// arguments defined by service decorators
-		let serviceDependencies = _util.getServiceDependencies(ctor).sort((a, b) => a.index - b.index);
+		let serviceDependencies = getServiceDependencies(ctor).sort((a: any, b: any) => a.index - b.index);
 		let serviceArgs: any[] = [];
 		for (const dependency of serviceDependencies) {
 			let service = this._getOrCreateServiceInstance(dependency.id, _trace);
@@ -162,7 +162,7 @@ export class InstantiationService implements IInstantiationService {
 			}
 
 			// check all dependencies for existence and if they need to be created first
-			let dependencies = _util.getServiceDependencies(item.desc.ctor);
+			let dependencies = getServiceDependencies(item.desc.ctor);
 			for (let dependency of dependencies) {
 
 				let instanceOrDesc = this._getServiceInstanceOrDescriptor(dependency.id);

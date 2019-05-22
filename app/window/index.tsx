@@ -1,6 +1,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
+// Load widgets
+import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
+TimelineWidgetImpl;
+
 import LayoutRoot from 'window/layout/layout-root';
 import { setService } from 'window/service/services';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';

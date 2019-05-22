@@ -1,5 +1,5 @@
 import { Posted, posted } from "worker-postable";
-import { FrameRateBase } from "internal/project/sequence/frame_rate";
+import { FrameRateBase } from "internal/timeline/frame_rate";
 import { systemTimeToMilliseconds } from "base/common/time";
 
 @Posted('FrameRate')

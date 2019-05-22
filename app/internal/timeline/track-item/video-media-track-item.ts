@@ -1,8 +1,8 @@
-import { VideoTrackItemBase, VideoTrackItem, VideoTrackItemImpl } from "internal/timeline/video-track-item";
+import { VideoTrackItemBase, VideoTrackItem, VideoTrackItemImpl } from "internal/timeline/track-item/video-track-item";
 import { Postable, postable } from "worker-postable";
-import { TrackItemType } from "internal/timeline/track-item-type";
+import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { VideoResourceBase, VideoResource } from "internal/resource";
-import { TrackItemTime } from "internal/timeline/track-item-time";
+import { TrackItemTime } from "internal/timeline/track-item/track-item-time";
 import { clone } from "base/common/cloneable";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
 import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";

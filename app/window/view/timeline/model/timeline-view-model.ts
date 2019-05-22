@@ -3,7 +3,7 @@ import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-v
 import { ViewModel } from "window/view/view-model";
 import { TimelineWidgetScrollViewModel } from "window/view/timeline/model/scroll-view-model";
 import { TimelineWidgetGhostViewModel } from "window/view/timeline/model/ghost-view-model";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { StandardMouseEvent } from "base/view/mouseEvent";
 import { Event } from "base/common/event";
 import { Timeline } from "internal/timeline/timeline";

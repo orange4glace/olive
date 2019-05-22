@@ -1,7 +1,7 @@
 import { TransformEffect } from "internal/rendering/effect/video-effect/transform-effect";
 import { EffectControlWidgetVideoEffectViewModel } from "window/view/effect-control/model/effect/effect-view-model";
 import { EffectControlWidgetVideoEffectViewModelImpl } from "window/view/effect-control/model/effect/effect-view-model-impl";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { Timeline } from "internal/timeline/timeline";
 import { EffectControlWidgetVector2PropertyViewModel, EffectControlWidgetVector2PropertyViewModelImpl } from "window/view/effect-control/model/property/vector2-property-view-model";
 import { ViewModel, declareViewModel } from "window/view/view-model";
@@ -36,6 +36,11 @@ export class EffectControlWidgetTransformEffectViewModelImpl
     this._register(this.positionPropertyViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
     this._register(this.scalePropertyViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
     this._register(this.scalePropertyViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
+  }
+
+  blurAllKeyframes() {
+    this.positionPropertyViewModel.blurAllKeyframes();
+    this.scalePropertyViewModel.blurAllKeyframes();
   }
 
 }

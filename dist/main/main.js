@@ -99,6 +99,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var electron__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(electron__WEBPACK_IMPORTED_MODULE_0__);
 // ./main.js
 
+process.on('uncaughtException', err => {
+    console.error(err);
+});
 console.log("Start electron main");
 class WindowRequestHost {
     constructor(mainWin) {

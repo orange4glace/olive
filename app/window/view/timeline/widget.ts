@@ -1,7 +1,7 @@
 import { Widget } from "window/view/widget";
 import { Event } from "base/common/event";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from "window/view/timeline/event";
 import { TimelineWidgetViewOutgoingEvents } from "window/view/timeline/view-outgoing-events";
 import { TimelineWidgetTimelineViewModel } from "window/view/timeline/model/timeline-view-model";

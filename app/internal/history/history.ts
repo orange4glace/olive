@@ -10,7 +10,7 @@ export interface IHistoryService {
   /*@observable*/ readonly canUndo: boolean;
   /*@observable*/ readonly canRedo: boolean;
 
-  open(): void;
+  open(): IHistoryStackElement;
   close(): void;
   push(command: IHistoryCommand): void;
   execute(command: IHistoryCommand): void;
@@ -70,13 +70,16 @@ export class HistoryService implements IHistoryService {
 
   open() {
     if (this.undoStack_.length == 0) {
-      this.undoStack_.push(new HistoryStackElement());
-      return;
+      const stack = new HistoryStackElement();
+      this.undoStack_.push(stack);
+      return stack;
     }
     const top = this.undoStack_[this.undoStack_.length - 1];
-    if (top.isEmpty) return;
-    if (!top.closed) return;
-    this.undoStack_.push(new HistoryStackElement());
+    if (top.isEmpty) return top;
+    if (!top.closed) return top;
+    const stack = new HistoryStackElement();
+    this.undoStack_.push(stack);
+    return stack;
   }
 
   close() {
@@ -90,9 +93,8 @@ export class HistoryService implements IHistoryService {
   }
 
   push(command: IHistoryCommand) {
-    const top = this.undoStack_[this.undoStack_.length - 1];
-    assert(top, 'No StackElement is opened.');
-    assert(top.closed, 'Top StackElement is closed.');
+    let top = this.undoStack_[this.undoStack_.length - 1];
+    if (!top || top.closed) top = this.open();
     top.push(command);
   }
 

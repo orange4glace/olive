@@ -3,7 +3,7 @@ import { IDisposable, dispose, Disposable } from "base/common/lifecycle";
 import { StandardMouseEvent } from 'base/view/mouseEvent';
 import { TimelineWidgetGhostContainerViewModel } from 'window/view/timeline/model/ghost-view-model';
 import { TimelineWidget } from 'window/view/timeline/widget';
-import { TrackItem } from 'internal/timeline/track-item';
+import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-view-model";
 import { TimelineWidgetTrackItemViewModel } from "window/view/timeline/model/track-item-view-model";
@@ -215,8 +215,14 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
       let j = i + trackDeltaOffset;
       if (j < 0 || j >= this.widget_.model.trackViewModels.length) continue;
       const track = this.widget_.model.trackViewModels[j].track;
-      trackTrackItems[i].forEach(trackItem => track.addTrackItem(trackItem, trackItem.time.start + ghostContainer.leftExtend, trackItem.time.end + ghostContainer.rightExtend, trackItem.time.base));
+      trackTrackItems[i].forEach(trackItem => {
+        track.addTrackItem(trackItem, trackItem.time.start + ghostContainer.leftExtend, trackItem.time.end + ghostContainer.rightExtend, trackItem.time.base)
+        // Refocus track item
+        const trackVM = this.widget_.model.trackViewModels[j];
+        trackVM.getTrackItemViewModel(trackItem).focus();
+      });
     }
+
     this.cleanState_();
     state.dispose();
   }

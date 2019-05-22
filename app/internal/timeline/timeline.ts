@@ -1,7 +1,8 @@
-import { Track, TrackBase } from "internal/timeline/track";
+import { Track, TrackBase } from "internal/timeline/track/track";
 import { Event } from "base/common/event";
 import { PostableEvent, PostableEventBase } from "worker-postable";
-import { SequenceBase } from "internal/project/sequence/sequence";
+import { IAudioSetting, AudioSettingBase } from "internal/timeline/audio-setting";
+import { IVideoSetting, VideoSettingBase } from "internal/timeline/video-setting";
 
 export interface TimelineTrackEvent {
   readonly track: Track;
@@ -20,14 +21,19 @@ export interface TimelineBase {
   currentTimePausing: number;
   tracks: Array<TrackBase>;
 
-  sequence: SequenceBase;
+  videoSetting: VideoSettingBase;
+  audioSetting: AudioSettingBase;
+
 }
 
-export interface Timeline {
+export interface Timeline extends TimelineBase {
 
   /*@postable*/ readonly id: number;
   /*@postable*/ readonly totalTime: number;
   /*@postable*/ readonly currentTime: number;
+  
+  /*@postable*/ readonly videoSetting: IVideoSetting;
+  /*@postable*/ readonly audioSetting: IAudioSetting;
 
   /*@postable*/ readonly tracks: Array<Track>;
 
@@ -49,3 +55,5 @@ export interface Timeline {
   readonly onTrackWillRemove: Event<TimelineTrackEvent>;
 
 }
+
+export interface ITimeline extends Timeline {}

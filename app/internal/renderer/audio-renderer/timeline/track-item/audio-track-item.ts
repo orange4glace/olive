@@ -1,4 +1,4 @@
-import { TrackItemRenderer } from "internal/renderer/base/timeline/track-item";
+import { TrackItemRenderer } from "internal/renderer/base/timeline/track-item/track-item";
 import { VideoDrawingRenderer } from "internal/renderer/base/rendering/drawing/video-drawing";
 import { AudioTrackItemBase } from "internal/timeline/track-item/audio-track-item";
 import { Posted, posted } from "worker-postable";

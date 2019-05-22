@@ -2,7 +2,7 @@ import * as React from 'react'
 import { EffectControlWidgetViewProps } from 'window/view/effect-control/view/widget-view';
 import { EffectControlWidgetModel } from 'window/view/effect-control/model/model';
 import { EffectControlWidgetTrackItemTimelineViewFactory } from 'window/view/effect-control/view/timeline/track-item/track-item-view-factory';
-import { observer, autorun } from 'window/app-mobx';
+import { observer, autorun, computed } from 'window/app-mobx';
 import ZoomableScrollView, { ZoomableScrollViewController } from 'window/view/zoomable-scroll-view';
 import { IReactionDisposer } from 'mobx';
 import { EffectControlViewOutgoingEvents } from 'window/view/effect-control/view-outgoing-events';
@@ -20,6 +20,9 @@ EffectControlDrawingTimelineViewSelector.registerView(
     EffectControlWidgetRectangleDrawingViewModel, EffectControlWidgetRectangleDrawingTimelineView);
 EffectControlDrawingTimelineViewSelector.registerView(
     EffectControlWidgetVideoMediaDrawingViewModel, EffectControlWidgetVideoMediaDrawingTimelineView);
+
+import * as style from './style.scss';
+import { MouseUtil } from 'orangeutil';
 
 export interface EffectControlWidgetTimelineContentViewProps extends EffectControlWidgetViewProps {
   model: EffectControlWidgetModel;
@@ -47,9 +50,11 @@ export class EffectControlWidgetTimelineView extends React.Component<EffectContr
   render() {
     return (
       <ZoomableScrollView controller={this.scrollViewController}>
-        <Ruler {...this.props}/>
-        <EffectControlWidgetTrackItemTimelineViewFactory {...this.props}
-            trackItemViewModel={this.props.widget.model.trackItemViewModel}/>
+        <div className={style.component}>
+          <Ruler {...this.props}/>
+          <EffectControlWidgetTrackItemTimelineViewFactory {...this.props}
+              trackItemViewModel={this.props.widget.model.trackItemViewModel}/>
+        </div>
       </ZoomableScrollView>
     )
   }
@@ -60,13 +65,36 @@ export class EffectControlWidgetTimelineView extends React.Component<EffectContr
 @observer
 class Ruler extends React.Component<EffectControlWidgetTimelineContentViewProps, {}> {
 
+  rulerViewRef: React.RefObject<HTMLDivElement>;
   canvasRef: React.RefObject<HTMLCanvasElement>;
 
   rulerUpdateDipsoser: IReactionDisposer;
 
   constructor(props: any) {
     super(props);
+    this.rulerViewRef = React.createRef();
     this.canvasRef = React.createRef();
+    this.mouseDownHandler = this.mouseDownHandler.bind(this);
+    this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+  }
+
+  mouseDownHandler(e: React.MouseEvent) {
+    const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
+    const time = this.props.widget.model.getTimeRelativeToTimeline(pos.x);
+    this.props.widget.model.timeline.seekTo(time);
+    
+    document.addEventListener('mousemove', this.mouseMoveHandler);
+    const remover = (e: MouseEvent) => {
+      document.removeEventListener('mousemove', this.mouseMoveHandler);
+      document.removeEventListener('mouseup', remover);
+    }
+    document.addEventListener('mouseup', remover);
+  }
+
+  mouseMoveHandler(e: MouseEvent) {
+    const pos = MouseUtil.mousePositionElement(e, this.rulerViewRef.current);
+    const time = this.props.widget.model.getTimeRelativeToTimeline(pos.x);
+    this.props.widget.model.timeline.seekTo(time);
   }
 
   timelineUpdateHandler() {
@@ -137,8 +165,32 @@ class Ruler extends React.Component<EffectControlWidgetTimelineContentViewProps,
 
   render() {
     return (
-      <div style={{height: '30px'}}>
+      <div className='ruler-view' ref={this.rulerViewRef}
+          onMouseDown={this.mouseDownHandler}>
         <canvas ref={this.canvasRef}></canvas>
+        <Indicator {...this.props}/>
+      </div>
+    )
+  }
+}
+
+@observer
+class Indicator extends React.Component<EffectControlWidgetTimelineContentViewProps, any> {
+
+  constructor(props: any) {
+    super(props);
+  }
+
+  @computed get position() {
+    const model = this.props.widget.model;
+    const position = model.getPositionRelativeToTimeline(model.timeline.currentTime);
+    return position;
+  }
+
+  render() {
+    return (
+      <div className='indicator' style={{left: `${this.position}px`}}>
+        <div className='tip'/>
       </div>
     )
   }

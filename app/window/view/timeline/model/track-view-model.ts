@@ -1,11 +1,11 @@
 import { TimelineWidgetTrackItemViewModel, TimelineWidgetTrackItemViewModelImpl } from "window/view/timeline/model/track-item-view-model";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModel, ViewModelImpl } from "window/view/view-model";
 import { IDisposable, dispose } from "base/common/lifecycle";
-import { Track } from "internal/timeline/track";
+import { Track } from "internal/timeline/track/track";
 import { observable, computed } from "window/app-mobx";
 import { Event, Emitter } from "base/common/event";
-import { ConstTrackItemTime } from "internal/timeline/track-item-time";
+import { ConstTrackItemTime } from "internal/timeline/track-item/track-item-time";
 import { TreeMultiMap, TreeMultiSet } from "tstl";
 
 export interface TimelineWidgetTrackViewModel extends ViewModel {
@@ -22,8 +22,6 @@ export interface TimelineWidgetTrackViewModel extends ViewModel {
   getTrackItemViewModel(trackItem: TrackItem): TimelineWidgetTrackItemViewModel;
   getFocusedTrackItemViewModels(): ReadonlySet<TimelineWidgetTrackItemViewModel>;
   blurAllTrackItems(): void;
-
-  addTrackItem(trackItem: TrackItem, start: number, end: number, base: number): void;
 
   getClosestTime(time: number): number;
 
@@ -128,10 +126,6 @@ export class TimelineWidgetTrackViewModelImpl
 
   blurAllTrackItems(): void {
     this.focusedTrackItemModelViews_.forEach(vm => vm.blur());
-  }
-
-  addTrackItem(trackItem: TrackItem, start: number, end: number, base: number): void {
-    this.track.addTrackItem(trackItem, start, end, base);
   }
 
   getClosestTime(time: number) {

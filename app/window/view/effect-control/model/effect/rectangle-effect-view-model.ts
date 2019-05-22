@@ -3,7 +3,7 @@ import { RectangleEffect } from "internal/rendering/effect/video-effect/rectangl
 import { EffectControlWidgetVector4PropertyViewModel, EffectControlWidgetVector4PropertyViewModelImpl } from "window/view/effect-control/model/property/vector4-property-view-model";
 import { EffectControlWidgetVideoEffectViewModelImpl } from "window/view/effect-control/model/effect/effect-view-model-impl";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModel, declareViewModel } from "window/view/view-model";
 
 export const EffectControlWidgetRectangleEffectViewModel =
@@ -30,6 +30,10 @@ export class EffectControlWidgetRectangleEffectViewModelImpl
 
     this._register(this.sizePropertyViewModel.onKeyframeFocused(e => this.onKeyframeFocused_.fire(e), this));
     this._register(this.sizePropertyViewModel.onKeyframeBlured(e => this.onKeyframeBlured_.fire(e), this));
+  }
+
+  blurAllKeyframes() {
+    this.sizePropertyViewModel.blurAllKeyframes();
   }
 
 }

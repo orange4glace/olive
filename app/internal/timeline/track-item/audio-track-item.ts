@@ -1,10 +1,9 @@
 import { Postable, postable } from 'worker-postable'
 
-import TrackItemImpl from 'internal/timeline/track-item-impl';
-import { TrackItemBase, TrackItem } from 'internal/timeline/track-item';
-import { TrackItemTime } from 'internal/timeline/track-item-time';
-import { TrackItemType } from 'internal/timeline/track-item-type';
-import { VideoDrawing } from 'internal/rendering/drawing/video-drawing';
+import TrackItemImpl from 'internal/timeline/track-item/track-item-impl';
+import { TrackItemBase, TrackItem } from 'internal/timeline/track-item/track-item';
+import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
+import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
 import { clone } from 'base/common/cloneable';
 import { AudioDrawingBase, AudioDrawing } from 'internal/rendering/drawing/audio-drawing';
 import { AudioResourceBase, AudioResource } from 'internal/resource/audio-resource';

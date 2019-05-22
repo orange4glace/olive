@@ -1,7 +1,7 @@
 import { Drawing } from "internal/rendering/drawing/drawing";
 import { MonitorWidgetSelectableViewModel, MonitorWidgetSelectableViewModelImpl, MonitorWidgetSelectableViewModelEvent } from "window/view/monitor/model/selectable-view-model";
 import { Timeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item";
+import { TrackItem } from "internal/timeline/track-item/track-item";
 import { observable } from "window/app-mobx";
 import { Event, Emitter } from "base/common/event";
 

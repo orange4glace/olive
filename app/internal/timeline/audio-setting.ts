@@ -1,15 +1,15 @@
 import { postable, Postable } from "worker-postable";
 
-export interface IAudioSetting {
-  /*@observable*/ readonly sampleRate: number;
-}
-
 export interface AudioSettingBase {
   sampleRate: number;
 }
 
+export interface IAudioSetting extends AudioSettingBase {
+  /*@observable*/ readonly sampleRate: number;
+}
+
 @Postable
-export class AudioSetting implements IAudioSetting, AudioSettingBase {
+export class AudioSetting implements IAudioSetting {
 
   @postable sampleRate: number;
 

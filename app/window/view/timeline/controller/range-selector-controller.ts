@@ -129,7 +129,6 @@ export class TimelineWidgetRangeSelectorController extends Disposable
     const bottom = Math.max(start.y, end.y);
     const left = timelineVM.getPositionRelativeToTimeline(Math.min(start.x, end.x));
     const right = timelineVM.getPositionRelativeToTimeline(Math.max(start.x, end.x));
-    console.log(left,right);
     rangeSelectorVM.setSize(top, left, right - left, bottom - top);
   }
 

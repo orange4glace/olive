@@ -1,21 +1,21 @@
-import { Sequence, SequenceBase } from "./sequence/sequence";
 import { Postable, postable } from "worker-postable";
-
-export interface IProject {
-  readonly sequence: Sequence;
-}
+import { ITimelineManager, TimelineManagerImpl, TimelineManagerBase } from "internal/timeline/timeline-manager";
 
 export interface ProjectBase {
-  sequence: SequenceBase;
+  timelineManager: TimelineManagerBase;
+}
+
+export interface IProject extends ProjectBase {
+  timelineManager: ITimelineManager;
 }
 
 @Postable
 export class Project implements IProject, ProjectBase {
 
-  @postable sequence: Sequence;
+  @postable timelineManager: ITimelineManager;
 
   constructor() {
-    this.sequence = new Sequence();
+    this.timelineManager = new TimelineManagerImpl();
   }
-
+ 
 }

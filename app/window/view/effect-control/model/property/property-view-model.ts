@@ -21,6 +21,7 @@ export interface EffectControlWidgetPropertyViewModel<T extends PropertyTypes>
 
   readonly keyframeViewModels: ReadonlySet<EffectControlKeyframeViewModel<T>>;
 
+  blurAllKeyframes(): void;
   toggleAnimated(): void;
 
 }

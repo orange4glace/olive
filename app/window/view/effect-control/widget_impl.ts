@@ -7,7 +7,7 @@ import { EffectControlWidgetViewProps, EffectControlWidgetView } from "window/vi
 import { IObservableValue } from 'mobx';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
 import { TimelineWidget } from 'window/view/timeline/widget';
-import { TrackItem } from 'internal/timeline/track-item';
+import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { Timeline } from 'internal/timeline/timeline';
 import { Event, Emitter } from 'base/common/event';
 import { EffectControlWidgetKeyframeEvent, EffectControlWidgetKeyframeUIEvent } from 'window/view/effect-control/event';
@@ -65,7 +65,8 @@ export class EffectControlWidgetImpl extends Widget implements EffectControlWidg
 
   private updateViewModel(timeline: Timeline, set: ReadonlySet<TrackItem>) {
     dispose(this.model_.get());
-    dispose(this.modelDisposables_);
+    this.model_.set(null);
+    this.modelDisposables_ = dispose(this.modelDisposables_);
     if (set.size != 1) return;
     const trackItem = set.values().next().value;
     const model = new EffectControlWidgetModelImpl(timeline, trackItem);

@@ -11,6 +11,7 @@ import { EffectControlWidgetImpl } from 'window/view/effect-control/widget_impl'
 import { MonitorWidgetImpl } from 'window/view/monitor/widget';
 import { getService } from 'window/service/services';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
+import { WidgetRegistry } from 'window/view/widget-registry';
  
 interface LayoutRootProps {
   data: any;
@@ -31,9 +32,9 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
           children: [
             {
               direction: 'VIEW',
-              views: [new TimelineWidgetImpl(
-                getService(ITimelineWidgetService),
-                app.timeline.getTimeline(0))]
+              views: [WidgetRegistry.createWidget('TimelineWidget', {
+                timeline: app.project.timelineManager.getTimeline(0)
+              })]
             }, {
               direction: 'VIEW',
               views: [new ResourceWidgetImpl(app.resource)]
@@ -45,7 +46,7 @@ class LayoutRoot extends React.Component<LayoutRootProps, {}> {
           ],
         }, {
           direction: 'VIEW',
-          views: [new MonitorWidgetImpl(app.timeline)]
+          views: [new MonitorWidgetImpl(app.project.timelineManager)]
         }
       ]
     })

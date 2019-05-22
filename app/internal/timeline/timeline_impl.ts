@@ -4,10 +4,11 @@ import { action, observable, computed } from 'mobx'
 import { Event, Emitter } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
 import { Timeline, TimelineTrackEvent, TimelineBase, TimelinePostableStatusEvent } from 'internal/timeline/timeline';
-import TrackImpl from 'internal/timeline/track-impl';
+import TrackImpl from 'internal/timeline/track/track-impl';
 import { assert } from 'base/common/assert';
-import { ISequence } from 'internal/project/sequence/sequence';
 import { getCurrentSystemTime } from 'base/common/time';
+import { VideoSetting, IVideoSetting } from 'internal/timeline/video-setting';
+import { AudioSetting, IAudioSetting } from 'internal/timeline/audio-setting';
 
 @Postable
 export default class TimelineImpl extends Disposable implements Timeline, TimelineBase {
@@ -18,7 +19,8 @@ export default class TimelineImpl extends Disposable implements Timeline, Timeli
   @postable totalTime: number;
   @postable currentTimePausing: number;
 
-  @postable sequence: ISequence;
+  @postable videoSetting: IVideoSetting;
+  @postable audioSetting: IAudioSetting;
 
   @observable currentTimePlaying: number;
   private playingInterval_: number;
@@ -33,10 +35,12 @@ export default class TimelineImpl extends Disposable implements Timeline, Timeli
 
   @postable tracks: Array<TrackImpl>;
 
-  constructor(sequence: ISequence) {
+  constructor() {
     super();
     this.id = TimelineImpl.__next_id++;
-    this.sequence = sequence;
+
+    this.videoSetting = new VideoSetting();
+    this.audioSetting = new AudioSetting();
 
     this.playingCallback_ = this.playingCallback_.bind(this);
     
@@ -78,7 +82,7 @@ export default class TimelineImpl extends Disposable implements Timeline, Timeli
   private playingCallback_() {
     const now = getCurrentSystemTime();
     const dt = now - this.lastPlaySystemTime;
-    this.setCurrentTimePlaying(this.currentTimePausing + this.sequence.videoSetting.frameRate.systemTimeToTime(dt));
+    this.setCurrentTimePlaying(this.currentTimePausing + this.videoSetting.frameRate.systemTimeToTime(dt));
     this.playingInterval_ = requestAnimationFrame(this.playingCallback_);
   }
 

@@ -8,6 +8,10 @@ import {
   WindowRequestWrapResult,
   AppParam } from './../app/connector';
 
+process.on('uncaughtException', err => {
+  console.error(err);
+})
+
 console.log("Start electron main");
 
 class WindowRequestHost {
