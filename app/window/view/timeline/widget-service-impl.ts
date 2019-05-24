@@ -3,7 +3,7 @@ import { Emitter, Event } from "base/common/event";
 import { TimelineWidget } from "window/view/timeline/widget";
 import { IDisposable, dispose } from "base/common/lifecycle";
 
-export class TimelineWidgetServiceImpl implements ITimelineWidgetService {
+export class TimelineWidgetService implements ITimelineWidgetService {
 
   private onWidgetAdded_: Emitter<TimelineWidget> = new Emitter();
   onWidgetAdded: Event<TimelineWidget> = this.onWidgetAdded_.event;

@@ -1,8 +1,8 @@
 import { Event } from "base/common/event";
 import { TimelineWidget } from "window/view/timeline/widget";
-import { createService } from "window/service/services";
+import { createDecorator } from "platform/instantiation/common/instantiation";
 
-export const ITimelineWidgetService = createService<ITimelineWidgetService>('TimelineWidgetService');
+export const ITimelineWidgetService = createDecorator<ITimelineWidgetService>('olive.TimelineWidgetService');
 
 export interface ITimelineWidgetService {
 

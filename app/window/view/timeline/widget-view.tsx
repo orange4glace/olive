@@ -38,21 +38,27 @@ class TimelineWidgetView extends React.Component<TimelineWidgetViewProps, {}> {
   }
 
   render() {
-    return (
-      <ADiv className={style.component} onMouseDownCapture={this.mouseDownCaptureHandler}>
-        <div className='header'>
-          <TimelineHeaderView {...this.props}/>
-        </div>
-        <div className='content'>
-          <div className='left'>
-            <TimelineWidgetSideView {...this.props}/>
+    const widget = this.props.widget;
+    if (widget.model) {
+      return (
+        <ADiv className={style.component} onMouseDownCapture={this.mouseDownCaptureHandler}>
+          <div className='header'>
+            <TimelineHeaderView {...this.props}/>
           </div>
-          <div className='right'>
-            <TimelineRightView {...this.props} timelineViewModel={this.props.widget.model} outgoingEvents={this.outgoingEvents}/>
+          <div className='content'>
+            <div className='left'>
+              <TimelineWidgetSideView {...this.props}/>
+            </div>
+            <div className='right'>
+              <TimelineRightView {...this.props} timelineViewModel={this.props.widget.model} outgoingEvents={this.outgoingEvents}/>
+            </div>
           </div>
-        </div>
-      </ADiv>
-    )
+        </ADiv>
+      )
+    }
+    else {
+      return (<div>No Timeline Selected</div>);
+    }
   }
 
 }

@@ -3,4 +3,7 @@ enum ResourceType {
   AUDIO
 }
 
+export {
+  ResourceType
+}
 export default ResourceType;

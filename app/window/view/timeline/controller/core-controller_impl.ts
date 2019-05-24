@@ -12,6 +12,7 @@ import { StandardMouseEvent } from "base/view/mouseEvent";
 import { IHistoryCommand } from "internal/history/command";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";
+import { IResourceService } from "internal/resource/resource-service";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
@@ -22,7 +23,8 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
 
   constructor(private readonly widget_: TimelineWidget,
-    @IHistoryService private readonly historyService_: IHistoryService) {
+    @IHistoryService private readonly historyService_: IHistoryService,
+    @IResourceService private readonly resourceService_: IResourceService) {
     super();
 
     this.toDispose_.push(widget_.onTrackDragOver(e => this.trackDragOverHandler(e.trackViewModel, e.e), this));
@@ -37,7 +39,7 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
       if (this.lastDragData_ != dragData || this.dragGhostContainer_ == null) {
         this.lastDragData_ = dragData;
         const resourceDragData = dragData as ResourceDragAndDropData;
-        this.dragTrackItem_ = app.resource.trackItemize(resourceDragData.getData());
+        this.dragTrackItem_ = this.resourceService_.trackItemize(resourceDragData.getData());
         this.dragGhostContainer_ = this.widget_.model.ghostViewModel.createGhostContainer();
         this.widget_.model.ghostViewModel.setCurrentContainer(this.dragGhostContainer_);
         this.dragGhostContainer_.addGhostTrackItem(0, 0, this.dragTrackItem_.duration);

@@ -1,8 +1,8 @@
-import { Resource } from "internal/resource";
+import { IResource } from "internal/resource/resource";
 
 export interface ResourceWidgetResourceViewModel {
 
   readonly id: number;
-  readonly resource: Resource;
+  readonly resource: IResource;
 
 }

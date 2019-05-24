@@ -1,45 +1,51 @@
 import VideoRendererWorker from 'worker-loader!./worker';
-import { TimelineManager } from 'internal/timeline/timeline-manager';
 import { getPostableID } from 'worker-postable';
-import { Timeline, ITimeline } from 'internal/timeline/timeline';
+import { ITimeline } from 'internal/timeline/timeline';
 import { VideoRendererRenderMessageEvent, VideoRendererMessageEventType } from 'internal/renderer/video-renderer/message';
 import { IDisposable, dispose, Disposable } from 'base/common/lifecycle';
-import { ProjectRenderer } from 'internal/renderer/base/all';
-import { TimelineManagerVideoRenderer } from 'internal/renderer/video-renderer/timeline/timeline-manager';
 import { IProject } from 'internal/project/project';
+import { IProjectService } from 'internal/project/project-service';
 
 export class VideoRendererNode extends Disposable {
   
   private readonly worker: Worker;
 
-  private project_: IProject;
+  private targetProject_: IProject;
   private targetTimeline_: ITimeline;
+
+  private projectDisposables_: IDisposable[] = [];
   private timelineDisposers_: IDisposable[] = [];
 
-  constructor() {
+  constructor(
+    @IProjectService private readonly projectService_: IProjectService) {
     super();
+
+    this._register(projectService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
     this.worker = new VideoRendererWorker();
   }
 
-  initialize(project: IProject, canvas: HTMLCanvasElement) {
-    this.project_ = project;
+  initialize(
+    canvas: HTMLCanvasElement) {
     this.worker.postMessage({
       type: 'INIT',
       data: {
-        project: getPostableID(project),
         canvas: canvas
       }
     }, [canvas as any])
+  }
 
+  private currentProjectChangedHandler() {
+    this.projectDisposables_ = dispose(this.projectDisposables_);
+    this.targetProject_ = this.projectService_.getCurrentProject();
     this.targetTimelineChangedHandler();
-    this._register(this.project_.timelineManager.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
+    this.targetProject_.timelineService.onTargetTimelineChanged(this.targetTimelineChangedHandler, this, this.projectDisposables_);
   }
 
   private targetTimelineChangedHandler() {
     const lastTargetTimeline = this.targetTimeline_;
     this.timelineDisposers_ = dispose(this.timelineDisposers_);
 
-    const timeline = this.project_.timelineManager.targetTimeline;
+    const timeline = this.targetProject_.timelineService.targetTimeline;
     this.targetTimeline_ = timeline;
     if (!timeline) return;
 
@@ -51,7 +57,7 @@ export class VideoRendererNode extends Disposable {
   private timelinePlayHandler() {
     this.worker.postMessage({
       type: VideoRendererMessageEventType.PLAY_RENDER,
-      timelineID: this.targetTimeline_.id,
+      timelineID: getPostableID(this.targetTimeline_),
       currentTime: this.targetTimeline_.currentTime,
       systemTime: Date.now()
     } as VideoRendererRenderMessageEvent)
@@ -60,7 +66,7 @@ export class VideoRendererNode extends Disposable {
   private timelinePauseHandler() {
     this.worker.postMessage({
       type: VideoRendererMessageEventType.PAUSE_RENDER,
-      timelineID: this.targetTimeline_.id,
+      timelineID: getPostableID(this.targetTimeline_),
       currentTime: this.targetTimeline_.currentTime,
       systemTime: Date.now()
     } as VideoRendererRenderMessageEvent)
@@ -69,7 +75,7 @@ export class VideoRendererNode extends Disposable {
   private timelineSeekHandler() {
     this.worker.postMessage({
       type: VideoRendererMessageEventType.RENDER,
-      timelineID: this.targetTimeline_.id,
+      timelineID: getPostableID(this.targetTimeline_),
       currentTime: this.targetTimeline_.currentTime,
       systemTime: Date.now()
     } as VideoRendererRenderMessageEvent)

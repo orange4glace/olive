@@ -1,6 +1,6 @@
 import { Postable, postable } from 'worker-postable'
 
-import TrackItemImpl from 'internal/timeline/track-item/track-item-impl';
+import { TrackItemImpl } from 'internal/timeline/track-item/track-item-impl';
 import { TrackItemBase, TrackItem } from 'internal/timeline/track-item/track-item';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
@@ -24,15 +24,7 @@ export abstract class VideoTrackItemImpl extends TrackItemImpl implements VideoT
     super(type);
   }
 
-  __setTime(time: TrackItemTime) {
-    time = clone(time);
-    if (time.base < 0) {
-      time.start -= time.base;
-      time.base = 0;
-    }
-    this.time = time;
-    this.onTimeChanged_.fire();
-  }
+  abstract __setTime(time: TrackItemTime): void;
 
   clone(obj: VideoTrackItemImpl): Object {
     super.clone(obj);

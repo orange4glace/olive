@@ -1,7 +1,7 @@
 const ffprobe = require('ffprobe');
-import { ResourceType } from '.';
 import { logger } from 'internal/logger';
 import { FrameRate } from 'internal/timeline/frame_rate';
+import { ResourceType } from 'internal/resource/type_t';
 
 export interface ProbeResult {
   type: ResourceType;

@@ -1,14 +1,14 @@
 import { ResourceWidgetResourceViewModel } from "window/view/resource/model/resource-view-model";
-import { Resource } from "internal/resource";
+import { IResource } from "internal/resource/resource";
 
 let __next_id = 0;
 
 export class ResourceWidgetResourceViewModelImpl implements ResourceWidgetResourceViewModel {
 
   readonly id: number;
-  readonly resource: Resource;
+  readonly resource: IResource;
 
-  constructor(resource: Resource) {
+  constructor(resource: IResource) {
     this.id = __next_id++;
     this.resource = resource;
   }

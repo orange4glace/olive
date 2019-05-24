@@ -1,7 +1,7 @@
 import { Timeline, TimelineBase, ITimeline } from "internal/timeline/timeline";
 import { assert } from "base/common/assert";
 import TimelineImpl from "internal/timeline/timeline_impl";
-import { Postable, postable, PostableEvent, PostableEventBase } from "worker-postable";
+import { Postable, postable } from "worker-postable";
 import { Event, Emitter } from "base/common/event";
 
 export interface TimelineManagerTimelineEvent {

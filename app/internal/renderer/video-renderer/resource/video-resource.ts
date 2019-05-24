@@ -1,5 +1,4 @@
 import { Posted } from "worker-postable";
-import { VideoResourceBase } from "internal/resource/video-resource";
 import { renderer } from "../renderer";
 import { VideoResourceRenderer } from "internal/renderer/base/all";
 import { PostedEventListener } from 'worker-postable'

@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Timeline } from "internal/timeline/timeline";
+import { Timeline, ITimeline } from "internal/timeline/timeline";
 import { TimelineWidgetTimelineViewModelImpl } from 'window/view/timeline/model/timeline-view-model-impl';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
 import { Widget } from 'window/view/widget';
@@ -13,15 +13,17 @@ import { TimelineWidget } from 'window/view/timeline/widget';
 import { TimelineWidgetViewOutgoingEvents } from 'window/view/timeline/view-outgoing-events';
 import { TimelineWidgetCoreControllerImpl } from 'window/view/timeline/controller/core-controller_impl';
 import { TimelineWidgetManipulatorControllerImpl } from 'window/view/timeline/controller/manipulator_impl';
-import { WidgetRegistry, IWidgetProvider } from 'window/view/widget-registry';
-import { IServiceProvider } from 'window/service/provider';
-import app from 'internal/app';
 import { TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
 import { ITimelineWidgetRangeSelector, TimelineWidgetRangeSelector } from 'window/view/timeline/model/range-selector';
 import { TimelineWidgetRangeSelectorController } from 'window/view/timeline/controller/range-selector-controller';
-import { InstantiationService } from 'platform/instantiation/common/instantiationService';
-import { IInstantiationService, ServicesAccessor } from 'platform/instantiation/common/instantiation';
+import { ServicesAccessor } from 'platform/instantiation/common/instantiation';
 import { IHistoryService } from 'internal/history/history';
+import { IProjectService } from 'internal/project/project-service';
+import { IObservableValue } from 'mobx';
+import { observable } from 'window/app-mobx';
+import { IWidgetProvider } from 'window/view/widget-service';
+import { WidgetRegistry } from 'window/view/widget-registry';
+import { IResourceService } from 'internal/resource/resource-service';
 
 interface Serial {
   timelineID: number;
@@ -53,48 +55,59 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   private readonly onTrackItemBlured_: Emitter<TimelineWidgetTrackItemEvent> = new Emitter();
   readonly onTrackItemBlured: Event<TimelineWidgetTrackItemEvent> = this.onTrackItemBlured_.event;
 
-  private toDispose_: IDisposable[] = [];
-
-  readonly model: TimelineWidgetTimelineViewModel;
-  readonly rangeSelector: ITimelineWidgetRangeSelector;
-
   private onFocused_: Emitter<void> = new Emitter();
   readonly onFocused: Event<void> = this.onFocused_.event;
+
+  private timelineDisposables_: IDisposable[] = [];
+  private toDispose_: IDisposable[] = [];
+
+  private model_: IObservableValue<TimelineWidgetTimelineViewModel> = observable.box(null);
+  public get model(): TimelineWidgetTimelineViewModel { return this.model_.get(); }
+
+  readonly rangeSelector: ITimelineWidgetRangeSelector;
 
   private active_: boolean;
 
   constructor(
     public readonly timeline: Timeline,
     private readonly timelineWidgetService_: ITimelineWidgetService,
-    @IHistoryService private readonly historyService_: IHistoryService) {
+    @IHistoryService private readonly historyService_: IHistoryService,
+    @IResourceService private readonly resourceService_: IResourceService) {
     super('TimelineWidget');
     
     this.active_ = false;
 
-    this.model = new TimelineWidgetTimelineViewModelImpl(timeline);
     this.rangeSelector = new TimelineWidgetRangeSelector();
+    this.toDispose_.push(new TimelineWidgetCoreControllerImpl(this,
+        historyService_, resourceService_));
+    this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
+    this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
 
-    this.toDispose_.push(this.model.onTrackItemFocused(e => {
+    this.setTimeline(timeline);
+    timelineWidgetService_.addWidget(this);
+  }
+
+  setTimeline(timeline: ITimeline): void {
+    this.timelineDisposables_ = dispose(this.timelineDisposables_);
+    if (timeline == null) {
+      this.model_.set(null);
+      return;
+    }
+    this.model_.set(new TimelineWidgetTimelineViewModelImpl(timeline));
+    this.timelineDisposables_.push(this.model.onTrackItemFocused(e => {
       this.onTrackItemFocused_.fire({
         timeline: this.timeline,
         track: e.trackViewModel.track,
         trackItem: e.trackItemViewModel.trackItem
       })
     }))
-    this.toDispose_.push(this.model.onTrackItemBlured(e => {
+    this.timelineDisposables_.push(this.model.onTrackItemBlured(e => {
       this.onTrackItemBlured_.fire({
         timeline: this.timeline,
         track: e.trackViewModel.track,
         trackItem: e.trackItemViewModel.trackItem
       })
     }))
-
-    this.toDispose_.push(new TimelineWidgetCoreControllerImpl(this,
-        historyService_));
-    this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
-    this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
-
-    timelineWidgetService_.addWidget(this);
   }
 
   registerViewOutgoingEvents(outgoingEvents: TimelineWidgetViewOutgoingEvents): void {
@@ -143,6 +156,7 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   }
 
   dispose(): void {
+    this.timelineDisposables_ = dispose(this.timelineDisposables_);
     this.toDispose_ = dispose(this.toDispose_);
   }
 
@@ -155,24 +169,25 @@ interface InitializationData {
 class TimelineWidgetProvider implements IWidgetProvider<TimelineWidget> {
 
   create(initializationData: InitializationData,
-      internalServices: ServicesAccessor,
-      serviceProvider: IServiceProvider): TimelineWidget {
+      services: ServicesAccessor): TimelineWidget {
+    const project = (<IProjectService>services.get(IProjectService)).getCurrentProject();;
     return new TimelineWidgetImpl(
         initializationData.timeline,
-        serviceProvider.getService(ITimelineWidgetService),
-        internalServices.get(IHistoryService));
+        services.get(ITimelineWidgetService),
+        services.get(IHistoryService),
+        project.resourceService);
   }
 
   serialize(widget: TimelineWidgetImpl) {
     return widget.serialize();
   }
 
-  deserialize(obj: Serial, internalServices: ServicesAccessor, serviceProvider: IServiceProvider) {
+  deserialize(obj: Serial, services: ServicesAccessor) {
     return this.create({
-      timeline: app.project.timelineManager.getTimeline(obj.timelineID)
-    }, internalServices, serviceProvider);
+      timeline: (<IProjectService>services.get(IProjectService)).getCurrentProject().timelineService.getTimeline(obj.timelineID)
+    }, services);
   }
 
 }
 
-WidgetRegistry.registerWidget('TimelineWidget', new TimelineWidgetProvider());
+WidgetRegistry.registerWidget('olive.TimelineWidget', new TimelineWidgetProvider());

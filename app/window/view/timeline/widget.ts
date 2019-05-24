@@ -1,6 +1,6 @@
 import { Widget } from "window/view/widget";
 import { Event } from "base/common/event";
-import { Timeline } from "internal/timeline/timeline";
+import { Timeline, ITimeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from "window/view/timeline/event";
 import { TimelineWidgetViewOutgoingEvents } from "window/view/timeline/view-outgoing-events";
@@ -26,8 +26,10 @@ export interface TimelineWidget extends Widget {
   readonly onTrackItemFocused: Event<TimelineWidgetTrackItemEvent>;
   readonly onTrackItemBlured: Event<TimelineWidgetTrackItemEvent>;
 
-  readonly model: TimelineWidgetTimelineViewModel;
+  /*@observable*/ readonly model: TimelineWidgetTimelineViewModel;
   readonly rangeSelector: ITimelineWidgetRangeSelector;
+
+  setTimeline(timeline: ITimeline): void;
 
   registerViewOutgoingEvents(outingEvents: TimelineWidgetViewOutgoingEvents): void;
 

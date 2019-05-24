@@ -31,7 +31,7 @@ export class LayoutData {
       layout.children.push(this);
       
       var win = new LayoutData(LayoutDirection.VIEW, layout);
-      win.views.push(window);
+      win.views.push(view);
       if (LayoutViewDirectionUtil.isTopOrLeft(viewDirection))
         layout.children.splice(0, 0, win);
       else layout.children.splice(1, 0, win);
@@ -39,7 +39,7 @@ export class LayoutData {
     else {
       var index = this.parent.indexOfChildLayout(this);
       var layout = new LayoutData(LayoutDirection.VIEW, this.parent);
-      layout.views.push(window);
+      layout.views.push(view);
       if (LayoutViewDirectionUtil.isTopOrLeft(viewDirection))
         this.parent.children.splice(index, 0, layout);
       else this.parent.children.splice(index + 1, 0, layout);

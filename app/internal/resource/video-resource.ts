@@ -9,8 +9,12 @@ export interface VideoResourceBase extends ResourceBase {
   height: number;
 }
 
+export interface IVideoResource extends VideoResourceBase {
+  duration: number;
+}
+
 @Postable
-export class VideoResource extends Resource {
+export class VideoResource extends Resource implements IVideoResource {
 
   @postable width: number;
   @postable height: number;

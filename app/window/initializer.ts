@@ -3,10 +3,7 @@ import app from 'internal/app';
 
 function initialize(param: WindowParam) {
   app.services = param.app.services;
-  app.project = param.app.project;
-  app.factory = param.app.factory;
   app.mobx = param.app.mobx;
-  app.resource = param.app.resource;
   app.canvas = param.app.canvas;
   console.log('[Window] Initialize', app);
   console.log('initilaize', param.app);

@@ -1,9 +1,9 @@
 import * as React from 'react'
 import { ResourceWidget } from "window/view/resource/widget";
 import { ResourceWidgetModelImpl } from "window/view/resource/model/model-impl";
-import { ResourceManager } from "internal/resource";
 import { ResourceWidgetControllerImpl } from "window/view/resource/controller/controller_impl";
 import { ResourceWidgetView, ResourceWidgetViewProps } from "window/view/resource/view/widget-view";
+import ResourceManager from 'internal/resource/manager';
 
 export class ResourceWidgetImpl extends ResourceWidget {
 

@@ -9,7 +9,7 @@ import { Emitter, Event } from 'base/common/event';
 let __next_id = 0;
 
 @Postable
-export default class TrackItemImpl implements TrackItem {
+export abstract class TrackItemImpl implements TrackItem {
 
   readonly onTimeChanged_: Emitter<void> = new Emitter();
   readonly onTimeChanged: Event<void> = this.onTimeChanged_.event;
@@ -36,10 +36,7 @@ export default class TrackItemImpl implements TrackItem {
     return this.time.start <= time && time < this.time.end;
   }
 
-  __setTime(time: TrackItemTime) {
-    this.time = clone(time);
-    this.onTimeChanged_.fire();
-  }
+  abstract __setTime(time: TrackItemTime): void;
 
   clone(obj: TrackItemImpl): Object {
     obj.id = __next_id++;

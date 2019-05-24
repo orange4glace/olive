@@ -1,6 +1,6 @@
 import { Postable, postable } from 'worker-postable'
 
-import TrackItemImpl from 'internal/timeline/track-item/track-item-impl';
+import { TrackItemImpl } from 'internal/timeline/track-item/track-item-impl';
 import { TrackItemBase, TrackItem } from 'internal/timeline/track-item/track-item';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { TrackItemType } from 'internal/timeline/track-item/track-item-type';

@@ -4,8 +4,6 @@ import * as mobx_react from 'mobx-react';
 
 import { context as PostableContext, ref, getPostableID } from 'worker-postable'
 import App from 'internal/app-interface';
-import ResourceManager from 'internal/resource/manager';
-import Factory from './factory';
 import { Poster } from 'poster';
 
 import WindowParam from 'window/window-param'
@@ -16,7 +14,6 @@ import {
   WindowRequestResult,
   WindowRequestWrapResult,
   AppParam } from 'connector'
-import { TimelineManagerImpl } from 'internal/timeline/timeline-manager';
 import { VideoRendererNode } from 'internal/renderer/video-renderer/renderer-node';
 import { AudioRendererNode } from 'internal/renderer/audio-renderer/renderer-node';
 import { Project } from 'internal/project/project';
@@ -24,6 +21,8 @@ import { createAudioRendererOption, createAudioRendererBuffers } from 'internal/
 import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
 import { IHistoryService, HistoryService } from 'internal/history/history';
 import { InstantiationService } from 'platform/instantiation/common/instantiationService';
+import { ProjectService } from 'internal/project/project-service-impl';
+import { IProjectService } from 'internal/project/project-service';
 
 if ((module as any).hot) (module as any).hot.accept();
 
@@ -41,19 +40,25 @@ function initializeApp(): void {
   );
   const instantiationService = new InstantiationService(serviceCollection);
 
-  const videoRendererNode = new VideoRendererNode();
+  const projectService = new ProjectService(instantiationService);
+  serviceCollection.set(IProjectService, projectService);
+
+  const videoRendererNode = new VideoRendererNode(projectService);
 
   const audioRendererOption = createAudioRendererOption({
     frequency: 48000,
     maxSlot: 8,
     kernelsPerSlot: 8
   });
-  const audioRendererNode = new AudioRendererNode();
+  const audioRendererNode = new AudioRendererNode(projectService);
 
   PostableContext.onMessage = msg => {
     videoRendererNode.sendPostableMessage(msg);
     audioRendererNode.sendPostableMessage(msg);
   }
+
+  const project = projectService.createProject();
+  projectService.setCurrentProject(project);
   
   app = ((window as any).app) as App;
   app.mobx = {
@@ -64,20 +69,15 @@ function initializeApp(): void {
     observer: mobx_react.observer,
   }
   app.services = instantiationService;
-  app.project = new Project();
-  app.factory = new Factory();
-  app.resource = new ResourceManager();
   app.canvas = document.createElement('canvas');
   app.canvas.width = 1080;
   app.canvas.height = 720;
 
-  ref(app.project);
-
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
-  videoRendererNode.initialize(app.project, offscreen);
-  audioRendererNode.initialize(app.project, {
+  videoRendererNode.initialize(offscreen);
+  audioRendererNode.initialize({
     option: audioRendererOption,
     buffers: createAudioRendererBuffers(audioRendererOption)
   });

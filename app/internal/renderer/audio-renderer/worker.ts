@@ -3,18 +3,11 @@ baseForceImport();
 import { forceImport as audioForceImport } from 'internal/renderer/audio-renderer/all'
 audioForceImport();
 
-import { createAudioRendererOption, AudioRendererStateIndex, AudioRendererInitializationData } from "internal/renderer/audio-renderer/common";
-import { AudioRendererWorkletNode } from "internal/renderer/audio-renderer/renderer-worklet-node";
-
-import AudioRendererWorklet from 'worklet-loader!./renderer-worklet';
-import { Poster } from 'poster';
 import { postableMessageHandler, ObjectStore } from 'worker-postable';
 import { AudioRenderer } from 'internal/renderer/audio-renderer/renderer';
 import { AudioRendererMessageEventType, AudioRendererInitMessageEvent, AudioRendererRenderMessageEvent } from 'internal/renderer/audio-renderer/message';
-import { TimelineManagerAudioRenderer } from 'internal/renderer/audio-renderer/timeline/timeline-manager';
 
 const renderer = new AudioRenderer();
-let timelineManager: TimelineManagerAudioRenderer;
 
 self.onmessage = function (e: MessageEvent) {
   const data = e.data;
@@ -25,13 +18,12 @@ self.onmessage = function (e: MessageEvent) {
       break;
     case AudioRendererMessageEventType.INIT:
       msg = data as AudioRendererInitMessageEvent;
-      timelineManager = ObjectStore.get(msg.timelineManagerID);
       renderer.initialize(msg.data);
       break;
     case AudioRendererMessageEventType.PLAY_RENDER:
       {
       msg = data as AudioRendererRenderMessageEvent;
-      const timeline = timelineManager.getTimeline(msg.timelineID);
+      const timeline = ObjectStore.get(msg.timelineID);
       renderer.startRender(timeline, msg.time, msg.systemTime, msg.requestID);
       }
       break;
@@ -44,7 +36,7 @@ self.onmessage = function (e: MessageEvent) {
     case AudioRendererMessageEventType.RENDER:
       {
       msg = data as AudioRendererRenderMessageEvent;
-      const timeline = timelineManager.getTimeline(msg.timelineID);
+      const timeline = ObjectStore.get(msg.timelineID);
       renderer.render(timeline, msg.time, msg.requestID);
       }
       break;

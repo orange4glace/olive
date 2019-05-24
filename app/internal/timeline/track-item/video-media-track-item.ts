@@ -1,26 +1,26 @@
 import { VideoTrackItemBase, VideoTrackItem, VideoTrackItemImpl } from "internal/timeline/track-item/video-track-item";
 import { Postable, postable } from "worker-postable";
 import { TrackItemType } from "internal/timeline/track-item/track-item-type";
-import { VideoResourceBase, VideoResource } from "internal/resource";
 import { TrackItemTime } from "internal/timeline/track-item/track-item-time";
 import { clone } from "base/common/cloneable";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
 import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
+import { VideoResourceBase, IVideoResource } from "internal/resource/video-resource";
 
 export interface VideoMediaTrackItemBase extends VideoTrackItemBase {
   readonly resource: VideoResourceBase;
 }
 
 export interface VideoMediaTrackItem extends VideoTrackItem {
-  readonly resource: VideoResource;
+  readonly resource: IVideoResource;
 }
 
 @Postable
 export class VideoMediaTrackItemImpl extends VideoTrackItemImpl implements VideoMediaTrackItemBase {
 
-  @postable resource: VideoResource;
+  @postable resource: IVideoResource;
 
-  constructor(resource: VideoResource) {
+  constructor(resource: IVideoResource) {
     super(TrackItemType.VIDEO_MEDIA);
     this.resource = resource;
     this.drawing = new VideoMediaDrawing(resource);

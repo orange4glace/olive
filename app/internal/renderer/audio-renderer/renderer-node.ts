@@ -3,10 +3,11 @@ import { AudioRendererMessageEventType, AudioRendererInitMessageEvent, AudioRend
 import { AudioRendererWorkletNode } from "internal/renderer/audio-renderer/renderer-worklet-node";
 import AudioRendererWorker from 'worker-loader!./worker'
 import AudioRendererWorklet from 'worklet-loader!./renderer-worklet';
-import { getPostableID } from "worker-postable";
 import { Disposable, IDisposable, dispose } from "base/common/lifecycle";
 import { ITimeline } from "internal/timeline/timeline";
 import { IProject } from "internal/project/project";
+import { IProjectService } from "internal/project/project-service";
+import { getPostableID } from "worker-postable";
 
 export class AudioRendererNode extends Disposable {
 
@@ -15,26 +16,36 @@ export class AudioRendererNode extends Disposable {
   worker: AudioRendererWorker;
   worklet: AudioRendererWorkletNode;
 
-  private project_: IProject;
+  private targetProject_: IProject;
   private targetTimeline_: ITimeline;
+
+  private projectDisposables_: IDisposable[] = [];
   private timelineDisposers_: IDisposable[] = [];
 
   buffers: {
     state: Int32Array
   }
 
-  constructor() {
+  constructor(
+    @IProjectService private readonly projectService_: IProjectService) {
     super();
+
+    this._register(projectService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
     this.worker = new AudioRendererWorker();
   }
 
-  initialize(project: IProject, initData: AudioRendererInitializationData) {
-    this.project_ = project;
+  private currentProjectChangedHandler() {
+    this.projectDisposables_ = dispose(this.projectDisposables_);
+    this.targetProject_ = this.projectService_.getCurrentProject();
+    this.targetTimelineChangedHandler();
+    this.targetProject_.timelineService.onTargetTimelineChanged(this.targetTimelineChangedHandler, this, this.projectDisposables_);
+  }
+
+  initialize(initData: AudioRendererInitializationData) {
     
     const context = new AudioContext();
     const source = context.createBufferSource();
     context.audioWorklet.addModule(AudioRendererWorklet).then(() => {
-
       this.worklet = new AudioRendererWorkletNode(context, initData);
 
       source.connect(this.worklet);
@@ -47,19 +58,15 @@ export class AudioRendererNode extends Disposable {
     }
     this.worker.postMessage({
       type: AudioRendererMessageEventType.INIT,
-      timelineManagerID: getPostableID(this.project_.timelineManager),
       data: initData
     } as AudioRendererInitMessageEvent)
-
-    this.targetTimelineChangedHandler();
-    this._register(this.project_.timelineManager.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
   }
 
   private targetTimelineChangedHandler() {
     const lastTargetTimeline = this.targetTimeline_;
     this.timelineDisposers_ = dispose(this.timelineDisposers_);
 
-    const timeline = this.project_.timelineManager.targetTimeline;
+    const timeline = this.targetProject_.timelineService.targetTimeline;
     this.targetTimeline_ = timeline;
     if (!timeline) return;
 
@@ -73,7 +80,7 @@ export class AudioRendererNode extends Disposable {
     this.worker.postMessage({
       type: AudioRendererMessageEventType.PLAY_RENDER,
       requestID: requestID,
-      timelineID: this.targetTimeline_.id,
+      timelineID: getPostableID(this.targetTimeline_),
       time: this.targetTimeline_.currentTime,
       systemTime: Date.now()
     } as AudioRendererRenderMessageEvent)
@@ -85,7 +92,7 @@ export class AudioRendererNode extends Disposable {
     this.worker.postMessage({
       type: AudioRendererMessageEventType.PAUSE_RENDER,
       requestID: requestID,
-      timelineID: this.targetTimeline_.id,
+      timelineID: getPostableID(this.targetTimeline_),
       time: this.targetTimeline_.currentTime,
       systemTime: Date.now()
     } as AudioRendererRenderMessageEvent)
@@ -97,7 +104,7 @@ export class AudioRendererNode extends Disposable {
     this.worker.postMessage({
       type: AudioRendererMessageEventType.RENDER,
       requestID: requestID,
-      timelineID: this.targetTimeline_.id,
+      timelineID: getPostableID(this.targetTimeline_),
       time: this.targetTimeline_.currentTime,
       systemTime: Date.now()
     } as AudioRendererRenderMessageEvent)

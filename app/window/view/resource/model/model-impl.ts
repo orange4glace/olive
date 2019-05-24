@@ -1,8 +1,9 @@
 import { ResourceWidgetModel } from "window/view/resource/model/model";
 import { ResourceWidgetResourceViewModelImpl } from "window/view/resource/model/resource-view-model-impl";
-import { ResourceManager, Resource } from "internal/resource";
 import { observable } from "window/app-mobx";
 import { Disposable } from "base/common/lifecycle";
+import ResourceManager from "internal/resource/manager";
+import { IResource } from "internal/resource/resource";
 
 export class ResourceWidgetModelImpl extends Disposable implements ResourceWidgetModel {
 
@@ -21,12 +22,12 @@ export class ResourceWidgetModelImpl extends Disposable implements ResourceWidge
     this._register(this.resourceManager.onResourceAdded(e => this.resourceAddedHandler(e.resource), this));
   }
 
-  private resourceAddedHandler(resource: Resource) {
+  private resourceAddedHandler(resource: IResource) {
     const vm = new ResourceWidgetResourceViewModelImpl(resource);
     this.resourceViewModels.push(vm);
   }
 
-  private resourceWillRemoveHandler(resource: Resource) {
+  private resourceWillRemoveHandler(resource: IResource) {
 
   }
 

@@ -8,8 +8,12 @@ export interface ResourceBase {
   path: string;
 }
 
+export interface IResource extends ResourceBase {
+  readonly type: ResourceType;
+}
+
 @Postable
-export abstract class Resource implements ResourceBase {
+export abstract class Resource implements IResource {
   @postable readonly id: number;
   @postable readonly path: string;
   readonly type: ResourceType;

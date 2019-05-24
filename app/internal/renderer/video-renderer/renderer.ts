@@ -4,7 +4,6 @@ import { forceImport as videoRendererForceImport } from 'internal/renderer/video
 import { Poster, ReceivedRequest } from 'poster'
 import { ObjectStore, postableMessageHandler } from 'worker-postable';
 import IDecoder from 'internal/decoder/decoder';
-import { TimelineManagerVideoRenderer } from 'internal/renderer/video-renderer/timeline/timeline-manager';
 import { VideoRendererMessageEventType, VideoRendererRenderMessageEvent } from 'internal/renderer/video-renderer/message';
 import { TimelineVideoRenderer } from 'internal/renderer/video-renderer/timeline/timeline';
 import { getCurrentSystemTime } from 'base/common/time';
@@ -24,13 +23,6 @@ function initializeDecoderModule() {
   return module;
 }
 
-interface RenderCallbackDisposer {
-  dispose: () => null;
-  fireDispose: () => void;
-  disposed: boolean;
-  onDispose: () => void;
-}
-
 interface RenderRequest {
   timeline: TimelineVideoRenderer;
   time: number;
@@ -38,8 +30,6 @@ interface RenderRequest {
 }
 
 export class Renderer {
-
-  private project_: ProjectRenderer;
 
   private playing_: boolean = false;
   private playingRequest_: RenderRequest = null;
@@ -50,16 +40,10 @@ export class Renderer {
   vg: any;
   converter: any;
 
-
-  private renderCallbackDisposer_: RenderCallbackDisposer;
-  private currentRenderPromise_: Promise<null>;
-
-
   constructor() {
     this.loop_ = this.loop_.bind(this);
     this.decoder = initializeDecoderModule();
 
-    this.initProject = this.initProject.bind(this);
     this.initNanovg = this.initNanovg.bind(this);
 
     this.initConverter();
@@ -76,7 +60,6 @@ export class Renderer {
         this.handlePostableMessage(msg);
         break;
       case 'INIT':
-        this.initProject(msg.data.project);
         this.initNanovg(msg.data.canvas);
         break;
       case VideoRendererMessageEventType.PLAY_RENDER:
@@ -95,13 +78,13 @@ export class Renderer {
     postableMessageHandler(msg.data);
     const targetTimelineID = msg.timelineID;
     if (targetTimelineID != -1) {
-      const timeline = this.project_.timelineManager.getTimeline(targetTimelineID) as TimelineVideoRenderer;
+      const timeline = ObjectStore.get(targetTimelineID) as TimelineVideoRenderer;
       this.seekTimeline(timeline, timeline.currentTimePausing);
     }
   }
 
   private onPlayRender(e: VideoRendererRenderMessageEvent) {
-    const timeline = this.project_.timelineManager.getTimeline(e.timelineID) as TimelineVideoRenderer;
+    const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;
     this.startTimelineRenderCallback(timeline, e.currentTime, e.systemTime);
   }
 
@@ -112,7 +95,7 @@ export class Renderer {
   }
 
   private onRender(e: VideoRendererRenderMessageEvent) {
-    const timeline = this.project_.timelineManager.getTimeline(e.timelineID) as TimelineVideoRenderer;;
+    const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;;
     this.seekTimeline(timeline, e.currentTime); 
   }
 
@@ -163,11 +146,6 @@ export class Renderer {
     else if (this.dirty_)
       await this.dirtyCallback_();
     requestAnimationFrame(this.loop_);
-  }
-
-  private initProject(projectPostableID: number) {
-    console.log('[Renderer] Initialze project', projectPostableID);
-    this.project_ = ObjectStore.get(projectPostableID);
   }
 
   private initNanovg(canvas: HTMLCanvasElement) {

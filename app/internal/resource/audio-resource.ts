@@ -8,8 +8,10 @@ import { logger } from "internal/logger";
 export interface AudioResourceBase extends ResourceBase {
 }
 
+export interface IAudioResource extends AudioResourceBase {}
+
 @Postable
-export class AudioResource extends Resource {
+export class AudioResource extends Resource implements IAudioResource {
 
   duration: number;
 

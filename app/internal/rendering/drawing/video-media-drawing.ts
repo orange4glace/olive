@@ -3,7 +3,7 @@ import { OpacityEffect } from "../effect/video-effect/opacity-effect";
 import { VideoDrawing, VideoDrawingBase } from "./video-drawing";
 import { Postable, postable } from "worker-postable";
 import { DrawingType } from "internal/rendering/drawing/drawing";
-import { VideoResourceBase, VideoResource } from "internal/resource";
+import { VideoResourceBase, IVideoResource } from "internal/resource/video-resource";
 
 export interface VideoMediaDrawingBase extends VideoDrawingBase {
 
@@ -14,9 +14,9 @@ export interface VideoMediaDrawingBase extends VideoDrawingBase {
 @Postable
 export class VideoMediaDrawing extends VideoDrawing {
 
-  @postable resource: VideoResource;
+  @postable resource: IVideoResource;
 
-  constructor(resource: VideoResource) {
+  constructor(resource: IVideoResource) {
     super(DrawingType.VIDEO_MEDIA);
     this.resource = resource;
   }
