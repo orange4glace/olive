@@ -1,8 +1,5 @@
 import { IProject, Project } from "internal/project/project";
-import { StorageService } from "internal/storage/storage-service";
-import { TimelineService } from "internal/timeline/timeline-service";
 import { Event, Emitter } from "base/common/event";
-import { ResourceService } from "internal/resource/resource-service-impl";
 import { IProjectService } from "internal/project/project-service";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 

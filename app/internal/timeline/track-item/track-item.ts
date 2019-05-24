@@ -12,9 +12,6 @@ export interface TrackItem extends TrackItemBase, Cloneable {
 
   readonly onTimeChanged: Event<void>;
 
-  /*@postable*/ readonly type: TrackItemType;
-  /*@postable*/ readonly time: ConstTrackItemTime;
-
   /*@observable*/ readonly duration: number;
 
   getTimeoffset(time: number): number;

@@ -22,3 +22,17 @@
 '.'��(��) ���� �Ǵ� �ܺ� ����, ������ �� �ִ� ���α׷�, �Ǵ�
 ��ġ ������ �ƴմϴ�.
 
+[2019-05-24T18:11:32.420] [ERROR] olive - Probe MAYBE_FILE_FORMAT_MISMATCH. path =  D:\source\olive\app\typings.d.ts error =  Error: D:\source\olive\app\typings.d.ts: Invalid data found when processing input
+    at ChildProcess.<anonymous> (http://localhost:8080/internal.js:9238:16)
+    at Object.onceWrapper (events.js:273:13)
+    at ChildProcess.emit (events.js:182:13)
+    at maybeClose (internal/child_process.js:962:16)
+    at Socket.stream.socket.on (internal/child_process.js:381:11)
+    at Socket.emit (events.js:182:13)
+    at Pipe._handle.close (net.js:606:12)
+[2019-05-24T18:12:01.348] [ERROR] olive - Probe MAYBE_FILE_FORMAT_MISMATCH. path =  D:\source\olive\app\theme-black.scss error =  Error: D:\source\olive\app\theme-black.scss: Invalid data found when processing input
+    at ChildProcess.<anonymous> (http://localhost:8080/internal.js:9238:16)
+    at Object.onceWrapper (events.js:273:13)
+    at ChildProcess.emit (events.js:182:13)
+    at maybeClose (internal/child_process.js:962:16)
+    at Process.ChildProcess._handle.onexit (internal/child_process.js:251:5)

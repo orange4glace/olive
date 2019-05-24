@@ -1,6 +1,8 @@
 import { IStorageItem, StorageItem } from "internal/storage/storage-item";
 import { observable } from "mobx";
 import { assert } from "base/common/assert";
+import { Event, Emitter } from "base/common/event";
+import { ITrackItem } from "internal/timeline/track-item/track-item";
 
 export interface IStorageDirectory extends IStorageItem {
 
@@ -8,6 +10,9 @@ export interface IStorageDirectory extends IStorageItem {
 
   addItem(item: IStorageItem): void;
   getItem(name: string): IStorageItem;
+
+  onItemAdded: Event<IStorageItem>;
+  onItemRemoved: Event<IStorageItem>;
 
 }
 
@@ -28,9 +33,14 @@ export class StorageDirectory extends StorageItem implements IStorageDirectory {
     this.items = [];
   }
 
+  trackItemize(): ITrackItem {
+    return null;
+  }
+
   addItem(item: IStorageItem): void {
     this.items.push(item);
     item.setParent(this);
+    this.onItemAdded_.fire(item);
   }
 
   removeItem(item: IStorageItem): void {
@@ -38,6 +48,7 @@ export class StorageDirectory extends StorageItem implements IStorageDirectory {
     assert(index != -1, 'StorageItem not found. ' + this.getAbsolutePath() + ' ' + item.name );
     this.items.splice(index, 1);
     item.setParent(null);
+    this.onItemRemoved_.fire(item);
   }
 
   getItem(uuid: string): IStorageItem {
@@ -65,5 +76,11 @@ export class StorageDirectory extends StorageItem implements IStorageDirectory {
     if (!item) throw '[Storage] Navigate ' + path + ' failed. Item ' + target + ' not found in ' + this.getAbsolutePath();
     return item.navigate(next);
   }
+
+  private onItemAdded_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
+  public onItemAdded = this.onItemAdded_.event;
+
+  private onItemRemoved_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
+  public onItemRemoved = this.onItemRemoved_.event;
 
 }

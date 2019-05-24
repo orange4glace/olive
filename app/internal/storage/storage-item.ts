@@ -1,4 +1,5 @@
 import { observable } from "mobx";
+import { ITrackItem } from "internal/timeline/track-item/track-item";
 
 export interface IStorageItem {
 
@@ -8,6 +9,7 @@ export interface IStorageItem {
   readonly type: string;
   readonly isDirectory: boolean;
 
+  trackItemize(): ITrackItem;
   setParent(item: IStorageItem): void;
   getAbsolutePath(): string;
   navigate(path: string): IStorageItem;
@@ -34,6 +36,8 @@ export abstract class StorageItem implements IStorageItem {
   constructor() {
     this.uuid_ = this._uuid();
   }
+
+  abstract trackItemize(): ITrackItem;
 
   setParent(item: IStorageItem): void {
     this.parent = item;

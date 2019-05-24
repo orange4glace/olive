@@ -8,6 +8,8 @@ export interface EventCallback<T> {
 export class TimelineWidgetViewOutgoingEvents extends Disposable {
 
   // UI Event
+  onWidgetDragOver: EventCallback<React.DragEvent>;
+  onWidgetDrop: EventCallback<React.DragEvent>;
   onTrackItemMouseDown: EventCallback<TimelineWidgetTrackItemUIEvent>;
   onTrackItemMouseMoveStart: EventCallback<TimelineWidgetTrackItemUIEvent>;
   onTrackItemThumbMouseDown: EventCallback<TimelineWidgetTrackItemThumbUIEvent>;
@@ -20,6 +22,14 @@ export class TimelineWidgetViewOutgoingEvents extends Disposable {
 
   constructor() {
     super();
+  }
+
+  emitWidgetDragOver(e: React.DragEvent) {
+    if (this.onWidgetDragOver) this.onWidgetDragOver(e);
+  }
+
+  emitWidgetDrop(e: React.DragEvent) {
+    if (this.onWidgetDrop) this.onWidgetDrop(e);
   }
 
   emitTrackItemMouseDown(e: TimelineWidgetTrackItemUIEvent) {

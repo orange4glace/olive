@@ -1,6 +1,5 @@
 import app from "internal/app";
 import { StaticDND, IDragAndDropData } from "base/view/dnd";
-import { ResourceDragAndDropData } from "window/view/dnd/dnd";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetCoreController } from "window/view/timeline/controller/core-controller";
 import { TimelineWidgetGhostContainerViewModel } from "window/view/timeline/model/ghost-view-model";
@@ -13,6 +12,10 @@ import { IHistoryCommand } from "internal/history/command";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";
 import { IResourceService } from "internal/resource/resource-service";
+import { StorageItemDragAndDropData } from "window/view/dnd/dnd";
+import { TimelineWidgetTimelineViewModel } from "window/view/timeline/model/timeline-view-model";
+import { IProjectCoreService } from "internal/project/project-core-service";
+import { IStorageService } from "internal/storage/storage-service";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
@@ -23,23 +26,49 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
 
   constructor(private readonly widget_: TimelineWidget,
+    @IProjectCoreService private readonly projectCoreService_: IProjectCoreService,
     @IHistoryService private readonly historyService_: IHistoryService,
-    @IResourceService private readonly resourceService_: IResourceService) {
+    @IResourceService private readonly resourceService_: IResourceService,
+    @IStorageService private readonly storageService_: IStorageService) {
     super();
 
+    this.toDispose_.push(widget_.onWidgetDragOver(e => this.widgetDragOverHandler(e), this));
+    this.toDispose_.push(widget_.onWidgetDrop(e => this.widgetDropHandler(e), this));
     this.toDispose_.push(widget_.onTrackDragOver(e => this.trackDragOverHandler(e.trackViewModel, e.e), this));
     this.toDispose_.push(widget_.onTrackDragLeave(e => this.trackDragLeaveHandler(e.trackViewModel, e.e), this));
     this.toDispose_.push(widget_.onTrackDrop(e => this.trackDropHandler(e.trackViewModel, e.e), this));
   }
 
+  widgetDragOverHandler(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const dndData = StaticDND.CurrentDragAndDropData;
+    if (dndData instanceof StorageItemDragAndDropData) {
+
+    }
+  }
+
+  widgetDropHandler(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    const dndData = StaticDND.CurrentDragAndDropData;
+    console.log(dndData);
+    if (dndData instanceof StorageItemDragAndDropData) {
+      const timeline = this.projectCoreService_.createTimeline(this.storageService_.root);
+      this.widget_.setTimeline(timeline);
+    }
+  }
+
   trackDragOverHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent) {
     e.preventDefault();
+    e.stopPropagation();
     const dragData = StaticDND.CurrentDragAndDropData;
-    if (dragData instanceof ResourceDragAndDropData) {
+    if (dragData instanceof StorageItemDragAndDropData) {
       if (this.lastDragData_ != dragData || this.dragGhostContainer_ == null) {
         this.lastDragData_ = dragData;
-        const resourceDragData = dragData as ResourceDragAndDropData;
-        this.dragTrackItem_ = this.resourceService_.trackItemize(resourceDragData.getData());
+        const storageDNDData = dragData as StorageItemDragAndDropData;
+        this.dragTrackItem_ = storageDNDData.storageItem.trackItemize();
+        // this.dragTrackItem_ = this.resourceService_.trackItemize(storageDNDData.getData());
         this.dragGhostContainer_ = this.widget_.model.ghostViewModel.createGhostContainer();
         this.widget_.model.ghostViewModel.setCurrentContainer(this.dragGhostContainer_);
         this.dragGhostContainer_.addGhostTrackItem(0, 0, this.dragTrackItem_.duration);

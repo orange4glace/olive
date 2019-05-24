@@ -12,6 +12,8 @@ export interface TimelineWidget extends Widget {
   readonly timeline: Timeline;
 
   // UI Event
+  readonly onWidgetDragOver: Event<React.DragEvent>;
+  readonly onWidgetDrop: Event<React.DragEvent>;
   readonly onTrackItemMouseDown: Event<TimelineWidgetTrackItemUIEvent>;
   readonly onTrackItemMouseMoveStart: Event<TimelineWidgetTrackItemUIEvent>;
   readonly onTrackItemThumbMouseDown: Event<TimelineWidgetTrackItemThumbUIEvent>;

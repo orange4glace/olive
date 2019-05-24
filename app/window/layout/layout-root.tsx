@@ -6,7 +6,6 @@ import LayoutDND from 'window/layout/global/layout-dnd';
 
 import LayoutParser from 'window/layout/data';
 import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
-import { ResourceWidgetImpl } from 'window/view/resource/widget-impl';
 import { EffectControlWidgetImpl } from 'window/view/effect-control/widget_impl';
 import { MonitorWidgetImpl } from 'window/view/monitor/widget';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';

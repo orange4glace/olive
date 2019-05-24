@@ -23,6 +23,9 @@ class TimelineWidgetView extends React.Component<TimelineWidgetViewProps, {}> {
   constructor(props: any) {
     super(props);
 
+    this.dragOverHandler = this.dragOverHandler.bind(this);
+    this.dropHandler = this.dropHandler.bind(this);
+
     this.outgoingEvents = new TimelineWidgetViewOutgoingEvents();
     this.props.widget.registerViewOutgoingEvents(this.outgoingEvents);
 
@@ -35,6 +38,16 @@ class TimelineWidgetView extends React.Component<TimelineWidgetViewProps, {}> {
 
   mouseDownCaptureHandler(e: React.MouseEvent) {
     this.props.widget.focus();
+  }
+
+  dragOverHandler(e: React.DragEvent) {
+    console.log('DRAG OVER');
+    this.outgoingEvents.emitWidgetDragOver(e);
+  }
+
+  dropHandler(e: React.DragEvent) {
+    console.log('DROP');
+    this.outgoingEvents.emitWidgetDrop(e);
   }
 
   render() {
@@ -57,7 +70,10 @@ class TimelineWidgetView extends React.Component<TimelineWidgetViewProps, {}> {
       )
     }
     else {
-      return (<div>No Timeline Selected</div>);
+      return (
+        <div onDragOver={this.dragOverHandler}
+            onDrop={this.dropHandler}>No Timeline Selected</div>
+      );
     }
   }
 

@@ -1,5 +1,6 @@
 import { IStorageItem, StorageItem } from "internal/storage/storage-item";
 import { observable } from "mobx";
+import { ITrackItem } from "internal/timeline/track-item/track-item";
 
 export interface IStorageFile extends IStorageItem {
 
@@ -17,6 +18,8 @@ export abstract class StorageFile extends StorageItem implements IStorageFile {
     super();
     this.name_ = name;
   }
+
+  abstract trackItemize(): ITrackItem;
 
   navigate(path: string): IStorageItem {
     if (path[0] == '/') {

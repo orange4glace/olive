@@ -24,6 +24,8 @@ import { observable } from 'window/app-mobx';
 import { IWidgetProvider } from 'window/view/widget-service';
 import { WidgetRegistry } from 'window/view/widget-registry';
 import { IResourceService } from 'internal/resource/resource-service';
+import { IProjectCoreService } from 'internal/project/project-core-service';
+import { IStorageService } from 'internal/storage/storage-service';
 
 interface Serial {
   timelineID: number;
@@ -31,6 +33,10 @@ interface Serial {
 
 export class TimelineWidgetImpl extends Widget implements TimelineWidget {
 
+  private readonly onWidgetDragOver_: Emitter<React.DragEvent> = new Emitter();
+  readonly onWidgetDragOver: Event<React.DragEvent> = this.onWidgetDragOver_.event;
+  private readonly onWidgetDrop_: Emitter<React.DragEvent> = new Emitter();
+  readonly onWidgetDrop: Event<React.DragEvent> = this.onWidgetDrop_.event;
   private readonly onTrackItemMouseDown_: Emitter<TimelineWidgetTrackItemUIEvent> = new Emitter();
   readonly onTrackItemMouseDown: Event<TimelineWidgetTrackItemUIEvent> = this.onTrackItemMouseDown_.event;
   private readonly onTrackItemMouseMoveStart_: Emitter<TimelineWidgetTrackItemUIEvent> = new Emitter();
@@ -70,16 +76,18 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
 
   constructor(
     public readonly timeline: Timeline,
-    private readonly timelineWidgetService_: ITimelineWidgetService,
     @IHistoryService private readonly historyService_: IHistoryService,
-    @IResourceService private readonly resourceService_: IResourceService) {
+    @ITimelineWidgetService private readonly timelineWidgetService_: ITimelineWidgetService,
+    @IProjectCoreService private readonly projectCoreService_: IProjectCoreService,
+    @IResourceService private readonly resourceService_: IResourceService,
+    @IStorageService private readonly storageService_: IStorageService) {
     super('TimelineWidget');
     
     this.active_ = false;
 
     this.rangeSelector = new TimelineWidgetRangeSelector();
     this.toDispose_.push(new TimelineWidgetCoreControllerImpl(this,
-        historyService_, resourceService_));
+        projectCoreService_, historyService_, resourceService_, storageService_));
     this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
     this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
 
@@ -111,6 +119,8 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   }
 
   registerViewOutgoingEvents(outgoingEvents: TimelineWidgetViewOutgoingEvents): void {
+    outgoingEvents.onWidgetDragOver = e => this.onWidgetDragOver_.fire(e);
+    outgoingEvents.onWidgetDrop = e => this.onWidgetDrop_.fire(e);
     outgoingEvents.onTrackItemMouseDown = e => this.onTrackItemMouseDown_.fire(e);
     outgoingEvents.onTrackItemMouseMoveStart = e => this.onTrackItemMouseMoveStart_.fire(e);
     outgoingEvents.onTrackItemThumbMouseDown = e => this.onTrackItemThumbMouseDown_.fire(e);
@@ -173,9 +183,11 @@ class TimelineWidgetProvider implements IWidgetProvider<TimelineWidget> {
     const project = (<IProjectService>services.get(IProjectService)).getCurrentProject();;
     return new TimelineWidgetImpl(
         initializationData.timeline,
-        services.get(ITimelineWidgetService),
         services.get(IHistoryService),
-        project.resourceService);
+        services.get(ITimelineWidgetService),
+        project.coreService,
+        project.resourceService,
+        project.storageService);
   }
 
   serialize(widget: TimelineWidgetImpl) {

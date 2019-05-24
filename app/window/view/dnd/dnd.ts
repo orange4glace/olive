@@ -1,18 +1,18 @@
 import { IDragAndDropData } from "base/view/dnd";
-import { IResource } from "internal/resource/resource";
+import { IStorageItem } from "internal/storage/storage-item";
 
-export class ResourceDragAndDropData implements IDragAndDropData {
+export class StorageItemDragAndDropData implements IDragAndDropData {
 
-  readonly resource: IResource;
+  readonly storageItem: IStorageItem;
 
-  constructor(resource: IResource) {
-    this.resource = resource;
+  constructor(storageItem: IStorageItem) {
+    this.storageItem = storageItem;
   }
 
   update(): void { }
 
-  getData(): IResource {
-    return this.resource;
+  getData(): IStorageItem {
+    return this.storageItem;
   }
 
 }

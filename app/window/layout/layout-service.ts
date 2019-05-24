@@ -2,6 +2,7 @@ import { createDecorator, IInstantiationService } from "platform/instantiation/c
 import { LayoutData } from "window/layout/data";
 import { LayoutDirection, LayoutViewDirection } from "window/layout/layout-direction";
 import { IWidgetService } from "window/view/widget-service";
+import { IProjectService } from "internal/project/project-service";
 
 export const ILayoutService = createDecorator<ILayoutService>('olive.LayoutService')
 
@@ -14,17 +15,28 @@ export interface ILayoutService {
 export class LayoutService implements ILayoutService {
 
   constructor(
+    @IProjectService private readonly projectService_: IProjectService,
     @IWidgetService private readonly widgetService_: IWidgetService) {
 
   }
 
   createLayout(): LayoutData {
-    const layout = new LayoutData(LayoutDirection.VIEW, null);
+    const root = new LayoutData(LayoutDirection.HORIZONTAL, null);
+    const left = new LayoutData(LayoutDirection.VIEW, root);
+    const right = new LayoutData(LayoutDirection.VIEW, root);
+
+    root.children.push(left);
+    root.children.push(right);
+
     const timelineWidget = this.widgetService_.createWidget('olive.TimelineWidget', {
       timeline: null
     });
-    layout.views.push(timelineWidget);
-    return layout;
+    const storageWidget = this.widgetService_.createWidget('olive.StorageWidget', {
+      project: this.projectService_.getCurrentProject()
+    })
+    left.views.push(timelineWidget);
+    right.views.push(storageWidget);
+    return root;
   }
 
 }

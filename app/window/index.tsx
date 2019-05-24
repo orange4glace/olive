@@ -3,7 +3,9 @@ import * as ReactDOM from 'react-dom';
 
 // Load widgets
 import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
+import { StorageWidget } from 'window/view/storage/widget-impl';
 TimelineWidgetImpl;
+StorageWidget;
 
 import LayoutRoot from 'window/layout/layout-root';
 import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
@@ -13,33 +15,38 @@ import app from 'internal/app';
 import { IWidgetService, WidgetService } from 'window/view/widget-service';
 import { LayoutService, ILayoutService } from 'window/layout/layout-service';
 import { WidgetRegistry } from 'window/view/widget-registry';
+import { IProjectService } from 'internal/project/project-service';
 
 const style = require('./index.scss');
 
 const internalServices = app.services;
 
-const serviceCollection = new ServiceCollection(
-  [ITimelineWidgetService, new TimelineWidgetService()]
-);
-const windowServices = internalServices.createChild(serviceCollection);
+internalServices.invokeFunction(accessor => {
+  const serviceCollection = new ServiceCollection(
+    [ITimelineWidgetService, new TimelineWidgetService()]
+  );
+  const windowServices = internalServices.createChild(serviceCollection);
 
-const widgetService = new WidgetService(windowServices);
-const layoutService = new LayoutService(widgetService);
-serviceCollection.set(IWidgetService, widgetService);
-serviceCollection.set(ILayoutService, layoutService);
+  const widgetService = new WidgetService(windowServices);
 
-WidgetRegistry.widgets.forEach((provider, name) => {
-  widgetService.registerWidget(name, provider);
-})
+  const projectService = accessor.get(IProjectService)
+  const layoutService = new LayoutService(projectService, widgetService);
+  serviceCollection.set(ILayoutService, layoutService);
+  serviceCollection.set(IWidgetService, widgetService);
 
-const layout = layoutService.createLayout();
-console.log(layout)
+  WidgetRegistry.widgets.forEach((provider, name) => {
+    widgetService.registerWidget(name, provider);
+  })
 
-/*
-console.log(window.open());
-const win = BrowserWindow.getFocusedWindow();
-console.log(win);
-win.webContents.openDevTools();
-*/
+  const layout = layoutService.createLayout();
+  console.log(layout)
 
-ReactDOM.render(<LayoutRoot data={layout}/>, document.getElementById('app'));
+  /*
+  console.log(window.open());
+  const win = BrowserWindow.getFocusedWindow();
+  console.log(win);
+  win.webContents.openDevTools();
+  */
+
+  ReactDOM.render(<LayoutRoot data={layout}/>, document.getElementById('app'));
+});
