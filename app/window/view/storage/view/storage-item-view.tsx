@@ -3,9 +3,10 @@ import { observer } from 'window/app-mobx';
 
 import { StorageWidgetViewProps } from 'window/view/storage/view/widget-view';
 import { IStorageWidgetStorageItemViewModel } from 'window/view/storage/model/storage-item-model';
-import { StaticDND } from 'base/view/dnd';
-import { StorageItemDragAndDropData } from 'window/view/dnd/dnd';
 import { StorageWidgetViewOutgoingEvents } from 'window/view/storage/view-outgoing-events';
+import { SelectorView } from 'window/base/common/view-selector-registry';
+import { WindowRegistry } from 'window/registry';
+import { StorageWidgetStorageItemViewSelector, Extensions } from 'window/view/storage/view/storage-item-view-registry';
 
 export interface StorageWidgetStorageItemViewProps extends StorageWidgetViewProps {
   storageItemViewModel: IStorageWidgetStorageItemViewModel;
@@ -15,7 +16,7 @@ export interface StorageWidgetStorageItemViewProps extends StorageWidgetViewProp
 @observer
 export class StorageWidgetStorageItemView extends React.Component<StorageWidgetStorageItemViewProps> {
 
-  constructor(props: any) {
+  constructor(props: StorageWidgetStorageItemViewProps) {
     super(props);
 
     this.dragStartHandler = this.dragStartHandler.bind(this);
@@ -34,10 +35,11 @@ export class StorageWidgetStorageItemView extends React.Component<StorageWidgetS
   render() {
     const storageItem = this.props.storageItemViewModel.storageItem;
     return (
-      <div draggable
+      <div className='storage-item' draggable
           onDragStart={this.dragStartHandler}
           onDragEnd={this.dragEndHandler}>
-        {storageItem.name}
+        <SelectorView selector={WindowRegistry.as<StorageWidgetStorageItemViewSelector>(Extensions.StorageWidgetStorageItemViewSelector)}
+                      props={this.props} />
       </div>
     );
     // if (storageItem.isDirectory) {

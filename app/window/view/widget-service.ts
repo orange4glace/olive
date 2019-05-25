@@ -79,6 +79,7 @@ export class WidgetService implements IWidgetService {
       initializationData: any
   ): T {
     const widgetRegistryItem = this.widgets_.get(name);
+    assert(widgetRegistryItem, 'No such widget ' + name);
     return widgetRegistryItem.create(initializationData, this.windowServices);
   }
 

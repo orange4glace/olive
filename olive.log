@@ -36,3 +36,15 @@
     at ChildProcess.emit (events.js:182:13)
     at maybeClose (internal/child_process.js:962:16)
     at Process.ChildProcess._handle.onexit (internal/child_process.js:251:5)
+[2019-05-25T16:56:23.163] [ERROR] olive - Probe MAYBE_FILE_FORMAT_MISMATCH. path =  C:\Users\orang\Downloads\vscode\src\vs\platform\registry\common\platform.ts error =  Error: C:\Users\orang\Downloads\vscode\src\vs\platform\registry\common\platform.ts: Invalid data found when processing input
+    at ChildProcess.<anonymous> (http://localhost:8080/internal.js:9348:16)
+    at Object.onceWrapper (events.js:273:13)
+    at ChildProcess.emit (events.js:182:13)
+    at maybeClose (internal/child_process.js:962:16)
+    at Process.ChildProcess._handle.onexit (internal/child_process.js:251:5)
+[2019-05-25T16:56:31.160] [ERROR] olive - Probe MAYBE_FILE_FORMAT_MISMATCH. path =  C:\Users\orang\Downloads\vscode\src\vs\platform\registry\common\platform.ts error =  Error: C:\Users\orang\Downloads\vscode\src\vs\platform\registry\common\platform.ts: Invalid data found when processing input
+    at ChildProcess.<anonymous> (http://localhost:8080/internal.js:9348:16)
+    at Object.onceWrapper (events.js:273:13)
+    at ChildProcess.emit (events.js:182:13)
+    at maybeClose (internal/child_process.js:962:16)
+    at Process.ChildProcess._handle.onexit (internal/child_process.js:251:5)

@@ -61,7 +61,9 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   private readonly onTrackItemBlured_: Emitter<TimelineWidgetTrackItemEvent> = new Emitter();
   readonly onTrackItemBlured: Event<TimelineWidgetTrackItemEvent> = this.onTrackItemBlured_.event;
 
-  private onFocused_: Emitter<void> = new Emitter();
+  private readonly onTimelineChanged_: Emitter<void> = new Emitter();
+  readonly onTimelineChanged: Event<void> = this.onTimelineChanged_.event;
+  private readonly onFocused_: Emitter<void> = new Emitter();
   readonly onFocused: Event<void> = this.onFocused_.event;
 
   private timelineDisposables_: IDisposable[] = [];
@@ -75,7 +77,7 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   private active_: boolean;
 
   constructor(
-    public readonly timeline: Timeline,
+    public timeline: Timeline,
     @IHistoryService private readonly historyService_: IHistoryService,
     @ITimelineWidgetService private readonly timelineWidgetService_: ITimelineWidgetService,
     @IProjectCoreService private readonly projectCoreService_: IProjectCoreService,
@@ -97,6 +99,7 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
 
   setTimeline(timeline: ITimeline): void {
     this.timelineDisposables_ = dispose(this.timelineDisposables_);
+    this.timeline = timeline;
     if (timeline == null) {
       this.model_.set(null);
       return;
@@ -116,6 +119,7 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
         trackItem: e.trackItemViewModel.trackItem
       })
     }))
+    this.onTimelineChanged_.fire();
   }
 
   registerViewOutgoingEvents(outgoingEvents: TimelineWidgetViewOutgoingEvents): void {

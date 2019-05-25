@@ -8,6 +8,7 @@ import { ITimeline } from "internal/timeline/timeline";
 import { IProject } from "internal/project/project";
 import { IProjectService } from "internal/project/project-service";
 import { getPostableID } from "worker-postable";
+import { IGlobalTimelineService } from "internal/timeline/global-timeline-service";
 
 export class AudioRendererNode extends Disposable {
 
@@ -19,7 +20,6 @@ export class AudioRendererNode extends Disposable {
   private targetProject_: IProject;
   private targetTimeline_: ITimeline;
 
-  private projectDisposables_: IDisposable[] = [];
   private timelineDisposers_: IDisposable[] = [];
 
   buffers: {
@@ -27,19 +27,24 @@ export class AudioRendererNode extends Disposable {
   }
 
   constructor(
-    @IProjectService private readonly projectService_: IProjectService) {
+    @IGlobalTimelineService private readonly globalTimelineService_: IGlobalTimelineService) {
     super();
 
-    this._register(projectService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
+    this.targetTimelineChangedHandler();
+    this._register(globalTimelineService_.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
+    // this.currentProjectChangedHandler();
+    // this._register(projectService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
     this.worker = new AudioRendererWorker();
   }
 
-  private currentProjectChangedHandler() {
-    this.projectDisposables_ = dispose(this.projectDisposables_);
-    this.targetProject_ = this.projectService_.getCurrentProject();
-    this.targetTimelineChangedHandler();
-    this.targetProject_.timelineService.onTargetTimelineChanged(this.targetTimelineChangedHandler, this, this.projectDisposables_);
-  }
+  // private currentProjectChangedHandler() {
+  //   this.projectDisposables_ = dispose(this.projectDisposables_);
+  //   this.targetProject_ = this.projectService_.getCurrentProject();
+  //   if (this.targetProject_ == null) return;
+    
+  //   this.targetTimelineChangedHandler();
+  //   this.targetProject_.timelineService.onTargetTimelineChanged(this.targetTimelineChangedHandler, this, this.projectDisposables_);
+  // }
 
   initialize(initData: AudioRendererInitializationData) {
     
@@ -66,7 +71,7 @@ export class AudioRendererNode extends Disposable {
     const lastTargetTimeline = this.targetTimeline_;
     this.timelineDisposers_ = dispose(this.timelineDisposers_);
 
-    const timeline = this.targetProject_.timelineService.targetTimeline;
+    const timeline = this.globalTimelineService_.targetTimeline;
     this.targetTimeline_ = timeline;
     if (!timeline) return;
 

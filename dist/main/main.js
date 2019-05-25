@@ -86,30 +86,26 @@
 /************************************************************************/
 /******/ ({
 
-/***/ "./main/main.ts":
-/*!**********************!*\
-  !*** ./main/main.ts ***!
-  \**********************/
-/*! no exports provided */
+/***/ "./main/app-window-main-service.ts":
+/*!*****************************************!*\
+  !*** ./main/app-window-main-service.ts ***!
+  \*****************************************/
+/*! exports provided: AppWindowMainService */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AppWindowMainService", function() { return AppWindowMainService; });
 /* harmony import */ var electron__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! electron */ "electron");
 /* harmony import */ var electron__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(electron__WEBPACK_IMPORTED_MODULE_0__);
 // ./main.js
 
-process.on('uncaughtException', err => {
-    console.error(err);
-});
-console.log("Start electron main");
-class WindowRequestHost {
+class AppWindowMainService {
     constructor(mainWin) {
         this.mainWindow = mainWin;
         this.requests = new Map();
         this.webContents = mainWin.webContents;
         this.mainWindow.webContents.on('new-window', (event, url, frameName, disposition, options, additionalFeatures) => {
-            console.log(frameName);
             const request = this.requests.get(frameName);
             if (!request)
                 return;
@@ -123,19 +119,41 @@ class WindowRequestHost {
                 id: event.newGuest.id
             });
         });
-        electron__WEBPACK_IMPORTED_MODULE_0__["ipcMain"].on('request-window', (e, arg) => {
+        electron__WEBPACK_IMPORTED_MODULE_0__["ipcMain"].on('request-app-window', (e, arg) => {
             console.log("[WindowRequestHost] Request window", arg.name);
             this.requests.set(arg.name, arg);
-            this.webContents.send('request-window-open', arg);
+            this.webContents.send('start-app-window', arg);
         });
     }
     sendWrapResultToRenderer(open) {
-        this.webContents.send('request-window', open);
+        this.webContents.send('app-window-started', open);
     }
 }
+
+
+/***/ }),
+
+/***/ "./main/main.ts":
+/*!**********************!*\
+  !*** ./main/main.ts ***!
+  \**********************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var electron__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! electron */ "electron");
+/* harmony import */ var electron__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(electron__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _app_window_main_service__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./app-window-main-service */ "./main/app-window-main-service.ts");
+// ./main.js
+
+
+process.on('uncaughtException', err => {
+    console.error(err);
+});
+console.log("Start electron main");
 let win = null;
 let __worker = null;
-let windowRequestHost = null;
 function createApp() {
     let promise = new Promise((resolve, reject) => {
         win = new electron__WEBPACK_IMPORTED_MODULE_0__["BrowserWindow"]({
@@ -146,7 +164,7 @@ function createApp() {
                 nodeIntegrationInWorker: true
             }
         });
-        windowRequestHost = new WindowRequestHost(win);
+        const appWindowMainService = new _app_window_main_service__WEBPACK_IMPORTED_MODULE_1__["AppWindowMainService"](win);
         // I don't know but because of some bug of electron, 
         // napi_threadsafe_function works properly when page is reloaded at least once.
         win.webContents.once('did-finish-load', () => {
@@ -196,35 +214,8 @@ electron__WEBPACK_IMPORTED_MODULE_0__["app"].on('ready', function () {
       )
     */
     console.log('Install Chrome extensions');
-    installExtension(REACT_DEVELOPER_TOOLS)
-        .then((name) => {
-        createApp().then(appWindow => {
-            console.log("[Node] App Window created");
-            createWorker(appWindow).then(worker => {
-                console.log("[Node] Worker Window created");
-                /*
-                console.log("[Node] Worker created");
-                ipcMain.once('app-window-initiated', (e, appWindowId) => {
-                  console.log("[Node] Register main-worker window");
-                  let appWindow = BrowserWindow.fromId(appWindowId);
-                  worker.webContents.send('register-main-window', appWindow.id);
-                  appWindow.webContents.send('register-worker-window', worker.id);
-            
-                  appWindow.webContents.send('start');
-                })
-                */
-                startApp(appWindow, {
-                    resourceWorkerWindowID: -1
-                });
-            });
-        });
-    })
-        .catch((err) => console.log('An error occurred: ', err));
+    createApp();
 });
-function startApp(window, param) {
-    console.log('[Main] Start internal');
-    window.webContents.send('start-app', param);
-}
 electron__WEBPACK_IMPORTED_MODULE_0__["app"].on('window-all-closed', function () {
     if (process.platform != 'darwin') {
         electron__WEBPACK_IMPORTED_MODULE_0__["app"].quit();

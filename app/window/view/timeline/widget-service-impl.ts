@@ -2,6 +2,8 @@ import { ITimelineWidgetService } from "window/view/timeline/widget-service";
 import { Emitter, Event } from "base/common/event";
 import { TimelineWidget } from "window/view/timeline/widget";
 import { IDisposable, dispose } from "base/common/lifecycle";
+import { ITimelineService } from "internal/timeline/timeline-service";
+import { IGlobalTimelineService } from "internal/timeline/global-timeline-service";
 
 export class TimelineWidgetService implements ITimelineWidgetService {
 
@@ -16,11 +18,13 @@ export class TimelineWidgetService implements ITimelineWidgetService {
 
   private widgets_: Set<TimelineWidget>;
   private widgetDisposables_: Map<TimelineWidget, IDisposable[]>;
+  private activateWidgetDisposables_: IDisposable[] = [];
   private activeWidget_: TimelineWidget;
 
   get activeWidget() { return this.activeWidget_; }
 
-  constructor() {
+  constructor(
+    @IGlobalTimelineService private readonly globalTimelineSevice_: IGlobalTimelineService) {
     this.widgets_ = new Set();
     this.widgetDisposables_ = new Map();
   }
@@ -29,9 +33,7 @@ export class TimelineWidgetService implements ITimelineWidgetService {
     if (this.widgets_.has(widget)) return;
     this.widgets_.add(widget);
     let disposables: IDisposable[] = [];
-    disposables.push(widget.onFocused(() => {
-      this.activateWidget(widget);
-    }, this));
+    widget.onFocused(() => this.activateWidget(widget), this, disposables);
     this.widgetDisposables_.set(widget, disposables);
     this.onWidgetAdded_.fire(widget);
 
@@ -48,10 +50,16 @@ export class TimelineWidgetService implements ITimelineWidgetService {
 
   activateWidget(widget: TimelineWidget) {
     if (this.activeWidget_ == widget) return;
+    this.activateWidgetDisposables_ = dispose(this.activateWidgetDisposables_);
     const prevActiveWidget = this.activeWidget_;
     this.activeWidget_ = widget;
     if (prevActiveWidget) prevActiveWidget.setActive(false);
     widget.setActive(true);
+
+    this.globalTimelineSevice_.setTargetTimeline(widget.timeline);
+    widget.onTimelineChanged(e => {
+      this.globalTimelineSevice_.setTargetTimeline(widget.timeline);
+    }, this, this.activateWidgetDisposables_);
 
     this.onActiveWidgetChanged_.fire(widget);
   }

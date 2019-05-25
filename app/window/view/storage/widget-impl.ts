@@ -16,6 +16,16 @@ import { StorageWidgetController } from 'window/view/storage/controller/controll
 import { IProjectCoreService } from 'internal/project/project-core-service';
 import { IStorageItem } from 'internal/storage/storage-item';
 import { IStorageWidgetStorageItemViewModel } from 'window/view/storage/model/storage-item-model';
+import { WindowRegistry } from 'window/registry';
+import { StorageWidgetStorageItemViewSelector, Extensions } from 'window/view/storage/view/storage-item-view-registry';
+import { StorageWidgetDefaultStorageItemView } from 'window/view/storage/view/storage-item/default-storage-item-view';
+import { ViewSelectorPriority } from 'window/base/common/view-selector-registry';
+
+// Register StorageItemViews
+WindowRegistry.as<StorageWidgetStorageItemViewSelector>(Extensions.StorageWidgetStorageItemViewSelector).registerView(
+  props => true,
+  StorageWidgetDefaultStorageItemView,
+  ViewSelectorPriority.LOW);
 
 export class StorageWidget extends Widget implements IStorageWidget {
 

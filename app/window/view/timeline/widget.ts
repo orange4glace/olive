@@ -24,6 +24,7 @@ export interface TimelineWidget extends Widget {
   readonly onTrackDrop: Event<TimelineWidgetTrackUIEvent>;
   readonly onTimelineMouseDown: Event<TimelineWidgetTimelineUIEvent>;
 
+  readonly onTimelineChanged: Event<void>;
   readonly onFocused: Event<void>;
   readonly onTrackItemFocused: Event<TimelineWidgetTrackItemEvent>;
   readonly onTrackItemBlured: Event<TimelineWidgetTrackItemEvent>;

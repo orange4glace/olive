@@ -6,13 +6,14 @@ import { IStorageDirectory } from "internal/storage/storage-directory";
 import { ResourceStorageFile } from "internal/resource/resource-storage-file";
 import { ITimeline } from "internal/timeline/timeline";
 import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
-import { ITimelineService, TimelineService } from "internal/timeline/timeline-service";
+import { ITimelineService } from "internal/timeline/timeline-service";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import { InstantiationService } from "platform/instantiation/common/instantiationService";
 import { ServiceCollection } from "platform/instantiation/common/serviceCollection";
 import { ResourceService } from "internal/resource/resource-service-impl";
 import { IProjectCoreService } from "internal/project/project-core-service";
 import { ProjectCoreService } from "internal/project/project-core-service-impl";
+import { TimelineService } from "internal/timeline/timeline-service-impl";
 
 export interface ProjectBase {
 }

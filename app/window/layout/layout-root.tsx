@@ -3,12 +3,6 @@ import app from 'internal/app'
 
 import Layout from 'window/layout/layout';
 import LayoutDND from 'window/layout/global/layout-dnd';
-
-import LayoutParser from 'window/layout/data';
-import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
-import { EffectControlWidgetImpl } from 'window/view/effect-control/widget_impl';
-import { MonitorWidgetImpl } from 'window/view/monitor/widget';
-import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
  
 interface LayoutRootProps {
   data: any;

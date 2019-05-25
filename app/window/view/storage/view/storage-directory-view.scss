@@ -1,4 +1,4 @@
-@import "theme-black.scss";
+@import "window/theme.scss";
 
 $title-bar-height: 25px;
 
@@ -18,9 +18,9 @@ $title-bar-height: 25px;
     font-size: 12px;
     line-height: 25px;
     padding-left: 5px;
-    color: $primary-text-color;
+    color: $surfaceTextColor;
     text-overflow: ellipsis;
-    background: $tertiary-color;
+    background: $surfaceBrightColor;
 
     > .inner {
       position: absolute;
@@ -32,7 +32,7 @@ $title-bar-height: 25px;
       > .title {
         font-size: 12px;
         padding-left: 5px;
-        color: $primary-text-color;
+        color: $surfaceTextColor;
       }
     }
   }

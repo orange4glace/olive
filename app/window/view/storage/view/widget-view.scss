@@ -1,0 +1,13 @@
+@import "window/theme.scss";
+
+.component {
+
+  .storage-item {
+    font-size: 13px;
+    line-height: 20px;
+    background: $surfaceBrightColor;
+    color: $surfaceTextColor;
+    margin: 5px 0;
+  }
+
+}

@@ -9,9 +9,13 @@
 </head>
 <body>
 <div id="app"></div>
-<script>var app = {};</script>
 <script type="text/javascript" src="./lodash.full.min.js"></script>
-<script type="text/javascript" src="./initializer.js"></script>
+<!-- <script type="text/javascript" src="./initializer.js"></script> -->
 <!-- <script type="text/javascript" src="bundle.js"></script> -->
+<script>
+    var url = new URL(window.location.href);
+    var id = url.searchParams.get("id");
+    window.opener.onAppWindowLoaded(id);
+</script>
 </body>
 </html>

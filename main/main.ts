@@ -1,12 +1,7 @@
 // ./main.js
-import { app, BrowserWindow, ipcMain, WebContents } from 'electron';
-import * as path from 'path'
-import * as os from 'os'
+import { app, BrowserWindow, ipcMain } from 'electron';
+import { AppWindowMainService } from './app-window-main-service'
 
-import {
-  WindowRequestParam,
-  WindowRequestWrapResult,
-  AppParam } from './../app/connector';
 
 process.on('uncaughtException', err => {
   console.error(err);
@@ -14,48 +9,9 @@ process.on('uncaughtException', err => {
 
 console.log("Start electron main");
 
-class WindowRequestHost {
-
-  mainWindow: BrowserWindow;
-  webContents: WebContents;
-
-  requests: Map<string, WindowRequestParam>;
-
-  constructor(mainWin: BrowserWindow) {
-    this.mainWindow = mainWin;
-    this.requests = new Map<string, WindowRequestParam>();
-    this.webContents = mainWin.webContents;
-
-    this.mainWindow.webContents.on('new-window', (event: any, url, frameName, disposition, options, additionalFeatures) => {
-      console.log(frameName);
-      const request = this.requests.get(frameName);
-      if (!request) return;
-      console.log("[WindowRequestHost] new-window from BrowserMain.BrowserRequest");
-      event.preventDefault();
-      Object.assign(options, request);
-      event.newGuest = new BrowserWindow(options);
-      this.sendWrapResultToRenderer({
-        ok: true,
-        name: frameName,
-        id: event.newGuest.id
-      })
-    });
-
-    ipcMain.on('request-window', (e: CustomEvent, arg: WindowRequestParam) => {
-      console.log("[WindowRequestHost] Request window", arg.name);
-      this.requests.set(arg.name, arg);
-      this.webContents.send('request-window-open', arg);
-    });
-  }
-
-  private sendWrapResultToRenderer(open: WindowRequestWrapResult) {
-    this.webContents.send('request-window', open);
-  }
-}
 
 let win : BrowserWindow = null;
 let __worker : BrowserWindow = null;
-let windowRequestHost : WindowRequestHost = null;
 
 function createApp(): Promise<BrowserWindow> {
   let promise = new Promise<BrowserWindow>((resolve, reject) => {
@@ -67,7 +23,8 @@ function createApp(): Promise<BrowserWindow> {
         nodeIntegrationInWorker: true
       }
     });
-    windowRequestHost = new WindowRequestHost(win);
+
+    const appWindowMainService = new AppWindowMainService(win);
 
     // I don't know but because of some bug of electron, 
     // napi_threadsafe_function works properly when page is reloaded at least once.
@@ -126,37 +83,9 @@ app.on('ready', function () {
   )
 */
     console.log('Install Chrome extensions')
-  installExtension(REACT_DEVELOPER_TOOLS)
-    .then((name: any) => {
-      createApp().then(appWindow => {
-        console.log("[Node] App Window created");
-        createWorker(appWindow).then(worker => {
-          console.log("[Node] Worker Window created");
-          /*
-          console.log("[Node] Worker created");
-          ipcMain.once('app-window-initiated', (e, appWindowId) => {
-            console.log("[Node] Register main-worker window");
-            let appWindow = BrowserWindow.fromId(appWindowId);
-            worker.webContents.send('register-main-window', appWindow.id);
-            appWindow.webContents.send('register-worker-window', worker.id);
-      
-            appWindow.webContents.send('start');
-          })
-          */
-          startApp(appWindow, {
-            resourceWorkerWindowID: -1
-          });
-        })
-      })
-    })
-    .catch((err: any) => console.log('An error occurred: ', err));
+    createApp();
 
 });
-
-function startApp(window: BrowserWindow, param: AppParam) {
-  console.log('[Main] Start internal');
-  window.webContents.send('start-app', param);
-}
 
 app.on('window-all-closed', function () {
   if (process.platform != 'darwin') {
