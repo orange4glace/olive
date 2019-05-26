@@ -25,8 +25,9 @@ import { ProjectService } from 'internal/project/project-service-impl';
 import { IProjectService } from 'internal/project/project-service';
 import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
 import { GlobalTimelineService } from 'internal/timeline/global-timeline-service-impl';
-import { AppWindowService, IAppWindowService } from 'internal/app-window/app-window-service';
+import { IAppWindowService } from 'internal/app-window/app-window-service';
 import { MainAppWindowStarter } from 'window/main-app-window-starter';
+import { AppWindowService } from 'internal/app-window/app-window-service-impl';
 
 if ((module as any).hot) (module as any).hot.accept();
 
@@ -95,9 +96,11 @@ async function initializeApp(): Promise<void> {
   const mainAppWindow = await appWindowService.createAppWindow(
     new MainAppWindowStarter(), {
     name: 'app',
-    webPreferences: {
-      nodeIntegration: true,
-      sandbox: false
+    options: {
+      webPreferences: {
+        nodeIntegration: true,
+        sandbox: false
+      }
     }
   })
 }

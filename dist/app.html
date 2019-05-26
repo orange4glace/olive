@@ -15,6 +15,8 @@
 <script>
     var url = new URL(window.location.href);
     var id = url.searchParams.get("id");
+    window.addEventListener('beforeunload', () => {
+        window.opener.onAppWindowWillUnload(id);})
     window.opener.onAppWindowLoaded(id);
 </script>
 </body>

@@ -20,3 +20,5 @@ export default interface App {
   mobx: mobxExport;
   canvas: HTMLCanvasElement;
 }
+
+export interface IApp extends App {}

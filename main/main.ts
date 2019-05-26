@@ -11,7 +11,6 @@ console.log("Start electron main");
 
 
 let win : BrowserWindow = null;
-let __worker : BrowserWindow = null;
 
 function createApp(): Promise<BrowserWindow> {
   let promise = new Promise<BrowserWindow>((resolve, reject) => {
@@ -32,9 +31,10 @@ function createApp(): Promise<BrowserWindow> {
       win.webContents.once('did-finish-load', () => {
         resolve(win);
       });
-      win.webContents.reload();
+      win.loadURL('http://localhost:8080/starter.html');
+      // win.webContents.reload();
     });
-    win.loadURL('http://localhost:8080/starter.html');
+    win.loadURL('http://localhost:8080/blank.html');
     win.webContents.openDevTools()
 
     win.on('closed', function () {
@@ -44,47 +44,8 @@ function createApp(): Promise<BrowserWindow> {
   return promise;
 }
 
-function createWorker(appWindow: BrowserWindow): Promise<BrowserWindow> {
-
-  return new Promise<BrowserWindow>((resolve, reject) => {
-    resolve(null);
-  });
-
-  let promise = new Promise<BrowserWindow>((resolve, reject) => {
-    // Initialize the window to our specified dimensions
-    __worker = new BrowserWindow();
-    __worker.webContents.openDevTools();
-    console.log("Create worker window");
-  
-    __worker.webContents.once('did-finish-load', (e: any) => {
-      __worker.webContents.send('start-worker', {
-        appWindowID: appWindow.id
-      });
-    });
-    ipcMain.once('worker-started', (e: any, arg: any) => {
-      resolve(__worker);
-    });
-    __worker.loadFile('./worker/index.html');
-  
-    // Remove window once app is closed
-    __worker.on('closed', function () {
-      __worker = null;
-    });
-  });
-  return promise;
-}
-
-const { default: installExtension, REACT_DEVELOPER_TOOLS } = require('electron-devtools-installer');
-
 app.on('ready', function () {
-/*
-  BrowserWindow.addDevToolsExtension(
-     path.join(os.homedir(), '/AppData/Local/Google/Chrome/User Data/Default/Extensions/fmkadmapgofadopljbjfkapdkoienihi/3.6.0_0')
-  )
-*/
-    console.log('Install Chrome extensions')
-    createApp();
-
+  createApp();
 });
 
 app.on('window-all-closed', function () {

@@ -4,10 +4,11 @@ import App from "internal/app-interface";
 
 export class MainAppWindowStarter implements IAppWindowStarter {
 
-  start(appWindow: IAppWindow, app: App) {
-    console.log('MainAppWindowStarter', appWindow.nativeWindow);
+  private appWindow_: IAppWindow;
 
-setTimeout(() => {
+  start(appWindow: IAppWindow, app: App) {
+    this.appWindow_ = appWindow;
+    console.log('MainAppWindowStarter', appWindow.nativeWindow);
   
     const nativeWindow = appWindow.nativeWindow as any;
     nativeWindow.app = app;
@@ -16,7 +17,11 @@ setTimeout(() => {
     const script = document.createElement('script');
     script.setAttribute('src', './window.js');
     document.head.appendChild(script);
-}, 2000)
+  }
+
+  onDispose() {
+    const nativeWindow = this.appWindow_.nativeWindow as any;
+    (nativeWindow as any).onMainAppWindowDispose();
   }
 
 }

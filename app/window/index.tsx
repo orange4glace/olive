@@ -20,6 +20,10 @@ import { IProjectService } from 'internal/project/project-service';
 import { LayoutData } from 'window/layout/data';
 import { LayoutDirection } from 'window/layout/layout-direction';
 import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
+import { ModalWindowService } from 'window/modal-window/modal-window-service-impl';
+import { IAppWindowService } from 'internal/app-window/app-window-service';
+import { IModalWindowService } from 'window/modal-window/modal-window-service';
+import { NewProjectModalWindowStarter } from 'window/modal-window/new-project/new-project-modal-window-starter';
 
 console.log('Holla Index!');
 
@@ -60,7 +64,10 @@ function createLayout(
 internalServices.invokeFunction(accessor => {
   // const layoutService = new LayoutService();
 
+  const modalWindowService: IModalWindowService = new ModalWindowService(accessor.get(IAppWindowService));
+
   const serviceCollection = new ServiceCollection(
+    [IModalWindowService, modalWindowService],
     [ITimelineWidgetService, new TimelineWidgetService(
       accessor.get(IGlobalTimelineService)
     )]
@@ -88,4 +95,11 @@ internalServices.invokeFunction(accessor => {
   */
 
   ReactDOM.render(<LayoutRoot data={layout}/>, document.getElementById('app'));
+  
+  const newProjectModalWindowStarter = new NewProjectModalWindowStarter(accessor.get(IProjectService));
+  modalWindowService.createModal(newProjectModalWindowStarter);
+
+  (window as any).onDispose = function() {
+
+  }
 });

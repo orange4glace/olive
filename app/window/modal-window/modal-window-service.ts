@@ -1,7 +1,13 @@
-// import { IModalWindow } from "window/modal-window/modal-window";
+import { IModalWindow } from "window/modal-window/modal-window";
+import { IModalWindowStarter } from "window/modal-window/modal-window-starter";
+import { createDecorator } from "platform/instantiation/common/instantiation";
 
-// export interface IModalWindowService {
+export const IModalWindowService = createDecorator<IModalWindowService>('olive.ModalWindowService');
 
-//   createModal(modal: IModalWindow);
+export interface IModalWindowService {
 
-// }
+  createModal(starter: IModalWindowStarter): Promise<IModalWindow>;
+  closeModal(id: number): void;
+  closeAllModals(): void;
+
+}

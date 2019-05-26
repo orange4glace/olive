@@ -1,10 +1,9 @@
-// import * as React from 'react'
-// import { IProjectService } from 'internal/project/project-service';
+import * as React from 'react'
 
-// export class NewProjectWindowModalView extends React.Component {
+export class NewProjectWindowModalView extends React.Component {
 
-//   render() {
-    
-//   }
+  render() {
+    return <div>HELLO</div>
+  }
 
-// }
+}

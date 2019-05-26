@@ -1,3 +1,5 @@
+import { BrowserWindowConstructorOptions } from "electron";
+
 // WindowRequest
 // If new Window is needed by Renderer,
 // Renderer makes a request to Remote to create a new Window
@@ -20,7 +22,7 @@ interface WindowRequestPromise {
 
 interface WindowRequestParam {
   name?: string;
-  webPreferences?: object; // electron.WebPreferences
+  options?: any;
 }
 
 interface WindowRequestResult {

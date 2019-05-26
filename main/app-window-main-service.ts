@@ -1,5 +1,5 @@
 // ./main.js
-import { app, BrowserWindow, ipcMain, WebContents } from 'electron';
+import { app, BrowserWindow, ipcMain, WebContents, BrowserWindowConstructorOptions } from 'electron';
 
 import {
   WindowRequestParam,
@@ -24,12 +24,15 @@ export class AppWindowMainService implements IAppWindowMainService {
     this.requests = new Map<string, WindowRequestParam>();
     this.webContents = mainWin.webContents;
 
-    this.mainWindow.webContents.on('new-window', (event: any, url, frameName, disposition, options, additionalFeatures) => {
+    this.mainWindow.webContents.on('new-window', (event: any, url, frameName, disposition, options: BrowserWindowConstructorOptions, additionalFeatures) => {
       const request = this.requests.get(frameName);
       if (!request) return;
-      console.log("[WindowRequestHost] new-window from BrowserMain.BrowserRequest");
+      console.log("[WindowRequestHost] new-window from BrowserMain.BrowserRequest ", frameName, request.options);
       event.preventDefault();
-      Object.assign(options, request);
+
+      Object.assign(options, request.options);
+      if (request.options.parent)
+        options.parent = BrowserWindow.fromId(request.options.parent);
       event.newGuest = new BrowserWindow(options);
       this.sendWrapResultToRenderer({
         ok: true,
