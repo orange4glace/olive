@@ -1,0 +1,70 @@
+import { IMenuStyles } from 'base/browser/ui/menu/menu';
+import { IAction } from 'base/common/actions';
+import { Event } from 'base/common/event';
+import { ResolvedKeybinding } from 'base/common/keyCodes';
+import { Disposable } from 'base/common/lifecycle';
+export interface IMenuBarOptions {
+    enableMnemonics?: boolean;
+    visibility?: string;
+    getKeybinding?: (action: IAction) => ResolvedKeybinding | undefined;
+    alwaysOnMnemonics?: boolean;
+}
+export interface MenuBarMenu {
+    actions: IAction[];
+    label: string;
+}
+export declare class MenuBar extends Disposable {
+    private container;
+    private options;
+    static readonly OVERFLOW_INDEX: number;
+    private menuCache;
+    private overflowMenu;
+    private focusedMenu;
+    private focusToReturn;
+    private menuUpdater;
+    private _mnemonicsInUse;
+    private openedViaKeyboard;
+    private awaitingAltRelease;
+    private ignoreNextMouseUp;
+    private mnemonics;
+    private updatePending;
+    private _focusState;
+    private actionRunner;
+    private readonly _onVisibilityChange;
+    private readonly _onFocusStateChange;
+    private numMenusShown;
+    private menuStyle;
+    private overflowLayoutScheduled;
+    constructor(container: HTMLElement, options?: IMenuBarOptions);
+    push(arg: MenuBarMenu | MenuBarMenu[]): void;
+    createOverflowMenu(): void;
+    updateMenu(menu: MenuBarMenu): void;
+    dispose(): void;
+    blur(): void;
+    getWidth(): number;
+    getHeight(): number;
+    private updateOverflowAction;
+    private updateLabels;
+    style(style: IMenuStyles): void;
+    update(options?: IMenuBarOptions): void;
+    private registerMnemonic;
+    private hideMenubar;
+    private showMenubar;
+    private focusState;
+    private readonly isVisible;
+    private readonly isFocused;
+    private readonly isOpen;
+    private readonly hasOverflow;
+    private setUnfocusedState;
+    private focusPrevious;
+    private focusNext;
+    private updateMnemonicVisibility;
+    private mnemonicsInUse;
+    readonly onVisibilityChange: Event<boolean>;
+    readonly onFocusStateChange: Event<boolean>;
+    private onMenuTriggered;
+    private onModifierKeyToggled;
+    private isCurrentMenu;
+    private cleanupCustomMenu;
+    private showCustomMenu;
+}

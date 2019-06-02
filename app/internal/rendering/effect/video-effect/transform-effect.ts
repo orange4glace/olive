@@ -2,7 +2,7 @@ import { VideoEffect, VideoEffectBase } from "./video-effect";
 import { Vector2Property, Vector2PropertyBase } from "../../property/vector2-property";
 import { Postable, postable } from "worker-postable";
 import { EffectType } from "internal/rendering/effect/effect";
-import { clone } from "base/common/cloneable";
+import { clone } from "base/olive/cloneable";
 import { Vector2 } from "oliveutil/vector2";
 
 export interface TransformEffectBase extends VideoEffectBase {

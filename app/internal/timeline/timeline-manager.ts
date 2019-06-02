@@ -1,5 +1,5 @@
 import { Timeline, TimelineBase, ITimeline } from "internal/timeline/timeline";
-import { assert } from "base/common/assert";
+import { assert } from "base/olive/assert";
 import TimelineImpl from "internal/timeline/timeline_impl";
 import { Postable, postable } from "worker-postable";
 import { Event, Emitter } from "base/common/event";

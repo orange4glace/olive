@@ -1,6 +1,6 @@
 import { TimelineWidgetManipulatorController } from "window/view/timeline/controller/manipulator";
 import { IDisposable, dispose, Disposable } from "base/common/lifecycle";
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { TimelineWidgetGhostContainerViewModel } from 'window/view/timeline/model/ghost-view-model';
 import { TimelineWidget } from 'window/view/timeline/widget';
 import { TrackItem } from 'internal/timeline/track-item/track-item';

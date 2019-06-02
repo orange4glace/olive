@@ -2,9 +2,9 @@ import { TimelineWidget } from "window/view/timeline/widget";
 import { TimelineWidgetTimelineUIEvent } from "window/view/timeline/event";
 import { Disposable } from "base/common/lifecycle";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { Vector2 } from "oliveutil/vector2";
-import { clone } from "base/common/cloneable";
+import { clone } from "base/olive/cloneable";
 
 export interface ITimelineWidgetRangeSelectorController {
 

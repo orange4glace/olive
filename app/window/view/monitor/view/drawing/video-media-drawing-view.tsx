@@ -2,8 +2,9 @@ import * as React from 'react'
 import { MonitorWidgetDrawingView, MonitorWidgetDrawingProps } from 'window/view/monitor/view/drawing/drawing-view';
 import { MonitorWidgetDrawingControlPoint } from 'window/view/monitor/view/drawing/drawing-control-point-view';
 import { observer } from 'window/app-mobx';
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { MonitorWidgetVideoMediaDrawingViewModel } from 'window/view/monitor/model/drawing/video-media-drawing-view-moodel';
+import { createStandardMouseEvent } from 'base/olive/mouse-event';
 
 @observer
 export class MonitorWidgetVideoMediaDrawingView extends
@@ -42,11 +43,11 @@ export class MonitorWidgetVideoMediaDrawingView extends
   }
 
   controlPointMouseDownHandler(index: number, e: React.MouseEvent) {
-    this.props.drawingViewModel.onControlPointMouseDown(index, new StandardMouseEvent(e));
+    this.props.drawingViewModel.onControlPointMouseDown(index, createStandardMouseEvent(e));
   }
 
   controlPointMouseMoveStartHandler(index: number, e: React.MouseEvent) {
-    this.props.drawingViewModel.onControlPointMouseMoveStart(index, new StandardMouseEvent(e));
+    this.props.drawingViewModel.onControlPointMouseMoveStart(index, createStandardMouseEvent(e));
   }
 
   render() {

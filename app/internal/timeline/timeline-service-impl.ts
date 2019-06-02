@@ -1,6 +1,6 @@
 import { ITimeline } from "internal/timeline/timeline";
 import TimelineImpl from "internal/timeline/timeline_impl";
-import { assert } from "base/common/assert";
+import { assert } from "base/olive/assert";
 import { ref } from "worker-postable";
 import { ITimelineService } from "internal/timeline/timeline-service";
 

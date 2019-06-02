@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { assert } from 'base/common/assert';
+import { assert } from 'base/olive/assert';
 import { ViewModel, ViewModelIdentifier } from 'window/view/view-model';
 
 interface ViewType<PropType> {

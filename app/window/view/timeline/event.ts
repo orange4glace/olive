@@ -5,7 +5,7 @@ import { Track } from "internal/timeline/track/track";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-view-model";
 import { TimelineWidgetTrackItemViewModel } from "window/view/timeline/model/track-item-view-model";
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
 
 export interface TimelineWidgetTrackItemEvent { 

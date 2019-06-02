@@ -5,7 +5,7 @@ import { TrackItemBase, TrackItem } from 'internal/timeline/track-item/track-ite
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
 import { VideoDrawingBase, VideoDrawing } from 'internal/rendering/drawing/video-drawing';
-import { clone } from 'base/common/cloneable';
+import { clone } from 'base/olive/cloneable';
 
 export interface VideoTrackItemBase extends TrackItemBase {
   drawing: VideoDrawingBase;

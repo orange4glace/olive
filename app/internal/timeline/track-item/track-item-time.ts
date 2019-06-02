@@ -1,6 +1,6 @@
 import { postable } from "worker-postable";
 import { IComparable } from "tstl";
-import { Cloneable } from "base/common/cloneable";
+import { Cloneable } from "base/olive/cloneable";
 
 export interface TrackItemTimeBase {
   start: number;

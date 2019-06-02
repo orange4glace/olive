@@ -3,7 +3,7 @@ import { TreeMap, Pair, make_pair } from 'tstl';
 import { EventEmitter2 } from 'eventemitter2';
 import { action } from 'mobx';
 import { KeyframeBase, Keyframe } from './keyframe';
-import { Cloneable, clone } from 'base/common/cloneable';
+import { Cloneable, clone } from 'base/olive/cloneable';
 import { Event, Emitter } from 'base/common/event';
 
 export enum PropertyType {

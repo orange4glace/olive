@@ -2,8 +2,9 @@ import { ViewModelImpl } from "window/view/view-model";
 import { observable, autorun, action } from "window/app-mobx";
 import { Timeline } from "internal/timeline/timeline";
 import { IReactionDisposer } from "mobx";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { MouseUtil } from "orangeutil";
+import { mousePositionElement } from "base/olive/mouse-event";
 
 export abstract class TimelineScrollViewModel extends ViewModelImpl {
   abstract get element(): HTMLDivElement;
@@ -135,9 +136,11 @@ export class TimelineScrollViewModelImpl extends TimelineScrollViewModel {
     return time * this.pxPerFrame;
   }
 
-  getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent | StandardMouseEvent): {x: number, y: number} {
-    if (e instanceof StandardMouseEvent) return e.mousePositionElement(this.element);
-    return MouseUtil.mousePositionElement(e, this.element);
+  getMousePostionRelativeToTimeline(e: MouseEvent): {x: number, y: number}
+  getMousePostionRelativeToTimeline(e: React.MouseEvent): {x: number, y: number}
+  getMousePostionRelativeToTimeline(e: StandardMouseEvent): {x: number, y: number}
+  getMousePostionRelativeToTimeline(e: any): {x: number, y: number} {
+    return mousePositionElement(e, this.element);
   }
 
   dispose() {

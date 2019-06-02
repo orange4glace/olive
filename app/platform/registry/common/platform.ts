@@ -4,7 +4,7 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as Types from 'base/common/types';
-import * as Assert from 'base/common/assert';
+import * as Assert from 'base/olive/assert';
 import { ok } from 'assert';
 
 export interface IRegistry {
@@ -54,3 +54,5 @@ export class RegistryImpl implements IRegistry {
 		return this.data[id] || null;
 	}
 }
+
+export const Registry = <IRegistry>new RegistryImpl();

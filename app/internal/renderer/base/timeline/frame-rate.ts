@@ -1,6 +1,6 @@
 import { Posted, posted } from "worker-postable";
 import { FrameRateBase } from "internal/timeline/frame_rate";
-import { systemTimeToMilliseconds } from "base/common/time";
+import { systemTimeToMilliseconds } from "base/olive/time";
 
 @Posted('FrameRate')
 export class FrameRateRenderer implements FrameRateBase {

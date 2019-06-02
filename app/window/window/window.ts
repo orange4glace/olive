@@ -1,6 +1,6 @@
 // import { IDisposable, Disposable } from "base/common/lifecycle";
 // import { LayoutData } from "window/layout/data";
-// import { Serializable } from "base/common/serialize";
+// import { Serializable } from "base/olive/serialize";
 // import { LayoutDirection } from "window/layout/layout-direction";
 
 // export interface IWindow extends IDisposable, Serializable {

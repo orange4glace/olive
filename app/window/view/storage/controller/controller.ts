@@ -1,5 +1,5 @@
 import { IStorageWidget } from "window/view/storage/widget";
-import { StaticDND, IDragAndDropData } from "base/view/dnd";
+import { StaticDND, IDragAndDropData } from "base/browser/dnd";
 import { DesktopDragAndDropData, StorageItemDragAndDropData } from "window/view/dnd/dnd";
 import { Disposable } from "base/common/lifecycle";
 import { IProjectCoreService } from "internal/project/project-core-service";

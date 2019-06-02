@@ -1,5 +1,5 @@
 import { Postable } from "worker-postable";
-import { Cloneable } from "base/common/cloneable";
+import { Cloneable } from "base/olive/cloneable";
 
 let __next_id = 0;
 

@@ -1,5 +1,5 @@
 import { Postable, postable, Posted } from "worker-postable";
-import { Cloneable } from "base/common/cloneable";
+import { Cloneable } from "base/olive/cloneable";
 
 export interface Vector4Base {
   x: number;

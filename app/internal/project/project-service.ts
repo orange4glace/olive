@@ -6,10 +6,13 @@ export const IProjectService = createDecorator<IProjectService>('olive.ProjectSe
 
 export interface IProjectService {
 
+  projects: ReadonlyMap<string, IProject>;
+
+  onCurrentProjectChanged: Event<void>;
+  onProjectAdded: Event<IProject>;
+
   getCurrentProject(): IProject;
   setCurrentProject(project: IProject): void;
   createProject(): IProject;
-
-  onCurrentProjectChanged: Event<void>;
 
 }

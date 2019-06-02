@@ -1,8 +1,7 @@
 import { IObservableFactory, IObservableFactories, IEnhancer, IActionFactory, IReactionPublic, IAutorunOptions, IReactionDisposer, IComputed } from 'mobx';
 import { IReactComponent } from 'mobx-react';
-import { IProject } from 'internal/project/project';
-import { IInstantiationService } from 'platform/instantiation/common/instantiation';
-import { IProjectService } from 'internal/project/project-service';
+import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
+import { IKeyboardMapping, IKeyboardLayoutInfo } from 'native-keymap';
 
 interface mobxExport {
   observable: IObservableFactory & IObservableFactories & {
@@ -15,10 +14,16 @@ interface mobxExport {
 }
 
 export default interface App {
-  services: IInstantiationService;
+  services: ServiceCollection;
   // decoder: IDecoder;
   mobx: mobxExport;
   canvas: HTMLCanvasElement;
+  nativeKeymap: {
+    getKeyMap(): IKeyboardMapping;
+	  getCurrentKeyboardLayout(): IKeyboardLayoutInfo;
+    onDidChangeKeyboardLayout(callback: () => void): void;
+    isISOKeyboard(): boolean;
+  }
 }
 
 export interface IApp extends App {}

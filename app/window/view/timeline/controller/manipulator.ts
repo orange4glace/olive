@@ -1,4 +1,4 @@
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 
 export interface TimelineWidgetManipulationGhostTrackItem {
   /*observable*/ readonly startTime: number;

@@ -1,8 +1,12 @@
-import { IStorageItem, StorageItem } from "internal/storage/storage-item";
+import { IStorageItem, StorageItem, StorageItemSerial } from "internal/storage/storage-item";
 import { observable } from "mobx";
-import { assert } from "base/common/assert";
+import { assert } from "base/olive/assert";
 import { Event, Emitter } from "base/common/event";
 import { ITrackItem } from "internal/timeline/track-item/track-item";
+
+export interface StorageDirectorySerial extends StorageItemSerial {
+  items: StorageItemSerial[];
+}
 
 export interface IStorageDirectory extends IStorageItem {
 
@@ -17,6 +21,12 @@ export interface IStorageDirectory extends IStorageItem {
 }
 
 export class StorageDirectory extends StorageItem implements IStorageDirectory {
+
+  private onItemAdded_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
+  public onItemAdded = this.onItemAdded_.event;
+
+  private onItemRemoved_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
+  public onItemRemoved = this.onItemRemoved_.event;
 
   @observable private name_: string;
   get name() { return this.name_; }
@@ -77,10 +87,15 @@ export class StorageDirectory extends StorageItem implements IStorageDirectory {
     return item.navigate(next);
   }
 
-  private onItemAdded_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
-  public onItemAdded = this.onItemAdded_.event;
-
-  private onItemRemoved_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
-  public onItemRemoved = this.onItemRemoved_.event;
+  serialize() {
+    const serial: StorageDirectorySerial = {
+      ...super.serialize(),
+      items: []
+    }
+    this.items.forEach(item => {
+      serial.items.push(item.serialize() as StorageItemSerial);
+    })
+    return serial;
+  }
 
 }

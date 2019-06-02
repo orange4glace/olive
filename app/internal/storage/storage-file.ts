@@ -1,9 +1,12 @@
-import { IStorageItem, StorageItem } from "internal/storage/storage-item";
+import { IStorageItem, StorageItem, StorageItemSerial } from "internal/storage/storage-item";
 import { observable } from "mobx";
 import { ITrackItem } from "internal/timeline/track-item/track-item";
 
 export interface IStorageFile extends IStorageItem {
 
+}
+
+export interface StorageFileSerial extends StorageItemSerial {
 }
 
 export abstract class StorageFile extends StorageItem implements IStorageFile {

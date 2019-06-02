@@ -2,7 +2,7 @@ import { VideoEffect, VideoEffectBase } from "./video-effect";
 import { ScalarProperty, ScalarPropertyBase } from "../../property/scalar-property";
 import { postable, Postable } from "worker-postable";
 import { EffectType } from "internal/rendering/effect/effect";
-import { clone } from "base/common/cloneable";
+import { clone } from "base/olive/cloneable";
 
 export interface OpacityEffectBase extends VideoEffectBase {
   opacity: ScalarPropertyBase;

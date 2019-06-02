@@ -3,7 +3,7 @@ import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
 import { computed } from 'mobx';
-import { clone } from 'base/common/cloneable';
+import { clone } from 'base/olive/cloneable';
 import { Emitter, Event } from 'base/common/event';
 
 let __next_id = 0;

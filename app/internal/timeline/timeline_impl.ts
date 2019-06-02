@@ -5,8 +5,8 @@ import { Event, Emitter } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
 import { Timeline, TimelineTrackEvent, TimelineBase, TimelinePostableStatusEvent } from 'internal/timeline/timeline';
 import TrackImpl from 'internal/timeline/track/track-impl';
-import { assert } from 'base/common/assert';
-import { getCurrentSystemTime } from 'base/common/time';
+import { assert } from 'base/olive/assert';
+import { getCurrentSystemTime } from 'base/olive/time';
 import { VideoSetting, IVideoSetting } from 'internal/timeline/video-setting';
 import { AudioSetting, IAudioSetting } from 'internal/timeline/audio-setting';
 

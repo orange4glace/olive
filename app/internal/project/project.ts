@@ -1,24 +1,21 @@
-import { Postable, postable } from "worker-postable";
+import { Postable } from "worker-postable";
 import { IStorageService, StorageService } from "internal/storage/storage-service";
 import { IResourceService } from "internal/resource/resource-service";
-import { IResource } from "internal/resource/resource";
-import { IStorageDirectory } from "internal/storage/storage-directory";
-import { ResourceStorageFile } from "internal/resource/resource-storage-file";
-import { ITimeline } from "internal/timeline/timeline";
-import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
 import { ITimelineService } from "internal/timeline/timeline-service";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
-import { InstantiationService } from "platform/instantiation/common/instantiationService";
 import { ServiceCollection } from "platform/instantiation/common/serviceCollection";
 import { ResourceService } from "internal/resource/resource-service-impl";
 import { IProjectCoreService } from "internal/project/project-core-service";
 import { ProjectCoreService } from "internal/project/project-core-service-impl";
 import { TimelineService } from "internal/timeline/timeline-service-impl";
+import { Serializable } from "base/olive/serialize";
 
 export interface ProjectBase {
 }
 
 export interface IProject extends ProjectBase {
+
+  readonly id: string;
 
   readonly instantiationService: IInstantiationService;
 
@@ -28,8 +25,14 @@ export interface IProject extends ProjectBase {
   readonly timelineService: ITimelineService;
 }
 
+export interface ProjectSerial {
+  id: string;
+}
+
 @Postable
-export class Project implements IProject, ProjectBase {
+export class Project implements IProject, ProjectBase, Serializable {
+
+  readonly id: string;
 
   readonly instantiationService: IInstantiationService;
 
@@ -39,7 +42,9 @@ export class Project implements IProject, ProjectBase {
   readonly timelineService: ITimelineService;
 
   constructor(
+    id: string,
     @IInstantiationService readonly internalService: IInstantiationService) {
+    this.id = id;
     this.storageService = new StorageService();
     this.resourceService = new ResourceService();
     this.timelineService = new TimelineService();
@@ -54,6 +59,13 @@ export class Project implements IProject, ProjectBase {
       [IProjectCoreService, this.coreService]
     )
     this.instantiationService = internalService.createChild(services);
+  }
+
+  serialize() {
+    const serial: ProjectSerial = {
+      id: this.id
+    }
+    return serial;
   }
  
 }

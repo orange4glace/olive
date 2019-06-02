@@ -6,7 +6,7 @@ import { IAppWindowStarter } from "internal/app-window/app-window-starter";
 import { IAppWindow } from "internal/app-window/app-window";
 import { IApp } from "internal/app-interface";
 import { ModalWindow } from "window/modal-window/modal-window-impl";
-import { assert } from "base/common/assert";
+import { assert } from "base/olive/assert";
 
 class ModalWindowBootstrap implements IAppWindowStarter {
 

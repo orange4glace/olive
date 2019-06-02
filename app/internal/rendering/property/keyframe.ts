@@ -1,6 +1,6 @@
 import { PropertyTypes } from "./property";
 import { Postable, postable } from "worker-postable";
-import { Cloneable, clone } from "base/common/cloneable";
+import { Cloneable, clone } from "base/olive/cloneable";
 
 export enum InterpolationType {
   NONE,

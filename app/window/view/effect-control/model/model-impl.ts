@@ -10,7 +10,7 @@ import { ViewModelImpl } from "window/view/view-model";
 import { EffectControlWidgetKeyframeEvent } from "window/view/effect-control/event";
 import { Emitter, Event } from "base/common/event";
 import { MouseUtil } from "orangeutil";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 
 @EffectControlWidgetModel
 export class EffectControlWidgetModelImpl extends ViewModelImpl implements EffectControlWidgetModel {

@@ -1,5 +1,5 @@
 import ResourceType from "./type_t";
-import { Resource, ResourceBase, IResource } from "./resource";
+import { Resource, ResourceBase, IResource, ResourceSerial } from "./resource";
 import { Postable } from "worker-postable";
 import ffmpeg from "ffmpeg-static";
 import { exec } from "child_process";
@@ -9,6 +9,10 @@ export interface AudioResourceBase extends ResourceBase {
 }
 
 export interface IAudioResource extends IResource, AudioResourceBase {}
+
+export interface AudioResourceSerial extends ResourceSerial {
+  duration: number;
+}
 
 @Postable
 export class AudioResource extends Resource implements IAudioResource {
@@ -29,6 +33,14 @@ export class AudioResource extends Resource implements IAudioResource {
         console.log(stdout);
         console.log(stderr);
     });
+  }
+
+  serialize(): AudioResourceSerial {
+    const serial: AudioResourceSerial = {
+      ...super.serialize(),
+      duration: this.duration
+    }
+    return serial;
   }
 
 }

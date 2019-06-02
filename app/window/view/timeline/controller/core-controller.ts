@@ -1,7 +1,7 @@
 import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-view-model";
 import { TimelineWidgetTrackItemViewModel } from "window/view/timeline/model/track-item-view-model";
 import { IDisposable } from "base/common/lifecycle";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 
 export abstract class TimelineWidgetCoreController implements IDisposable {
   abstract trackDragOverHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent): void;

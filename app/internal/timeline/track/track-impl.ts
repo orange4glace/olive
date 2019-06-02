@@ -9,7 +9,7 @@ import { Disposable } from 'base/common/lifecycle';
 import { Track, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/timeline/track/track';
 import { TrackItemImpl } from 'internal/timeline/track-item/track-item-impl';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
-import { clone } from 'base/common/cloneable';
+import { clone } from 'base/olive/cloneable';
 import { TrackItem } from 'internal/timeline/track-item/track-item';
 
 let _nextTrackID = 0;

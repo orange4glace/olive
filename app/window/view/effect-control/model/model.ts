@@ -4,7 +4,7 @@ import { TimelineScrollViewModel } from "window/view/common/timeline-scroll-view
 import { declareViewModel, ViewModel } from "window/view/view-model";
 import { EffectControlWidgetKeyframeEvent } from "window/view/effect-control/event";
 import { Event } from "base/common/event";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { Timeline } from "internal/timeline/timeline";
 
 export const EffectControlWidgetModel = declareViewModel<EffectControlWidgetModel>('EffectControlWidgetModel');

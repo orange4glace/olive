@@ -4,10 +4,10 @@
  *--------------------------------------------------------------------------------------------*/
 
 import * as assert from 'assert';
-import { createDecorator, optional, ServicesAccessor } from 'vs/platform/instantiation/common/instantiation';
-import { InstantiationService } from 'vs/platform/instantiation/common/instantiationService';
-import { ServiceCollection } from 'vs/platform/instantiation/common/serviceCollection';
-import { SyncDescriptor } from 'vs/platform/instantiation/common/descriptors';
+import { createDecorator, optional, ServicesAccessor } from 'platform/instantiation/common/instantiation';
+import { InstantiationService } from 'platform/instantiation/common/instantiationService';
+import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
+import { SyncDescriptor } from 'platform/instantiation/common/descriptors';
 
 let IService1 = createDecorator<IService1>('service1');
 

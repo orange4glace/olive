@@ -1,5 +1,5 @@
 import { IDisposable } from 'base/common/lifecycle';
-import { Serializable } from 'base/common/serialize';
+import { Serializable } from 'base/olive/serialize';
 
 export abstract class Widget implements Serializable, IDisposable {
 

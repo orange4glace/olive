@@ -1,5 +1,5 @@
 import { Widget } from "window/view/widget";
-import { assert } from "base/common/assert";
+import { assert } from "base/olive/assert";
 import { ServicesAccessor, IInstantiationService, createDecorator } from "platform/instantiation/common/instantiation";
 
 interface WidgetClass<T extends Widget> {

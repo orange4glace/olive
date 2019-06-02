@@ -1,7 +1,7 @@
 import { MonitorWidgetDrawingViewModel, MonitorWidgetDrawingViewModelImpl } from "window/view/monitor/model/drawing/drawing-view-model";
 import { mat2d, vec2 } from "gl-matrix";
 import { declareViewModel } from "window/view/view-model";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { Timeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item/track-item";

@@ -1,6 +1,6 @@
 import ResourceType from "./type_t";
 import app from "internal/app";
-import { Resource, ResourceBase, IResource } from "./resource";
+import { Resource, ResourceBase, IResource, ResourceSerial } from "./resource";
 import { Postable, postable } from "worker-postable";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 
@@ -10,6 +10,12 @@ export interface VideoResourceBase extends ResourceBase {
 }
 
 export interface IVideoResource extends IResource, VideoResourceBase {
+  duration: number;
+}
+
+export interface VideoResourceSerial extends ResourceSerial {
+  width: number;
+  height: number;
   duration: number;
 }
 
@@ -29,6 +35,16 @@ export class VideoResource extends Resource implements IVideoResource {
     // const native = app.decoder.AddResource(path);
     // this.native_id = native.id;
     // this.duration = native.duration;
+  }
+
+  serialize(): VideoResourceSerial {
+    const serial: VideoResourceSerial = {
+      ...super.serialize(),
+      width: this.width,
+      height: this.height,
+      duration: this.duration
+    }
+    return serial;
   }
 
 }

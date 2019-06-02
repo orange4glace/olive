@@ -1,6 +1,6 @@
 import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { ConstTrackItemTime } from "internal/timeline/track-item/track-item-time";
-import { Cloneable } from "base/common/cloneable";
+import { Cloneable } from "base/olive/cloneable";
 import { Event } from "base/common/event";
 
 export interface TrackItemBase {

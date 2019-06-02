@@ -9,8 +9,9 @@ import { TimelineWidgetViewProps } from 'window/view/timeline/widget-view';
 import * as style from './style.scss'
 import { TimelineWidgetTimelineViewModel } from 'window/view/timeline/model/timeline-view-model';
 import { TimelineWidgetViewOutgoingEvents } from 'window/view/timeline/view-outgoing-events';
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { TimelineWidgetRangeSelectorView } from 'window/view/timeline/right/range-selector-view';
+import { createStandardMouseEvent } from 'base/olive/mouse-event';
 
 export interface TimelineContentViewProps extends TimelineWidgetViewProps {
   outgoingEvents: TimelineWidgetViewOutgoingEvents;
@@ -60,7 +61,7 @@ class TimelineViewContent extends React.Component<TimelineContentViewProps, {}> 
   mouseDownHandler(e: React.MouseEvent) {
     this.props.outgoingEvents.emitTimelineMouseDown({
       timelineViewModel: this.props.timelineViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     })
   }
 

@@ -6,7 +6,8 @@ import { PropertyTypes } from 'internal/rendering/property/property';
 import { observer } from 'window/app-mobx';
 import ADiv from 'window/view/advanced-div';
 import { EffectControlViewOutgoingEvents } from 'window/view/effect-control/view-outgoing-events';
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
+import { createStandardMouseEvent } from 'base/olive/mouse-event';
 
 interface MonitorWidgetKeyframeTimelineViewProps {
   widget: EffectControlWidget;
@@ -51,7 +52,7 @@ export class MonitorWidgetKeyframeView<T extends PropertyTypes>
      this.props.outgoingEvents.emitKeyframeMouseDown({
        propertyViewModel: this.props.propertyViewModel,
        keyframeViewModel: this.props.keyframeViewModel,
-       e: new StandardMouseEvent(e)
+       e: createStandardMouseEvent(e)
      });
   }
   
@@ -59,7 +60,7 @@ export class MonitorWidgetKeyframeView<T extends PropertyTypes>
      this.props.outgoingEvents.emitKeyframeMouseMoveStart({
        propertyViewModel: this.props.propertyViewModel,
        keyframeViewModel: this.props.keyframeViewModel,
-       e: new StandardMouseEvent(e)
+       e: createStandardMouseEvent(e)
      });
   }
 

@@ -1,5 +1,5 @@
 import app from "internal/app";
-import { StaticDND, IDragAndDropData } from "base/view/dnd";
+import { StaticDND, IDragAndDropData } from "base/browser/dnd";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetCoreController } from "window/view/timeline/controller/core-controller";
 import { TimelineWidgetGhostContainerViewModel } from "window/view/timeline/model/ghost-view-model";
@@ -7,7 +7,7 @@ import { TimelineWidgetTrackViewModel } from "window/view/timeline/model/track-v
 import { TimelineWidgetTrackItemViewModel } from "window/view/timeline/model/track-item-view-model";
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { TimelineWidget } from "window/view/timeline/widget";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { IHistoryCommand } from "internal/history/command";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";

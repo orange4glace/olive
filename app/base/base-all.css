@@ -1,0 +1,2233 @@
+/* actionbar.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-action-bar {
+	text-align: right;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.monaco-action-bar .actions-container {
+	display: flex;
+	margin: 0 auto;
+	padding: 0;
+	width: 100%;
+	justify-content: flex-end;
+}
+
+.monaco-action-bar.vertical .actions-container {
+	display: inline-block;
+}
+
+.monaco-action-bar.reverse .actions-container {
+	flex-direction: row-reverse;
+}
+
+.monaco-action-bar .action-item {
+	cursor: pointer;
+	display: inline-block;
+	transition: transform 50ms ease;
+	position: relative;  /* DO NOT REMOVE - this is the key to preventing the ghosting icon bug in Chrome 42 */
+}
+
+.monaco-action-bar .action-item.disabled {
+	cursor: default;
+}
+
+.monaco-action-bar.animated .action-item.active {
+	transform: scale(1.272019649, 1.272019649); /* 1.272019649 = √φ */
+}
+
+.monaco-action-bar .action-item .icon {
+	display: inline-block;
+}
+
+.monaco-action-bar .action-label {
+	font-size: 11px;
+	margin-right: 4px;
+}
+
+.monaco-action-bar .action-label.octicon {
+	font-size: 15px;
+	line-height: 35px;
+	text-align: center;
+}
+
+.monaco-action-bar .action-item.disabled .action-label,
+.monaco-action-bar .action-item.disabled .action-label:hover {
+	opacity: 0.4;
+}
+
+/* Vertical actions */
+
+.monaco-action-bar.vertical {
+	text-align: left;
+}
+
+.monaco-action-bar.vertical .action-item {
+	display: block;
+}
+
+.monaco-action-bar.vertical .action-label.separator {
+	display: block;
+	border-bottom: 1px solid #bbb;
+	padding-top: 1px;
+	margin-left: .8em;
+	margin-right: .8em;
+}
+
+.monaco-action-bar.animated.vertical .action-item.active {
+	transform: translate(5px, 0);
+}
+
+.secondary-actions .monaco-action-bar .action-label {
+	margin-left: 6px;
+}
+
+/* Action Items */
+.monaco-action-bar .action-item.select-container {
+	overflow: hidden; /* somehow the dropdown overflows its container, we prevent it here to not push */
+	flex: 1;
+	max-width: 170px;
+	min-width: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* aria.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-aria-container {
+	position: absolute; /* try to hide from window but not from screen readers */
+	left:-999em;
+}
+
+/* breadcrumbsWidget.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-breadcrumbs {
+	user-select: none;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	outline-style: none;
+}
+
+.monaco-breadcrumbs .monaco-breadcrumb-item {
+	display: flex;
+	align-items: center;
+	flex: 0 1 auto;
+	white-space: nowrap;
+	cursor: pointer;
+	align-self: center;
+	height: 100%;
+	outline: none;
+}
+
+.monaco-breadcrumbs .monaco-breadcrumb-item::before {
+	width: 14px;
+	height: 16px;
+	display: inline-block;
+	content: ' ';
+}
+
+.monaco-breadcrumbs .monaco-breadcrumb-item:not(:nth-child(2))::before {
+	background-image: url(./collapsed.svg);
+	opacity: .7;
+	background-size: 16px;
+	background-position: 50% 50%;
+}
+
+.vs-dark .monaco-breadcrumbs .monaco-breadcrumb-item:not(:nth-child(2))::before {
+	background-image: url(./collpased-dark.svg);
+}
+
+
+/* button.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-text-button {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	display: inline-block;
+	width: 100%;
+	padding: 4px;
+	text-align: center;
+	cursor: pointer;
+	outline-offset: 2px !important;
+}
+
+.monaco-text-button:hover {
+	text-decoration: none !important;
+}
+
+.monaco-button.disabled {
+	opacity: 0.4;
+	cursor: default;
+}
+
+/* checkbox.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-custom-checkbox {
+	margin-left: 2px;
+	float: left;
+	cursor: pointer;
+	overflow: hidden;
+	opacity: 0.7;
+	width: 20px;
+	height: 20px;
+	border: 1px solid transparent;
+	padding: 1px;
+
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-o-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.monaco-custom-checkbox:hover,
+.monaco-custom-checkbox.checked {
+	opacity: 1;
+}
+
+.hc-black .monaco-custom-checkbox {
+	background: none;
+}
+
+.hc-black .monaco-custom-checkbox:hover {
+	background: none;
+}
+
+/* contextview.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.context-view {
+	position: absolute;
+	z-index: 2000;
+}
+
+/* countBadge.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-count-badge {
+	padding: 0.3em 0.5em;
+	border-radius: 1em;
+	font-size: 85%;
+	min-width: 1.6em;
+	line-height: 1em;
+	font-weight: normal;
+	text-align: center;
+	display: inline-block;
+	box-sizing: border-box;
+}
+
+/* dialog.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+/** Dialog: Modal Block */
+.monaco-workbench .dialog-modal-block {
+	position: fixed;
+	height: 100%;
+	width: 100%;
+	left:0;
+	top:0;
+	z-index: 2000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.monaco-workbench .dialog-modal-block.dimmed {
+	background: rgba(0, 0, 0, 0.3);
+}
+
+/** Dialog: Container */
+.monaco-workbench .dialog-box {
+	display: flex;
+	flex-direction: column-reverse;
+	width: min-content;
+	min-width: 500px;
+	max-width: 90%;
+	min-height: 75px;
+	padding: 5px;
+}
+
+/** Dialog: Title Actions Row */
+.monaco-workbench .dialog-box .dialog-toolbar-row {
+	padding-right: 1px;
+}
+
+.monaco-workbench .dialog-box .action-label {
+	height: 16px;
+	min-width: 16px;
+	background-size: 16px;
+	background-position: 50%;
+	background-repeat: no-repeat;
+	margin: 0px;
+	margin-left: 4px;
+}
+
+
+.monaco-workbench .dialog-box .dialog-close-action {
+	background: url('close.svg') center center no-repeat;
+}
+
+.vs-dark .monaco-workbench .dialog-box .dialog-close-action,
+.hc-black .monaco-workbench .dialog-box .dialog-close-action {
+	background: url('close-inverse.svg') center center no-repeat;
+}
+
+/** Dialog: Message Row */
+.monaco-workbench .dialog-box .dialog-message-row {
+	display: flex;
+	flex-grow: 1;
+	padding: 10px 15px 20px;
+	align-items: center;
+}
+
+.monaco-workbench .dialog-box .dialog-message-row .dialog-icon {
+	flex: 0 0 30px;
+	height: 30px;
+	padding-right: 4px;
+	padding-left: 4px;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.vs .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-pending {
+	background-image: url('pending.svg');
+}
+
+.vs .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-info {
+	background-image: url('info.svg');
+}
+
+.vs .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-warning {
+	background-image: url('warning.svg');
+}
+
+.vs .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-error {
+	background-image: url('error.svg');
+}
+
+.vs-dark .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-pending {
+	background-image: url('pending-dark.svg');
+}
+
+.vs-dark .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-info,
+.hc-black .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-info {
+	background-image: url('info-inverse.svg');
+}
+
+.vs-dark .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-warning,
+.hc-black .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-warning {
+	background-image: url('warning-inverse.svg');
+}
+
+.vs-dark .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-error,
+.hc-black .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-error {
+	background-image: url('error-inverse.svg');
+}
+
+.hc-black .monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-pending {
+	background-image: url('pending-hc.svg');
+}
+
+.monaco-workbench .dialog-box .dialog-message-row .dialog-icon.icon-pending {
+	background-size: 30px;
+}
+
+/** Dialog: Message Container */
+.monaco-workbench .dialog-box .dialog-message-row .dialog-message-container {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-left: 20px;
+	user-select: text;
+	word-wrap: break-word; /* never overflow long words, but break to next line */
+	white-space: normal;
+}
+
+/** Dialog: Message */
+.monaco-workbench .dialog-box .dialog-message-row .dialog-message-container .dialog-message {
+	line-height: 22px;
+	font-size: 18px;
+	flex: 1; /* let the message always grow */
+	white-space: normal;
+	word-wrap: break-word; /* never overflow long words, but break to next line */
+	padding-bottom: 10px;
+}
+
+/** Dialog: Details */
+.monaco-workbench .dialog-box .dialog-message-row .dialog-message-container .dialog-message-detail {
+	line-height: 22px;
+	flex: 1; /* let the message always grow */
+	opacity: .9;
+}
+
+.monaco-workbench .dialog-box .dialog-message-row .dialog-message-container .dialog-message a:focus {
+	outline-width: 1px;
+	outline-style: solid;
+}
+
+/** Dialog: Buttons Row */
+.monaco-workbench .dialog-box > .dialog-buttons-row {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding-right: 1px;
+	overflow: hidden; /* buttons row should never overflow */
+}
+
+.monaco-workbench .dialog-box > .dialog-buttons-row {
+	display: flex;
+	white-space: nowrap;
+}
+
+/** Dialog: Buttons */
+.monaco-workbench .dialog-box > .dialog-buttons-row > .dialog-buttons {
+	display: flex;
+	overflow: hidden;
+}
+
+.monaco-workbench .dialog-box > .dialog-buttons-row > .dialog-buttons > .monaco-button {
+	max-width: fit-content;
+	padding: 5px 10px;
+	margin: 4px 5px; /* allows button focus outline to be visible */
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* dropdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-dropdown {
+	height: 100%;
+	display: inline-block;
+	padding: 0;
+}
+
+.monaco-dropdown > .dropdown-label {
+	display: inline-block;
+	cursor: pointer;
+	height: 100%;
+}
+
+
+/* findInput.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+/* ---------- Find input ---------- */
+
+.monaco-findInput {
+	position: relative;
+}
+
+.monaco-findInput .monaco-inputbox {
+	font-size: 13px;
+	width: 100%;
+}
+
+.monaco-findInput > .controls {
+	position: absolute;
+	top: 3px;
+	right: 2px;
+}
+
+.vs .monaco-findInput.disabled {
+	background-color: #E1E1E1;
+}
+
+/* Theming */
+.vs-dark .monaco-findInput.disabled {
+	background-color: #333;
+}
+
+/* Highlighting */
+.monaco-findInput.highlight-0 .controls {
+	animation: monaco-findInput-highlight-0 100ms linear 0s;
+}
+.monaco-findInput.highlight-1 .controls {
+	animation: monaco-findInput-highlight-1 100ms linear 0s;
+}
+.hc-black .monaco-findInput.highlight-0 .controls,
+.vs-dark  .monaco-findInput.highlight-0 .controls {
+	animation: monaco-findInput-highlight-dark-0 100ms linear 0s;
+}
+.hc-black .monaco-findInput.highlight-1 .controls,
+.vs-dark  .monaco-findInput.highlight-1 .controls {
+	animation: monaco-findInput-highlight-dark-1 100ms linear 0s;
+}
+
+@keyframes monaco-findInput-highlight-0 {
+	0% { background: rgba(253, 255, 0, 0.8); }
+	100% { background: transparent; }
+}
+@keyframes monaco-findInput-highlight-1 {
+	0% { background: rgba(253, 255, 0, 0.8); }
+	/* Made intentionally different such that the CSS minifier does not collapse the two animations into a single one*/
+	99% { background: transparent; }
+}
+
+@keyframes monaco-findInput-highlight-dark-0 {
+	0% { background: rgba(255, 255, 255, 0.44); }
+	100% { background: transparent; }
+}
+@keyframes monaco-findInput-highlight-dark-1 {
+	0% { background: rgba(255, 255, 255, 0.44); }
+	/* Made intentionally different such that the CSS minifier does not collapse the two animations into a single one*/
+	99% { background: transparent; }
+}
+
+/* findInputCheckboxes.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vs .monaco-custom-checkbox.monaco-case-sensitive {
+	background: url('case-sensitive.svg') center center no-repeat;
+}
+.hc-black .monaco-custom-checkbox.monaco-case-sensitive,
+.hc-black .monaco-custom-checkbox.monaco-case-sensitive:hover,
+.vs-dark .monaco-custom-checkbox.monaco-case-sensitive {
+	background: url('case-sensitive-dark.svg') center center no-repeat;
+}
+
+.vs .monaco-custom-checkbox.monaco-whole-word {
+	background: url('whole-word.svg') center center no-repeat;
+}
+.hc-black .monaco-custom-checkbox.monaco-whole-word,
+.hc-black .monaco-custom-checkbox.monaco-whole-word:hover,
+.vs-dark .monaco-custom-checkbox.monaco-whole-word {
+	background: url('whole-word-dark.svg') center center no-repeat;
+}
+
+.vs .monaco-custom-checkbox.monaco-regex {
+	background: url('regex.svg') center center no-repeat;
+}
+.hc-black .monaco-custom-checkbox.monaco-regex,
+.hc-black .monaco-custom-checkbox.monaco-regex:hover,
+.vs-dark .monaco-custom-checkbox.monaco-regex {
+	background: url('regex-dark.svg') center center no-repeat;
+}
+
+
+/* gridview.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-grid-view {
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-grid-branch-node {
+	width: 100%;
+	height: 100%;
+}
+
+/* iconlabel.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* ---------- Icon label ---------- */
+
+.monaco-icon-label {
+	display: flex; /* required for icons support :before rule */
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.monaco-icon-label::before {
+
+	/* svg icons rendered as background image */
+	background-size: 16px;
+	background-position: left center;
+	background-repeat: no-repeat;
+	padding-right: 6px;
+	width: 16px;
+	height: 22px;
+	display: inline-block;
+
+	/* fonts icons */
+	-webkit-font-smoothing: antialiased;
+	vertical-align: top;
+
+	flex-shrink: 0; /* fix for https://github.com/Microsoft/vscode/issues/13787 */
+}
+
+.monaco-icon-label > .monaco-icon-label-description-container {
+	overflow: hidden; /* this causes the label/description to shrink first if decorations are enabled */
+	text-overflow: ellipsis;
+}
+
+.monaco-icon-label > .monaco-icon-label-description-container > .label-name {
+	color: inherit;
+	white-space: pre; /* enable to show labels that include multiple whitespaces */
+}
+
+.monaco-icon-label > .monaco-icon-label-description-container > .label-description {
+	opacity: .7;
+	margin-left: 0.5em;
+	font-size: 0.9em;
+	white-space: pre; /* enable to show labels that include multiple whitespaces */
+}
+
+.monaco-icon-label.italic > .monaco-icon-label-description-container > .label-name,
+.monaco-icon-label.italic > .monaco-icon-label-description-container > .label-description {
+	font-style: italic;
+}
+
+.monaco-icon-label::after {
+	opacity: 0.75;
+	font-size: 90%;
+	font-weight: 600;
+	padding: 0 12px 0 5px;
+	margin-left: auto;
+	text-align: center;
+}
+
+/* make sure selection color wins when a label is being selected */
+.monaco-tree.focused .selected .monaco-icon-label, /* tree */
+.monaco-tree.focused .selected .monaco-icon-label::after,
+.monaco-list:focus .selected .monaco-icon-label, /* list */
+.monaco-list:focus .selected .monaco-icon-label::after
+{
+	color: inherit !important;
+}
+
+.monaco-tree-row.focused.selected .label-description,
+.monaco-tree-row.selected .label-description,
+.monaco-list-row.focused.selected .label-description,
+.monaco-list-row.selected .label-description {
+	opacity: .8;
+}
+
+/* inputBox.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-inputbox {
+	position: relative;
+	display: block;
+	padding: 0;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+	line-height: auto !important;
+
+	/* Customizable */
+	font-size: inherit;
+}
+
+.monaco-inputbox.idle {
+	border: 1px solid transparent;
+}
+
+.monaco-inputbox > .wrapper > .input,
+.monaco-inputbox > .wrapper > .mirror {
+
+	/* Customizable */
+	padding: 4px;
+}
+
+.monaco-inputbox > .wrapper {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-inputbox > .wrapper > .input {
+	display: inline-block;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+	width: 100%;
+	height: 100%;
+	line-height: inherit;
+	border: none;
+	font-family: inherit;
+	font-size: inherit;
+	resize: none;
+	color: inherit;
+}
+
+.monaco-inputbox > .wrapper > input {
+	text-overflow: ellipsis;
+}
+
+.monaco-inputbox > .wrapper > textarea.input {
+	display: block;
+	overflow: hidden;
+}
+
+.monaco-inputbox > .wrapper > .mirror {
+	position: absolute;
+	display: inline-block;
+	width: 100%;
+	top: 0;
+	left: 0;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+	white-space: pre-wrap;
+	visibility: hidden;
+	word-wrap: break-word;
+}
+
+/* Context view */
+
+.monaco-inputbox-container {
+	text-align: right;
+}
+
+.monaco-inputbox-container .monaco-inputbox-message {
+	display: inline-block;
+	overflow: hidden;
+	text-align: left;
+	width: 100%;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+	padding: 0.4em;
+	font-size: 12px;
+	line-height: 17px;
+	min-height: 34px;
+	margin-top: -1px;
+	word-wrap: break-word;
+}
+
+/* Action bar support */
+.monaco-inputbox .monaco-action-bar {
+	position: absolute;
+	right: 2px;
+	top: 4px;
+}
+
+.monaco-inputbox .monaco-action-bar .action-item {
+	margin-left: 2px;
+}
+
+.monaco-inputbox .monaco-action-bar .action-item .icon {
+	background-repeat: no-repeat;
+	width: 16px;
+	height: 16px;
+}
+
+/* keybindingLabel.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-keybinding {
+	display: flex;
+	align-items: center;
+	line-height: 10px;
+}
+
+.monaco-keybinding > .monaco-keybinding-key {
+	display: inline-block;
+	border: solid 1px rgba(204, 204, 204, 0.4);
+	border-bottom-color: rgba(187, 187, 187, 0.4);
+	border-radius: 3px;
+	box-shadow: inset 0 -1px 0 rgba(187, 187, 187, 0.4);
+	background-color: rgba(221, 221, 221, 0.4);
+	vertical-align: middle;
+	color: #555;
+	font-size: 11px;
+	padding: 3px 5px;
+	margin: 0 2px;
+}
+
+.monaco-keybinding > .monaco-keybinding-key:first-child {
+	margin-left: 0;
+}
+
+.monaco-keybinding > .monaco-keybinding-key:last-child {
+	margin-right: 0;
+}
+
+.hc-black .monaco-keybinding > .monaco-keybinding-key,
+.vs-dark .monaco-keybinding > .monaco-keybinding-key {
+	background-color: rgba(128, 128, 128, 0.17);
+	color: #ccc;
+	border: solid 1px rgba(51, 51, 51, 0.6);
+	border-bottom-color: rgba(68, 68, 68, 0.6);
+	box-shadow: inset 0 -1px 0 rgba(68, 68, 68, 0.6);
+}
+
+.monaco-keybinding > .monaco-keybinding-key-separator {
+	display: inline-block;
+}
+
+.monaco-keybinding > .monaco-keybinding-key-chord-separator {
+	width: 6px;
+}
+
+/* list.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-list {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	white-space: nowrap;
+}
+
+.monaco-list.mouse-support {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+}
+
+.monaco-list > .monaco-scrollable-element {
+	height: 100%;
+}
+
+.monaco-list-rows {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-list.horizontal-scrolling .monaco-list-rows {
+	width: auto;
+	min-width: 100%;
+}
+
+.monaco-list-row {
+	position: absolute;
+	-moz-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+	overflow: hidden;
+	width: 100%;
+}
+
+.monaco-list.mouse-support .monaco-list-row {
+	cursor: pointer;
+	touch-action: none;
+}
+
+/* for OS X ballistic scrolling */
+.monaco-list-row.scrolling {
+	display: none !important;
+}
+
+/* Focus */
+.monaco-list.element-focused, .monaco-list.selection-single, .monaco-list.selection-multiple {
+	outline: 0 !important;
+}
+
+/* Dnd */
+.monaco-drag-image {
+	display: inline-block;
+	padding: 1px 7px;
+	border-radius: 10px;
+	font-size: 12px;
+	position: absolute;
+}
+
+/* Type filter */
+
+.monaco-list-type-filter {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	border-radius: 2px;
+	padding: 0px 3px;
+	max-width: calc(100% - 10px);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	text-align: right;
+	box-sizing: border-box;
+	cursor: all-scroll;
+	font-size: 13px;
+	line-height: 18px;
+	height: 20px;
+	z-index: 1;
+	top: 4px;
+}
+
+.monaco-list-type-filter.dragging {
+	transition: top 0.2s, left 0.2s;
+}
+
+.monaco-list-type-filter.ne {
+	right: 4px;
+}
+
+.monaco-list-type-filter.nw {
+	left: 4px;
+}
+
+.monaco-list-type-filter > .controls {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	transition: width 0.2s;
+	width: 0;
+}
+
+.monaco-list-type-filter.dragging > .controls,
+.monaco-list-type-filter:hover > .controls {
+	width: 36px;
+}
+
+.monaco-list-type-filter > .controls > * {
+	box-sizing: border-box;
+	width: 16px;
+	height: 16px;
+	margin: 0 0 0 2px;
+	flex-shrink: 0;
+}
+
+.monaco-list-type-filter > .controls > .filter {
+	-webkit-appearance: none;
+	width: 16px;
+	height: 16px;
+	background: url("media/no-filter.svg");
+	background-position: 50% 50%;
+	cursor: pointer;
+}
+
+.monaco-list-type-filter > .controls > .filter:checked {
+	background-image: url("media/filter.svg");
+}
+
+.vs-dark .monaco-list-type-filter > .controls > .filter {
+	background-image: url("media/no-filter-dark.svg");
+}
+
+.vs-dark .monaco-list-type-filter > .controls > .filter:checked {
+	background-image: url("media/filter-dark.svg");
+}
+
+.hc-black .monaco-list-type-filter > .controls > .filter {
+	background-image: url("media/no-filter-hc.svg");
+}
+
+.hc-black .monaco-list-type-filter > .controls > .filter:checked {
+	background-image: url("media/filter-hc.svg");
+}
+
+.monaco-list-type-filter > .controls > .clear {
+	border: none;
+	background: url("media/close.svg");
+	cursor: pointer;
+}
+
+.vs-dark .monaco-list-type-filter > .controls > .clear {
+	background-image: url("media/close-dark.svg");
+}
+
+.hc-black .monaco-list-type-filter > .controls > .clear {
+	background-image: url("media/close-hc.svg");
+}
+
+.monaco-list-type-filter-message {
+	position: absolute;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	padding: 40px 1em 1em 1em;
+	text-align: center;
+	white-space: normal;
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+.monaco-list-type-filter-message:empty {
+	display: none;
+}
+
+/* Electron */
+
+.monaco-list-type-filter {
+	cursor: -webkit-grab;
+}
+
+.monaco-list-type-filter.dragging {
+	cursor: -webkit-grabbing;
+}
+
+/* menu.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-menu .monaco-action-bar.vertical {
+	margin-left: 0;
+	overflow: visible;
+}
+
+.monaco-menu .monaco-action-bar.vertical .actions-container {
+	display: block;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-item {
+	padding: 0;
+	transform: none;
+	display: -ms-flexbox;
+	display: flex;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-item.active {
+	transform: none;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-menu-item {
+	-ms-flex: 1 1 auto;
+	flex: 1 1 auto;
+	display: -ms-flexbox;
+	display: flex;
+	height: 2em;
+	align-items: center;
+	position: relative;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-label {
+	-ms-flex: 1 1 auto;
+	flex: 1 1 auto;
+	text-decoration: none;
+	padding: 0 1em;
+	background: none;
+	font-size: 12px;
+	line-height: 1;
+}
+
+.monaco-menu .monaco-action-bar.vertical .keybinding,
+.monaco-menu .monaco-action-bar.vertical .submenu-indicator {
+	display: inline-block;
+	-ms-flex: 2 1 auto;
+	flex: 2 1 auto;
+	padding: 0 1em;
+	text-align: right;
+	font-size: 12px;
+	line-height: 1;
+}
+
+.monaco-menu .monaco-action-bar.vertical .submenu-indicator {
+	height: 100%;
+	-webkit-mask: url('submenu.svg') no-repeat 90% 50%/13px 13px;
+	mask: url('submenu.svg') no-repeat 90% 50%/13px 13px;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-item.disabled .keybinding,
+.monaco-menu .monaco-action-bar.vertical .action-item.disabled .submenu-indicator {
+	opacity: 0.4;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-label:not(.separator) {
+	display: inline-block;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+	margin: 0;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-item {
+	position: static;
+	overflow: visible;
+}
+
+
+.monaco-menu .monaco-action-bar.vertical .action-item .monaco-submenu {
+	position: absolute;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-label.separator {
+	padding: 0.5em 0 0 0;
+	margin-bottom: 0.5em;
+	width: 100%;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-label.separator.text {
+	padding: 0.7em 1em 0.1em 1em;
+	font-weight: bold;
+	opacity: 1;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-label:hover {
+	color: inherit;
+}
+
+.monaco-menu .monaco-action-bar.vertical .menu-item-check {
+	position: absolute;
+	visibility: hidden;
+	-webkit-mask: url('check.svg') no-repeat 50% 56%/15px 15px;
+	mask: url('check.svg') no-repeat 50% 56%/15px 15px;
+	width: 1em;
+	height: 100%;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-menu-item.checked .menu-item-check {
+	visibility: visible;
+}
+
+/* Context Menu */
+
+.context-view.monaco-menu-container {
+	outline: 0;
+	border: none;
+	-webkit-animation: fadeIn 0.083s linear;
+	-o-animation: fadeIn 0.083s linear;
+	-moz-animation: fadeIn 0.083s linear;
+	-ms-animation: fadeIn 0.083s linear;
+	animation: fadeIn 0.083s linear;
+}
+
+.context-view.monaco-menu-container :focus,
+.context-view.monaco-menu-container .monaco-action-bar.vertical:focus,
+.context-view.monaco-menu-container .monaco-action-bar.vertical :focus {
+	outline: 0;
+}
+
+.monaco-menu .monaco-action-bar.vertical .action-item {
+	border: 1px solid transparent; /* prevents jumping behaviour on hover or focus */
+}
+
+
+/* High Contrast Theming */
+.hc-black .context-view.monaco-menu-container {
+	box-shadow: none;
+}
+
+.hc-black .monaco-menu .monaco-action-bar.vertical .action-item.focused {
+	background: none;
+}
+
+/* Menubar styles */
+
+.menubar {
+	display: flex;
+	flex-shrink: 1;
+	box-sizing: border-box;
+	height: 30px;
+	overflow: hidden;
+	flex-wrap: wrap;
+}
+
+.fullscreen .menubar {
+	margin: 0px;
+	padding: 0px 5px;
+}
+
+.menubar > .menubar-menu-button {
+	align-items: center;
+	box-sizing: border-box;
+	padding: 0px 8px;
+	cursor: default;
+	-webkit-app-region: no-drag;
+	zoom: 1;
+	white-space: nowrap;
+	outline: 0;
+}
+
+.menubar .menubar-menu-items-holder {
+	position: absolute;
+	left: 0px;
+	opacity: 1;
+	z-index: 2000;
+}
+
+.menubar .menubar-menu-items-holder.monaco-menu-container {
+	outline: 0;
+	border: none;
+}
+
+.menubar .menubar-menu-items-holder.monaco-menu-container :focus {
+	outline: 0;
+}
+
+.menubar .toolbar-toggle-more {
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: 14px;
+	width: 20px;
+	height: 100%;
+}
+
+.menubar .toolbar-toggle-more {
+	display: inline-block;
+	padding: 0;
+	-webkit-mask: url('ellipsis.svg') no-repeat 50% 55%/14px 14px;
+	mask: url('ellipsis.svg') no-repeat 50% 55%/14px 14px;
+}
+
+/* octicons-animations.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+@keyframes octicon-spin {
+	100% {
+		transform:rotate(360deg);
+	}
+}
+
+.octicon-animation-spin {
+	animation: octicon-spin 2s linear infinite;
+}
+
+/* octicons.css */
+@font-face {
+    font-family: "octicons";
+    src: url("./octicons.ttf?91284a5a76ea88faeb754359b7f7cd03") format("truetype"),
+url("./octicons.svg?91284a5a76ea88faeb754359b7f7cd03#octicons") format("svg");
+}
+
+.octicon, .mega-octicon {
+    font: normal normal normal 16px/1 octicons;
+    display: inline-block;
+    text-decoration: none;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.mega-octicon { font-size: 32px; }
+
+
+
+.octicon-alert:before { content: "\f02d" }
+.octicon-arrow-down:before { content: "\f03f" }
+.octicon-arrow-left:before { content: "\f040" }
+.octicon-arrow-right:before { content: "\f03e" }
+.octicon-arrow-small-down:before { content: "\f0a0" }
+.octicon-arrow-small-left:before { content: "\f0a1" }
+.octicon-arrow-small-right:before { content: "\f071" }
+.octicon-arrow-small-up:before { content: "\f09f" }
+.octicon-arrow-up:before { content: "\f03d" }
+.octicon-beaker:before { content: "\f0dd" }
+.octicon-bell:before { content: "\f0de" }
+.octicon-bold:before { content: "\f282" }
+.octicon-book:before { content: "\f007" }
+.octicon-bookmark:before { content: "\f07b" }
+.octicon-briefcase:before { content: "\f0d3" }
+.octicon-broadcast:before { content: "\f048" }
+.octicon-browser:before { content: "\f0c5" }
+.octicon-bug:before { content: "\f091" }
+.octicon-calendar:before { content: "\f068" }
+.octicon-check:before { content: "\f03a" }
+.octicon-checklist:before { content: "\f076" }
+.octicon-chevron-down:before { content: "\f0a3" }
+.octicon-chevron-left:before { content: "\f0a4" }
+.octicon-chevron-right:before { content: "\f078" }
+.octicon-chevron-up:before { content: "\f0a2" }
+.octicon-circle-slash:before { content: "\f084" }
+.octicon-circuit-board:before { content: "\f0d6" }
+.octicon-clippy:before { content: "\f035" }
+.octicon-clock:before { content: "\f046" }
+.octicon-clone:before { content: "\f0dc" }
+.octicon-cloud-download:before { content: "\f00b" }
+.octicon-cloud-upload:before { content: "\f00c" }
+.octicon-code:before { content: "\f05f" }
+.octicon-color-mode:before { content: "\f065" }
+.octicon-comment-add:before { content: "\f02b" }
+.octicon-comment-discussion:before { content: "\f04f" }
+.octicon-comment:before { content: "\f02b" }
+.octicon-credit-card:before { content: "\f045" }
+.octicon-dash:before { content: "\f0ca" }
+.octicon-dashboard:before { content: "\f07d" }
+.octicon-database:before { content: "\f096" }
+.octicon-desktop-download:before { content: "\f0dc" }
+.octicon-device-camera-video:before { content: "\f057" }
+.octicon-device-camera:before { content: "\f056" }
+.octicon-device-desktop:before { content: "\f27c" }
+.octicon-device-mobile:before { content: "\f038" }
+.octicon-diff-added:before { content: "\f06b" }
+.octicon-diff-ignored:before { content: "\f099" }
+.octicon-diff-modified:before { content: "\f06d" }
+.octicon-diff-removed:before { content: "\f06c" }
+.octicon-diff-renamed:before { content: "\f06e" }
+.octicon-diff:before { content: "\f04d" }
+.octicon-ellipsis:before { content: "\f09a" }
+.octicon-eye-unwatch:before { content: "\f04e" }
+.octicon-eye-watch:before { content: "\f04e" }
+.octicon-eye:before { content: "\f04e" }
+.octicon-file-add:before { content: "\f05d" }
+.octicon-file-binary:before { content: "\f094" }
+.octicon-file-code:before { content: "\f010" }
+.octicon-file-directory-create:before { content: "\f05d" }
+.octicon-file-directory:before { content: "\f016" }
+.octicon-file-media:before { content: "\f012" }
+.octicon-file-pdf:before { content: "\f014" }
+.octicon-file-submodule:before { content: "\f017" }
+.octicon-file-symlink-directory:before { content: "\f0b1" }
+.octicon-file-symlink-file:before { content: "\f0b0" }
+.octicon-file-text:before { content: "\f283" }
+.octicon-file-zip:before { content: "\f013" }
+.octicon-file:before { content: "\f283" }
+.octicon-flame:before { content: "\f0d2" }
+.octicon-fold:before { content: "\f0cc" }
+.octicon-gear:before { content: "\f02f" }
+.octicon-gift:before { content: "\f042" }
+.octicon-gist-fork:before { content: "\f002" }
+.octicon-gist-new:before { content: "\f05d" }
+.octicon-gist-private:before { content: "\f06a" }
+.octicon-gist-secret:before { content: "\f08c" }
+.octicon-gist:before { content: "\f00e" }
+.octicon-git-branch-create:before { content: "\f020" }
+.octicon-git-branch-delete:before { content: "\f020" }
+.octicon-git-branch:before { content: "\f020" }
+.octicon-git-commit:before { content: "\f01f" }
+.octicon-git-compare:before { content: "\f0ac" }
+.octicon-git-fork-private:before { content: "\f06a" }
+.octicon-git-merge:before { content: "\f023" }
+.octicon-git-pull-request-abandoned:before { content: "\f009" }
+.octicon-git-pull-request:before { content: "\f009" }
+.octicon-globe:before { content: "\f0b6" }
+.octicon-grabber:before { content: "\f284" }
+.octicon-graph:before { content: "\f043" }
+.octicon-heart:before { content: "\2665" }
+.octicon-history:before { content: "\f07e" }
+.octicon-home:before { content: "\f08d" }
+.octicon-horizontal-rule:before { content: "\f070" }
+.octicon-hubot:before { content: "\f09d" }
+.octicon-inbox:before { content: "\f0cf" }
+.octicon-info:before { content: "\f059" }
+.octicon-issue-closed:before { content: "\f028" }
+.octicon-issue-opened:before { content: "\f026" }
+.octicon-issue-reopened:before { content: "\f027" }
+.octicon-italic:before { content: "\f285" }
+.octicon-jersey:before { content: "\f019" }
+.octicon-kebab-horizontal:before { content: "\f286" }
+.octicon-kebab-vertical:before { content: "\f287" }
+.octicon-key:before { content: "\f049" }
+.octicon-keyboard:before { content: "\f00d" }
+.octicon-law:before { content: "\f0d8" }
+.octicon-light-bulb:before { content: "\f000" }
+.octicon-link-external:before { content: "\f07f" }
+.octicon-link:before { content: "\f05c" }
+.octicon-list-ordered:before { content: "\f062" }
+.octicon-list-unordered:before { content: "\f061" }
+.octicon-location:before { content: "\f060" }
+.octicon-lock:before { content: "\f06a" }
+.octicon-log-in:before { content: "\f036" }
+.octicon-log-out:before { content: "\f032" }
+.octicon-logo-gist:before { content: "\f288" }
+.octicon-logo-github:before { content: "\f092" }
+.octicon-mail-read:before { content: "\f03c" }
+.octicon-mail-reply:before { content: "\f28c" }
+.octicon-mail:before { content: "\f03b" }
+.octicon-mark-github:before { content: "\f00a" }
+.octicon-markdown:before { content: "\f0c9" }
+.octicon-megaphone:before { content: "\f077" }
+.octicon-mention:before { content: "\f0be" }
+.octicon-microscope:before { content: "\f0dd" }
+.octicon-milestone:before { content: "\f075" }
+.octicon-mirror-private:before { content: "\f06a" }
+.octicon-mirror-public:before { content: "\f024" }
+.octicon-mirror:before { content: "\f024" }
+.octicon-mortar-board:before { content: "\f0d7" }
+.octicon-mute:before { content: "\f080" }
+.octicon-no-newline:before { content: "\f09c" }
+.octicon-note:before { content: "\f289" }
+.octicon-octoface:before { content: "\f008" }
+.octicon-organization:before { content: "\f037" }
+.octicon-organization-filled:before { content: "\26a2" }
+.octicon-organization-outline:before { content: "\f037" }
+.octicon-package:before { content: "\f0c4" }
+.octicon-paintcan:before { content: "\f0d1" }
+.octicon-pencil:before { content: "\f058" }
+.octicon-person-add:before { content: "\f018" }
+.octicon-person-follow:before { content: "\f018" }
+.octicon-person:before { content: "\f018" }
+.octicon-person-filled:before { content: "\26a3" }
+.octicon-person-outline:before { content: "\f018" }
+.octicon-pin:before { content: "\f041" }
+.octicon-plug:before { content: "\f0d4" }
+.octicon-plus-small:before { content: "\f28a" }
+.octicon-plus:before { content: "\f05d" }
+.octicon-primitive-dot:before { content: "\f052" }
+.octicon-primitive-square:before { content: "\f053" }
+.octicon-project:before { content: "\f28b" }
+.octicon-pulse:before { content: "\f085" }
+.octicon-question:before { content: "\f02c" }
+.octicon-quote:before { content: "\f063" }
+.octicon-radio-tower:before { content: "\f030" }
+.octicon-remove-close:before { content: "\f081" }
+.octicon-reply:before { content: "\f28c" }
+.octicon-repo-clone:before { content: "\f04c" }
+.octicon-repo-create:before { content: "\f05d" }
+.octicon-repo-delete:before { content: "\f001" }
+.octicon-repo-force-push:before { content: "\f04a" }
+.octicon-repo-forked:before { content: "\f002" }
+.octicon-repo-pull:before { content: "\f006" }
+.octicon-repo-push:before { content: "\f005" }
+.octicon-repo-sync:before { content: "\f087" }
+.octicon-repo:before { content: "\f001" }
+.octicon-report:before { content: "\f28d" }
+.octicon-rocket:before { content: "\f033" }
+.octicon-rss:before { content: "\f034" }
+.octicon-ruby:before { content: "\f047" }
+.octicon-screen-full:before { content: "\f066" }
+.octicon-screen-normal:before { content: "\f067" }
+.octicon-search-save:before { content: "\f02e" }
+.octicon-search:before { content: "\f02e" }
+.octicon-server:before { content: "\f097" }
+.octicon-settings:before { content: "\f07c" }
+.octicon-shield:before { content: "\f0e1" }
+.octicon-sign-in:before { content: "\f036" }
+.octicon-sign-out:before { content: "\f032" }
+.octicon-smiley:before { content: "\f27d" }
+.octicon-squirrel:before { content: "\f0b2" }
+.octicon-star-add:before { content: "\f02a" }
+.octicon-star-delete:before { content: "\f02a" }
+.octicon-star:before { content: "\f02a" }
+.octicon-stop:before { content: "\f08f" }
+.octicon-sync:before { content: "\f087" }
+.octicon-tag-add:before { content: "\f015" }
+.octicon-tag-remove:before { content: "\f015" }
+.octicon-tag:before { content: "\f015" }
+.octicon-tasklist:before { content: "\f27e" }
+.octicon-telescope:before { content: "\f088" }
+.octicon-terminal:before { content: "\f0c8" }
+.octicon-text-size:before { content: "\f27f" }
+.octicon-three-bars:before { content: "\f05e" }
+.octicon-thumbsdown:before { content: "\f0db" }
+.octicon-thumbsup:before { content: "\f0da" }
+.octicon-tools:before { content: "\f031" }
+.octicon-trashcan:before { content: "\f0d0" }
+.octicon-triangle-down:before { content: "\f05b" }
+.octicon-triangle-left:before { content: "\f044" }
+.octicon-triangle-right:before { content: "\f05a" }
+.octicon-triangle-up:before { content: "\f0aa" }
+.octicon-unfold:before { content: "\f039" }
+.octicon-unmute:before { content: "\f0ba" }
+.octicon-unverified:before { content: "\f280" }
+.octicon-verified:before { content: "\f281" }
+.octicon-versions:before { content: "\f064" }
+.octicon-watch:before { content: "\f0e0" }
+.octicon-x:before { content: "\f081" }
+.octicon-zap:before { content: "\26a1" }
+.octicon-archive:before { content: "\f101" }
+.octicon-arrow-both:before { content: "\f102" }
+.octicon-eye-closed:before { content: "\f103" }
+.octicon-fold-down:before { content: "\f104" }
+.octicon-fold-up:before { content: "\f105" }
+.octicon-github-action:before { content: "\f106" }
+.octicon-play:before { content: "\f107" }
+.octicon-remote:before { content: "\f108" }
+.octicon-request-changes:before { content: "\f109" }
+
+
+/* progressbar.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-progress-container {
+	width: 100%;
+	height: 5px;
+	overflow: hidden; /* keep progress bit in bounds */
+}
+
+.monaco-progress-container .progress-bit {
+	width: 2%;
+	height: 5px;
+	position: absolute;
+	left: 0;
+	display: none;
+}
+
+.monaco-progress-container.active .progress-bit {
+	display: inherit;
+}
+
+.monaco-progress-container.discrete .progress-bit {
+	left: 0;
+	transition: width 100ms linear;
+}
+
+.monaco-progress-container.discrete.done .progress-bit {
+	width: 100%;
+}
+
+.monaco-progress-container.infinite .progress-bit {
+	animation-name: progress;
+	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+	-ms-animation-name: progress;
+	-ms-animation-duration: 4s;
+	-ms-animation-iteration-count: infinite;
+	-ms-animation-timing-function: linear;
+	-webkit-animation-name: progress;
+	-webkit-animation-duration: 4s;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: linear;
+	-moz-animation-name: progress;
+	-moz-animation-duration: 4s;
+	-moz-animation-iteration-count: infinite;
+	-moz-animation-timing-function: linear;
+	will-change: transform;
+}
+
+/**
+ * The progress bit has a width: 2% (1/50) of the parent container. The animation moves it from 0% to 100% of
+ * that container. Since translateX is relative to the progress bit size, we have to multiple it with
+ * its relative size to the parent container:
+ *  50%: 50 * 50 = 2500%
+ * 100%: 50 * 100 - 50 (do not overflow): 4950%
+ */
+@keyframes progress { from { transform: translateX(0%) scaleX(1) } 50% { transform: translateX(2500%) scaleX(3) } to { transform: translateX(4950%) scaleX(1) } }
+@-ms-keyframes progress { from { transform: translateX(0%) scaleX(1) }	50% { transform: translateX(2500%) scaleX(3) } to { transform: translateX(4950%) scaleX(1) } }
+@-webkit-keyframes progress { from { transform: translateX(0%) scaleX(1) }	50% { transform: translateX(2500%) scaleX(3) } to { transform: translateX(4950%) scaleX(1) } }
+@-moz-keyframes progress { from { transform: translateX(0%) scaleX(1) }	50% { transform: translateX(2500%) scaleX(3) } to { transform: translateX(4950%) scaleX(1) } }
+
+/* sash.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-sash {
+	position: absolute;
+	z-index: 35;
+	touch-action: none;
+}
+
+.monaco-sash.disabled {
+	pointer-events: none;
+}
+
+.monaco-sash.vertical {
+	cursor: ew-resize;
+	top: 0;
+	width: 4px;
+	height: 100%;
+}
+
+.monaco-sash.mac.vertical {
+	cursor: col-resize;
+}
+
+.monaco-sash.vertical.minimum {
+	cursor: e-resize;
+}
+
+.monaco-sash.vertical.maximum {
+	cursor: w-resize;
+}
+
+.monaco-sash.horizontal {
+	cursor: ns-resize;
+	left: 0;
+	width: 100%;
+	height: 4px;
+}
+
+.monaco-sash.mac.horizontal {
+	cursor: row-resize;
+}
+
+.monaco-sash.horizontal.minimum {
+	cursor: s-resize;
+}
+
+.monaco-sash.horizontal.maximum {
+	cursor: n-resize;
+}
+
+.monaco-sash:not(.disabled).orthogonal-start::before,
+.monaco-sash:not(.disabled).orthogonal-end::after {
+	content: ' ';
+	height: 8px;
+	width: 8px;
+	z-index: 100;
+	display: block;
+	cursor: all-scroll;
+	position: absolute;
+}
+
+.monaco-sash.orthogonal-start.vertical::before {
+	left: -2px;
+	top: -4px;
+}
+
+.monaco-sash.orthogonal-end.vertical::after {
+	left: -2px;
+	bottom: -4px;
+}
+
+.monaco-sash.orthogonal-start.horizontal::before {
+	top: -2px;
+	left: -4px;
+}
+
+.monaco-sash.orthogonal-end.horizontal::after {
+	top: -2px;
+	right: -4px;
+}
+
+.monaco-sash.disabled {
+	cursor: default !important;
+	pointer-events: none !important;
+}
+
+/** Touch **/
+
+.monaco-sash.touch.vertical {
+	width: 20px;
+}
+
+.monaco-sash.touch.horizontal {
+	height: 20px;
+}
+
+/** Debug **/
+
+.monaco-sash.debug {
+	background: cyan;
+}
+
+.monaco-sash.debug.disabled {
+	background: rgba(0, 255, 255, 0.2);
+}
+
+.monaco-sash.debug:not(.disabled).orthogonal-start::before,
+.monaco-sash.debug:not(.disabled).orthogonal-end::after {
+	background: red;
+}
+
+/* scrollbars.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Arrows */
+.monaco-scrollable-element > .scrollbar > .up-arrow {
+	background: url('arrow-up.svg');
+	cursor: pointer;
+}
+.monaco-scrollable-element > .scrollbar > .down-arrow {
+	background: url('arrow-down.svg');
+	cursor: pointer;
+}
+.monaco-scrollable-element > .scrollbar > .left-arrow {
+	background: url('arrow-left.svg');
+	cursor: pointer;
+}
+.monaco-scrollable-element > .scrollbar > .right-arrow {
+	background: url('arrow-right.svg');
+	cursor: pointer;
+}
+
+.hc-black .monaco-scrollable-element > .scrollbar > .up-arrow,
+.vs-dark .monaco-scrollable-element > .scrollbar > .up-arrow {
+	background: url('arrow-up-dark.svg');
+}
+.hc-black .monaco-scrollable-element > .scrollbar > .down-arrow,
+.vs-dark .monaco-scrollable-element > .scrollbar > .down-arrow {
+	background: url('arrow-down-dark.svg');
+}
+.hc-black .monaco-scrollable-element > .scrollbar > .left-arrow,
+.vs-dark .monaco-scrollable-element > .scrollbar > .left-arrow {
+	background: url('arrow-left-dark.svg');
+}
+.hc-black .monaco-scrollable-element > .scrollbar > .right-arrow,
+.vs-dark .monaco-scrollable-element > .scrollbar > .right-arrow {
+	background: url('arrow-right-dark.svg');
+}
+
+.monaco-scrollable-element > .visible {
+	opacity: 1;
+
+	/* Background rule added for IE9 - to allow clicks on dom node */
+	background:rgba(0,0,0,0);
+
+	transition: opacity 100ms linear;
+}
+.monaco-scrollable-element > .invisible {
+	opacity: 0;
+	pointer-events: none;
+}
+.monaco-scrollable-element > .invisible.fade {
+	transition: opacity 800ms linear;
+}
+
+/* Scrollable Content Inset Shadow */
+.monaco-scrollable-element > .shadow {
+	position: absolute;
+	display: none;
+}
+.monaco-scrollable-element > .shadow.top {
+	display: block;
+	top: 0;
+	left: 3px;
+	height: 3px;
+	width: 100%;
+	box-shadow: #DDD 0 6px 6px -6px inset;
+}
+.monaco-scrollable-element > .shadow.left {
+	display: block;
+	top: 3px;
+	left: 0;
+	height: 100%;
+	width: 3px;
+	box-shadow: #DDD 6px 0 6px -6px inset;
+}
+.monaco-scrollable-element > .shadow.top-left-corner {
+	display: block;
+	top: 0;
+	left: 0;
+	height: 3px;
+	width: 3px;
+}
+.monaco-scrollable-element > .shadow.top.left {
+	box-shadow: #DDD 6px 6px 6px -6px inset;
+}
+
+/* ---------- Default Style ---------- */
+
+.vs .monaco-scrollable-element > .scrollbar > .slider {
+	background: rgba(100, 100, 100, .4);
+}
+.vs-dark .monaco-scrollable-element > .scrollbar > .slider {
+	background: rgba(121, 121, 121, .4);
+}
+.hc-black .monaco-scrollable-element > .scrollbar > .slider {
+	background: rgba(111, 195, 223, .6);
+}
+
+.monaco-scrollable-element > .scrollbar > .slider:hover {
+	background: rgba(100, 100, 100, .7);
+}
+.hc-black .monaco-scrollable-element > .scrollbar > .slider:hover {
+	background: rgba(111, 195, 223, .8);
+}
+
+.monaco-scrollable-element > .scrollbar > .slider.active {
+	background: rgba(0, 0, 0, .6);
+}
+.vs-dark .monaco-scrollable-element > .scrollbar > .slider.active {
+	background: rgba(191, 191, 191, .4);
+}
+.hc-black .monaco-scrollable-element > .scrollbar > .slider.active {
+	background: rgba(111, 195, 223, 1);
+}
+
+.vs-dark .monaco-scrollable-element .shadow.top {
+	box-shadow: none;
+}
+
+.vs-dark .monaco-scrollable-element .shadow.left {
+	box-shadow: #000 6px 0 6px -6px inset;
+}
+
+.vs-dark .monaco-scrollable-element .shadow.top.left {
+	box-shadow: #000 6px 6px 6px -6px inset;
+}
+
+.hc-black .monaco-scrollable-element .shadow.top {
+	box-shadow: none;
+}
+
+.hc-black .monaco-scrollable-element .shadow.left {
+	box-shadow: none;
+}
+
+.hc-black .monaco-scrollable-element .shadow.top.left {
+	box-shadow: none;
+}
+
+/* selectBox.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-select-box {
+	width: 100%;
+}
+
+
+/* selectBoxCustom.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+/* Use custom CSS vars to expose padding into parent select for padding calculation */
+.monaco-select-box-dropdown-padding {
+	--dropdown-padding-top: 1px;
+	--dropdown-padding-bottom: 1px;
+}
+
+.hc-black .monaco-select-box-dropdown-padding {
+	--dropdown-padding-top: 3px;
+	--dropdown-padding-bottom: 4px;
+}
+
+.monaco-select-box-dropdown-container {
+	display: none;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+}
+
+.monaco-select-box-dropdown-container > .select-box-details-pane > .select-box-description-markdown * {
+	margin: 0;
+}
+
+.monaco-select-box-dropdown-container > .select-box-details-pane > .select-box-description-markdown a:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+.monaco-select-box-dropdown-container > .select-box-details-pane > .select-box-description-markdown code {
+	line-height: 15px; /** For some reason, this is needed, otherwise <code> will take up 20px height */
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+}
+
+
+.monaco-select-box-dropdown-container.visible {
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+	width: 1px;
+	overflow: hidden;
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-list-container {
+	flex: 0 0 auto;
+	align-self: flex-start;
+	padding-top: var(--dropdown-padding-top);
+	padding-bottom: var(--dropdown-padding-bottom);
+	padding-left: 1px;
+	padding-right: 1px;
+	width: 100%;
+	overflow: hidden;
+	-webkit-box-sizing:	border-box;
+	-o-box-sizing:		border-box;
+	-moz-box-sizing:	border-box;
+	-ms-box-sizing:		border-box;
+	box-sizing:			border-box;
+}
+
+.monaco-select-box-dropdown-container > .select-box-details-pane {
+	padding: 5px;
+}
+
+.hc-black .monaco-select-box-dropdown-container > .select-box-dropdown-list-container {
+	padding-top: var(--dropdown-padding-top);
+	padding-bottom: var(--dropdown-padding-bottom);
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row {
+	cursor: pointer;
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row > .option-text {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	padding-left: 3.5px;
+	white-space: nowrap;
+	float: left;
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row > .option-decorator-right {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	padding-right: 10px;
+	white-space: nowrap;
+	float: right;
+}
+
+
+/* Accepted CSS hiding technique for accessibility reader text  */
+/* https://webaim.org/techniques/css/invisiblecontent/ */
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-list-container .monaco-list .monaco-list-row > .visually-hidden {
+		position: absolute;
+		left: -10000px;
+		top: auto;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-container-width-control {
+	flex: 1 1 auto;
+	align-self: flex-start;
+	opacity: 0;
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-container-width-control > .width-control-div {
+	overflow: hidden;
+	max-height: 0px;
+}
+
+.monaco-select-box-dropdown-container > .select-box-dropdown-container-width-control > .width-control-div > .option-text-width-control {
+	padding-left: 4px;
+	padding-right: 8px;
+	white-space: nowrap;
+}
+
+
+/* panelview.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-panel-view {
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-panel-view .panel {
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.monaco-panel-view .panel > .panel-header {
+	font-size: 11px;
+	font-weight: bold;
+	text-transform: uppercase;
+	padding-left: 20px;
+	overflow: hidden;
+	display: flex;
+	cursor: pointer;
+}
+
+.monaco-panel-view .panel > .panel-header {
+	background-image: url('arrow-collapse.svg');
+	background-position: 2px center;
+	background-repeat: no-repeat;
+}
+
+.monaco-panel-view .panel > .panel-header.expanded {
+	background-image: url('arrow-expand.svg');
+	background-position: 2px center;
+	background-repeat: no-repeat;
+}
+
+.vs-dark .monaco-panel-view .panel > .panel-header {
+	background-image: url('arrow-collapse-dark.svg');
+}
+
+.vs-dark .monaco-panel-view .panel > .panel-header.expanded {
+	background-image: url('arrow-expand-dark.svg');
+}
+
+/* TODO: actions should be part of the panel, but they aren't yet */
+.monaco-panel-view .panel > .panel-header > .actions {
+	display: none;
+	flex: 1;
+}
+
+/* TODO: actions should be part of the panel, but they aren't yet */
+.monaco-panel-view .panel:hover > .panel-header.expanded > .actions,
+.monaco-panel-view .panel > .panel-header.actions-always-visible.expanded > .actions,
+.monaco-panel-view .panel > .panel-header.focused.expanded > .actions {
+	display: initial;
+}
+
+/* TODO: actions should be part of the panel, but they aren't yet */
+.monaco-panel-view .panel > .panel-header > .actions .action-label.icon {
+	width: 28px;
+	height: 22px;
+	background-size: 16px;
+	background-position: center center;
+	background-repeat: no-repeat;
+	margin-right: 0;
+}
+
+/* Bold font style does not go well with CJK fonts */
+.monaco-panel-view:lang(zh-Hans) .panel > .panel-header,
+.monaco-panel-view:lang(zh-Hant) .panel > .panel-header,
+.monaco-panel-view:lang(ja) .panel > .panel-header,
+.monaco-panel-view:lang(ko) .panel > .panel-header {
+	font-weight: normal;
+}
+
+.monaco-panel-view .panel > .panel-header.hidden {
+	display: none;
+}
+
+.monaco-panel-view .panel > .panel-body {
+	overflow: hidden;
+	flex: 1;
+}
+
+/* Animation */
+
+.monaco-panel-view.animated .split-view-view {
+	transition-duration: 0.15s;
+	transition-timing-function: ease-out;
+}
+
+.monaco-panel-view.animated.vertical .split-view-view {
+	transition-property: height;
+}
+
+.monaco-panel-view.animated.horizontal .split-view-view {
+	transition-property: width;
+}
+
+
+/* splitview.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-split-view2 {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.monaco-split-view2 > .sash-container {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+}
+
+.monaco-split-view2 > .sash-container > .monaco-sash {
+	pointer-events: initial;
+}
+
+.monaco-split-view2 > .split-view-container {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	white-space: nowrap;
+}
+
+.monaco-split-view2.vertical > .split-view-container {
+	flex-direction: column;
+}
+
+.monaco-split-view2.horizontal > .split-view-container {
+	flex-direction: row;
+}
+
+.monaco-split-view2 > .split-view-container > .split-view-view {
+	white-space: initial;
+	flex: none;
+	position: relative;
+}
+
+.monaco-split-view2.vertical > .split-view-container > .split-view-view {
+	width: 100%;
+}
+
+.monaco-split-view2.horizontal > .split-view-container > .split-view-view {
+	height: 100%;
+	display: inline-block;
+}
+
+.monaco-split-view2.separator-border > .split-view-container > .split-view-view:not(:first-child)::before {
+	content: ' ';
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 5;
+	pointer-events: none;
+	background-color: var(--separator-border);
+}
+
+.monaco-split-view2.separator-border.horizontal > .split-view-container > .split-view-view:not(:first-child)::before {
+	height: 100%;
+	width: 1px;
+}
+
+.monaco-split-view2.separator-border.vertical > .split-view-container > .split-view-view:not(:first-child)::before {
+	height: 1px;
+	width: 100%;
+}
+
+/* toolbar.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-toolbar .toolbar-toggle-more {
+	display: inline-block;
+	padding: 0;
+}
+
+.vs .monaco-toolbar .action-label.toolbar-toggle-more {
+	background-image: url('ellipsis.svg');
+}
+
+.hc-black .monaco-toolbar .action-label.toolbar-toggle-more,
+.vs-dark .monaco-toolbar .action-label.toolbar-toggle-more {
+	background-image: url('ellipsis-inverse.svg');
+}
+
+/* panelviewlet.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-panel-view .panel > .panel-header h3.title {
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	font-size: 11px;
+	-webkit-margin-before: 0;
+	-webkit-margin-after: 0;
+}
+
+
+/* tree.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.monaco-tl-row {
+	display: flex;
+	height: 100%;
+	align-items: center;
+}
+
+.monaco-tl-twistie,
+.monaco-tl-contents {
+	height: 100%;
+}
+
+.monaco-tl-twistie {
+	font-size: 10px;
+	text-align: right;
+	margin-right: 6px;
+	flex-shrink: 0;
+	width: 16px;
+}
+
+.monaco-tl-contents {
+	flex: 1;
+	overflow: hidden;
+}
+
+.monaco-tl-twistie.collapsible {
+	background-size: 16px;
+	background-position: 3px 50%;
+	background-repeat: no-repeat;
+	background-image: url("expanded.svg");
+}
+
+.monaco-tl-twistie.collapsible.collapsed:not(.loading) {
+	display: inline-block;
+	background-image: url("collapsed.svg");
+}
+
+.vs-dark .monaco-tl-twistie.collapsible:not(.loading) {
+	background-image: url("expanded-dark.svg");
+}
+
+.vs-dark .monaco-tl-twistie.collapsible.collapsed:not(.loading) {
+	background-image: url("collapsed-dark.svg");
+}
+
+.hc-black .monaco-tl-twistie.collapsible:not(.loading) {
+	background-image: url("expanded-hc.svg");
+}
+
+.hc-black .monaco-tl-twistie.collapsible.collapsed:not(.loading) {
+	background-image: url("collapsed-hc.svg");
+}
+
+.monaco-tl-twistie.loading {
+	background-image: url("loading.svg");
+	background-position: 0 center;
+}
+
+.vs-dark .monaco-tl-twistie.loading {
+	background-image: url("loading-dark.svg");
+}
+
+.hc-black .monaco-tl-twistie.loading {
+	background-image: url("loading-hc.svg");
+}
+

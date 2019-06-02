@@ -1,0 +1,1 @@
+{"version":3,"file":"contextmenu.js","sourceRoot":"","sources":["../../../app/base/browser/contextmenu.ts"],"names":[],"mappings":"AAAA;;;gGAGgG;AAKhG,OAAO,EAAE,aAAa,EAAE,MAAM,2BAA2B,CAAC;AAU1D,MAAM,OAAO,cAAe,SAAQ,aAAa;IAChD,YAAY,KAAa,EAAS,OAAwC;QACzE,KAAK,CAAC,KAAK,EAAE,OAAO,EAAE,gBAAgB,CAAC,CAAC;QADP,YAAO,GAAP,OAAO,CAAiC;IAE1E,CAAC;CACD"}

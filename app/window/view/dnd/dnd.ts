@@ -1,4 +1,4 @@
-import { IDragAndDropData } from "base/view/dnd";
+import { IDragAndDropData } from "base/browser/dnd";
 import { IStorageItem } from "internal/storage/storage-item";
 
 export class StorageItemDragAndDropData implements IDragAndDropData {

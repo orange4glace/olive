@@ -1,7 +1,9 @@
 import { observable } from "mobx";
 import { ITrackItem } from "internal/timeline/track-item/track-item";
+import { Serializable } from "base/olive/serialize";
+import uuid from "uuid";
 
-export interface IStorageItem {
+export interface IStorageItem extends Serializable {
 
   readonly uuid: string;
   /*@observable*/ readonly name: string;
@@ -16,6 +18,12 @@ export interface IStorageItem {
 
 }
 
+export interface StorageItemSerial {
+  uuid: string;
+  name: string;
+  type: string;
+}
+
 export abstract class StorageItem implements IStorageItem {
 
   @observable parent: IStorageItem;
@@ -26,15 +34,8 @@ export abstract class StorageItem implements IStorageItem {
   readonly type: string;
   readonly isDirectory: boolean;
 
-  private _uuid() {
-    function s4() {
-      return ((1 + Math.random()) * 0x10000 | 0).toString(16).substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
-  }
-
   constructor() {
-    this.uuid_ = this._uuid();
+    this.uuid_ = uuid();
   }
 
   abstract trackItemize(): ITrackItem;
@@ -49,5 +50,14 @@ export abstract class StorageItem implements IStorageItem {
   }
 
   abstract navigate(path: string): IStorageItem;
+
+  serialize(): StorageItemSerial {
+    const serial: StorageItemSerial = {
+      uuid: this.uuid_,
+      name: this.name,
+      type: this.type
+    };
+    return serial;
+  }
 
 }

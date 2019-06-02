@@ -1,0 +1,49 @@
+{
+  "_from": "native-keymap",
+  "_id": "native-keymap@1.2.5",
+  "_inBundle": false,
+  "_integrity": "sha1-EDWpQXuak0DPgJd2OkPHbViBZaU=",
+  "_location": "/native-keymap",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "tag",
+    "registry": true,
+    "raw": "native-keymap",
+    "name": "native-keymap",
+    "escapedName": "native-keymap",
+    "rawSpec": "",
+    "saveSpec": null,
+    "fetchSpec": "latest"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/native-keymap/-/native-keymap-1.2.5.tgz",
+  "_shasum": "1035a9417b9a9340cf8097763a43c76d588165a5",
+  "_spec": "native-keymap",
+  "_where": "D:\\source\\olive\\app\\lib",
+  "author": {
+    "name": "Microsoft Corporation"
+  },
+  "bugs": {
+    "url": "https://github.com/Microsoft/node-native-keymap/issues"
+  },
+  "bundleDependencies": false,
+  "deprecated": false,
+  "description": "Get OS key mapping",
+  "gypfile": true,
+  "homepage": "https://github.com/Microsoft/node-native-keymap#readme",
+  "license": "MIT",
+  "main": "index.js",
+  "name": "native-keymap",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Microsoft/node-native-keymap.git"
+  },
+  "scripts": {
+    "install": "node-gyp rebuild",
+    "test": "node test/test.js"
+  },
+  "version": "1.2.5"
+}

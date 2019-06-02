@@ -3,7 +3,7 @@ import { VideoEffect } from "../effect/video-effect/video-effect";
 import { Postable, postable } from "worker-postable";
 import { EffectBase, Effect } from "internal/rendering/effect/effect";
 import { TransformEffect, TransformEffectBase } from "internal/rendering/effect/video-effect/transform-effect";
-import { clone } from "base/common/cloneable";
+import { clone } from "base/olive/cloneable";
 
 export interface VideoDrawingBase extends DrawingBase {
   transformEffect: TransformEffectBase;

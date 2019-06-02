@@ -1,8 +1,6 @@
 import { IHistoryCommand } from "internal/history/command";
-import { Timeline } from "internal/timeline/timeline";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { Track } from "internal/timeline/track/track";
-import { TrackItemTime } from "internal/timeline/track-item/track-item-time";
 
 export class AddTrackItemCommand implements IHistoryCommand {
 

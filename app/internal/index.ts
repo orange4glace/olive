@@ -1,6 +1,7 @@
 import * as electron from 'electron';
 import * as mobx from 'mobx';
 import * as mobx_react from 'mobx-react';
+import * as nativeKeymap from 'lib/native-keymap'
 
 import { context as PostableContext, ref, getPostableID } from 'worker-postable'
 import App from 'internal/app-interface';
@@ -78,10 +79,17 @@ async function initializeApp(): Promise<void> {
     computed: mobx.computed,
     observer: mobx_react.observer,
   }
-  app.services = instantiationService;
+  app.services = serviceCollection;
   app.canvas = document.createElement('canvas');
   app.canvas.width = 1080;
   app.canvas.height = 720;
+  console.log(nativeKeymap);
+  app.nativeKeymap = {
+    getCurrentKeyboardLayout: nativeKeymap.getCurrentKeyboardLayout,
+    getKeyMap: nativeKeymap.getKeyMap,
+    isISOKeyboard: nativeKeymap.isISOKeyboard,
+    onDidChangeKeyboardLayout: nativeKeymap.onDidChangeKeyboardLayout
+  }
 
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 

@@ -6,7 +6,7 @@ import { AudioRendererOption, AudioRendererStateIndex, AudioRendererSlotState, g
 import { postableMessageHandler } from "worker-postable";
 import { AudioTrackItemAudioRenderer } from "internal/renderer/audio-renderer/timeline/track-item/audio-track-item";
 import { read, openSync, close } from "fs";
-import { getCurrentSystemTime } from "base/common/time";
+import { getCurrentSystemTime } from "base/olive/time";
 
 interface RenderingRequest {
   requestID: number;

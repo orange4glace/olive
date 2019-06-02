@@ -6,8 +6,8 @@ import { ObjectStore, postableMessageHandler } from 'worker-postable';
 import IDecoder from 'internal/decoder/decoder';
 import { VideoRendererMessageEventType, VideoRendererRenderMessageEvent } from 'internal/renderer/video-renderer/message';
 import { TimelineVideoRenderer } from 'internal/renderer/video-renderer/timeline/timeline';
-import { getCurrentSystemTime } from 'base/common/time';
-import { assert } from 'base/common/assert';
+import { getCurrentSystemTime } from 'base/olive/time';
+import { assert } from 'base/olive/assert';
 
 baseForceImport();
 videoRendererForceImport();

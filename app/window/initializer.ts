@@ -5,6 +5,7 @@ function initialize(param: WindowParam) {
   app.services = param.app.services;
   app.mobx = param.app.mobx;
   app.canvas = param.app.canvas;
+  (<any>window).nativeKeymap = param.app.nativeKeymap
   console.log('[Window] Initialize', app);
   console.log('initilaize', param.app);
 

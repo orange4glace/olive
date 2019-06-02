@@ -1,4 +1,4 @@
-import { IStorageFile, StorageFile } from "internal/storage/storage-file";
+import { IStorageFile, StorageFile, StorageFileSerial } from "internal/storage/storage-file";
 import { IResource } from "internal/resource/resource";
 import { IVideoResource } from "internal/resource/video-resource";
 import { IAudioResource } from "internal/resource/audio-resource";
@@ -17,6 +17,11 @@ export abstract class ResourceStorageFile extends StorageFile implements IResour
 
 }
 
+export interface MediaResourceStorageFileSerial extends StorageFileSerial {
+  videoResourceID: number;
+  audioResourceID: number;
+}
+
 export class MediaResourceStorageFile extends ResourceStorageFile {
 
   constructor(
@@ -32,6 +37,19 @@ export class MediaResourceStorageFile extends ResourceStorageFile {
     return trackItem;
   }
 
+  serialize() {
+    const serial: MediaResourceStorageFileSerial = {
+      ...super.serialize(),
+      videoResourceID: this.videoResource.id,
+      audioResourceID: this.audioResource.id
+    }
+    return serial;
+  }
+
+}
+
+export interface AudioResourceStorageFileSerial extends StorageFileSerial {
+  audioResourceID: number;
 }
 
 export class AudioResourceStorageFile extends ResourceStorageFile {
@@ -44,6 +62,14 @@ export class AudioResourceStorageFile extends ResourceStorageFile {
 
   trackItemize(): ITrackItem {
     return new AudioTrackItemImpl(this.audioResource);
+  }
+
+  serialize() {
+    const serial: AudioResourceStorageFileSerial = {
+      ...super.serialize(),
+      audioResourceID: this.audioResource.id
+    }
+    return serial;
   }
 
 }

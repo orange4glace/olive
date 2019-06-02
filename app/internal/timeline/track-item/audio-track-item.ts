@@ -4,7 +4,7 @@ import { TrackItemImpl } from 'internal/timeline/track-item/track-item-impl';
 import { TrackItemBase, ITrackItem } from 'internal/timeline/track-item/track-item';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
-import { clone } from 'base/common/cloneable';
+import { clone } from 'base/olive/cloneable';
 import { AudioDrawingBase, AudioDrawing } from 'internal/rendering/drawing/audio-drawing';
 import { AudioResourceBase, IAudioResource } from 'internal/resource/audio-resource';
 

@@ -1,4 +1,5 @@
 declare module '*.scss';
+declare module '*.css';
 declare module '*.node';
 
 declare module "worker-loader!*" {

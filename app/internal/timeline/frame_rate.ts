@@ -1,5 +1,5 @@
 import { postable, Postable } from "worker-postable";
-import { systemTimeToMilliseconds } from "base/common/time";
+import { systemTimeToMilliseconds } from "base/olive/time";
 
 export enum FrameRateType {
   F30 = 0,

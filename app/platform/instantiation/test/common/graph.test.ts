@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 import * as assert from 'assert';
-import { Graph } from 'vs/platform/instantiation/common/graph';
+import { Graph } from 'platform/instantiation/common/graph';
 
 suite('Graph', () => {
 	let graph: Graph<string>;

@@ -2,7 +2,7 @@ import { VideoTrackItemBase, VideoTrackItem, VideoTrackItemImpl } from "internal
 import { Postable, postable } from "worker-postable";
 import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { TrackItemTime } from "internal/timeline/track-item/track-item-time";
-import { clone } from "base/common/cloneable";
+import { clone } from "base/olive/cloneable";
 import { RectangleDrawing } from "internal/rendering/drawing/rectangle-drawing";
 import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
 import { VideoResourceBase, IVideoResource } from "internal/resource/video-resource";

@@ -1,7 +1,7 @@
-import * as dom from 'base/view/dom'
+import * as dom from 'base/browser/dom'
 import { Disposable, IDisposable } from "base/common/lifecycle";
-import { GlobalMouseMoveMonitor, IStandardMouseMoveEventData, standardMouseMoveMerger } from "base/view/globalMouseMoveMonitor";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { GlobalMouseMoveMonitor, IStandardMouseMoveEventData, standardMouseMoveMerger } from "base/browser/globalMouseMoveMonitor";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 
 export class InterruptableMouseMoveMonitor extends Disposable {
 

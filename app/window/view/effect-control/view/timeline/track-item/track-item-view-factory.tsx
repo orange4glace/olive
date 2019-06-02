@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { EffectControlWidgetTrackItemViewModel } from 'window/view/effect-control/model/track-item/track-item-view-model';
-import { assert } from 'base/common/assert';
+import { assert } from 'base/olive/assert';
 import { EffectControlWidgetTrackView, EffectControlWidgetTrackItemViewProps } from 'window/view/effect-control/view/form/track-item/track-item-view';
 import { EffectControlWidgetTrackItemTimelineViewProps } from 'window/view/effect-control/view/timeline/track-item/track-item-view';
 

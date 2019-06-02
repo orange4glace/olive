@@ -1,6 +1,6 @@
 import { IHistoryCommand } from "internal/history/command";
 import { observable, computed } from "mobx";
-import { assert } from "base/common/assert";
+import { assert } from "base/olive/assert";
 import { createDecorator } from "platform/instantiation/common/instantiation";
 
 export const IHistoryService = createDecorator<IHistoryService>('olive.HistoryService');

@@ -10,7 +10,7 @@ import { TimelineWidgetGhostViewModel } from "window/view/timeline/model/ghost-v
 import { TimelineWidgetGhostViewModelImpl } from "window/view/timeline/model/ghost-view-model-impl";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { Event, Emitter } from "base/common/event";
-import { StandardMouseEvent } from "base/view/mouseEvent";
+import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { TimelineWidgetTimelineViewModel, TimelineViewModelTrackItemEvent } from "window/view/timeline/model/timeline-view-model";
 
 export class TimelineWidgetTimelineViewModelImpl 

@@ -1,6 +1,6 @@
 enum ResourceType {
-  VIDEO,
-  AUDIO
+  VIDEO = 'Video',
+  AUDIO = 'Audio'
 }
 
 export {

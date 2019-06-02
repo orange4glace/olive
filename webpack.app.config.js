@@ -23,28 +23,11 @@ module.exports = [{
       {
         test: /\.tsx?$/,
         exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            cacheDirectory: true,
-            babelrc: false,
-            presets: [
-              [
-                "@babel/preset-env",
-                { targets: { browsers: "last 2 versions" } } // or whatever your project requires
-              ],
-              "@babel/preset-typescript",
-              "@babel/preset-react"
-            ],
-            plugins: [
-              // plugin-proposal-decorators is only needed if you're using experimental decorators in TypeScript
-              ["@babel/plugin-proposal-decorators", { legacy: true }],
-              ["@babel/plugin-proposal-class-properties", { loose: true }],
-              ["@babel/plugin-transform-runtime"],
-              "react-hot-loader/babel"
-            ]
-          }
-        }
+        use: ['ts-loader']
+      },
+      {
+        test: /\.css$/i,
+        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
       },
       {
         // https://velopert.com/3447
@@ -106,7 +89,11 @@ module.exports = [{
       {
         test: /\.svg$/,
         loader: 'svg-inline-loader?classPrefix'
-      }
+      },
+      {
+        test: /\.node$/,
+        use: 'node-loader'
+      },
     ]
   },
   devtool: 'source-map',
@@ -145,6 +132,13 @@ module.exports = [{
         test: /\.tsx?$/,
         exclude: /node_modules/,
         use: ['ts-loader']
+      },
+      {
+        test: /\.css$/i,
+        loader: 'css-loader',
+        options: {
+          exportOnlyLocals: true,
+        },
       },
       {
         test: /\.node$/,

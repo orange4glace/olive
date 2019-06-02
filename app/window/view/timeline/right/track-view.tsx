@@ -4,7 +4,8 @@ import { TimelineTracksViewProps } from './tracks-view';
 import { TrackItemView } from './track-item-view';
 import { TimelineWidgetTrackViewModel } from 'window/view/timeline/model/track-view-model';
 import { TimelineWidgetGhostContainerViewModel, TimelineWidgetGhostTrackItemViewModel } from 'window/view/timeline/model/ghost-view-model';
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
+import { createStandardMouseEvent } from 'base/olive/mouse-event';
 
 export interface TimelineTrackViewProps extends TimelineTracksViewProps {
   index: number;
@@ -27,28 +28,28 @@ export class TrackView extends React.Component<TimelineTrackViewProps, {}> {
   mouseMoveHandler(e: React.MouseEvent) {
     this.props.outgoingEvents.emitTrackMouseMove({
       trackViewModel: this.props.trackViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     })
   }
 
   dragOverHandler(e: React.MouseEvent) {
     this.props.outgoingEvents.emitTrackDragOver({
       trackViewModel: this.props.trackViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     });
   }
 
   dragLeaveHandler(e: React.MouseEvent) {
     this.props.outgoingEvents.emitTrackDragLeave({
       trackViewModel: this.props.trackViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     });
   }
 
   dropHandler(e: React.MouseEvent) {
     this.props.outgoingEvents.emitTrackDrop({
       trackViewModel: this.props.trackViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     });
   }
 

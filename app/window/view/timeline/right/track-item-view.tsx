@@ -4,7 +4,8 @@ import { observer } from 'window/app-mobx';
 import ADiv from 'window/view/advanced-div';
 import { EventUtil } from 'orangeutil';
 import { TimelineWidgetTrackItemViewModel } from 'window/view/timeline/model/track-item-view-model';
-import { StandardMouseEvent } from 'base/view/mouseEvent';
+import { StandardMouseEvent } from 'base/browser/mouseEvent';
+import { createStandardMouseEvent } from 'base/olive/mouse-event';
 
 interface TimelineTrackItemViewProps extends TimelineTrackViewProps {
   trackItemViewModel: TimelineWidgetTrackItemViewModel;
@@ -26,7 +27,7 @@ export class TrackItemView extends React.Component<TimelineTrackItemViewProps, {
     this.props.outgoingEvents.emitTrackItemMouseDown({
       trackViewModel: this.props.trackViewModel,
       trackItemViewModel: this.props.trackItemViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     });
   }
 
@@ -34,7 +35,7 @@ export class TrackItemView extends React.Component<TimelineTrackItemViewProps, {
     this.props.outgoingEvents.emitTrackItemMouseMoveStart({
       trackViewModel: this.props.trackViewModel,
       trackItemViewModel: this.props.trackItemViewModel,
-      e: new StandardMouseEvent(e)
+      e: createStandardMouseEvent(e)
     });
   }
 

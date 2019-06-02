@@ -1,6 +1,6 @@
 // import { TimelineRenderer } from "internal/renderer/base/timeline/timeline";
 // import { TimelineManagerBase, TimelineManagerPostableEvent } from "internal/timeline/timeline-manager";
-// import { assert } from "base/common/assert";
+// import { assert } from "base/olive/assert";
 // import { Posted, PostedEvent, posted } from "worker-postable";
 
 // @Posted('TimelineManagerImpl')
