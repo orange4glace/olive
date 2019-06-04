@@ -9,28 +9,38 @@ import * as ReactDOM from 'react-dom';
 import "window/workbench/services/commands/common/commandService";
 import "window/workbench/services/notification/common/notification-service";
 import "window/workbench/services/keybinding/electron-browser/keybindingService";
+import "window/workbench/services/editor/browser/widget-service";
 import { registerSingleton } from "platform/instantiation/common/extensions";
 import { IMenuService } from "platform/actions/common/actions";
 import { MenuService } from "platform/actions/common/menuService";
 import { IContextKeyService } from "platform/contextkey/common/contextkey";
 import { ContextKeyService } from "platform/contextkey/browser/contextKeyService";
+import { ILifecycleService, NullLifecycleService } from 'platform/lifecycle/common/lifecycle';
 
+registerSingleton(ILifecycleService, NullLifecycleService);
 registerSingleton(IMenuService, MenuService);
 registerSingleton(IContextKeyService, ContextKeyService);
+registerSingleton(IStorageService, InMemoryStorageService);
 
 //#endregion
 
+
+//#region --- workbench widgets
+
+import "window/workbench/common/widgets/timeline/widget-impl"
+import "window/workbench/common/widgets/timeline/widget-service-impl"
+
+//#endregion
+
+
+
 // Load widgets
-import { TimelineWidgetImpl } from 'window/view/timeline/widget_impl';
-import { StorageWidget } from 'window/view/storage/widget-impl';
-import { MonitorWidgetImpl } from 'window/view/monitor/widget';
+import { TimelineWidgetImpl } from 'window/workbench/common/widgets/timeline/widget-impl';
 TimelineWidgetImpl;
-StorageWidget;
-MonitorWidgetImpl;
 
 import LayoutRoot from 'window/layout/layout-root';
-import { ITimelineWidgetService } from 'window/view/timeline/widget-service';
-import { TimelineWidgetService } from 'window/view/timeline/widget-service-impl';
+import { ITimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service';
+import { TimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service-impl';
 import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
 import app from 'internal/app';
 import { IWidgetService, WidgetService } from 'window/view/widget-service';
@@ -44,6 +54,8 @@ import { IAppWindowService } from 'internal/app-window/app-window-service';
 import { IModalWindowService } from 'window/modal-window/modal-window-service';
 import { NewProjectModalWindowStarter } from 'window/modal-window/new-project/new-project-modal-window-starter';
 import { Workbench, WorkbenchView } from 'window/workbench/browser/workbench';
+import { ILogService } from 'platform/log/common/log';
+import { InMemoryStorageService, IStorageService } from 'platform/storage/common/storage';
 
 console.log('Holla Index!');
 

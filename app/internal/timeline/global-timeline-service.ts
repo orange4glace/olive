@@ -6,6 +6,8 @@ export const IGlobalTimelineService = createDecorator<IGlobalTimelineService>('o
 
 export interface IGlobalTimelineService {
 
+  _serviceBrand: any;
+
   readonly targetTimeline: ITimeline;
 
   setTargetTimeline(timeline: ITimeline): void;

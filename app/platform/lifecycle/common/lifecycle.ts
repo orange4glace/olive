@@ -165,13 +165,13 @@ export interface ILifecycleService {
 	when(phase: LifecyclePhase): Promise<void>;
 }
 
-export const NullLifecycleService: ILifecycleService = {
-	_serviceBrand: null,
-	onBeforeShutdown: Event.None,
-	onWillShutdown: Event.None,
-	onShutdown: Event.None,
-	phase: LifecyclePhase.Restored,
-	startupKind: StartupKind.NewWindow,
+export class NullLifecycleService implements ILifecycleService {
+	_serviceBrand: any;
+	onBeforeShutdown = Event.None;
+	onWillShutdown = Event.None;
+	onShutdown = Event.None;
+	phase = LifecyclePhase.Restored;
+	startupKind = StartupKind.NewWindow;
 	when() { return Promise.resolve(); }
 };
 

@@ -1,54 +1,78 @@
 import { observable, action } from 'mobx';
 import { Probe, VideoProbeResult, AudioProbeResult } from './probe'
 import ResourceType from './type_t';
-import { VideoResource } from './video-resource';
-import { Resource } from './resource';
+import { VideoResource, IVideoResource } from './video-resource';
+import { Resource, IResource } from './resource';
 import { Emitter, Event } from 'base/common/event';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { VideoMediaTrackItemImpl } from 'internal/timeline/track-item/video-media-track-item';
-import { AudioResource } from 'internal/resource/audio-resource';
+import { AudioResource, IAudioResource } from 'internal/resource/audio-resource';
 import { AudioTrackItemImpl } from 'internal/timeline/track-item/audio-track-item';
+import { ITrackItem } from 'internal/timeline/track-item/track-item';
 
 export interface ResourceManagerResourceEvent {
   resource: Resource
 }
 
-export default class ResourceManager {
-  @observable resources: Set<Resource> = new Set();
-  probe: Probe;
+export interface IResourceManager {
+
+  /*@observable*/ resources: Set<IResource>;
+
+  createResource(path: string): Promise<{
+    video: IVideoResource,
+    audio: IAudioResource
+  }>;
+  trackItemize(resource: IResource): ITrackItem;
+
+}
+
+export class ResourceManager implements IResourceManager {
+
+  @observable resources: Set<IResource> = new Set();
+
+  private probe_: Probe;
 
   constructor() {
-    this.probe = new Probe();
+    this.probe_ = new Probe();
   }
 
   @action
-  async addResource(path: string) {
+  async createResource(path: string) {
     try {
-      let results = await this.probe.probe(path);
+      let results = await this.probe_.probe(path);
+
+      let videoResource: IVideoResource = null;
+      let audioResource: IAudioResource = null;
+
       results.forEach(result => {
+        console.log(result);
         switch (result.type) {
           case ResourceType.VIDEO:
             const videoResult = result as VideoProbeResult;
-            const videoResource = new VideoResource(path, videoResult.width, videoResult.height, videoResult.duration);
+            videoResource = new VideoResource(path, videoResult.width, videoResult.height, videoResult.duration);
             this.resources.add(videoResource);
-            this.onResourceAdded_.fire({resource: videoResource});
+            this.onResourceAdded_.fire(videoResource);
             break;
           case ResourceType.AUDIO:
             const audioResult = result as AudioProbeResult;
-            const audioResource = new AudioResource(path, audioResult.duration);
+            audioResource = new AudioResource(path, audioResult.duration);
             this.resources.add(audioResource);
-            this.onResourceAdded_.fire({resource: audioResource});
+            this.onResourceAdded_.fire(audioResource);
             break;
           default:
-            return null;
+            break;
         }
       })
+      return {
+        video: videoResource,
+        audio: audioResource
+      }
     } catch (e) {
       return e;
     }
   }
-
-  trackItemize(resource: Resource) {
+  
+  trackItemize(resource: IResource) {
     let trackItem;
     if (resource.type == ResourceType.VIDEO) {
       const videoResource = resource as VideoResource;
@@ -63,7 +87,7 @@ export default class ResourceManager {
     return trackItem;
   }
 
-  private onResourceAdded_: Emitter<ResourceManagerResourceEvent> = new Emitter();
-  onResourceAdded: Event<ResourceManagerResourceEvent> = this.onResourceAdded_.event;
+  private onResourceAdded_: Emitter<IResource> = new Emitter();
+  onResourceAdded: Event<IResource> = this.onResourceAdded_.event;
 
 }

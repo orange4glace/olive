@@ -7,6 +7,8 @@ export const IHistoryService = createDecorator<IHistoryService>('olive.HistorySe
 
 export interface IHistoryService {
 
+  _serviceBrand: any;
+
   /*@observable*/ readonly canUndo: boolean;
   /*@observable*/ readonly canRedo: boolean;
 
@@ -50,6 +52,8 @@ class HistoryStackElement implements IHistoryStackElement{
 }
 
 export class HistoryService implements IHistoryService {
+
+  _serviceBrand: any;
 
   @computed get canUndo(): boolean {
     if (this.undoStack_.length == 0) return false;

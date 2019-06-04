@@ -11,7 +11,7 @@ export const Extensions = {
   WorkbenchActions: 'olive.workbench.contributions.actions'
 }
 
-export interface IWorkbenchRegistry {
+export interface IWorkbenchActionRegistry {
   
 	/**
 	 * Registers a workbench action to the platform. Workbench actions are not
@@ -20,10 +20,10 @@ export interface IWorkbenchRegistry {
   registerWorkbenchAction(descriptor: SyncActionDescriptor, alias: string, category?: string, when?: ContextKeyExpr): IDisposable;
 }
 
-Registry.add(Extensions.WorkbenchActions, new class implements IWorkbenchRegistry {
+Registry.add(Extensions.WorkbenchActions, new class implements IWorkbenchActionRegistry {
 
   registerWorkbenchAction(descriptor: SyncActionDescriptor, alias: string, category?: string, when?: ContextKeyExpr): IDisposable {
-    return 
+    return this.registerWorkbenchCommandFromAction(descriptor, alias, category, when);
   }
 
   private registerWorkbenchCommandFromAction(descriptor: SyncActionDescriptor, alias: string, category?: string, when?: ContextKeyExpr) {

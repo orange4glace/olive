@@ -1,13 +1,13 @@
-import { IStorageDirectory } from "internal/storage/storage-directory";
-import { ITimeline } from "internal/timeline/timeline";
-import { createDecorator } from "platform/instantiation/common/instantiation";
-import { IStorageFile } from "internal/storage/storage-file";
+// import { IStorageDirectory } from "internal/storage/storage-directory";
+// import { ITimeline } from "internal/timeline/timeline";
+// import { createDecorator } from "platform/instantiation/common/instantiation";
+// import { IStorageFile } from "internal/storage/storage-file";
 
-export const IProjectCoreService = createDecorator<IProjectCoreService>('olive.ProjectCoreService');
+// export const IProjectCoreService = createDecorator<IProjectCoreService>('olive.ProjectCoreService');
 
-export interface IProjectCoreService {
+// export interface IProjectCoreService {
 
-  importResource(path: string, directory: IStorageDirectory): Promise<IStorageFile>;
-  createTimeline(directory: IStorageDirectory): ITimeline;
+//   importResource(path: string, directory: IStorageDirectory): Promise<IStorageFile>;
+//   createTimeline(directory: IStorageDirectory): ITimeline;
 
-}
+// }

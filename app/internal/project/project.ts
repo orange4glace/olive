@@ -1,14 +1,12 @@
 import { Postable } from "worker-postable";
-import { IStorageService, StorageService } from "internal/storage/storage-service";
-import { IResourceService } from "internal/resource/resource-service";
-import { ITimelineService } from "internal/timeline/timeline-service";
-import { IInstantiationService } from "platform/instantiation/common/instantiation";
-import { ServiceCollection } from "platform/instantiation/common/serviceCollection";
-import { ResourceService } from "internal/resource/resource-service-impl";
-import { IProjectCoreService } from "internal/project/project-core-service";
-import { ProjectCoreService } from "internal/project/project-core-service-impl";
-import { TimelineService } from "internal/timeline/timeline-service-impl";
 import { Serializable } from "base/olive/serialize";
+import { IStorageDirectory } from "internal/storage/storage-directory";
+import { IStorageFile } from "internal/storage/storage-file";
+import { ITimeline } from "internal/timeline/timeline";
+import { MediaResourceStorageFile, AudioResourceStorageFile } from "internal/resource/resource-storage-file";
+import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
+import { ITimelineManager } from "internal/timeline/timeline-manager";
+import { IResourceManager } from "internal/resource/manager";
 
 export interface ProjectBase {
 }
@@ -17,12 +15,13 @@ export interface IProject extends ProjectBase {
 
   readonly id: string;
 
-  readonly instantiationService: IInstantiationService;
+  readonly timelineManager: ITimelineManager;
+  readonly storage: IStorageDirectory;
+  
 
-  readonly coreService: IProjectCoreService;
-  readonly storageService: IStorageService;
-  readonly resourceService: IResourceService;
-  readonly timelineService: ITimelineService;
+  importResource(path: string, directory: IStorageDirectory): Promise<IStorageFile>;
+  createTimeline(directory: IStorageDirectory): ITimeline;
+
 }
 
 export interface ProjectSerial {
@@ -34,31 +33,36 @@ export class Project implements IProject, ProjectBase, Serializable {
 
   readonly id: string;
 
-  readonly instantiationService: IInstantiationService;
-
-  readonly coreService: IProjectCoreService;
-  readonly storageService: IStorageService;
-  readonly resourceService: IResourceService;
-  readonly timelineService: ITimelineService;
+  readonly timelineManager: ITimelineManager;
+  readonly resourceManager: IResourceManager;
+  readonly storage: IStorageDirectory;
 
   constructor(
-    id: string,
-    @IInstantiationService readonly internalService: IInstantiationService) {
+    id: string) {
     this.id = id;
-    this.storageService = new StorageService();
-    this.resourceService = new ResourceService();
-    this.timelineService = new TimelineService();
-    this.coreService = new ProjectCoreService(
-      this.storageService,
-      this.resourceService,
-      this.timelineService);
-    const services = new ServiceCollection(
-      [IStorageService, this.storageService],
-      [IResourceService, this.resourceService],
-      [ITimelineService, this.timelineService],
-      [IProjectCoreService, this.coreService]
-    )
-    this.instantiationService = internalService.createChild(services);
+  }
+
+  async importResource(path: string, directory: IStorageDirectory): Promise<IStorageFile> {
+    const resources = await this.resourceManager.createResource(path);
+    console.log('cr', path, directory, resources);
+
+    let storageFile: IStorageFile = null;
+    if (resources.video && resources.audio) {
+      const storageFile = new MediaResourceStorageFile(path, resources.video, resources.audio);
+      directory.addItem(storageFile);
+    }
+    else if (resources.audio) {
+      const storageFile = new AudioResourceStorageFile(path, resources.audio);
+      directory.addItem(storageFile);
+    }
+    return storageFile;
+  }
+
+  createTimeline(directory: IStorageDirectory): ITimeline {
+    const timeline = this.timelineManager.createTimeline();
+    const timelineStorageFile = new TimelineStorageFile('Timeline ' + timeline.id, timeline);
+    directory.addItem(timelineStorageFile);
+    return timeline;
   }
 
   serialize() {

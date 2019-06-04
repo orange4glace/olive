@@ -7,7 +7,7 @@ import { Memento } from 'window/workbench/common/memento';
 import { IStorageService, StorageScope } from 'platform/storage/common/storage';
 import { Disposable } from 'base/common/lifecycle';
 
-export class Component extends Disposable {
+export abstract class Component extends Disposable {
 	private readonly memento: Memento;
 
 	constructor(
@@ -40,4 +40,6 @@ export class Component extends Disposable {
 	protected saveState(): void {
 		// Subclasses to implement for storing state
 	}
+
+	abstract render(): React.ReactNode;
 }

@@ -82,11 +82,9 @@ export class InstantiationService implements IInstantiationService {
 
 		// arguments defined by service decorators
 		let serviceDependencies = getServiceDependencies(ctor).sort((a: any, b: any) => a.index - b.index);
-		console.log(ctor, serviceDependencies, this._services);
 		let serviceArgs: any[] = [];
 		for (const dependency of serviceDependencies) {
 			let service = this._getOrCreateServiceInstance(dependency.id, _trace);
-			console.log(service);
 			if (!service && this._strict && !dependency.optional) {
 				throw new Error(`[createInstance] ${ctor.name} depends on UNKNOWN service ${dependency.id}.`);
 			}

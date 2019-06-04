@@ -31,7 +31,7 @@ export class ProjectService implements IProjectService {
   }
 
   createProject(): IProject {
-    const project = new Project(uuid(), this.internalService_);
+    const project = new Project(uuid());
     this.projects.set(project.id, project);
     return project;
   }

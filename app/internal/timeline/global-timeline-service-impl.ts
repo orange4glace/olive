@@ -4,6 +4,8 @@ import { IGlobalTimelineService } from "internal/timeline/global-timeline-servic
 
 export class GlobalTimelineService implements IGlobalTimelineService {
 
+  _serviceBrand: any;
+
   targetTimeline: ITimeline = null;
 
   setTargetTimeline(timeline: ITimeline): void {

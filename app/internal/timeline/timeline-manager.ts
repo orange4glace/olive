@@ -11,7 +11,6 @@ export interface TimelineManagerTimelineEvent {
 export interface TimelineManagerBase {
 
   timelines: Map<number, TimelineBase>;
-  targetTimeline: TimelineBase;
 }
 
 export interface TimelineManagerPostableEvent extends TimelineManagerBase {
@@ -21,12 +20,9 @@ export interface TimelineManagerPostableEvent extends TimelineManagerBase {
 export interface TimelineManager {
 
   readonly timelines: Map<number, ITimeline>;
-  readonly targetTimeline: Timeline;
 
-  getTimeline(id: number): Timeline;
-  setTargetTimeline(timeline: Timeline): void;
-
-  onTargetTimelineChanged: Event<TimelineManagerTimelineEvent>;
+  createTimeline(): ITimeline;
+  getTimeline(id: number): ITimeline;
 
 }
 
@@ -36,13 +32,9 @@ export interface ITimelineManager extends TimelineManager {}
 export class TimelineManagerImpl implements TimelineManager {
 
   @postable timelines: Map<number, TimelineImpl>;
-  @postable targetTimeline: TimelineImpl;
 
   constructor() {
     this.timelines = new Map();
-
-    this.setTargetTimeline(this.createTimeline());
-    
   }
 
   getTimeline(id: number): TimelineImpl {
@@ -56,12 +48,5 @@ export class TimelineManagerImpl implements TimelineManager {
     this.timelines.set(timeline.id, timeline);
     return timeline;
   }
-
-  setTargetTimeline(timeline: TimelineImpl): void {
-    this.targetTimeline = timeline;
-  }
-
-  private onTargetTimelineChanged_: Emitter<TimelineManagerTimelineEvent> = new Emitter();
-  onTargetTimelineChanged: Event<TimelineManagerTimelineEvent> = this.onTargetTimelineChanged_.event;
 
 }

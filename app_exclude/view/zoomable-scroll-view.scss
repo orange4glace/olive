@@ -1,0 +1,66 @@
+$scroll-bar-height: 14px;
+$scroll-bar-foregound-color: #bbb;
+
+.component {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+
+  > .zoomable-scroll-view-content {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  > .scroll-bar {
+    position: relative;
+    flex-basis: $scroll-bar-height;
+    flex-shrink: 0;
+
+    > .bar {
+      position: absolute;
+      height: 100%;
+
+      > .handle {
+        position: absolute;
+        left: $scroll-bar-height / 2;
+        right: $scroll-bar-height / 2;
+        height: 100%;
+        background: $scroll-bar-foregound-color;
+      }
+
+      > .thumb {
+        position: absolute;
+        width: $scroll-bar-height;
+        height: $scroll-bar-height;
+        border-radius: $scroll-bar-height;
+        background: #eee;
+        cursor: pointer;
+        
+        &::before {
+          content: '';
+          position: absolute;
+          width: $scroll-bar-height - 8px;
+          height: $scroll-bar-height - 8px;
+          border-radius: $scroll-bar-height - 8px;
+          left: 50%;
+          top: 50%;
+          transform: translateY(-50%) translateX(-50%);
+          background: $scroll-bar-foregound-color;
+        }
+
+        &.left {
+          left: 0;
+        }
+  
+        &.right {
+          right: 0;
+        }
+      }
+    }
+
+  }
+}
