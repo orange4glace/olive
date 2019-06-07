@@ -8,7 +8,7 @@ export interface IWidgetIdentifier {
   widget: IWidget;
 }
 
-export interface IWidgetCloseEvent extends IWidgetIdentifier {
+export interface IWidgetOpenCloseEvent extends IWidgetIdentifier {
   replaced: boolean;
   index: number;
 }

@@ -4,54 +4,56 @@ import { Registry } from "platform/registry/common/platform";
 
 export interface IWidgetFactoryRegistry {
 
-  registerWidgetFactory(widgetType: string, ctor: IConstructorSignature0<IWidgetFactory>): void;
+  start(accessor: ServicesAccessor): void;
 
-  getWidgetFactory(widgetType: string): IWidgetFactory;
+  registerWidgetFactory(widgetType: string, ctor: IConstructorSignature0<IWidgetFactory<any>>): void;
 
-}
-
-export interface IWidgetFactory {
-
-  serialize(widget: IWidget): ISerializedWidget | undefined;
-
-  deserialize(instantiationService: IInstantiationService, serializedWidget: ISerializedWidget): IWidget | undefined;
+  getWidgetFactory(widgetType: string): IWidgetFactory<any>;
 
 }
 
-class WidgetFactoryRegistry implements IWidgetFactoryRegistry {
+export interface IWidgetFactory<T extends IWidget> {
+
+  serialize(widget: T): ISerializedWidget | undefined;
+
+  deserialize(instantiationService: IInstantiationService, serializedWidget: ISerializedWidget): T | undefined;
+
+}
+
+export class WidgetFactoryRegistry implements IWidgetFactoryRegistry {
+
+  static readonly ID = 'olive.workbench.registry.WidgetFactoryRegistry'
 
   private instantiationService: IInstantiationService;
   private factoryConstructors: {
-    [widgetType: string]: IConstructorSignature0<IWidgetFactory>
+    [widgetType: string]: IConstructorSignature0<IWidgetFactory<any>>
   } = Object.create(null);
   private factoryInstances: {
-    [widgetType: string]: IWidgetFactory
+    [widgetType: string]: IWidgetFactory<any>
   } = Object.create(null);
 
   start(accessor: ServicesAccessor): void {
     this.instantiationService = accessor.get(IInstantiationService);
+    for (const ctor in this.factoryConstructors)
+      this.createWidgetFactory(ctor, this.factoryConstructors[ctor]);
   }
 
-  private createWidgetFactory(widgetType: string, ctor: IConstructorSignature0<IWidgetFactory>): void {
+  private createWidgetFactory(widgetType: string, ctor: IConstructorSignature0<IWidgetFactory<any>>): void {
     const instance = this.instantiationService.createInstance(ctor);
     this.factoryInstances[widgetType] = instance;
   }
 
-  registerWidgetFactory(widgetType: string, ctor: IConstructorSignature0<IWidgetFactory>): void {
+  registerWidgetFactory(widgetType: string, ctor: IConstructorSignature0<IWidgetFactory<any>>): void {
     if (!this.instantiationService)
       this.factoryConstructors[widgetType] = ctor;
     else
       this.createWidgetFactory(widgetType, ctor);
   }
 
-  getWidgetFactory(widgetType: string): IWidgetFactory {
+  getWidgetFactory(widgetType: string): IWidgetFactory<any> {
     return this.factoryInstances[widgetType];
   }
 
 }
 
-export const Extensions = {
-  WidgetFactoryRegistry: 'olive.workbench.WidgetFactoryRegistry'
-}
-
-Registry.add(Extensions.WidgetFactoryRegistry, new WidgetFactoryRegistry())
+Registry.add(WidgetFactoryRegistry.ID, new WidgetFactoryRegistry())

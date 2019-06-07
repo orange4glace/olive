@@ -1,10 +1,7 @@
+import "./style.scss";
 import * as React from 'react'
-import { ITitleService } from "window/workbench/services/title/title-service";
-import { Event, Emitter } from "base/common/event";
-import { isMacintosh } from 'base/common/platform';
 import { MenubarControl } from 'window/workbench/browser/parts/titlebar/menubar-control';
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
-import { Disposable } from 'base/common/lifecycle';
 
 export class TitlebarPart {
 

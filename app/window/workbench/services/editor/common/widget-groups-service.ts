@@ -1,6 +1,7 @@
 import { createDecorator, ServiceIdentifier } from "platform/instantiation/common/instantiation";
 import { IWidgetGroup } from "window/workbench/browser/parts/editor/widget-group";
 import { WidgetGroupIdentifier } from "window/workbench/common/editor/editor";
+import { Event } from "base/common/event";
 
 export const IWidgetGroupsService = createDecorator<IWidgetGroupsService>('olive.service.WidgetGroupsService');
 
@@ -123,11 +124,17 @@ export interface IWidgetGroupsService {
 
 	_serviceBrand: ServiceIdentifier<any>;
 
+	readonly onDidRemoveGroup: Event<IWidgetGroup>;
+
 	readonly activeGroup: IWidgetGroup;
+
+	getGroup(identifier: WidgetGroupIdentifier): IWidgetGroup | undefined;
 
   addGroup(location: IWidgetGroup | WidgetGroupIdentifier,
            direction: WidgetGroupDirection,
            options?: IAddGroupOptions): IWidgetGroup;
+
+  removeGroup(group: IWidgetGroup | WidgetGroupIdentifier): void;
 
 	activateGroup(group: IWidgetGroup | WidgetGroupIdentifier): IWidgetGroup;
 

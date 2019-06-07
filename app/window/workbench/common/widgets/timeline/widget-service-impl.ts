@@ -1,6 +1,6 @@
 import { ITimelineWidgetService } from "window/workbench/common/widgets/timeline/widget-service";
 import { Emitter, Event } from "base/common/event";
-import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget";
+import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { IGlobalTimelineService } from "internal/timeline/global-timeline-service";
 import { registerSingleton } from "platform/instantiation/common/extensions";
@@ -9,19 +9,19 @@ export class TimelineWidgetService implements ITimelineWidgetService {
 
   _serviceBrand: any;
 
-  private onWidgetAdded_: Emitter<TimelineWidget> = new Emitter();
-  onWidgetAdded: Event<TimelineWidget> = this.onWidgetAdded_.event;
+  private onWidgetAdded_: Emitter<ITimelineWidget> = new Emitter();
+  onWidgetAdded: Event<ITimelineWidget> = this.onWidgetAdded_.event;
 
-  private onWidgetWillRemove_: Emitter<TimelineWidget> = new Emitter();
-  onWidgetWillRemove: Event<TimelineWidget> = this.onWidgetWillRemove_.event;
+  private onWidgetWillRemove_: Emitter<ITimelineWidget> = new Emitter();
+  onWidgetWillRemove: Event<ITimelineWidget> = this.onWidgetWillRemove_.event;
 
-  private onActiveWidgetChanged_: Emitter<TimelineWidget> = new Emitter();
-  onActiveWidgetChanged: Event<TimelineWidget> = this.onActiveWidgetChanged_.event;
+  private onActiveWidgetChanged_: Emitter<ITimelineWidget> = new Emitter();
+  onActiveWidgetChanged: Event<ITimelineWidget> = this.onActiveWidgetChanged_.event;
 
-  private widgets_: Set<TimelineWidget>;
-  private widgetDisposables_: Map<TimelineWidget, IDisposable[]>;
+  private widgets_: Set<ITimelineWidget>;
+  private widgetDisposables_: Map<ITimelineWidget, IDisposable[]>;
   private activateWidgetDisposables_: IDisposable[] = [];
-  private activeWidget_: TimelineWidget;
+  private activeWidget_: ITimelineWidget;
 
   get activeWidget() { return this.activeWidget_; }
 
@@ -31,7 +31,7 @@ export class TimelineWidgetService implements ITimelineWidgetService {
     this.widgetDisposables_ = new Map();
   }
 
-  addWidget(widget: TimelineWidget) {
+  addWidget(widget: ITimelineWidget) {
     if (this.widgets_.has(widget)) return;
     this.widgets_.add(widget);
     let disposables: IDisposable[] = [];
@@ -42,7 +42,7 @@ export class TimelineWidgetService implements ITimelineWidgetService {
     if (!this.activeWidget_) this.activateWidget(widget);
   }
 
-  removeWidget(widget: TimelineWidget) {
+  removeWidget(widget: ITimelineWidget) {
     if (!this.widgets_.has(widget)) return;
     this.onWidgetWillRemove_.fire(widget);
     dispose(this.widgetDisposables_.get(widget));
@@ -50,7 +50,7 @@ export class TimelineWidgetService implements ITimelineWidgetService {
     this.widgets_.delete(widget);
   }
 
-  activateWidget(widget: TimelineWidget) {
+  activateWidget(widget: ITimelineWidget) {
     if (this.activeWidget_ == widget) return;
     this.activateWidgetDisposables_ = dispose(this.activateWidgetDisposables_);
     const prevActiveWidget = this.activeWidget_;

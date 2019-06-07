@@ -1,18 +1,20 @@
 import { IDragAndDropData } from "base/browser/dnd";
 import { IStorageItem } from "internal/storage/storage-item";
+import { IProject } from "internal/project/project";
 
 export class StorageItemDragAndDropData implements IDragAndDropData {
 
+	readonly project: IProject;
   readonly storageItem: IStorageItem;
 
-  constructor(storageItem: IStorageItem) {
+  constructor(project: IProject, storageItem: IStorageItem) {
+		this.project = project;
     this.storageItem = storageItem;
   }
 
   update(): void { }
 
-  getData(): IStorageItem {
-    return this.storageItem;
+  getData(): void {
   }
 
 }

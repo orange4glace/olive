@@ -42,3 +42,5 @@ export interface Track extends TrackBase, Cloneable {
   readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent>;
 
 }
+
+export interface ITrack extends Track {}

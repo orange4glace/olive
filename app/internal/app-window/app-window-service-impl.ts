@@ -22,6 +22,8 @@ let _next_appWindow_id = 0;
 
 export class AppWindowService implements IAppWindowService {
 
+  _serviceBrand: any;
+
   private promises_ = new Map<string, WindowRequestPromise>();
   private appWindows_ = new Map<string, IAppWindow>();
 

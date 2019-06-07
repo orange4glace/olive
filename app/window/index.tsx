@@ -4,8 +4,16 @@ import * as ReactDOM from 'react-dom';
 // import * as css from 'base/base-all.css'
 // console.log(css);
 
+
+//#region --- workbench registries
+
+import "window/workbench/common/editor/widget-registry"
+
+//#endregion
+
 //#region --- workbench services
 
+import "window/workbench/modal-window/modal-window-service-impl";
 import "window/workbench/services/commands/common/commandService";
 import "window/workbench/services/notification/common/notification-service";
 import "window/workbench/services/keybinding/electron-browser/keybindingService";
@@ -17,10 +25,10 @@ import { IContextKeyService } from "platform/contextkey/common/contextkey";
 import { ContextKeyService } from "platform/contextkey/browser/contextKeyService";
 import { ILifecycleService, NullLifecycleService } from 'platform/lifecycle/common/lifecycle';
 
-registerSingleton(ILifecycleService, NullLifecycleService);
+registerSingleton(ILifecycleService, WorkbenchLifecycleService);
 registerSingleton(IMenuService, MenuService);
 registerSingleton(IContextKeyService, ContextKeyService);
-registerSingleton(IStorageService, InMemoryStorageService);
+registerSingleton(IStorageService, LocalStorageStorageService);
 
 //#endregion
 
@@ -29,33 +37,33 @@ registerSingleton(IStorageService, InMemoryStorageService);
 
 import "window/workbench/common/widgets/timeline/widget-impl"
 import "window/workbench/common/widgets/timeline/widget-service-impl"
+import "window/workbench/common/widgets/storage/services/widget-service-impl"
+import "window/workbench/common/widgets/monitor/widget"
 
 //#endregion
 
 
+//#region --- workbench modals
 
-// Load widgets
-import { TimelineWidgetImpl } from 'window/workbench/common/widgets/timeline/widget-impl';
-TimelineWidgetImpl;
+import "window/workbench/modal-window/new-project/new-project-modal"
 
-import LayoutRoot from 'window/layout/layout-root';
-import { ITimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service';
-import { TimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service-impl';
-import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
+//#endregion
+
 import app from 'internal/app';
 import { IWidgetService, WidgetService } from 'window/view/widget-service';
-import { WidgetRegistry } from 'window/view/widget-registry';
 import { IProjectService } from 'internal/project/project-service';
 import { LayoutData } from 'window/layout/data';
 import { LayoutDirection } from 'window/layout/layout-direction';
 import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
-import { ModalWindowService } from 'window/modal-window/modal-window-service-impl';
+import { ModalWindowService } from 'window/workbench/modal-window/modal-window-service-impl';
 import { IAppWindowService } from 'internal/app-window/app-window-service';
-import { IModalWindowService } from 'window/modal-window/modal-window-service';
-import { NewProjectModalWindowStarter } from 'window/modal-window/new-project/new-project-modal-window-starter';
+import { IModalWindowService } from 'window/workbench/modal-window/modal-window-service';
+import { NewProjectModalWindowStarter } from 'window/workbench/modal-window/new-project/new-project-modal-window-starter';
 import { Workbench, WorkbenchView } from 'window/workbench/browser/workbench';
 import { ILogService } from 'platform/log/common/log';
 import { InMemoryStorageService, IStorageService } from 'platform/storage/common/storage';
+import { WorkbenchLifecycleService } from 'window/workbench/services/lifecycle/lifecycle-service';
+import { LocalStorageStorageService } from 'window/workbench/services/storage/storage-service';
 
 console.log('Holla Index!');
 

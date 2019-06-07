@@ -9,6 +9,8 @@ export const IAppWindowService = createDecorator<IAppWindowService>('olive.AppWi
 
 export interface IAppWindowService {
 
+  _serviceBrand: any;
+
   createAppWindow(starter: IAppWindowStarter, param: WindowRequestParam): Promise<IAppWindow>;
   getAppWindow(id: string): IAppWindow;
   closeAppWindow(id: string): void;

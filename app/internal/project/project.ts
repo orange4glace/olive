@@ -1,12 +1,12 @@
 import { Postable } from "worker-postable";
 import { Serializable } from "base/olive/serialize";
-import { IStorageDirectory } from "internal/storage/storage-directory";
+import { IStorageDirectory, StorageDirectory } from "internal/storage/storage-directory";
 import { IStorageFile } from "internal/storage/storage-file";
 import { ITimeline } from "internal/timeline/timeline";
 import { MediaResourceStorageFile, AudioResourceStorageFile } from "internal/resource/resource-storage-file";
 import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
-import { ITimelineManager } from "internal/timeline/timeline-manager";
-import { IResourceManager } from "internal/resource/manager";
+import { ITimelineManager, TimelineManagerImpl } from "internal/timeline/timeline-manager";
+import { IResourceManager, ResourceManager } from "internal/resource/manager";
 
 export interface ProjectBase {
 }
@@ -40,6 +40,10 @@ export class Project implements IProject, ProjectBase, Serializable {
   constructor(
     id: string) {
     this.id = id;
+
+    this.timelineManager = new TimelineManagerImpl();
+    this.resourceManager = new ResourceManager();
+    this.storage = new StorageDirectory('');
   }
 
   async importResource(path: string, directory: IStorageDirectory): Promise<IStorageFile> {

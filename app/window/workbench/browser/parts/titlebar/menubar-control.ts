@@ -21,6 +21,7 @@ export class MenubarControl extends Disposable {
 	private topLevelTitles: {
     [title: string]: string
   } = {
+		'File': localize({ key: 'mFile', comment: ['&& denotes a mnemonic'] }, "&&File"),
 		'View': localize({ key: 'mView', comment: ['&& denotes a mnemonic'] }, "&&View"),
   }
 
@@ -47,6 +48,7 @@ export class MenubarControl extends Disposable {
     super();
 
     this.topLevelMenus = {
+      'File': this._register(this.menuService.createMenu(MenuId.MenubarFileMenu, this.contextKeyService)),
       'View': this._register(this.menuService.createMenu(MenuId.MenubarViewMenu, this.contextKeyService))
     }
 

@@ -6,9 +6,9 @@ import { TimelineWidgetViewOutgoingEvents } from "window/workbench/common/widget
 import { TimelineWidgetTimelineViewModel } from "window/workbench/common/widgets/timeline/model/timeline-view-model";
 import { ITimelineWidgetRangeSelector } from "window/workbench/common/widgets/timeline/model/range-selector";
 import { IProject } from "internal/project/project";
-import { Widget } from "window/workbench/common/editor/widget";
+import { Widget, IWidget } from "window/workbench/common/editor/widget";
 
-export interface TimelineWidget extends Widget {
+export interface ITimelineWidget extends IWidget {
 
   readonly project: IProject;
   readonly timeline: Timeline;
@@ -34,7 +34,7 @@ export interface TimelineWidget extends Widget {
   /*@observable*/ readonly model: TimelineWidgetTimelineViewModel;
   readonly rangeSelector: ITimelineWidgetRangeSelector;
 
-  setTimeline(timeline: ITimeline): void;
+  setTimeline(project: IProject, timeline: ITimeline): void;
 
   registerViewOutgoingEvents(outingEvents: TimelineWidgetViewOutgoingEvents): void;
 

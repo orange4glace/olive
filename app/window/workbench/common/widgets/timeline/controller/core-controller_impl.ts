@@ -6,7 +6,7 @@ import { TimelineWidgetGhostContainerViewModel } from "window/workbench/common/w
 import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/timeline/model/track-view-model";
 import { TimelineWidgetTrackItemViewModel } from "window/workbench/common/widgets/timeline/model/track-item-view-model";
 import { IDisposable, dispose } from "base/common/lifecycle";
-import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget";
+import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { IHistoryCommand } from "internal/history/command";
 import { IHistoryService } from "internal/history/history";
@@ -23,7 +23,7 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   private dragTrackItem_: TrackItem = null;
   private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
 
-  constructor(private readonly widget_: TimelineWidget,
+  constructor(private readonly widget_: ITimelineWidget,
     @IHistoryService private readonly historyService_: IHistoryService) {
     super();
 
@@ -47,10 +47,10 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
     e.preventDefault();
     e.stopPropagation();
     const dndData = StaticDND.CurrentDragAndDropData;
-    console.log(dndData);
     if (dndData instanceof StorageItemDragAndDropData) {
-      const timeline = this.widget_.project.createTimeline(this.widget_.project.storage);
-      this.widget_.setTimeline(timeline);
+      const project = dndData.project;
+      const timeline = project.createTimeline(project.storage);
+      this.widget_.setTimeline(project, timeline);
     }
   }
 

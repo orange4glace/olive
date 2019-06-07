@@ -4,11 +4,6 @@ import { Cloneable } from "base/olive/cloneable";
 
 let __next_id = 0;
 
-export enum DrawingType {
-  VIDEO_MEDIA = 'VIDEO_MEDIA',
-  RECTANGLE = 'RECTANGLE'
-}
-
 export interface DrawingBase {
   
 }

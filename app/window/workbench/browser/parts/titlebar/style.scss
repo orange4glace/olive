@@ -1,0 +1,42 @@
+@import "window/theme.scss";
+
+$menubarHeight: 30px;
+
+.menubar {
+  font-size: 12px;
+  border-bottom: 1px solid var(--surfaceDarkColor);
+  box-sizing: border-box;
+  background: var(--surfaceColor);
+
+  .menubar-menu-button {
+    color: var(--surfaceTextColor);
+
+    &:hover, &.open {
+      background-color: var(--surfaceDarkColor);
+
+      > .menubar-menu-title {
+        color: var(--primaryColor);
+      }
+    }
+
+    > .menubar-menu-title {
+      line-height: $menubarHeight;
+    }
+
+    > .menubar-menu-items-holder {
+      background: var(--surfaceColor);
+      box-shadow: 1px 1px 3px 0px rgba(0,0,0,0.5);
+      
+      .actions-container {
+        padding: 5px 0 5px 0;
+
+        > .action-item {
+          &.focused {
+            background: var(--surfaceDarkColor);
+            color: var(--primaryColor);
+          }
+        }
+      }
+    }
+  }
+}

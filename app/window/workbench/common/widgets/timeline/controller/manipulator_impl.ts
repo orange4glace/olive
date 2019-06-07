@@ -2,7 +2,7 @@ import { TimelineWidgetManipulatorController } from "window/workbench/common/wid
 import { IDisposable, dispose, Disposable } from "base/common/lifecycle";
 import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { TimelineWidgetGhostContainerViewModel } from 'window/workbench/common/widgets/timeline/model/ghost-view-model';
-import { TimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
+import { ITimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
 import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/timeline/model/track-view-model";
@@ -38,7 +38,7 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
 
   private ghostContainer_: TimelineWidgetGhostContainerViewModel;
   
-  constructor(private readonly widget_: TimelineWidget) {
+  constructor(private readonly widget_: ITimelineWidget) {
     super();
     this.mouseMoveMonitor_ = new InterruptableMouseMoveMonitor();
     this._register(this.mouseMoveMonitor_);

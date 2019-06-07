@@ -8,7 +8,7 @@ import { IDisposable, dispose } from 'base/common/lifecycle';
 import TimelineWidgetView, { TimelineWidgetViewProps } from 'window/workbench/common/widgets/timeline/widget-view';
 import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from 'window/workbench/common/widgets/timeline/event';
-import { TimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
+import { ITimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
 import { TimelineWidgetViewOutgoingEvents } from 'window/workbench/common/widgets/timeline/view-outgoing-events';
 import { TimelineWidgetCoreControllerImpl } from 'window/workbench/common/widgets/timeline/controller/core-controller_impl';
 import { TimelineWidgetManipulatorControllerImpl } from 'window/workbench/common/widgets/timeline/controller/manipulator_impl';
@@ -24,7 +24,7 @@ import { IWidgetProvider } from 'window/view/widget-service';
 import { WidgetRegistry } from 'window/view/widget-registry';
 import { IResourceService } from 'internal/resource/resource-service';
 import { IProject } from 'internal/project/project';
-import { Widget } from 'window/workbench/common/editor/widget';
+import { Widget, ISerializedWidget } from 'window/workbench/common/editor/widget';
 import { IStorageService } from 'platform/storage/common/storage';
 import { Action } from 'base/common/actions';
 import { IWidgetService } from 'window/workbench/services/editor/common/widget-service';
@@ -32,12 +32,17 @@ import { Registry } from 'platform/registry/common/platform';
 import { IWorkbenchActionRegistry, Extensions } from 'window/workbench/common/actions';
 import { SyncActionDescriptor, MenuRegistry, MenuId } from 'platform/actions/common/actions';
 import { registerSingleton } from 'platform/instantiation/common/extensions';
+import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
+import { IWidgetFactory, WidgetFactoryRegistry } from 'window/workbench/common/editor/widget-registry';
 
-interface Serial {
+interface ISerializedTimelineWidget extends ISerializedWidget {
+  projectID: string;
   timelineID: number;
 }
 
-export class TimelineWidgetImpl extends Widget implements TimelineWidget {
+export class TimelineWidget extends Widget implements ITimelineWidget {
+
+  static readonly TYPE = 'olive.workbench.widget.Timeline';
 
   private readonly onWidgetDragOver_: Emitter<React.DragEvent> = new Emitter();
   readonly onWidgetDragOver: Event<React.DragEvent> = this.onWidgetDragOver_.event;
@@ -85,12 +90,15 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
 
   private active_: boolean;
 
+  get name() { return 'Timeline' }
+
   constructor(
     public readonly project: IProject,
     timeline: ITimeline,
     @IStorageService readonly storageService: IStorageService,
     @IHistoryService private readonly historyService_: IHistoryService,
-    @ITimelineWidgetService private readonly timelineWidgetService_: ITimelineWidgetService) {
+    @ITimelineWidgetService private readonly timelineWidgetService_: ITimelineWidgetService,
+    @IGlobalTimelineService globalTimelineService: IGlobalTimelineService) {
     super('olive.widget.Timeline', 'TimelineWidget', storageService);
     
     this.active_ = false;
@@ -100,11 +108,15 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
     this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
     this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
 
-    this.setTimeline(timeline);
+    this.setTimeline(project, timeline);
     timelineWidgetService_.addWidget(this);
+
+    this.toDispose_.push(this.onDidFocus(() => {
+      globalTimelineService.setTargetTimeline(this.timeline)
+    }))
   }
 
-  setTimeline(timeline: ITimeline): void {
+  setTimeline(project: IProject, timeline: ITimeline): void {
     this.timelineDisposables_ = dispose(this.timelineDisposables_);
     this.timeline_ = timeline;
     if (timeline == null) {
@@ -159,10 +171,6 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
     this.active_ = value;
   }
 
-  get name(): string {
-    return 'Timeline';
-  }
-
   render(): JSX.Element {
     const props: TimelineWidgetViewProps = {
       widget: this
@@ -170,9 +178,11 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
     return React.createElement(TimelineWidgetView, props);
   }
 
-  serialize(): Serial {
+  serialize(): ISerializedTimelineWidget {
     return {
-      timelineID: this.timeline.id
+      serializedWidgetType: TimelineWidget.TYPE,
+      projectID: (this.project ? this.project.id : ''),
+      timelineID: (this.timeline ? this.timeline.id : -1)
     }
   }
 
@@ -186,6 +196,29 @@ export class TimelineWidgetImpl extends Widget implements TimelineWidget {
   }
 
 }
+
+class TimelineWidgetFactory implements IWidgetFactory<TimelineWidget> {
+
+  serialize(widget: TimelineWidget) {
+    return widget.serialize();
+  }
+
+  deserialize(instantiationService: IInstantiationService, serializedWidget: ISerializedWidget) {
+    if (serializedWidget.serializedWidgetType !== TimelineWidget.TYPE) return null;
+    const serial = serializedWidget as ISerializedTimelineWidget;
+    let widget: TimelineWidget = null;
+    instantiationService.invokeFunction(accessor => {
+      const project = accessor.get(IProjectService).getProject(serial.projectID);
+      if (!project) return widget = instantiationService.createInstance(TimelineWidget, null, null);
+      const timeline = project.timelineManager.getTimeline(serial.timelineID);
+      if (!project) return widget = instantiationService.createInstance(TimelineWidget, null, null);
+      widget = instantiationService.createInstance(TimelineWidget, project, timeline);
+    })
+    return widget;
+  }
+}
+
+Registry.as<WidgetFactoryRegistry>(WidgetFactoryRegistry.ID).registerWidgetFactory(TimelineWidget.TYPE, TimelineWidgetFactory);
 
 class OpenTimelineWidgetAction extends Action {
 
@@ -202,7 +235,7 @@ class OpenTimelineWidgetAction extends Action {
   }
 
   run() {
-    const widget = this.instantiationService.createInstance(TimelineWidgetImpl, null, null);
+    const widget = this.instantiationService.createInstance(TimelineWidget, null, null);
     this.widgetService.openWidget(widget);
     return Promise.resolve();
   }

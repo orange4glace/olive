@@ -14,6 +14,13 @@ export class MainAppWindowStarter implements IAppWindowStarter {
     nativeWindow.app = app;
     (<any>nativeWindow).nativeKeymap = app.nativeKeymap
 
+    appWindow.browserWindow.once('close', () => {
+      console.log('App window will close', nativeWindow.shutdown);
+      nativeWindow.shutdown && nativeWindow.shutdown();
+    })
+
+    nativeWindow.mainConsole = window.console;
+
     const document = nativeWindow.document;
     const script = document.createElement('script');
     script.setAttribute('src', './window.js');

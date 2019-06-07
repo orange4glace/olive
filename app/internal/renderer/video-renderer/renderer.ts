@@ -76,11 +76,12 @@ export class Renderer {
 
   private handlePostableMessage(msg: any) {
     postableMessageHandler(msg.data);
-    const targetTimelineID = msg.timelineID;
-    if (targetTimelineID != -1) {
-      const timeline = ObjectStore.get(targetTimelineID) as TimelineVideoRenderer;
-      this.seekTimeline(timeline, timeline.currentTimePausing);
-    }
+    // const targetTimelineID = msg.timelineID;
+    // if (targetTimelineID != -1) {
+    //   const timeline = ObjectStore.get(targetTimelineID) as TimelineVideoRenderer;
+    //   if (!(timeline instanceof TimelineVideoRenderer)) throw new Error('Instance is not a Timeline');
+    //   this.seekTimeline(timeline, timeline.currentTimePausing);
+    // }
   }
 
   private onPlayRender(e: VideoRendererRenderMessageEvent) {
@@ -136,6 +137,7 @@ export class Renderer {
   }
 
   private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {
+    console.log(timeline);
     timeline.decode(time);
     await timeline.render(time, this.vg);
   }

@@ -12,7 +12,9 @@ export function standardMouseMoveMerger(lastEvent, currentEvent) {
     return {
         leftButton: ev.leftButton,
         posx: ev.posx,
-        posy: ev.posy
+        posy: ev.posy,
+        movementX: ev.movementX,
+        movementY: ev.movementY,
     };
 }
 export class GlobalMouseMoveMonitor extends Disposable {

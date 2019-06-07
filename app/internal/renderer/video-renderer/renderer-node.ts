@@ -75,6 +75,7 @@ export class VideoRendererNode extends Disposable {
   }
 
   private timelineSeekHandler() {
+    console.log(this.targetTimeline_);
     this.worker.postMessage({
       type: VideoRendererMessageEventType.RENDER,
       timelineID: getPostableID(this.targetTimeline_),

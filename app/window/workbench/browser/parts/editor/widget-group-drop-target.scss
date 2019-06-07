@@ -1,0 +1,132 @@
+.component {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+
+  > .place {
+    position: absolute;
+
+    > .overlay {
+      position: absolute;
+      z-index: 200;
+      &:hover + .skin{
+        opacity:  0.8 !important;
+      }
+
+      > .corner1, .corner2 {
+        position: absolute;
+      }
+    }
+
+    > .skin {
+      position: absolute;
+      z-index: 0;
+      opacity:  0.5;
+    }
+
+    &.top {
+      width: 100%;
+      top: 0;
+      left: 0;
+      
+      > .overlay > .corner1 {
+        left: 0; bottom: 0;
+        transform: translateX(-100%) rotate(45deg);
+        transform-origin: 100% 100%;
+      }
+      > .overlay > .corner2 {
+        right: 0; bottom: 0;
+        transform: translateX(100%) rotate(-45deg);
+        transform-origin: 0% 100%;
+      }
+
+      > .skin {
+        border-top-color: #b4b3c4;
+        border-top-style: solid;
+        border-left-style: solid;
+        border-left-color: transparent;
+        border-right-style: solid;
+        border-right-color: transparent;
+      }
+    }
+
+    &.bottom {
+      width: 100%;
+      bottom: 0;
+      left: 0;
+      
+      > .overlay > .corner1 {
+        left: 0; top: 0;
+        transform: translateX(-100%) rotate(-45deg);
+        transform-origin: 100% 0;
+      }
+      > .overlay > .corner2 {
+        right: 0; top: 0;
+        transform: translateX(100%) rotate(45deg);
+        transform-origin: 0% 0%;
+      }
+
+      > .skin {
+        border-bottom-color: #b4b3c4;
+        border-bottom-style: solid;
+        border-left-style: solid;
+        border-left-color: transparent;
+        border-right-style: solid;
+        border-right-color: transparent;
+      }
+    }
+
+    &.left {
+      height: 100%;
+      bottom: 0;
+      left: 0;
+      
+      > .overlay > .corner1 {
+        right: 0; top: 0;
+        transform: translateY(-100%) rotate(-45deg);
+        transform-origin: 100% 100%;
+      }
+      > .overlay > .corner2 {
+        right: 0; bottom: 0;
+        transform: translateY(100%) rotate(45deg);
+        transform-origin: 100% 0%;
+      }
+
+      > .skin {
+        border-left-color: #c9c8da;
+        border-left-style: solid;
+        border-top-style: solid;
+        border-top-color: transparent;
+        border-bottom-style: solid;
+        border-bottom-color: transparent;
+      }
+    }
+
+    &.right {
+      height: 100%;
+      bottom: 0;
+      right: 0;
+      
+      > .overlay > .corner1 {
+        left: 0; top: 0;
+        transform: translateY(-100%) rotate(45deg);
+        transform-origin: 0% 100%;
+      }
+      > .overlay > .corner2 {
+        left: 0; bottom: 0;
+        transform: translateY(100%) rotate(-45deg);
+        transform-origin: 0% 0%;
+      }
+
+      > .skin {
+        border-right-color: #e9e9e9;
+        border-right-style: solid;
+        border-top-style: solid;
+        border-top-color: transparent;
+        border-bottom-style: solid;
+        border-bottom-color: transparent;
+      }
+    }
+  }
+
+}

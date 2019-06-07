@@ -3,8 +3,11 @@ import { Event, Emitter } from "base/common/event";
 import { IProjectService } from "internal/project/project-service";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import uuid from "uuid";
+import { ref } from "worker-postable";
 
 export class ProjectService implements IProjectService {
+
+  _serviceBrand: any;
 
   private readonly onCurrentProjectChanged_: Emitter<void> = new Emitter<void>();
   public readonly onCurrentProjectChanged: Event<void> = this.onCurrentProjectChanged_.event;
@@ -32,8 +35,20 @@ export class ProjectService implements IProjectService {
 
   createProject(): IProject {
     const project = new Project(uuid());
-    this.projects.set(project.id, project);
+    ref(project);
+    console.log('create project', project);
+    this.doAddProject(project);
     return project;
+  }
+
+  getProject(id: string): IProject | null {
+    const project = this.projects.get(id);
+    return project;
+  }
+
+  private doAddProject(project: IProject) {
+    this.projects.set(project.id, project);
+    this.onProjectAdded_.fire(project);
   }
 
 }

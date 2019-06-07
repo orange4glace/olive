@@ -4,7 +4,7 @@ import app from 'internal/app';
 import ADiv from '../../../../view/advanced-div';
 import { TimelineHeaderView } from './header-view';
 import TimelineRightView from 'window/workbench/common/widgets/timeline/right/timeline-view';
-import { TimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
+import { ITimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
 
 import * as style from './view.scss';
 import { TimelineWidgetSideView } from 'window/workbench/common/widgets/timeline/side';
@@ -12,7 +12,7 @@ import { TimelineWidgetViewOutgoingEvents } from 'window/workbench/common/widget
 import { dispose } from 'base/common/lifecycle';
 
 export interface TimelineWidgetViewProps {
-  widget: TimelineWidget;
+  widget: ITimelineWidget;
 }
 
 @app.mobx.observer

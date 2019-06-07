@@ -1,4 +1,4 @@
-import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget";
+import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { TimelineWidgetTimelineUIEvent } from "window/workbench/common/widgets/timeline/event";
 import { Disposable } from "base/common/lifecycle";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
@@ -21,7 +21,7 @@ export class TimelineWidgetRangeSelectorController extends Disposable
   private selectTowardPositive_: boolean;
   private moveStart_: boolean;
 
-  constructor(private readonly widget_: TimelineWidget) {
+  constructor(private readonly widget_: ITimelineWidget) {
     super();
     this.mouseMoveMonitor_ = new InterruptableMouseMoveMonitor();
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
