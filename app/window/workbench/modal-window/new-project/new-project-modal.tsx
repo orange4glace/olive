@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import { IProjectService } from "internal/project/project-service";
+import { IProjectsService } from "internal/project/projects-service";
 import { MenuRegistry, MenuId, SyncActionDescriptor } from "platform/actions/common/actions";
 import { Action } from "base/common/actions";
 import { IModalWindowService } from "window/workbench/modal-window/modal-window-service";
@@ -19,13 +19,13 @@ export class NewProjectModal implements INewProjectModal {
 
   constructor(
     private readonly modalWindow_: IModalWindow,
-    @IProjectService private readonly projectService_: IProjectService) {
+    @IProjectsService private readonly projectsService_: IProjectsService) {
     ReactDOM.render(<NewProjectModalView modal={this}/>, 
       modalWindow_.appWindow.nativeWindow.document.getElementById('app'));
   }
 
   done() {
-    this.projectService_.createProject();
+    this.projectsService_.createProject();
     this.modalWindow_.close();
   }
 
@@ -49,14 +49,14 @@ class OpenNewProjectModelAction extends Action {
   constructor(
     id: string,
     label: string,
-    @IProjectService private readonly projectService: IProjectService,
+    @IProjectsService private readonly projectsService: IProjectsService,
     @IModalWindowService private readonly modalWindowService: IModalWindowService
   ) {
     super(id, label);
   }
 
   run(): Promise<void> {
-    this.modalWindowService.createModal(new NewProjectModalWindowStarter(this.projectService));
+    this.modalWindowService.createModal(new NewProjectModalWindowStarter(this.projectsService));
     return Promise.resolve();
   }
 

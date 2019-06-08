@@ -14,7 +14,7 @@ import { IStorageService } from 'platform/storage/common/storage';
 import { StorageWidgetView } from 'window/workbench/common/widgets/storage/view/widget-view-impl';
 import { IWidgetFactory, WidgetFactoryRegistry } from 'window/workbench/common/editor/widget-registry';
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
-import { IProjectService } from 'internal/project/project-service';
+import { IProjectsService } from 'internal/project/projects-service';
 import { Registry } from 'platform/registry/common/platform';
 
 interface ISerializedStorageWidget extends ISerializedWidget {
@@ -117,7 +117,7 @@ class StorageWidgetFactory implements IWidgetFactory<StorageWidget> {
     const serial = serializedWidget as ISerializedStorageWidget;
     let widget: StorageWidget = null;
     instantiationService.invokeFunction(accessor => {
-      const project = accessor.get(IProjectService).getProject(serial.projectID);
+      const project = accessor.get(IProjectsService).getProject(serial.projectID);
       if (!project) return;
       widget = instantiationService.createInstance(StorageWidget, project, project.storage);
     })
@@ -150,7 +150,7 @@ Registry.as<WidgetFactoryRegistry>(WidgetFactoryRegistry.ID).registerWidgetFacto
 //   deserialize(obj: Serial, services: ServicesAccessor): any {
 //     return null;
 //     // return this.create({
-//     //   timeline: (<IProjectService>services.get(IProjectService)).getCurrentProject().timelineService.getTimeline(obj.timelineID)
+//     //   timeline: (<IProjectsService>services.get(IProjectsService)).getCurrentProject().timelineService.getTimeline(obj.timelineID)
 //     // }, services);
 //   }
 

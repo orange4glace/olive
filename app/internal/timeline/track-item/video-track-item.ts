@@ -1,11 +1,14 @@
 import { Postable, postable } from 'worker-postable'
 
-import { TrackItemImpl } from 'internal/timeline/track-item/track-item-impl';
+import { TrackItemImpl, SerializedTrackItem } from 'internal/timeline/track-item/track-item-impl';
 import { TrackItemBase, TrackItem } from 'internal/timeline/track-item/track-item';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
-import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
-import { VideoDrawingBase, VideoDrawing } from 'internal/rendering/drawing/video-drawing';
+import { VideoDrawingBase, VideoDrawing, SerializedVideoDrawing } from 'internal/rendering/drawing/video-drawing';
 import { clone } from 'base/olive/cloneable';
+
+export interface SerializedVideoTrackItem extends SerializedTrackItem {
+  drawing: SerializedVideoDrawing;
+}
 
 export interface VideoTrackItemBase extends TrackItemBase {
   drawing: VideoDrawingBase;
@@ -20,7 +23,7 @@ export abstract class VideoTrackItemImpl extends TrackItemImpl implements VideoT
 
   @postable drawing: VideoDrawing;
 
-  constructor(type: TrackItemType) {
+  constructor(type: string) {
     super(type);
   }
 
@@ -30,6 +33,13 @@ export abstract class VideoTrackItemImpl extends TrackItemImpl implements VideoT
     super.clone(obj);
     obj.drawing = clone(this.drawing);
     return obj;
+  }
+
+  serialize(): SerializedVideoTrackItem {
+    return {
+      ...super.serialize(),
+      drawing: this.drawing.serilaize()
+    };
   }
 
 }

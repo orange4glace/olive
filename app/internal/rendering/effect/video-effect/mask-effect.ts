@@ -11,4 +11,8 @@ export class MaskEffect extends VideoEffect {
   constructor() {
     super('MASK')
   }
+
+  serialize(): any {
+    throw new Error('Not implemeneted');
+  }
 }

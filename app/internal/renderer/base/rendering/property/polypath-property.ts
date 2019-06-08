@@ -1,21 +1,22 @@
 import { PropertyRenderer } from "internal/renderer/base/rendering/property/property";
 import { Vector2Renderer } from "oliveutil/vector2";
-import { PolyPathPropertyBase } from "internal/rendering/property/polypath-property";
+import { PolyPathPropertyBase, PolypathKeyframeValue } from "internal/rendering/property/polypath-property";
 import { Posted } from "worker-postable";
+import { Vector2KeyframeValue } from "internal/rendering/property/vector2-property";
 
 @Posted('PolyPathProperty')
-export class PolyPathPropertyRenderer extends PropertyRenderer<Vector2Renderer[]>
+export class PolyPathPropertyRenderer extends PropertyRenderer<PolypathKeyframeValue>
     implements PolyPathPropertyBase {
 
-  interpolate(lhs: Vector2Renderer[], rhs: Vector2Renderer[], t: number): Vector2Renderer[] {
-    console.assert(lhs.length == rhs.length);
-    let res: Vector2Renderer[] = [];
-    for (let i = 0; i < lhs.length; i ++) {
-      const vec1 = lhs[i];
-      const vec2 = rhs[i];
-      const vec = new Vector2Renderer(vec1.x + (vec2.x - vec1.x) * t,
+  interpolate(lhs: PolypathKeyframeValue, rhs: PolypathKeyframeValue, t: number): PolypathKeyframeValue {
+    console.assert(lhs.points.length == rhs.points.length);
+    let res: PolypathKeyframeValue;
+    for (let i = 0; i < lhs.points.length; i ++) {
+      const vec1 = lhs.points[i];
+      const vec2 = rhs.points[i];
+      const vec = new Vector2KeyframeValue(vec1.x + (vec2.x - vec1.x) * t,
                                       vec1.y + (vec2.y - vec1.y) * t);
-      res.push(vec);
+      res.points.push(vec);
     }
     return res;
   }

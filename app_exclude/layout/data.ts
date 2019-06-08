@@ -1,9 +1,8 @@
 import app from 'internal/app';
 import { LayoutDirection, LayoutDirectionUtil, LayoutViewDirection, LayoutViewDirectionUtil } from 'window/layout/layout-direction';
 import Layout from './layout';
-import { Serializable } from 'base/common/serialize';
 
-export class LayoutData implements Serializable {
+export class LayoutData {
   id: number;
   direction: LayoutDirection = null;
   parent: LayoutData = null;
@@ -32,7 +31,7 @@ export class LayoutData implements Serializable {
       layout.children.push(this);
       
       var win = new LayoutData(LayoutDirection.VIEW, layout);
-      win.views.push(window);
+      win.views.push(view);
       if (LayoutViewDirectionUtil.isTopOrLeft(viewDirection))
         layout.children.splice(0, 0, win);
       else layout.children.splice(1, 0, win);
@@ -40,7 +39,7 @@ export class LayoutData implements Serializable {
     else {
       var index = this.parent.indexOfChildLayout(this);
       var layout = new LayoutData(LayoutDirection.VIEW, this.parent);
-      layout.views.push(window);
+      layout.views.push(view);
       if (LayoutViewDirectionUtil.isTopOrLeft(viewDirection))
         this.parent.children.splice(index, 0, layout);
       else this.parent.children.splice(index + 1, 0, layout);
@@ -104,10 +103,6 @@ export class LayoutData implements Serializable {
       this.children.push(itself);
       this.children.splice(Math.max(0, index), 0, newee);
     }
-  }
-
-  serilaize() {
-    
   }
 }
 

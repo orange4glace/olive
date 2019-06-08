@@ -4,6 +4,8 @@ import { PostableEvent, PostableEventBase } from "worker-postable";
 import { IAudioSetting, AudioSettingBase } from "internal/timeline/audio-setting";
 import { IVideoSetting, VideoSettingBase } from "internal/timeline/video-setting";
 
+export type TimelineIdentifier = string;
+
 export interface TimelineTrackEvent {
   readonly track: Track;
   readonly index: number;
@@ -16,7 +18,7 @@ export interface TimelinePostableStatusEvent {
 
 export interface TimelineBase {
   
-  id: number;
+  id: TimelineIdentifier;
   totalTime: number;
   currentTimePausing: number;
   tracks: Array<TrackBase>;
@@ -28,7 +30,13 @@ export interface TimelineBase {
 
 export interface Timeline extends TimelineBase {
 
-  /*@postable*/ readonly id: number;
+  readonly onPlay: Event<void>;
+  readonly onPause: Event<void>;
+  readonly onSeek: Event<void>;
+  readonly onTrackAdded: Event<TimelineTrackEvent>;
+  readonly onTrackWillRemove: Event<TimelineTrackEvent>;
+
+  /*@postable*/ readonly id: TimelineIdentifier;
   /*@postable*/ readonly totalTime: number;
   /*@postable*/ readonly currentTime: number;
   
@@ -48,11 +56,7 @@ export interface Timeline extends TimelineBase {
   getTrackAt(index: number): Track;
   getTrackIndex(track: Track): number;
 
-  readonly onPlay: Event<void>;
-  readonly onPause: Event<void>;
-  readonly onSeek: Event<void>;
-  readonly onTrackAdded: Event<TimelineTrackEvent>;
-  readonly onTrackWillRemove: Event<TimelineTrackEvent>;
+  serialize(): object;
 
 }
 

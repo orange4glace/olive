@@ -22,8 +22,8 @@ import { createAudioRendererOption, createAudioRendererBuffers } from 'internal/
 import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
 import { IHistoryService, HistoryService } from 'internal/history/history';
 import { InstantiationService } from 'platform/instantiation/common/instantiationService';
-import { ProjectService } from 'internal/project/project-service-impl';
-import { IProjectService } from 'internal/project/project-service';
+import { ProjectsService } from 'internal/project/projects-service-impl';
+import { IProjectsService } from 'internal/project/projects-service';
 import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
 import { GlobalTimelineService } from 'internal/timeline/global-timeline-service-impl';
 import { IAppWindowService } from 'internal/app-window/app-window-service';
@@ -51,8 +51,8 @@ async function initializeApp(): Promise<void> {
   );
   const instantiationService = new InstantiationService(serviceCollection);
 
-  const projectService = new ProjectService(instantiationService);
-  serviceCollection.set(IProjectService, projectService);
+  const projectsService = new ProjectsService(instantiationService);
+  serviceCollection.set(IProjectsService, projectsService);
 
   const videoRendererNode = new VideoRendererNode(globalTimelineService);
 
@@ -68,8 +68,8 @@ async function initializeApp(): Promise<void> {
     audioRendererNode.sendPostableMessage(msg);
   }
 
-  const project = projectService.createProject();
-  projectService.setCurrentProject(project);
+  const project = projectsService.createProject();
+  projectsService.setCurrentProject(project);
   
   app = ((window as any).app) as App;
   app.mobx = {

@@ -9,10 +9,15 @@ export * from 'internal/renderer/base/rendering/effect/video-effect/transform-ef
 export * from 'internal/renderer/base/rendering/effect/video-effect/rectangle-effect'
 
 export * from 'internal/renderer/base/rendering/property/property'
-// export * from 'internal/renderer/rendering/property/scalar-property'
+export * from 'internal/renderer/base/rendering/property/scalar-property'
 export * from 'internal/renderer/base/rendering/property/vector2-property'
 export * from 'internal/renderer/base/rendering/property/vector4-property'
 export * from 'internal/renderer/base/rendering/property/polypath-property'
 export * from 'internal/renderer/base/rendering/property/keyframe'
+
+import 'internal/rendering/property/scalar-property'
+import 'internal/rendering/property/vector2-property'
+import 'internal/rendering/property/vector4-property'
+import 'internal/rendering/property/polypath-property'
 
 export function forceImport() {}

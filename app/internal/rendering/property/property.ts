@@ -2,25 +2,18 @@ import { Postable, postable } from 'worker-postable';
 import { TreeMap, Pair, make_pair } from 'tstl';
 import { EventEmitter2 } from 'eventemitter2';
 import { action } from 'mobx';
-import { KeyframeBase, Keyframe } from './keyframe';
+import { KeyframeBase, Keyframe, SerializedKeyframe, IKeyframeValue } from './keyframe';
 import { Cloneable, clone } from 'base/olive/cloneable';
 import { Event, Emitter } from 'base/common/event';
-
-export enum PropertyType {
-  SCALAR,
-  VECTOR2,
-  VECTOR4,
-  POLYPATH,
-}
+import { IConstructorSignature1, IInstantiationService } from 'platform/instantiation/common/instantiation';
+import { Registry } from 'platform/registry/common/platform';
 
 export enum PropertyEvent {
   KEYFRAME_ADDED = 'KEYFRAME_ADDED',
   KEYFRAME_REMOVED = 'KEYFRAME_REMOVED'
 }
 
-export type PropertyTypes = any;
-
-export interface PropertyBase<T extends PropertyTypes> {
+export interface PropertyBase<T extends IKeyframeValue> {
   animatable: boolean;
   animated: boolean;
   keyframes: Set<KeyframeBase<T>>;
@@ -31,8 +24,16 @@ export interface PropertyBase<T extends PropertyTypes> {
 
 let __next_id = 0;
 
+export interface SerializedProperty {
+  type: string;
+  keyframes: SerializedKeyframe[];
+  animatable: boolean;
+  animated: boolean;
+  defaultKeyframe: SerializedKeyframe;
+}
+
 @Postable
-export abstract class Property<T extends PropertyTypes> implements PropertyBase<T>, Cloneable {
+export abstract class Property<T extends IKeyframeValue> implements PropertyBase<T>, Cloneable {
   
   readonly id: number;
   readonly type: string;
@@ -98,7 +99,12 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
       return lagacy.value.second;
     }
     let keyframe = new Keyframe<T>(timeoffset, value);
-    this.keyframeTreeMap.insert(new Pair(timeoffset, keyframe));
+    this.doAddKeyframe(keyframe);
+    return keyframe;
+  }
+
+  protected doAddKeyframe(keyframe: Keyframe<T>): Keyframe<T> {
+    this.keyframeTreeMap.insert(new Pair(keyframe.timecode, keyframe));
     this.keyframes.add(keyframe);
     this.onKeyframeAdded_.fire(keyframe);
     return keyframe;
@@ -131,10 +137,79 @@ export abstract class Property<T extends PropertyTypes> implements PropertyBase<
     obj.defaultKeyframe = clone<Keyframe<T>>(this.defaultKeyframe);
     return obj;
   }
+
+  serialize(): SerializedProperty {
+    let keyframes: SerializedKeyframe[] = [];
+    this.keyframes.forEach(kf => {
+      keyframes.push(kf.serialize());
+    })
+    return {
+      type: this.type,
+      keyframes: keyframes,
+      animatable: this.animatable,
+      animated: this.animated,
+      defaultKeyframe: this.defaultKeyframe && this.defaultKeyframe.serialize()
+    }
+  }
+
+  static deserialize<T extends IKeyframeValue>(instantiationService: IInstantiationService, obj: SerializedProperty): Property<T> | null {
+    let keyframes: Keyframe<T>[] = [];
+    obj.keyframes.forEach(kf => {
+      const keyframe = Keyframe.deserialize<T>(instantiationService, kf);
+      if (keyframe) keyframes.push(keyframe);
+    })
+    let defaultKeyframe = Keyframe.deserialize<T>(instantiationService, obj.defaultKeyframe);
+    if (!defaultKeyframe) {
+      console.warn('Deserialize Property failed. (Default keyframe deserialize failed) ' + obj);
+      return null;
+    }
+    const factory = Registry.as<PropertyFactoryRegistry>(PropertyFactoryRegistry.ID).getFactory(obj.type);
+    if (!factory) {
+      console.warn('Deserialize Property failed. (Property factory not found) ' + obj);
+      return null;
+    }
+    let property: Property<any>;
+    try {
+      property = new factory(defaultKeyframe.value);
+    } catch (e) {
+      console.warn('Deserialize Property failed. ' + e);
+      return null;
+    }
+    keyframes.forEach(kf => property.doAddKeyframe(kf));
+    return property;
+  }
 }
 
+export class PropertyFactoryRegistry {
+
+  static readonly ID = 'olive.property.PropertyFactoryRegistry'
+
+  private factoryInstances: {
+    [type: string]: IConstructorSignature1<IKeyframeValue, Property<any>>
+  } = Object.create(null);
+
+  registerFactory(type: string, ctor: IConstructorSignature1<IKeyframeValue, Property<any>>): void {
+    const instance = ctor;
+    this.factoryInstances[type] = instance;
+  }
+
+  getFactory(type: string): IConstructorSignature1<IKeyframeValue, Property<any>> | null {
+    const factory = this.factoryInstances[type];
+    if (!factory) console.warn('No Effect Factory found. ' + type);
+    return factory;
+  }
+
+}
+Registry.add(PropertyFactoryRegistry.ID, new PropertyFactoryRegistry());
 
 
+// import { FactoryRegistry, IFactory, IFactoryRegistry } from "internal/common/factory-registry";
+// import { Registry } from "platform/registry/common/platform";
+
+// export interface IPropertyFactory extends IFactory<Property<any>, SerializedProperty> {}
+// export class PropertyFactoryRegistry extends FactoryRegistry<IPropertyFactory> {
+//   static readonly ID = 'olive.property.keyframe.PropertyFactoryRegistry'
+// }
 
 
 

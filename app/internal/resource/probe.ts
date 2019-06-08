@@ -1,10 +1,11 @@
 const ffprobe = require('ffprobe');
 import { logger } from 'internal/logger';
 import { FrameRate } from 'internal/timeline/frame_rate';
-import { ResourceType } from 'internal/resource/type_t';
+import { VideoResource } from 'internal/resource/video-resource';
+import { AudioResource } from 'internal/resource/audio-resource';
 
 export interface ProbeResult {
-  type: ResourceType;
+  type: string;
 }
 
 export interface VideoProbeResult extends ProbeResult {
@@ -55,7 +56,7 @@ export class Probe {
               return;
             }
             let result: VideoProbeResult = {
-              type: ResourceType.VIDEO,
+              type: VideoResource.TYPE,
               width: videoStream.width,
               height: videoStream.height,
               frameRate: frameRate,
@@ -67,7 +68,7 @@ export class Probe {
         if (audioStream != null) {
           (() => {
             let result: AudioProbeResult = {
-              type: ResourceType.AUDIO,
+              type: AudioResource.TYPE,
               duration: +audioStream.duration
             }
             results.push(result);

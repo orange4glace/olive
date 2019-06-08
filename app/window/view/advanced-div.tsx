@@ -2,22 +2,12 @@ import * as React from 'react'
 
 import { EventEmitter2 } from 'eventemitter2'
 
-import * as DragAndDrop from 'window/dragndrop'
-
 const __emitter = new EventEmitter2();
 
 export interface ADivProps extends React.HTMLAttributes<Element> {
   onDocumentMouseMoveStart?: (e: MouseEvent) => boolean | void;
   onDocumentMouseMoveEnd?: EventListener;
   onDocumentMouseMove?: EventListener;
-  onDocumentDragStart?: (e: React.DragEvent<Element>, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDragEnd?: (e: React.DragEvent<Element>, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDragEnter?: (e: React.DragEvent<Element>, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDragLeave?: (e: React.DragEvent<Element>, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDragOver?: (e: React.DragEvent<Element>, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDrop?: (e: React.DragEvent<Element>, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDragDataChange?: (data: any, dnd: DragAndDrop.DragAndDrop) => void;
-  onDocumentDragTypeChange?: (type: string, dnd: DragAndDrop.DragAndDrop) => void;
   listenEvent?: Array<string>;
   elementGroup?: string;
   onGlobalMouseDown?: (event: React.MouseEvent, group?: string) => void;
@@ -109,13 +99,6 @@ class AdvancedDiv extends React.PureComponent<_Props, any> {
     delete props.onDocumentMouseMove;
     delete props.onDocumentMouseMoveStart;
     delete props.onDocumentMouseMoveEnd;
-    delete props.onDocumentDragStart;
-    delete props.onDocumentDragEnter;
-    delete props.onDocumentDragLeave;
-    delete props.onDocumentDragOver;
-    delete props.onDocumentDrop;
-    delete props.onDocumentDragDataChange;
-    delete props.onDocumentDragTypeChange;
     delete props.onGlobalMouseDown;
     delete props.forwardedRef;
     delete props.elementGroup;

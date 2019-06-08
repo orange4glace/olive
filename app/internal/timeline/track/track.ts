@@ -20,6 +20,11 @@ export interface TrackBase {
 }
 
 export interface Track extends TrackBase, Cloneable {
+  
+  readonly onTrackItemAdded: Event<TrackTrackItemEvent>;
+  readonly onTrackItemWillRemove: Event<TrackTrackItemEvent>;
+  readonly onTrackItemRemoved: Event<TrackTrackItemEvent>;
+  readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent>;
 
   readonly id: number;
   /*@observable*/ readonly name: string;
@@ -35,11 +40,8 @@ export interface Track extends TrackBase, Cloneable {
   getTrackItemBefore(trackItem: TrackItem): TrackItem;
   getTrackItemAfter(trackItem: TrackItem): TrackItem;
   getTrackItemsBetween(startTime: number, endTime: number): TrackItem[];
-  
-  readonly onTrackItemAdded: Event<TrackTrackItemEvent>;
-  readonly onTrackItemWillRemove: Event<TrackTrackItemEvent>;
-  readonly onTrackItemRemoved: Event<TrackTrackItemEvent>;
-  readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent>;
+
+  serialize(): object;
 
 }
 

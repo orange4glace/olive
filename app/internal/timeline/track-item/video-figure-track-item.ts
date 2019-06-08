@@ -1,8 +1,11 @@
-import { VideoTrackItemImpl, VideoTrackItemBase, VideoTrackItem } from "internal/timeline/track-item/video-track-item";
+import { VideoTrackItemImpl, VideoTrackItemBase, VideoTrackItem, SerializedVideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { Postable } from "worker-postable";
-import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { TrackItemTime } from "internal/timeline/track-item/track-item-time";
 import { clone } from "base/olive/cloneable";
+
+export interface SerializedVideoFigureTrackItem extends SerializedVideoTrackItem {
+
+}
 
 export interface VideoFigureTrackItemBase extends VideoTrackItemBase {
 
@@ -15,8 +18,10 @@ export interface VideoFigureTrackItem extends VideoTrackItem {
 @Postable
 export class VideoFigureTrackItemImpl extends VideoTrackItemImpl implements VideoFigureTrackItemBase {
 
+  static readonly TYPE = 'olive.timeline.VideoFigureTrackItem'
+
   constructor() {
-    super(TrackItemType.VIDEO_FIGURE);
+    super(VideoFigureTrackItemImpl.TYPE);
   }
 
   __setTime(time: TrackItemTime) {

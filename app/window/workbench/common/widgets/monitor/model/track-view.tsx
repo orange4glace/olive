@@ -4,11 +4,9 @@ import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { observable, observer } from "window/app-mobx";
 import { ITimeline } from "internal/timeline/timeline";
 import { ITrack } from "internal/timeline/track/track";
-import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { VideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { dispose } from "base/common/lifecycle";
 import { mat2d } from "gl-matrix";
-import { MonitorWidgetVideoTrackItemView } from "window/workbench/common/widgets/monitor/model/track-item/video-track-item-view";
 import { IMonitorWidgetTrackItemView, MonitorWidgetTrackItemView, TrackItemViewSelectorRegistry } from "window/workbench/common/widgets/monitor/model/track-item/track-item-view";
 import { Registry } from "platform/registry/common/platform";
 

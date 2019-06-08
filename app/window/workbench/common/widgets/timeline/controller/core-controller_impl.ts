@@ -1,19 +1,16 @@
-import app from "internal/app";
 import { StaticDND, IDragAndDropData } from "base/browser/dnd";
 import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetCoreController } from "window/workbench/common/widgets/timeline/controller/core-controller";
 import { TimelineWidgetGhostContainerViewModel } from "window/workbench/common/widgets/timeline/model/ghost-view-model";
 import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/timeline/model/track-view-model";
-import { TimelineWidgetTrackItemViewModel } from "window/workbench/common/widgets/timeline/model/track-item-view-model";
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
-import { IHistoryCommand } from "internal/history/command";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";
-import { IResourceService } from "internal/resource/resource-service";
 import { StorageItemDragAndDropData } from "window/view/dnd/dnd";
-import { TimelineWidgetTimelineViewModel } from "window/workbench/common/widgets/timeline/model/timeline-view-model";
+import { ResourceStorageFile, MediaResourceStorageFile } from "internal/resource/resource-storage-file";
+import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
@@ -49,8 +46,16 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
     const dndData = StaticDND.CurrentDragAndDropData;
     if (dndData instanceof StorageItemDragAndDropData) {
       const project = dndData.project;
-      const timeline = project.createTimeline(project.storage);
-      this.widget_.setTimeline(project, timeline);
+      const storageItem = dndData.storageItem;
+      if (storageItem.type === MediaResourceStorageFile.TYPE) {
+        const timeline = project.createTimeline(project.storage);
+        timeline.addTrack();
+        this.widget_.setTimeline(project, timeline);
+      }
+      if (storageItem.type === TimelineStorageFile.TYPE) {
+        const timeline = (<TimelineStorageFile>storageItem).timeline;
+        this.widget_.setTimeline(project, timeline);
+      }
     }
   }
 

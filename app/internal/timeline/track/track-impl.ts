@@ -7,15 +7,33 @@ import { observable } from 'mobx';
 import { Emitter, Event } from 'base/common/event';
 import { Disposable } from 'base/common/lifecycle';
 import { Track, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/timeline/track/track';
-import { TrackItemImpl } from 'internal/timeline/track-item/track-item-impl';
+import { TrackItemImpl, SerializedTrackItem } from 'internal/timeline/track-item/track-item-impl';
 import { TrackItemTime } from 'internal/timeline/track-item/track-item-time';
 import { clone } from 'base/olive/cloneable';
-import { TrackItem } from 'internal/timeline/track-item/track-item';
+import { TrackItem, ITrackItem } from 'internal/timeline/track-item/track-item';
+import { IInstantiationService } from 'platform/instantiation/common/instantiation';
 
 let _nextTrackID = 0;
 
+export interface SerializedTrack {
+  name: string;
+  trackItems: SerializedTrackItem[];
+}
+
 @Postable
 export default class TrackImpl extends Disposable implements Track {
+
+  private readonly onTrackItemAdded_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
+  readonly onTrackItemAdded: Event<TrackTrackItemEvent> = this.onTrackItemAdded_.event;
+
+  private readonly onTrackItemWillRemove_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
+  readonly onTrackItemWillRemove: Event<TrackTrackItemEvent> = this.onTrackItemWillRemove_.event;
+
+  private readonly onTrackItemRemoved_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
+  readonly onTrackItemRemoved: Event<TrackTrackItemEvent> = this.onTrackItemRemoved_.event;
+
+  private readonly onTrackItemTimeChanged_: Emitter<TrackItemTimeChangedEvent> = this._register(new Emitter<TrackItemTimeChangedEvent>());
+  readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent> = this.onTrackItemTimeChanged_.event;
 
   readonly id: number;
   @observable name: string;
@@ -39,12 +57,12 @@ export default class TrackImpl extends Disposable implements Track {
 
   addTrackItem(trackItem: TrackItemImpl, start: number, end: number, baseTime: number): void {
     trackItem.__setTime(new TrackItemTime(start, end, baseTime));
-    this._clearTime(trackItem.time.start, trackItem.time.end);
-    this._addTrackItem(trackItem);
+    this.doClearTime(trackItem.time.start, trackItem.time.end);
+    this.doAddTrackItem(trackItem);
   }
 
   removeTrackItem(trackItem: TrackItemImpl) {
-    this._removeTrackItem(trackItem);
+    this.doRemoveTrackItem(trackItem);
   }
 
   getTrackItemAt(time: number): TrackItemImpl {
@@ -85,14 +103,14 @@ export default class TrackImpl extends Disposable implements Track {
     return result;
   }
   setTrackItemTime(trackItem: TrackItemImpl, startTime: number, endTime: number, baseTime: number): void {
-    this._setTrackItemTime(trackItem, new TrackItemTime(startTime, endTime, baseTime));
+    this.doSetTrackItemTime(trackItem, new TrackItemTime(startTime, endTime, baseTime));
   }
 
   clearTime(startTime: number, endTime: number) {
-    this._clearTime(startTime, endTime);
+    this.doClearTime(startTime, endTime);
   }
 
-  private _addTrackItem(trackItem: TrackItemImpl) {
+  private doAddTrackItem(trackItem: TrackItemImpl) {
     this.trackItems.set(trackItem, trackItem.time);
     this.trackItemTreeMap.insert(new Pair(trackItem.time, trackItem));
     this.onTrackItemAdded_.fire({
@@ -100,7 +118,7 @@ export default class TrackImpl extends Disposable implements Track {
     })
   }
 
-  private _removeTrackItem(trackItem: TrackItemImpl) {
+  private doRemoveTrackItem(trackItem: TrackItemImpl) {
     console.assert(this.trackItems.has(trackItem));
     console.assert(this.trackItemTreeMap.count(trackItem.time));
     this.onTrackItemWillRemove_.fire({
@@ -110,7 +128,7 @@ export default class TrackImpl extends Disposable implements Track {
     this.trackItemTreeMap.erase(trackItem.time);
   }
 
-  private _setTrackItemTime(trackItem: TrackItemImpl, time: TrackItemTime): void {
+  private doSetTrackItemTime(trackItem: TrackItemImpl, time: TrackItemTime): void {
     // assert check
     console.assert(this.trackItemTreeMap.count(trackItem.time));
     console.assert(this.trackItems.has(trackItem));
@@ -120,7 +138,7 @@ export default class TrackImpl extends Disposable implements Track {
     this.trackItemTreeMap.erase(trackItem.time);
     trackItem.__setTime(time);
     time = new TrackItemTime(trackItem.time.start, trackItem.time.end, trackItem.time.base);
-    this._clearTime(time.start, time.end);
+    this.doClearTime(time.start, time.end);
 
     this.trackItems.set(trackItem, time);
     this.trackItemTreeMap.insert(new Pair(time, trackItem));
@@ -132,7 +150,7 @@ export default class TrackImpl extends Disposable implements Track {
     })
   }
 
-  private _clearTime(startTime: number, endTime: number) {
+  private doClearTime(startTime: number, endTime: number) {
     let additions: TrackItemImpl[] = [];
     let removals = [];
     let it = this.accessAfter(startTime);
@@ -146,7 +164,7 @@ export default class TrackImpl extends Disposable implements Track {
           removals.push(current);
         }
         else {
-          this._setTrackItemTime(current, new TrackItemTime(endTime, timePair.end, current.time.base + (endTime - current.time.start)));
+          this.doSetTrackItemTime(current, new TrackItemTime(endTime, timePair.end, current.time.base + (endTime - current.time.start)));
         }
       }
       else {
@@ -161,16 +179,16 @@ export default class TrackImpl extends Disposable implements Track {
           removals.push(current);
         }
         else {
-          this._setTrackItemTime(current, new TrackItemTime(timePair.start, startTime, current.time.base));
+          this.doSetTrackItemTime(current, new TrackItemTime(timePair.start, startTime, current.time.base));
         }
       }
       it = it.next();
     }
     removals.forEach(removal => {
-      this._removeTrackItem(removal);
+      this.doRemoveTrackItem(removal);
     })
     additions.forEach(addition => {
-      this._addTrackItem(addition);
+      this.doRemoveTrackItem(addition);
     })
   }
 
@@ -189,15 +207,27 @@ export default class TrackImpl extends Disposable implements Track {
     throw "Not implemented";
   }
 
-  private readonly onTrackItemAdded_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
-  readonly onTrackItemAdded: Event<TrackTrackItemEvent> = this.onTrackItemAdded_.event;
+  serialize(): SerializedTrack {
+    const trackItems: SerializedTrackItem[] = [];
+    this.trackItems.forEach((time, ti) => {
+      trackItems.push(ti.serialize());
+    })
+    return {
+      name: this.name,
+      trackItems: trackItems
+    }
+  }
 
-  private readonly onTrackItemWillRemove_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
-  readonly onTrackItemWillRemove: Event<TrackTrackItemEvent> = this.onTrackItemWillRemove_.event;
-
-  private readonly onTrackItemRemoved_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
-  readonly onTrackItemRemoved: Event<TrackTrackItemEvent> = this.onTrackItemRemoved_.event;
-
-  private readonly onTrackItemTimeChanged_: Emitter<TrackItemTimeChangedEvent> = this._register(new Emitter<TrackItemTimeChangedEvent>());
-  readonly onTrackItemTimeChanged: Event<TrackItemTimeChangedEvent> = this.onTrackItemTimeChanged_.event;
+  static deserialize(instantiationService: IInstantiationService, serial: SerializedTrack): TrackImpl {
+    const track = new TrackImpl();
+    serial.trackItems.forEach(ti => {
+      const trackItem = TrackItemImpl.deserialize(instantiationService, ti);
+      if (!trackItem) {
+        console.warn('Failed to deserialize TrackItem. ' + ti);
+        return;
+      }
+      track.doAddTrackItem(trackItem);
+    })
+    return track;
+  }
 }

@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Timeline, ITimeline } from "internal/timeline/timeline";
+import { ITimeline, TimelineIdentifier } from "internal/timeline/timeline";
 import { TimelineWidgetTimelineViewModelImpl } from 'window/workbench/common/widgets/timeline/model/timeline-view-model-impl';
 import { ITimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service';
 import { Event, Emitter } from 'base/common/event';
@@ -15,14 +15,11 @@ import { TimelineWidgetManipulatorControllerImpl } from 'window/workbench/common
 import { TimelineWidgetTimelineViewModel } from 'window/workbench/common/widgets/timeline/model/timeline-view-model';
 import { ITimelineWidgetRangeSelector, TimelineWidgetRangeSelector } from 'window/workbench/common/widgets/timeline/model/range-selector';
 import { TimelineWidgetRangeSelectorController } from 'window/workbench/common/widgets/timeline/controller/range-selector-controller';
-import { ServicesAccessor, IInstantiationService } from 'platform/instantiation/common/instantiation';
+import { IInstantiationService } from 'platform/instantiation/common/instantiation';
 import { IHistoryService } from 'internal/history/history';
-import { IProjectService } from 'internal/project/project-service';
+import { IProjectsService } from 'internal/project/projects-service';
 import { IObservableValue } from 'mobx';
 import { observable } from 'window/app-mobx';
-import { IWidgetProvider } from 'window/view/widget-service';
-import { WidgetRegistry } from 'window/view/widget-registry';
-import { IResourceService } from 'internal/resource/resource-service';
 import { IProject } from 'internal/project/project';
 import { Widget, ISerializedWidget } from 'window/workbench/common/editor/widget';
 import { IStorageService } from 'platform/storage/common/storage';
@@ -31,13 +28,12 @@ import { IWidgetService } from 'window/workbench/services/editor/common/widget-s
 import { Registry } from 'platform/registry/common/platform';
 import { IWorkbenchActionRegistry, Extensions } from 'window/workbench/common/actions';
 import { SyncActionDescriptor, MenuRegistry, MenuId } from 'platform/actions/common/actions';
-import { registerSingleton } from 'platform/instantiation/common/extensions';
 import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
 import { IWidgetFactory, WidgetFactoryRegistry } from 'window/workbench/common/editor/widget-registry';
 
 interface ISerializedTimelineWidget extends ISerializedWidget {
   projectID: string;
-  timelineID: number;
+  timelineID: TimelineIdentifier;
 }
 
 export class TimelineWidget extends Widget implements ITimelineWidget {
@@ -182,7 +178,7 @@ export class TimelineWidget extends Widget implements ITimelineWidget {
     return {
       serializedWidgetType: TimelineWidget.TYPE,
       projectID: (this.project ? this.project.id : ''),
-      timelineID: (this.timeline ? this.timeline.id : -1)
+      timelineID: (this.timeline ? this.timeline.id : undefined)
     }
   }
 
@@ -208,7 +204,7 @@ class TimelineWidgetFactory implements IWidgetFactory<TimelineWidget> {
     const serial = serializedWidget as ISerializedTimelineWidget;
     let widget: TimelineWidget = null;
     instantiationService.invokeFunction(accessor => {
-      const project = accessor.get(IProjectService).getProject(serial.projectID);
+      const project = accessor.get(IProjectsService).getProject(serial.projectID);
       if (!project) return widget = instantiationService.createInstance(TimelineWidget, null, null);
       const timeline = project.timelineManager.getTimeline(serial.timelineID);
       if (!project) return widget = instantiationService.createInstance(TimelineWidget, null, null);

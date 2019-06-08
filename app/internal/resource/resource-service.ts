@@ -1,4 +1,4 @@
-import { IResource } from "internal/resource/resource";
+import { IResource, ResourceIdentifier } from "internal/resource/resource";
 import { createDecorator } from "platform/instantiation/common/instantiation";
 import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { IVideoResource } from "internal/resource/video-resource";
@@ -8,16 +8,12 @@ export interface IResourceEvent {
   resource: IResource
 }
 
-export const IResourceService = createDecorator<IResourceService>('olive.ResourceService');
+export const IResourcesService = createDecorator<IResourcesService>('olive.resource.ResourcesService');
 
-export interface IResourceService {
+export interface IResourcesService {
 
-  /*@observable*/ resources: Set<IResource>;
+  _serviceBrand: any;
 
-  createResource(path: string): Promise<{
-    video: IVideoResource,
-    audio: IAudioResource
-  }>;
-  trackItemize(resource: IResource): ITrackItem;
+  getResource(id: ResourceIdentifier): IResource | null;
 
 }

@@ -7,7 +7,6 @@ import { MonitorWidgetViewProps } from "window/workbench/common/widgets/monitor/
 import { ViewSelectorRegistry } from 'window/workbench/common/widgets/common/selector-registry';
 import { Registry } from 'platform/registry/common/platform';
 import { IConstructorSignature3 } from 'platform/instantiation/common/instantiation';
-import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
 
 export interface IMonitorWidgetTrackItemView<T extends ITrackItem> 
     extends IMonitorWidgetSelectableView {
@@ -57,7 +56,7 @@ export abstract class MonitorWidgetTrackItemViewComponent<T extends MonitorWidge
 }
 
 export class TrackItemViewSelectorRegistry extends ViewSelectorRegistry
-  <TrackItemType, IConstructorSignature3<MonitorWidgetSelectableView, ITimeline, ITrackItem, MonitorWidgetTrackItemView<any>>> {
+  <string, IConstructorSignature3<MonitorWidgetSelectableView, ITimeline, ITrackItem, MonitorWidgetTrackItemView<any>>> {
   static readonly ID = 'olive.workbench.registry.TrackItemViewSelectorRegistry'
 }
 

@@ -8,6 +8,12 @@ export interface TrackItemTimeBase {
   base: number;
 }
 
+export interface SerializedTrackItemTime {
+  start: number;
+  end: number;
+  base: number;
+}
+
 export class TrackItemTime implements TrackItemTimeBase, Cloneable, IComparable<TrackItemTime> {
 
   @postable start: number;
@@ -39,6 +45,18 @@ export class TrackItemTime implements TrackItemTimeBase, Cloneable, IComparable<
     obj.end = this.end;
     obj.base = this.base;
     return obj;
+  }
+
+  serialize(): SerializedTrackItemTime {
+    return {
+      start: this.start,
+      end: this.end,
+      base: this.base
+    }
+  }
+
+  static deserialize(obj: SerializedTrackItemTime): TrackItemTime {
+    return new TrackItemTime(obj.start, obj.end, obj.base);
   }
 }
 

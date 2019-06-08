@@ -1,11 +1,14 @@
-import { IStorageItem, StorageItem, StorageItemSerial } from "internal/storage/storage-item";
+import { IStorageItem, StorageItem, SerializedStorageItem, IStorageItemFactory, StorageItemFactoryRegistry } from "internal/storage/storage-item";
 import { observable } from "mobx";
 import { assert } from "base/olive/assert";
 import { Event, Emitter } from "base/common/event";
 import { ITrackItem } from "internal/timeline/track-item/track-item";
+import { IInstantiationService } from "platform/instantiation/common/instantiation";
+import { ILogService } from "platform/log/common/log";
+import { Registry } from "platform/registry/common/platform";
 
-export interface StorageDirectorySerial extends StorageItemSerial {
-  items: StorageItemSerial[];
+export interface SerializedStorageDirectory extends SerializedStorageItem {
+  items: SerializedStorageItem[];
 }
 
 export interface IStorageDirectory extends IStorageItem {
@@ -21,6 +24,7 @@ export interface IStorageDirectory extends IStorageItem {
 }
 
 export class StorageDirectory extends StorageItem implements IStorageDirectory {
+  static readonly TYPE = 'olive.storage.item.Directory';
 
   private onItemAdded_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
   public onItemAdded = this.onItemAdded_.event;
@@ -28,17 +32,12 @@ export class StorageDirectory extends StorageItem implements IStorageDirectory {
   private onItemRemoved_: Emitter<IStorageItem> = new Emitter<IStorageItem>();
   public onItemRemoved = this.onItemRemoved_.event;
 
-  @observable private name_: string;
-  get name() { return this.name_; }
-
-  readonly type = 'directory';
   readonly isDirectory = true;
 
-  @observable readonly items: IStorageItem[];
+  @observable items: IStorageItem[];
 
-  constructor(name: string) {
-    super();
-    this.name_ = name;
+  constructor(name: string, uuid?: string) {
+    super(StorageDirectory.TYPE, name, uuid);
 
     this.items = [];
   }
@@ -87,15 +86,51 @@ export class StorageDirectory extends StorageItem implements IStorageDirectory {
     return item.navigate(next);
   }
 
-  serialize() {
-    const serial: StorageDirectorySerial = {
+  serialize(): SerializedStorageDirectory {
+    const serial: SerializedStorageDirectory = {
       ...super.serialize(),
       items: []
     }
     this.items.forEach(item => {
-      serial.items.push(item.serialize() as StorageItemSerial);
+      serial.items.push(item.serialize() as SerializedStorageItem);
     })
     return serial;
   }
 
+  static deserialize(instantiationService: IInstantiationService, serial: SerializedStorageDirectory): StorageDirectory {
+    return instantiationService.invokeFunction<StorageDirectory>(accessor => {
+      const logger = accessor.get(ILogService);
+      const directory = new StorageDirectory(serial.name, serial.uuid);
+      const items: StorageItem[] = [];
+      serial.items.forEach(itemSerial => {
+        const item = StorageItem.deserialize(instantiationService, itemSerial);
+        if (!item) {
+          try {
+            console.log('Tryin');
+            throw new Error();
+          } catch (e) {
+            console.log(e.stack);
+          }
+          logger.error('Failed to deserialize StorageItem. ' + JSON.stringify(itemSerial));
+          return;
+        }
+        items.push(item);
+      })
+      directory.name = serial.name;
+      directory.items = items;
+      return directory;
+    })
+  }
+
 }
+
+class StorageDirectoryFactory implements IStorageItemFactory<StorageDirectory> {
+  serialize(directory: StorageDirectory): SerializedStorageDirectory {
+    return directory.serialize();
+  }
+  deserialize(instantiationService: IInstantiationService, serial: SerializedStorageDirectory): StorageDirectory {
+    return StorageDirectory.deserialize(instantiationService, serial);
+  }
+}
+
+Registry.as<StorageItemFactoryRegistry>(StorageItemFactoryRegistry.ID).registerFactory(StorageDirectory.TYPE, StorageDirectoryFactory);

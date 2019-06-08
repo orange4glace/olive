@@ -6,7 +6,7 @@ import AudioRendererWorklet from 'worklet-loader!./renderer-worklet';
 import { Disposable, IDisposable, dispose } from "base/common/lifecycle";
 import { ITimeline } from "internal/timeline/timeline";
 import { IProject } from "internal/project/project";
-import { IProjectService } from "internal/project/project-service";
+import { IProjectsService } from "internal/project/projects-service";
 import { getPostableID } from "worker-postable";
 import { IGlobalTimelineService } from "internal/timeline/global-timeline-service";
 
@@ -33,13 +33,13 @@ export class AudioRendererNode extends Disposable {
     this.targetTimelineChangedHandler();
     this._register(globalTimelineService_.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
     // this.currentProjectChangedHandler();
-    // this._register(projectService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
+    // this._register(projectsService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
     this.worker = new AudioRendererWorker();
   }
 
   // private currentProjectChangedHandler() {
   //   this.projectDisposables_ = dispose(this.projectDisposables_);
-  //   this.targetProject_ = this.projectService_.getCurrentProject();
+  //   this.targetProject_ = this.projectsService_.getCurrentProject();
   //   if (this.targetProject_ == null) return;
     
   //   this.targetTimelineChangedHandler();

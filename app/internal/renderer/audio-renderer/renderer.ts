@@ -1,5 +1,4 @@
 import { TimelineAudioRenderer } from "internal/renderer/audio-renderer/timeline/timeline";
-import { TrackItemType } from "internal/timeline/track-item/track-item-type";
 import { AudioTrackItemRenderer } from "internal/renderer/base/timeline/track-item/audio-track-item";
 import { AudioRendererInitializationData } from "internal/renderer/audio-renderer/common";
 import { AudioRendererOption, AudioRendererStateIndex, AudioRendererSlotState, getSlotBufferView } from "internal/renderer/audio-renderer/common";
@@ -7,6 +6,7 @@ import { postableMessageHandler } from "worker-postable";
 import { AudioTrackItemAudioRenderer } from "internal/renderer/audio-renderer/timeline/track-item/audio-track-item";
 import { read, openSync, close } from "fs";
 import { getCurrentSystemTime } from "base/olive/time";
+import { AudioTrackItemImpl } from "internal/timeline/track-item/audio-track-item";
 
 interface RenderingRequest {
   requestID: number;
@@ -126,7 +126,7 @@ export class AudioRenderer {
     timeline.tracks.forEach(track => {
       const trackItems = track.getTrackItemBetween(startTime, endTime);
       trackItems.forEach(trackItem => {
-        if (trackItem.type != TrackItemType.AUDIO) return;
+        if (trackItem.type != AudioTrackItemImpl.TYPE) return;
         const audioTrackItem = trackItem as AudioTrackItemAudioRenderer;
         const trackItemStartFrame = timeline.timeToAudioFrame(audioTrackItem.time.start + audioTrackItem.time.base);
         const localStartFrame = startFrame - trackItemStartFrame;

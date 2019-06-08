@@ -22,6 +22,13 @@ export interface IFrameRate extends FrameRateBase {
   format(frameTime: number): string;
   systemTimeToTime(systemTime: number): number;
   millisecondToTime(millisecond: number): number;
+
+  serialize(): object;
+}
+
+export interface SerializedFrameRate {
+  num: number;
+  den: number;
 }
 
 @Postable
@@ -82,5 +89,16 @@ export class FrameRate implements IFrameRate, FrameRateBase {
     const match = str.match(/^(\d+)\/(\d+)$/);
     if (!match) return null;
     return new FrameRate(+match[1], +match[2]);
+  }
+
+  serialize(): SerializedFrameRate {
+    return {
+      num: this.num,
+      den: this.den
+    }
+  }
+
+  static deserialize(obj: SerializedFrameRate): FrameRate {
+    return new FrameRate(obj.num , obj.den);
   }
 }

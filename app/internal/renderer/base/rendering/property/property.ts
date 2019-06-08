@@ -1,12 +1,13 @@
-import { PropertyTypes, PropertyBase } from "internal/rendering/property/property";
+import { PropertyBase } from "internal/rendering/property/property";
 import { listenable, listen, Posted } from "worker-postable";
 import { TreeMap, make_pair } from "tstl";
 import { MapIterator } from "tstl/base";
 import { ObservableSet } from "mobx";
 import { KeyframeRenderer } from "internal/renderer/base/rendering/property/keyframe";
+import { KeyframeValue } from "internal/rendering/property/keyframe";
 
 @Posted('Property')
-export abstract class PropertyRenderer<T extends PropertyTypes>
+export abstract class PropertyRenderer<T extends KeyframeValue>
     implements PropertyBase<T> {
   /*@postable*/ animatable: boolean;
   /*@postable*/ animated: boolean;

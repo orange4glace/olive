@@ -157,6 +157,7 @@ class View extends React.Component<ViewProps, {}> {
       }
     }
     const focusedWidget: Widget = this.props.windows[this.focusedWidgetIndex];
+    console.log(this.props.windows);
     return (
       <React.Fragment>
         <div className='view-tabs'>

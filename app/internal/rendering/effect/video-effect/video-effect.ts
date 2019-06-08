@@ -1,5 +1,7 @@
-import { Effect, EffectBase } from "../effect";
+import { Effect, EffectBase, SerializedEffect } from "../effect";
 import { Postable } from "worker-postable";
+
+export interface SerializedVideoEffect extends SerializedEffect {}
 
 export interface VideoEffectBase extends EffectBase {
   

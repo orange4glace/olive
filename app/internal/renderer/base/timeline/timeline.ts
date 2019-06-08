@@ -1,4 +1,4 @@
-import { TimelineBase, TimelinePostableStatusEvent } from "internal/timeline/timeline";
+import { TimelineBase, TimelinePostableStatusEvent, TimelineIdentifier } from "internal/timeline/timeline";
 import { PostedEvent, posted, Posted } from "worker-postable";
 import { TrackRenderer } from "internal/renderer/base/timeline/track/track";
 import { VideoSettingRenderer } from "internal/renderer/base/timeline/video-setting";
@@ -9,7 +9,7 @@ export class TimelineRenderer
     <TrackRendererT extends TrackRenderer = TrackRenderer>
     implements TimelineBase {
 
-  @posted id: number;
+  @posted id: TimelineIdentifier;
 
   @posted videoSetting: VideoSettingRenderer;
   @posted audioSetting: AudioSettingRenderer;

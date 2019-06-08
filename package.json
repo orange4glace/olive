@@ -76,7 +76,7 @@
   "scripts": {
     "build": "webpack --config ./webpack.main.config.js --mode development && webpack --config ./webpack.app.config.js --mode development",
     "start": "webpack --config ./webpack.main.config.js --mode development && webpack-dev-server --config ./webpack.app.config.js --mode development --content-base ./dist",
-    "start-production": "webpack --config ./webpack.main.config.js --mode production && webpack-dev-server --config ./webpack.app.config.js --mode production --content-base ./dist",
+    "start-production": "webpack --config ./webpack.main.config.js --mode production && node --max-old-space-size=4096 \"./node_modules/webpack-dev-server/bin/webpack-dev-server.js --config ./webpack.app.config.js --mode production --content-base ./dist\"",
     "electron": "electron .",
     "electron-debug": "G:/electron-debug/Release/electron.exe ./dist/main/main.js",
     "electron-debug2": "G:/electron-gn/src/out/Release/electron.exe ./dist/main/main.js",

@@ -113,9 +113,9 @@ module.exports = [{
         to: './renderer/'
       }
     ]),
-    new ForkTsCheckerWebpackPlugin({
-      tsconfig: path.resolve(__dirname, './app/tsconfig.json')
-    })
+    // new ForkTsCheckerWebpackPlugin({
+    //   tsconfig: path.resolve(__dirname, './app/tsconfig.json')
+    // })
   ]
 },
 

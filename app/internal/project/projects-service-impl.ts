@@ -1,11 +1,11 @@
-import { IProject, Project } from "internal/project/project";
+import { IProject, Project, SerializedProject } from "internal/project/project";
 import { Event, Emitter } from "base/common/event";
-import { IProjectService } from "internal/project/project-service";
+import { IProjectsService } from "internal/project/projects-service";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import uuid from "uuid";
 import { ref } from "worker-postable";
 
-export class ProjectService implements IProjectService {
+export class ProjectsService implements IProjectsService {
 
   _serviceBrand: any;
 
@@ -34,11 +34,13 @@ export class ProjectService implements IProjectService {
   }
 
   createProject(): IProject {
-    const project = new Project(uuid());
-    ref(project);
-    console.log('create project', project);
+    const project = new Project(uuid(), this.internalService_);
     this.doAddProject(project);
     return project;
+  }
+
+  addProject(project: IProject): void {
+    this.doAddProject(project);
   }
 
   getProject(id: string): IProject | null {
@@ -47,8 +49,13 @@ export class ProjectService implements IProjectService {
   }
 
   private doAddProject(project: IProject) {
+    ref(project);
     this.projects.set(project.id, project);
     this.onProjectAdded_.fire(project);
+  }
+
+  deserialize(instantiationService: IInstantiationService, serial: SerializedProject): Project | null {
+    return Project.deserialize(instantiationService, serial);
   }
 
 }

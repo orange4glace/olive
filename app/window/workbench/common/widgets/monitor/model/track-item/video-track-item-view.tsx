@@ -6,7 +6,8 @@ import { MonitorWidgetSelectableView } from "window/workbench/common/widgets/mon
 import { ITimeline } from "internal/timeline/timeline";
 import { observer } from 'window/app-mobx';
 import { Registry } from 'platform/registry/common/platform';
-import { TrackItemType } from 'internal/timeline/track-item/track-item-type';
+import { VideoMediaTrackItemImpl } from 'internal/timeline/track-item/video-media-track-item';
+import { VideoFigureTrackItemImpl } from 'internal/timeline/track-item/video-figure-track-item';
 
 export interface IMonitorWidgetVideoTrackItemView
     extends IMonitorWidgetTrackItemView<VideoTrackItem> {
@@ -52,5 +53,5 @@ export class MonitorWidgetVideoTrackItemViewComponent extends
 
 }
 
-Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(TrackItemType.VIDEO_MEDIA, MonitorWidgetVideoTrackItemView)
-Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(TrackItemType.VIDEO_FIGURE, MonitorWidgetVideoTrackItemView)
+Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(VideoMediaTrackItemImpl.TYPE, MonitorWidgetVideoTrackItemView)
+Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(VideoFigureTrackItemImpl.TYPE, MonitorWidgetVideoTrackItemView)

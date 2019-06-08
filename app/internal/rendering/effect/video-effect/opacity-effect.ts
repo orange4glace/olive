@@ -21,4 +21,8 @@ export class OpacityEffect extends VideoEffect {
     obj.opacity = clone(this.opacity);
     return obj;
   }
+
+  serialize(): any {
+    throw new Error('Not implemeneted');
+  }
 }

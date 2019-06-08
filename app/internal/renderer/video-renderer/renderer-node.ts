@@ -20,7 +20,7 @@ export class VideoRendererNode extends Disposable {
     this.targetTimelineChangedHandler();
     this._register(globalTimelineService_.onTargetTimelineChanged(this.targetTimelineChangedHandler, this));
     // this.currentProjectChangedHandler();
-    // this._register(projectService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
+    // this._register(projectsService_.onCurrentProjectChanged(this.currentProjectChangedHandler, this));
     this.worker = new VideoRendererWorker();
   }
 
@@ -36,7 +36,7 @@ export class VideoRendererNode extends Disposable {
 
   // private currentProjectChangedHandler() {
   //   this.projectDisposables_ = dispose(this.projectDisposables_);
-  //   this.targetProject_ = this.projectService_.getCurrentProject();
+  //   this.targetProject_ = this.projectsService_.getCurrentProject();
   //   if (this.targetProject_ == null) return;
   //   this.targetTimelineChangedHandler();
   //   this.targetProject_.timelineService.onTargetTimelineChanged(this.targetTimelineChangedHandler, this, this.projectDisposables_);

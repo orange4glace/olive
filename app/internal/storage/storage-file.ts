@@ -1,25 +1,19 @@
-import { IStorageItem, StorageItem, StorageItemSerial } from "internal/storage/storage-item";
-import { observable } from "mobx";
+import { IStorageItem, StorageItem, SerializedStorageItem } from "internal/storage/storage-item";
 import { ITrackItem } from "internal/timeline/track-item/track-item";
 
 export interface IStorageFile extends IStorageItem {
 
 }
 
-export interface StorageFileSerial extends StorageItemSerial {
+export interface SerializedStorageFile extends SerializedStorageItem {
 }
 
 export abstract class StorageFile extends StorageItem implements IStorageFile {
 
-  @observable private name_: string;
-  get name() { return this.name_; }
-
-  abstract get type(): string;
   readonly isDirectory = false;
 
-  constructor(name: string) {
-    super();
-    this.name_ = name;
+  constructor(type: string, name: string, uuid?: string) {
+    super(type, name, uuid);
   }
 
   abstract trackItemize(): ITrackItem;
