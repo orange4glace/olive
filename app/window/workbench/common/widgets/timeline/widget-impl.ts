@@ -1,12 +1,10 @@
 import * as React from 'react'
 
-import { ITimeline, TimelineIdentifier } from "internal/timeline/timeline";
 import { TimelineWidgetTimelineViewModelImpl } from 'window/workbench/common/widgets/timeline/model/timeline-view-model-impl';
 import { ITimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service';
 import { Event, Emitter } from 'base/common/event';
 import { IDisposable, dispose } from 'base/common/lifecycle';
 import TimelineWidgetView, { TimelineWidgetViewProps } from 'window/workbench/common/widgets/timeline/widget-view';
-import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from 'window/workbench/common/widgets/timeline/event';
 import { ITimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
 import { TimelineWidgetViewOutgoingEvents } from 'window/workbench/common/widgets/timeline/view-outgoing-events';
@@ -28,8 +26,10 @@ import { IWidgetService } from 'window/workbench/services/editor/common/widget-s
 import { Registry } from 'platform/registry/common/platform';
 import { IWorkbenchActionRegistry, Extensions } from 'window/workbench/common/actions';
 import { SyncActionDescriptor, MenuRegistry, MenuId } from 'platform/actions/common/actions';
-import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
 import { IWidgetFactory, WidgetFactoryRegistry } from 'window/workbench/common/editor/widget-registry';
+import { TimelineIdentifier, ITimeline } from 'internal/timeline/base/timeline';
+import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
 
 interface ISerializedTimelineWidget extends ISerializedWidget {
   projectID: string;
@@ -151,7 +151,7 @@ export class TimelineWidget extends Widget implements ITimelineWidget {
     outgoingEvents.onTimelineMouseDown = e => this.onTimelineMouseDown_.fire(e);
   }
 
-  getFocusedTrackItems(): ReadonlySet<TrackItem> {
+  getFocusedTrackItems(): ReadonlySet<ITrackItem> {
     return this.model.getFocusedTrackItems();
   }
 

@@ -1,17 +1,17 @@
 import { Event } from "base/common/event";
-import { Timeline, ITimeline } from "internal/timeline/timeline";
-import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from "window/workbench/common/widgets/timeline/event";
 import { TimelineWidgetViewOutgoingEvents } from "window/workbench/common/widgets/timeline/view-outgoing-events";
 import { TimelineWidgetTimelineViewModel } from "window/workbench/common/widgets/timeline/model/timeline-view-model";
 import { ITimelineWidgetRangeSelector } from "window/workbench/common/widgets/timeline/model/range-selector";
 import { IProject } from "internal/project/project";
 import { Widget, IWidget } from "window/workbench/common/editor/widget";
+import { ITimeline } from "internal/timeline/base/timeline";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 export interface ITimelineWidget extends IWidget {
 
   readonly project: IProject;
-  readonly timeline: Timeline;
+  readonly timeline: ITimeline;
 
   // UI Event
   readonly onWidgetDragOver: Event<React.DragEvent>;
@@ -38,7 +38,7 @@ export interface ITimelineWidget extends IWidget {
 
   registerViewOutgoingEvents(outingEvents: TimelineWidgetViewOutgoingEvents): void;
 
-  getFocusedTrackItems(): ReadonlySet<TrackItem>;
+  getFocusedTrackItems(): ReadonlySet<ITrackItem>;
 
   focus(): void;
   blur(): void;

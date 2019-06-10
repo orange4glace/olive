@@ -1,12 +1,12 @@
 import { IHistoryCommand } from "internal/history/command";
-import { TrackItem } from "internal/timeline/track-item/track-item";
-import { Track } from "internal/timeline/track/track";
+import { ITrack } from "internal/timeline/base/track/track";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 export class AddTrackItemCommand implements IHistoryCommand {
 
   constructor(
-    private readonly track: Track,
-    private readonly trackItem: TrackItem,
+    private readonly track: ITrack,
+    private readonly trackItem: ITrackItem,
     private readonly startTime: number,
     private readonly endTime: number,
     private readonly baseTime: number) {
@@ -34,8 +34,8 @@ export class ChangeTrackItemTimeCommand implements IHistoryCommand {
   private lastBaseTime: number;
 
   constructor(
-    private readonly track: Track,
-    private readonly trackItem: TrackItem,
+    private readonly track: ITrack,
+    private readonly trackItem: ITrackItem,
     private readonly startTime: number,
     private readonly endTime: number,
     private readonly baseTime: number) {
@@ -61,8 +61,8 @@ export class ChangeTrackItemTimeCommand implements IHistoryCommand {
 export class RemoveTrackItemCommand implements IHistoryCommand {
 
   constructor(
-    private readonly track: Track,
-    private readonly trackItem: TrackItem) {
+    private readonly track: ITrack,
+    private readonly trackItem: ITrackItem) {
 
   }
 

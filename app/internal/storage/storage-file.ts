@@ -1,5 +1,5 @@
 import { IStorageItem, StorageItem, SerializedStorageItem } from "internal/storage/storage-item";
-import { ITrackItem } from "internal/timeline/track-item/track-item";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 export interface IStorageFile extends IStorageItem {
 

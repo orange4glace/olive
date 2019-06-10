@@ -1,13 +1,13 @@
 import * as React from 'react'
-import { Drawing } from "internal/rendering/drawing/drawing";
-import { ITimeline } from "internal/timeline/timeline";
-import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { observable, observer } from "window/app-mobx";
 import { Event, Emitter } from "base/common/event";
 import { IMonitorWidgetSelectableView, MonitorWidgetSelectableView, MonitorWidgetSelectableViewEvent } from "window/workbench/common/widgets/monitor/model/selectable-view";
 import { ViewSelectorRegistry } from 'window/workbench/common/widgets/common/selector-registry';
 import { IConstructorSignature4 } from 'platform/instantiation/common/instantiation';
 import { Registry } from 'platform/registry/common/platform';
+import { Drawing } from 'internal/rendering/drawing/base/drawing';
+import { ITimeline } from 'internal/timeline/base/timeline';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
 
 export interface IMonitorWidgetDrawingView<T extends Drawing>
     extends IMonitorWidgetSelectableView {

@@ -1,14 +1,14 @@
 import * as React from 'react'
 import { MonitorWidgetSelectableView } from "window/workbench/common/widgets/monitor/model/selectable-view";
-import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { observable, observer } from "window/app-mobx";
-import { ITimeline } from "internal/timeline/timeline";
-import { ITrack } from "internal/timeline/track/track";
-import { VideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { dispose } from "base/common/lifecycle";
 import { mat2d } from "gl-matrix";
 import { IMonitorWidgetTrackItemView, MonitorWidgetTrackItemView, TrackItemViewSelectorRegistry } from "window/workbench/common/widgets/monitor/model/track-item/track-item-view";
 import { Registry } from "platform/registry/common/platform";
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
+import { ITimeline } from 'internal/timeline/base/timeline';
+import { ITrack } from 'internal/timeline/base/track/track';
+import { VideoTrackItem } from 'internal/timeline/base/track-item/video-track-item';
 
 
 export interface IMonitorWidgetTrackView extends MonitorWidgetSelectableView {

@@ -2,8 +2,8 @@ import { ITimelineWidgetService } from "window/workbench/common/widgets/timeline
 import { Emitter, Event } from "base/common/event";
 import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { IDisposable, dispose } from "base/common/lifecycle";
-import { IGlobalTimelineService } from "internal/timeline/global-timeline-service";
 import { registerSingleton } from "platform/instantiation/common/extensions";
+import { IGlobalTimelineService } from "internal/timeline/base/global-timeline-service";
 
 export class TimelineWidgetService implements ITimelineWidgetService {
 

@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { IMonitorWidgetSelectableView, MonitorWidgetSelectableView } from "window/workbench/common/widgets/monitor/model/selectable-view";
-import { ITimeline } from "internal/timeline/timeline";
 import { mat2d } from "gl-matrix";
 import { MonitorWidgetViewProps } from "window/workbench/common/widgets/monitor/widget";
 import { ViewSelectorRegistry } from 'window/workbench/common/widgets/common/selector-registry';
 import { Registry } from 'platform/registry/common/platform';
 import { IConstructorSignature3 } from 'platform/instantiation/common/instantiation';
+import { ITimeline } from 'internal/timeline/base/timeline';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
 
 export interface IMonitorWidgetTrackItemView<T extends ITrackItem> 
     extends IMonitorWidgetSelectableView {

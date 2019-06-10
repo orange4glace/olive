@@ -1,0 +1,20 @@
+import { Posted } from "worker-postable";
+import { KeyframeValueBase } from "internal/rendering/property/common/keyframe-value";
+import { KeyframeBase } from "internal/rendering/property/common/keyframe";
+import { PropertyBase } from "internal/rendering/property/common/property";
+import { ScalarPropertyBase, ScalarKeyframeValueBase } from "internal/rendering/property/common/scalar-property";
+import { Vector2KeyframeValueBase, Vector2PropertyBase } from "internal/rendering/property/common/vector2-property";
+import { Vector4KeyframeValueBase, Vector4PropertyBase } from "internal/rendering/property/common/vector4-property";
+import { PolypathKeyframeValueBase, PolypathPropertyBase } from "internal/rendering/property/common/polypath-property";
+
+Posted(KeyframeValueBase);
+Posted(KeyframeBase);
+Posted(PropertyBase);
+Posted(ScalarKeyframeValueBase);
+Posted(ScalarPropertyBase);
+Posted(Vector2KeyframeValueBase);
+Posted(Vector2PropertyBase);
+Posted(Vector4KeyframeValueBase);
+Posted(Vector4PropertyBase);
+Posted(PolypathKeyframeValueBase);
+Posted(PolypathPropertyBase);

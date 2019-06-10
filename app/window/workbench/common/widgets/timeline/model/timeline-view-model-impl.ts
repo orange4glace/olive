@@ -1,17 +1,17 @@
 import { TimelineWidgetTrackViewModel, TimelineWidgetTrackViewModelImpl } from "window/workbench/common/widgets/timeline/model/track-view-model";
 import { ViewModelImpl } from "window/view/view-model";
-import { Timeline } from "internal/timeline/timeline";
 import { observable } from "window/app-mobx";
 import { IDisposable, dispose } from "base/common/lifecycle";
-import { Track } from "internal/timeline/track/track";
 import { TimelineWidgetScrollViewModel, TimelineWidgetScrollViewModelImpl } from "window/workbench/common/widgets/timeline/model/scroll-view-model";
 import { MouseUtil } from "orangeutil";
 import { TimelineWidgetGhostViewModel } from "window/workbench/common/widgets/timeline/model/ghost-view-model";
 import { TimelineWidgetGhostViewModelImpl } from "window/workbench/common/widgets/timeline/model/ghost-view-model-impl";
-import { TrackItem } from "internal/timeline/track-item/track-item";
 import { Event, Emitter } from "base/common/event";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { TimelineWidgetTimelineViewModel, TimelineViewModelTrackItemEvent } from "window/workbench/common/widgets/timeline/model/timeline-view-model";
+import { ITimeline } from "internal/timeline/base/timeline";
+import { ITrack } from "internal/timeline/base/track/track";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 export class TimelineWidgetTimelineViewModelImpl 
     extends ViewModelImpl
@@ -27,12 +27,12 @@ export class TimelineWidgetTimelineViewModelImpl
   readonly ghostViewModel: TimelineWidgetGhostViewModel;
 
   private toDispose_: IDisposable[] = [];
-  private timeline_: Timeline;
+  private timeline_: ITimeline;
 
-  private trackViewModelMap_: Map<Track, TimelineWidgetTrackViewModel>;
+  private trackViewModelMap_: Map<ITrack, TimelineWidgetTrackViewModel>;
   private trackViewModelDisposables_: Map<TimelineWidgetTrackViewModel, IDisposable[]>;
 
-  constructor(readonly timeline: Timeline) {
+  constructor(readonly timeline: ITimeline) {
     super();
     this.timeline_ = timeline;
     
@@ -48,7 +48,7 @@ export class TimelineWidgetTimelineViewModelImpl
     this.toDispose_.push(timeline.onTrackAdded(e => this.trackWillRemoveHandler(e.track, e.index), this));
   }
 
-  private trackAddedHandler(track: Track, index: number) {
+  private trackAddedHandler(track: ITrack, index: number) {
     const vm = new TimelineWidgetTrackViewModelImpl(track);
     this.trackViewModelMap_.set(track, vm);
     this.trackViewModels.splice(index, 0, vm);
@@ -64,7 +64,7 @@ export class TimelineWidgetTimelineViewModelImpl
     this.trackViewModelDisposables_.set(vm, disposables);
   }
 
-  private trackWillRemoveHandler(track: Track, index: number) {
+  private trackWillRemoveHandler(track: ITrack, index: number) {
     const vm = this.trackViewModelMap_.get(track);
     this.trackViewModelMap_.delete(track);
     this.trackViewModels.splice(index, 1);
@@ -86,8 +86,8 @@ export class TimelineWidgetTimelineViewModelImpl
     return index;
   }
 
-  getFocusedTrackItems(): ReadonlySet<TrackItem> {
-    let result: Set<TrackItem> = new Set();
+  getFocusedTrackItems(): ReadonlySet<ITrackItem> {
+    let result: Set<ITrackItem> = new Set();
     this.trackViewModels.forEach(trackVM => {
       trackVM.trackItemViewModels.forEach(trackItemVM => {
         if (trackItemVM.focused) result.add(trackItemVM.trackItem);

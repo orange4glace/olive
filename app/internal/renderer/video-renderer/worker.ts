@@ -1,7 +1,4 @@
-import { ConstructorStore, postableMessageHandler, ObjectStore } from 'worker-postable'
-import { EventEmitter2 } from 'eventemitter2'
-
-import NVG from '../../../../nanovg-webgl';
+import { ConstructorStore, ObjectStore } from 'worker-postable'
 import { renderer } from './renderer';
 
 console.log('render running')

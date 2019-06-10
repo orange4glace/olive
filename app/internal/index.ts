@@ -16,19 +16,18 @@ import {
   WindowRequestWrapResult,
   AppParam } from 'connector'
 import { VideoRendererNode } from 'internal/renderer/video-renderer/renderer-node';
-import { AudioRendererNode } from 'internal/renderer/audio-renderer/renderer-node';
-import { Project } from 'internal/project/project';
-import { createAudioRendererOption, createAudioRendererBuffers } from 'internal/renderer/audio-renderer/common';
+// import { AudioRendererNode } from 'internal/renderer/audio-renderer/renderer-node';
+// import { createAudioRendererOption, createAudioRendererBuffers } from 'internal/renderer/audio-renderer/common';
 import { ServiceCollection } from 'platform/instantiation/common/serviceCollection';
 import { IHistoryService, HistoryService } from 'internal/history/history';
 import { InstantiationService } from 'platform/instantiation/common/instantiationService';
 import { ProjectsService } from 'internal/project/projects-service-impl';
 import { IProjectsService } from 'internal/project/projects-service';
-import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
-import { GlobalTimelineService } from 'internal/timeline/global-timeline-service-impl';
 import { IAppWindowService } from 'internal/app-window/app-window-service';
 import { MainAppWindowStarter } from 'window/main-app-window-starter';
 import { AppWindowService } from 'internal/app-window/app-window-service-impl';
+import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
+import { GlobalTimelineService } from 'internal/timeline/base/global-timeline-service-impl';
 
 if ((module as any).hot) (module as any).hot.accept();
 
@@ -56,16 +55,16 @@ async function initializeApp(): Promise<void> {
 
   const videoRendererNode = new VideoRendererNode(globalTimelineService);
 
-  const audioRendererOption = createAudioRendererOption({
-    frequency: 48000,
-    maxSlot: 8,
-    kernelsPerSlot: 8
-  });
-  const audioRendererNode = new AudioRendererNode(globalTimelineService);
+  // const audioRendererOption = createAudioRendererOption({
+  //   frequency: 48000,
+  //   maxSlot: 8,
+  //   kernelsPerSlot: 8
+  // });
+  // const audioRendererNode = new AudioRendererNode(globalTimelineService);
 
   PostableContext.onMessage = msg => {
     videoRendererNode.sendPostableMessage(msg);
-    audioRendererNode.sendPostableMessage(msg);
+    // audioRendererNode.sendPostableMessage(msg);
   }
 
   const project = projectsService.createProject();
@@ -94,11 +93,11 @@ async function initializeApp(): Promise<void> {
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
-  videoRendererNode.initialize(offscreen);
-  audioRendererNode.initialize({
-    option: audioRendererOption,
-    buffers: createAudioRendererBuffers(audioRendererOption)
-  });
+  // videoRendererNode.initialize(offscreen);
+  // audioRendererNode.initialize({
+  //   option: audioRendererOption,
+  //   buffers: createAudioRendererBuffers(audioRendererOption)
+  // });
 
 
   const mainAppWindow = await appWindowService.createAppWindow(

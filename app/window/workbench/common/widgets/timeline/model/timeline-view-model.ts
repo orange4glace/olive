@@ -3,10 +3,10 @@ import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/ti
 import { ViewModel } from "window/view/view-model";
 import { TimelineWidgetScrollViewModel } from "window/workbench/common/widgets/timeline/model/scroll-view-model";
 import { TimelineWidgetGhostViewModel } from "window/workbench/common/widgets/timeline/model/ghost-view-model";
-import { TrackItem } from "internal/timeline/track-item/track-item";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { Event } from "base/common/event";
-import { Timeline } from "internal/timeline/timeline";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
+import { ITimeline } from "internal/timeline/base/timeline";
 
 export interface TimelineViewModelTrackItemEvent {
   trackViewModel: TimelineWidgetTrackViewModel;
@@ -15,7 +15,7 @@ export interface TimelineViewModelTrackItemEvent {
 
 export interface TimelineWidgetTimelineViewModel extends ViewModel {
 
-  readonly timeline: Timeline;
+  readonly timeline: ITimeline;
 
   onTrackItemFocused: Event<TimelineViewModelTrackItemEvent>;
   onTrackItemBlured: Event<TimelineViewModelTrackItemEvent>;
@@ -29,7 +29,7 @@ export interface TimelineWidgetTimelineViewModel extends ViewModel {
 
   getTrackViewModelIndex(vm: TimelineWidgetTrackViewModel): number;
 
-  getFocusedTrackItems(): ReadonlySet<TrackItem>;
+  getFocusedTrackItems(): ReadonlySet<ITrackItem>;
   blurAllTrackItems(): void;
   
   getClosestTime(time: number): number;

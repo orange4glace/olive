@@ -2,10 +2,10 @@ import { IStorageItem, StorageItem, SerializedStorageItem, IStorageItemFactory, 
 import { observable } from "mobx";
 import { assert } from "base/olive/assert";
 import { Event, Emitter } from "base/common/event";
-import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import { ILogService } from "platform/log/common/log";
 import { Registry } from "platform/registry/common/platform";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 export interface SerializedStorageDirectory extends SerializedStorageItem {
   items: SerializedStorageItem[];

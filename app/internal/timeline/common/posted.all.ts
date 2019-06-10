@@ -1,0 +1,22 @@
+import { Posted } from "worker-postable";
+import { FrameRateBase } from "internal/timeline/common/frame-rate";
+import { VideoSettingBase } from "internal/timeline/common/video-setting";
+import { AudioSettingBase } from "internal/timeline/common/audio-setting";
+import { TrackItemBase } from "internal/timeline/common/track-item/track-item";
+import { VideoTrackItemBase } from "internal/timeline/common/track-item/video-track-item";
+import { VideoMediaTrackItemBase } from "internal/timeline/common/track-item/video-media-track-item";
+import { TrackItemTimeBase } from "internal/timeline/common/track-item/track-item-time";
+import { AudioTrackItemBase } from "internal/timeline/common/track-item/audio-track-item";
+import { TrackBase } from "internal/timeline/common/track/track";
+import { TimelineBase } from "internal/timeline/common/timeline";
+
+Posted(FrameRateBase);
+Posted(VideoSettingBase);
+Posted(AudioSettingBase);
+Posted(TrackItemTimeBase);
+Posted(TrackItemBase);
+Posted(VideoTrackItemBase);
+Posted(VideoMediaTrackItemBase);
+Posted(AudioTrackItemBase);
+Posted(TrackBase);
+Posted(TimelineBase);

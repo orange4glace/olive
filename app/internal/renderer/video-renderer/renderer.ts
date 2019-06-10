@@ -1,16 +1,11 @@
-import { forceImport as baseForceImport, TimelineRenderer, ProjectRenderer } from 'internal/renderer/base/all'
-import { forceImport as videoRendererForceImport } from 'internal/renderer/video-renderer/all'
+import './posted.all'
 
-import { Poster, ReceivedRequest } from 'poster'
 import { ObjectStore, postableMessageHandler } from 'worker-postable';
 import IDecoder from 'internal/decoder/decoder';
 import { VideoRendererMessageEventType, VideoRendererRenderMessageEvent } from 'internal/renderer/video-renderer/message';
-import { TimelineVideoRenderer } from 'internal/renderer/video-renderer/timeline/timeline';
 import { getCurrentSystemTime } from 'base/olive/time';
-import { assert } from 'base/olive/assert';
 
-baseForceImport();
-videoRendererForceImport();
+console.log(ObjectStore);
 
 function initializeDecoderModule() {
   // const basepath = electron.remote.app.getAppPath();
@@ -24,7 +19,8 @@ function initializeDecoderModule() {
 }
 
 interface RenderRequest {
-  timeline: TimelineVideoRenderer;
+  // timeline: TimelineVideoRenderer;
+  timeline: any;
   time: number;
   systemTime: number;
 }
@@ -63,91 +59,85 @@ export class Renderer {
       case 'INIT':
         this.initNanovg(msg.data.canvas);
         break;
-      case VideoRendererMessageEventType.PLAY_RENDER:
-        this.onPlayRender(msg);
-        break;
-      case VideoRendererMessageEventType.PAUSE_RENDER:
-        this.onPauseRender(msg);
-        break;
-      case VideoRendererMessageEventType.RENDER:
-        this.onRender(msg);
-        break;
+      // case VideoRendererMessageEventType.PLAY_RENDER:
+      //   this.onPlayRender(msg);
+      //   break;
+      // case VideoRendererMessageEventType.PAUSE_RENDER:
+      //   this.onPauseRender(msg);
+      //   break;
+      // case VideoRendererMessageEventType.RENDER:
+      //   this.onRender(msg);
+      //   break;
     }
   }
 
   private handlePostableMessage(msg: any) {
     postableMessageHandler(msg.data);
-    // const targetTimelineID = msg.timelineID;
-    // if (targetTimelineID != -1) {
-    //   const timeline = ObjectStore.get(targetTimelineID) as TimelineVideoRenderer;
-    //   if (!(timeline instanceof TimelineVideoRenderer)) throw new Error('Instance is not a Timeline');
-    //   this.seekTimeline(timeline, timeline.currentTimePausing);
-    // }
   }
 
-  private onPlayRender(e: VideoRendererRenderMessageEvent) {
-    const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;
-    this.startTimelineRenderCallback(timeline, e.currentTime, e.systemTime);
-  }
+  // private onPlayRender(e: VideoRendererRenderMessageEvent) {
+  //   const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;
+  //   this.startTimelineRenderCallback(timeline, e.currentTime, e.systemTime);
+  // }
 
-  private onPauseRender(e: VideoRendererRenderMessageEvent) {
-    this.stopTimelineRender(()=>{
-      this.onRender(e);
-    });
-  }
+  // private onPauseRender(e: VideoRendererRenderMessageEvent) {
+  //   this.stopTimelineRender(()=>{
+  //     this.onRender(e);
+  //   });
+  // }
 
-  private onRender(e: VideoRendererRenderMessageEvent) {
-    const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;;
-    this.seekTimeline(timeline, e.currentTime); 
-  }
+  // private onRender(e: VideoRendererRenderMessageEvent) {
+  //   const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;;
+  //   this.seekTimeline(timeline, e.currentTime); 
+  // }
 
-  private startTimelineRenderCallback(timeline: TimelineVideoRenderer, time: number, startSystemTime: number) {
-    this.playing_ = true;
-    this.dirty_ = false;
-    this.playingRequest_ = {
-      timeline: timeline,
-      time: time,
-      systemTime: startSystemTime
-    };
-  }
+  // private startTimelineRenderCallback(timeline: TimelineVideoRenderer, time: number, startSystemTime: number) {
+  //   this.playing_ = true;
+  //   this.dirty_ = false;
+  //   this.playingRequest_ = {
+  //     timeline: timeline,
+  //     time: time,
+  //     systemTime: startSystemTime
+  //   };
+  // }
 
-  private async seekTimeline(timeline: TimelineVideoRenderer, time: number) {
-    this.dirty_ = true;
-    this.renderReqest_ = {
-      timeline: timeline,
-      time: time,
-      systemTime: 0
-    }
-  }
+  // private async seekTimeline(timeline: TimelineVideoRenderer, time: number) {
+  //   this.dirty_ = true;
+  //   this.renderReqest_ = {
+  //     timeline: timeline,
+  //     time: time,
+  //     systemTime: 0
+  //   }
+  // }
 
-  private stopTimelineRender(onStopCallback: () => void) {
-    this.playing_ = false;
-  }
+  // private stopTimelineRender(onStopCallback: () => void) {
+  //   this.playing_ = false;
+  // }
 
-  private async playingCallback_() {
-    const elapsedSystemTime = getCurrentSystemTime() - this.playingRequest_.systemTime;
-    const elapsedTime = this.playingRequest_.timeline.videoSetting.frameRate.systemTimeToTime(elapsedSystemTime);
-    const currentTime = this.playingRequest_.time + elapsedTime;
-    await this.renderTimeline(this.playingRequest_.timeline, currentTime);
-  }
+  // private async playingCallback_() {
+  //   const elapsedSystemTime = getCurrentSystemTime() - this.playingRequest_.systemTime;
+  //   const elapsedTime = this.playingRequest_.timeline.videoSetting.frameRate.systemTimeToTime(elapsedSystemTime);
+  //   const currentTime = this.playingRequest_.time + elapsedTime;
+  //   await this.renderTimeline(this.playingRequest_.timeline, currentTime);
+  // }
 
-  private async dirtyCallback_() {
-    const currentTime = this.renderReqest_.time;
-    await this.renderTimeline(this.renderReqest_.timeline, currentTime);
-    this.dirty_ = false;
-  }
+  // private async dirtyCallback_() {
+  //   const currentTime = this.renderReqest_.time;
+  //   await this.renderTimeline(this.renderReqest_.timeline, currentTime);
+  //   this.dirty_ = false;
+  // }
 
-  private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {
-    console.log(timeline);
-    timeline.decode(time);
-    await timeline.render(time, this.vg);
-  }
+  // private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {
+  //   console.log(timeline);
+  //   timeline.decode(time);
+  //   await timeline.render(time, this.vg);
+  // }
 
   private async loop_() {
-    if (this.playing_)
-      await this.playingCallback_();
-    else if (this.dirty_)
-      await this.dirtyCallback_();
+    // if (this.playing_)
+    //   await this.playingCallback_();
+    // else if (this.dirty_)
+    //   await this.dirtyCallback_();
     requestAnimationFrame(this.loop_);
   }
 

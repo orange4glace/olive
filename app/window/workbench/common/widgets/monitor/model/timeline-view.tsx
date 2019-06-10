@@ -1,16 +1,16 @@
 import * as React from 'react'
-import { Timeline } from "internal/timeline/timeline";
-import { Track } from "internal/timeline/track/track";
 import { IDisposable, dispose } from "base/common/lifecycle";
 import { observable, action, observer } from "window/app-mobx";
 import { mat2d } from "gl-matrix";
 import { IMonitorWidgetTrackView, MonitorWidgetTrackView } from "window/workbench/common/widgets/monitor/model/track-view";
 import { MonitorWidgetSelectableView, IMonitorWidgetSelectableView } from "window/workbench/common/widgets/monitor/model/selectable-view";
 import { MouseUtil } from 'orangeutil';
+import { ITrack } from 'internal/timeline/base/track/track';
+import { ITimeline } from 'internal/timeline/base/timeline';
 
 export interface IMonitorWidgetTimelineView extends IMonitorWidgetSelectableView {
 
-  readonly timeline: Timeline;
+  readonly timeline: ITimeline;
 
   /*@observable*/ readonly width: number;
   /*@observable*/ readonly height: number;
@@ -29,7 +29,7 @@ export class MonitorWidgetTimelineView extends MonitorWidgetSelectableView
     implements IMonitorWidgetTimelineView {
 
   @observable trackViews: MonitorWidgetTrackView[];
-  private trackViewMap_: Map<Track, MonitorWidgetTrackView>;
+  private trackViewMap_: Map<ITrack, MonitorWidgetTrackView>;
   private trackDisposables_: Map<MonitorWidgetTrackView, IDisposable[]>;
 
   @observable width: number;
@@ -37,10 +37,10 @@ export class MonitorWidgetTimelineView extends MonitorWidgetSelectableView
   @observable screenWidth: number;
   @observable screenHeight: number;
 
-  private timeline_: Timeline;
+  private timeline_: ITimeline;
 
 
-  constructor(public readonly timeline: Timeline) {
+  constructor(public readonly timeline: ITimeline) {
     super(null);
     this.timeline_ = timeline;
     this.trackViews = [];
@@ -53,14 +53,14 @@ export class MonitorWidgetTimelineView extends MonitorWidgetSelectableView
   }
 
   @action
-  private trackAddedHandler(track: Track, index: number) {
+  private trackAddedHandler(track: ITrack, index: number) {
     const tvm = new MonitorWidgetTrackView(this, this.timeline_, track);
     this.trackViewMap_.set(track, tvm);
     this.trackViews.splice(index, 0, tvm);
   }
 
   @action
-  private trackWillRemoveHandler(track: Track, index: number) {
+  private trackWillRemoveHandler(track: ITrack, index: number) {
     const tvm = this.trackViewMap_.get(track);
     this.trackViews.splice(index, 1);
     dispose(tvm);

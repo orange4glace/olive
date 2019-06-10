@@ -24,7 +24,7 @@ export class Vector2 implements Vector2Base, Cloneable {
 
 }
 
-@Posted('Vector2')
+@Posted
 export class Vector2Renderer implements Vector2Base {
   x: number;
   y: number;

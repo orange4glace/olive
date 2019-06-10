@@ -1,16 +1,16 @@
 import { TimelineWidgetTrackItemViewModel, TimelineWidgetTrackItemViewModelImpl } from "window/workbench/common/widgets/timeline/model/track-item-view-model";
-import { TrackItem } from "internal/timeline/track-item/track-item";
 import { ViewModel, ViewModelImpl } from "window/view/view-model";
 import { IDisposable, dispose } from "base/common/lifecycle";
-import { Track } from "internal/timeline/track/track";
 import { observable, computed } from "window/app-mobx";
 import { Event, Emitter } from "base/common/event";
-import { ConstTrackItemTime } from "internal/timeline/track-item/track-item-time";
 import { TreeMultiMap, TreeMultiSet } from "tstl";
+import { ITrack } from "internal/timeline/base/track/track";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
+import { ConstTrackItemTime } from "internal/timeline/base/track-item/track-item-time";
 
 export interface TimelineWidgetTrackViewModel extends ViewModel {
 
-  readonly track: Track;
+  readonly track: ITrack;
 
   readonly onTrackItemFocused: Event<TimelineWidgetTrackItemViewModel>;
   readonly onTrackItemBlured: Event<TimelineWidgetTrackItemViewModel>;
@@ -19,7 +19,7 @@ export interface TimelineWidgetTrackViewModel extends ViewModel {
   /*@observable*/ readonly name: string;
   /*@observable*/ readonly trackItemViewModels: ReadonlySet<TimelineWidgetTrackItemViewModel>;
 
-  getTrackItemViewModel(trackItem: TrackItem): TimelineWidgetTrackItemViewModel;
+  getTrackItemViewModel(trackItem: ITrackItem): TimelineWidgetTrackItemViewModel;
   getFocusedTrackItemViewModels(): ReadonlySet<TimelineWidgetTrackItemViewModel>;
   blurAllTrackItems(): void;
 
@@ -32,7 +32,7 @@ export class TimelineWidgetTrackViewModelImpl
     extends ViewModelImpl
     implements TimelineWidgetTrackViewModel{
 
-  readonly track: Track;
+  readonly track: ITrack;
 
   private readonly onTrackItemFocused_: Emitter<TimelineWidgetTrackItemViewModel> = new Emitter();
   readonly onTrackItemFocused: Event<TimelineWidgetTrackItemViewModel> = this.onTrackItemFocused_.event;
@@ -48,7 +48,7 @@ export class TimelineWidgetTrackViewModelImpl
 
   private toDispose_: IDisposable[] = [];
 
-  private trackItemViewModelMap_: Map<TrackItem, TimelineWidgetTrackItemViewModel>;
+  private trackItemViewModelMap_: Map<ITrackItem, TimelineWidgetTrackItemViewModel>;
   private trackItemViewModelDisposables_: Map<TimelineWidgetTrackItemViewModel, IDisposable[]>;
 
   private focusedTrackItemModelViews_: Set<TimelineWidgetTrackItemViewModel>;
@@ -56,7 +56,7 @@ export class TimelineWidgetTrackViewModelImpl
   private trackItemStartTimeSet_: TreeMultiSet<number>;
   private trackItemEndTimeSet_: TreeMultiSet<number>;
 
-  constructor(track: Track) {
+  constructor(track: ITrack) {
     super();
     this.track = track;
 
@@ -73,7 +73,7 @@ export class TimelineWidgetTrackViewModelImpl
     this.toDispose_.push(this.track.onTrackItemTimeChanged(e => this.trackItemTimeChangedHandler(e.trackItem, e.old), this));
   }
 
-  private trackItemAddedHandler(trackItem: TrackItem) {
+  private trackItemAddedHandler(trackItem: ITrackItem) {
     const vm = new TimelineWidgetTrackItemViewModelImpl(trackItem);
     this.trackItemViewModels.add(vm);
     this.trackItemViewModelMap_.set(trackItem, vm);
@@ -86,7 +86,7 @@ export class TimelineWidgetTrackViewModelImpl
     this.onTrackItemAdded_.fire(vm);
   }
 
-  private trackItemWillRemoveHandler(trackItem: TrackItem) {
+  private trackItemWillRemoveHandler(trackItem: ITrackItem) {
     const vm = this.trackItemViewModelMap_.get(trackItem);
     vm.blur();
     this.onTrackItemWillRemove_.fire(vm);
@@ -99,7 +99,7 @@ export class TimelineWidgetTrackViewModelImpl
     dispose(vm);
   }
 
-  private trackItemTimeChangedHandler(trackItem: TrackItem, oldTime: ConstTrackItemTime) {
+  private trackItemTimeChangedHandler(trackItem: ITrackItem, oldTime: ConstTrackItemTime) {
     this.trackItemStartTimeSet_.erase(oldTime.start);
     this.trackItemEndTimeSet_.erase(oldTime.end);
     this.trackItemStartTimeSet_.insert(trackItem.time.start);
@@ -116,7 +116,7 @@ export class TimelineWidgetTrackViewModelImpl
     this.onTrackItemBlured_.fire(trackItemVM);
   }
 
-  getTrackItemViewModel(trackItem: TrackItem) {
+  getTrackItemViewModel(trackItem: ITrackItem) {
     return this.trackItemViewModelMap_.get(trackItem);
   }
 

@@ -1,7 +1,7 @@
 import { ViewModelImpl } from "window/view/view-model";
 import { observable, autorun, action } from "window/app-mobx";
-import { Timeline } from "internal/timeline/timeline";
 import { IReactionDisposer } from "mobx";
+import { ITimeline } from "internal/timeline/base/timeline";
 
 export abstract class TimelineWidgetScrollViewModel extends ViewModelImpl {
   abstract get element(): HTMLDivElement;
@@ -28,7 +28,7 @@ export class TimelineWidgetScrollViewModelImpl extends TimelineWidgetScrollViewM
   @observable private scrollStart_: number;
   @observable private scrollEnd_: number;
 
-  private timeline_: Timeline;
+  private timeline_: ITimeline;
   private autorunDisposer: IReactionDisposer;
 
   get element(): HTMLDivElement { return this.element_; }
@@ -39,7 +39,7 @@ export class TimelineWidgetScrollViewModelImpl extends TimelineWidgetScrollViewM
   get unitFrameTime() { return this.unitFrameTime_; }
   get unitWidth() { return this.unitWidth_; }
 
-  constructor(timeline: Timeline) {
+  constructor(timeline: ITimeline) {
     super();
     this.timeline_ = timeline;
 

@@ -1,9 +1,9 @@
 import VideoRendererWorker from 'worker-loader!./worker';
 import { getPostableID } from 'worker-postable';
-import { ITimeline } from 'internal/timeline/timeline';
 import { VideoRendererRenderMessageEvent, VideoRendererMessageEventType } from 'internal/renderer/video-renderer/message';
 import { IDisposable, dispose, Disposable } from 'base/common/lifecycle';
-import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
+import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
+import { ITimeline } from 'internal/timeline/base/timeline';
 
 export class VideoRendererNode extends Disposable {
   

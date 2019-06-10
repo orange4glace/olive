@@ -3,10 +3,10 @@ import { IDisposable, dispose, Disposable } from "base/common/lifecycle";
 import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { TimelineWidgetGhostContainerViewModel } from 'window/workbench/common/widgets/timeline/model/ghost-view-model';
 import { ITimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
-import { TrackItem } from 'internal/timeline/track-item/track-item';
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/timeline/model/track-view-model";
 import { TimelineWidgetTrackItemViewModel } from "window/workbench/common/widgets/timeline/model/track-item-view-model";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 class ManipulationState implements IDisposable {
   dtSum: number;
@@ -192,10 +192,10 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
 
   private endMove_(state: ManipulationState) {
     const ghostContainer = this.ghostContainer_;
-    let trackTrackItems: Array<Array<TrackItem>> = [];
+    let trackTrackItems: Array<Array<ITrackItem>> = [];
 
     for (let i = 0; i < this.widget_.model.trackViewModels.length; i ++) {
-      let trackItems: Array<TrackItem> = [];
+      let trackItems: Array<ITrackItem> = [];
       trackTrackItems.push(trackItems);
       const trackVM = this.widget_.model.trackViewModels[i];
       const track = trackVM.track;

@@ -1,6 +1,5 @@
 import { ViewModelImpl } from "window/view/view-model";
 import { observable, autorun, action } from "window/app-mobx";
-import { Timeline } from "internal/timeline/timeline";
 import { IReactionDisposer } from "mobx";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { MouseUtil } from "orangeutil";

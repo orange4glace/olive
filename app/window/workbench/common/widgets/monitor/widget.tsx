@@ -1,11 +1,9 @@
 import * as style from './widget.scss'
 import * as React from 'react'
 import { Widget, IWidget, ISerializedWidget } from 'window/workbench/common/editor/widget';
-import { ITimeline } from 'internal/timeline/timeline';
 import { observable, observer, action } from 'window/app-mobx';
 import { IObservableValue } from 'mobx';
 import { IDisposable, dispose } from 'base/common/lifecycle';
-import { IGlobalTimelineService } from 'internal/timeline/global-timeline-service';
 import { MonitorWidgetTimelineView } from 'window/workbench/common/widgets/monitor/model/timeline-view';
 import { IStorageService } from 'platform/storage/common/storage';
 import app from 'internal/app';
@@ -26,6 +24,8 @@ import './model/drawing/video-media-drawing-view'
 //#region TrackItemView
 import './model/track-item/video-track-item-view'
 import { WidgetFactoryRegistry, IWidgetFactory } from 'window/workbench/common/editor/widget-registry';
+import { ITimeline } from 'internal/timeline/base/timeline';
+import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
 //#endregion
 
 interface ISerializedMonitorWidget extends ISerializedWidget {

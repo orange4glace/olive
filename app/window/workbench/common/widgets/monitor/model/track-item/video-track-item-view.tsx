@@ -1,13 +1,12 @@
 import * as React from 'react'
-import { VideoTrackItem } from "internal/timeline/track-item/video-track-item";
 import { IMonitorWidgetTrackItemView, MonitorWidgetTrackItemView, MonitorWidgetTrackItemViewComponent, TrackItemViewSelectorRegistry } from "window/workbench/common/widgets/monitor/model/track-item/track-item-view";
 import { IMonitorWidgetDrawingView, MonitorWidgetDrawingView, DrawingViewSelectorRegistry } from "window/workbench/common/widgets/monitor/model/drawing/drawing-view";
 import { MonitorWidgetSelectableView } from "window/workbench/common/widgets/monitor/model/selectable-view";
-import { ITimeline } from "internal/timeline/timeline";
 import { observer } from 'window/app-mobx';
 import { Registry } from 'platform/registry/common/platform';
-import { VideoMediaTrackItemImpl } from 'internal/timeline/track-item/video-media-track-item';
-import { VideoFigureTrackItemImpl } from 'internal/timeline/track-item/video-figure-track-item';
+import { VideoTrackItem } from 'internal/timeline/base/track-item/video-track-item';
+import { ITimeline } from 'internal/timeline/base/timeline';
+import { VideoMediaTrackItem } from 'internal/timeline/base/track-item/video-media-track-item';
 
 export interface IMonitorWidgetVideoTrackItemView
     extends IMonitorWidgetTrackItemView<VideoTrackItem> {
@@ -53,5 +52,5 @@ export class MonitorWidgetVideoTrackItemViewComponent extends
 
 }
 
-Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(VideoMediaTrackItemImpl.TYPE, MonitorWidgetVideoTrackItemView)
-Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(VideoFigureTrackItemImpl.TYPE, MonitorWidgetVideoTrackItemView)
+Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(VideoMediaTrackItem.TYPE, MonitorWidgetVideoTrackItemView)
+// Registry.as<TrackItemViewSelectorRegistry>(TrackItemViewSelectorRegistry.ID).registerView(VideoFigureTrackItem.TYPE, MonitorWidgetVideoTrackItemView)

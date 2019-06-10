@@ -1,5 +1,4 @@
 import { StaticDND, IDragAndDropData } from "base/browser/dnd";
-import { TrackItem } from "internal/timeline/track-item/track-item";
 import { TimelineWidgetCoreController } from "window/workbench/common/widgets/timeline/controller/core-controller";
 import { TimelineWidgetGhostContainerViewModel } from "window/workbench/common/widgets/timeline/model/ghost-view-model";
 import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/timeline/model/track-view-model";
@@ -9,15 +8,16 @@ import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";
 import { StorageItemDragAndDropData } from "window/view/dnd/dnd";
-import { ResourceStorageFile, MediaResourceStorageFile } from "internal/resource/resource-storage-file";
-import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
+import { ResourceStorageFile, MediaResourceStorageFile } from "internal/resource/base/resource-storage-file";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
+import { TimelineStorageFile } from "internal/timeline/base/timeline-storage-file";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
   private toDispose_: IDisposable[] = [];
 
   private lastDragData_: IDragAndDropData = null;
-  private dragTrackItem_: TrackItem = null;
+  private dragTrackItem_: ITrackItem = null;
   private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
 
   constructor(private readonly widget_: ITimelineWidget,

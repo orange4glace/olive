@@ -1,17 +1,17 @@
 import * as React from 'react'
 import { IMonitorWidgetDrawingView, MonitorWidgetDrawingView, MonitorWidgetDrawingViewComponent, MonitorWidgetDrawingProps, DrawingViewSelectorRegistry } from "window/workbench/common/widgets/monitor/model/drawing/drawing-view";
-import { VideoMediaDrawing } from "internal/rendering/drawing/video-media-drawing";
+import { VideoMediaDrawing } from "internal/rendering/drawing/base/video-media-drawing";
 import { vec2, mat2d } from "gl-matrix";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { MonitorWidgetSelectableView, MonitorWidgetSelectableViewEvent } from "window/workbench/common/widgets/monitor/model/selectable-view";
-import { ITimeline } from "internal/timeline/timeline";
-import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { observer } from "window/app-mobx";
 import { createStandardMouseEvent } from "base/olive/mouse-event";
 import { MonitorWidgetDrawingControlPoint } from 'window/workbench/common/widgets/monitor/model/drawing/drawing-control-views';
 import { Registry } from 'platform/registry/common/platform';
-import { RectangleDrawing } from 'internal/rendering/drawing/rectangle-drawing';
+import { RectangleDrawing } from 'internal/rendering/drawing/base/rectangle-drawing';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
+import { ITimeline } from 'internal/timeline/base/timeline';
 
 export interface IMonitorWidgetVideoMediaDrawingView
     extends IMonitorWidgetDrawingView<VideoMediaDrawing> {

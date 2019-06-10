@@ -2,7 +2,6 @@ import * as React from 'react'
 
 import * as style from './left-track-view.scss';
 import { TimelineWidgetViewProps } from 'window/workbench/common/widgets/timeline/widget-view';
-import { Track } from 'internal/timeline/track/track';
 import { TimelineWidgetTrackViewModel } from 'window/workbench/common/widgets/timeline/model/track-view-model';
 
 export class TimelineWidgetSideContentView extends React.Component<TimelineWidgetViewProps, {}> {

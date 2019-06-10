@@ -49,7 +49,6 @@ export class ProjectsService implements IProjectsService {
   }
 
   private doAddProject(project: IProject) {
-    ref(project);
     this.projects.set(project.id, project);
     this.onProjectAdded_.fire(project);
   }

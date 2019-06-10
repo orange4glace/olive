@@ -1,11 +1,11 @@
 import { observable } from "mobx";
-import { ITrackItem } from "internal/timeline/track-item/track-item";
 import { Serializable } from "base/olive/serialize";
 import uuid from "uuid";
 import { IFactory, FactoryRegistry } from "internal/common/factory-registry";
 import { Registry } from "platform/registry/common/platform";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import { ILogService } from "platform/log/common/log";
+import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 
 export interface IStorageItem extends Serializable {
 

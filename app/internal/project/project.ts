@@ -1,19 +1,19 @@
-import { Postable } from "worker-postable";
+import { Postable, ref } from "worker-postable";
 import { Serializable } from "base/olive/serialize";
 import { IStorageDirectory, StorageDirectory, SerializedStorageDirectory } from "internal/storage/storage-directory";
 import { IStorageFile } from "internal/storage/storage-file";
-import { ITimeline } from "internal/timeline/timeline";
-import { MediaResourceStorageFile, AudioResourceStorageFile } from "internal/resource/resource-storage-file";
-import { TimelineStorageFile } from "internal/timeline/timeline-storage-file";
-import { ITimelineManager, TimelineManagerImpl, SerializedTimelineManager } from "internal/timeline/timeline-manager";
-import { ResourceManager, SerializedResourceManager } from "internal/resource/manager";
+import { MediaResourceStorageFile, AudioResourceStorageFile } from "internal/resource/base/resource-storage-file";
+import { ResourceManager, SerializedResourceManager } from "internal/resource/base/manager";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import { ServiceCollection } from "platform/instantiation/common/serviceCollection";
-import { ITimelinesService } from "internal/timeline/timelines-service";
-import { IResourcesService } from "internal/resource/resource-service";
-import { VideoSetting } from "internal/timeline/video-setting";
-import { AudioSetting } from "internal/timeline/audio-setting";
-import { FrameRate } from "internal/timeline/frame_rate";
+import { IResourcesService } from "internal/resource/base/resource-service";
+import { AudioSetting } from "internal/timeline/base/audio-setting";
+import { SerializedTimelineManager, ITimelineManager, TimelineManagerImpl } from "internal/timeline/base/timeline-manager";
+import { ITimeline } from "internal/timeline/base/timeline";
+import { ITimelinesService } from "internal/timeline/base/timelines-service";
+import { VideoSetting } from "internal/timeline/base/video-setting";
+import { FrameRate } from "internal/timeline/base/frame_rate";
+import { TimelineStorageFile } from "internal/timeline/base/timeline-storage-file";
 
 export interface SerializedProject {
   id: string;
@@ -86,6 +86,7 @@ export class Project implements IProject, ProjectBase, Serializable {
 
   createTimeline(directory: IStorageDirectory): ITimeline {
     const timeline = this.timelineManager.createTimeline(new VideoSetting(1920, 1080, new FrameRate(30, 1)), new AudioSetting(48000));
+    ref(timeline);
     const timelineStorageFile = new TimelineStorageFile('Timeline ' + timeline.id, timeline);
     directory.addItem(timelineStorageFile);
     return timeline;

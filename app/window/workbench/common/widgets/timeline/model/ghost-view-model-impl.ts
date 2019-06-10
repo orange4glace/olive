@@ -1,5 +1,4 @@
 import { observable, computed } from "window/app-mobx";
-import { Timeline } from "internal/timeline/timeline";
 import { TimelineWidgetGhostTrackItemViewModel, TimelineWidgetGhostContainerViewModel, TimelineWidgetGhostViewModel } from "window/workbench/common/widgets/timeline/model/ghost-view-model";
 import { ViewModelImpl } from "window/view/view-model";
 import { TimelineWidgetTimelineViewModel } from "window/workbench/common/widgets/timeline/model/timeline-view-model";

@@ -32,7 +32,7 @@ export class Vector4 implements Vector4Base, Cloneable {
 
 }
 
-@Posted('Vector4')
+@Posted
 export class Vector4Renderer implements Vector4Base {
   x: number;
   y: number;
