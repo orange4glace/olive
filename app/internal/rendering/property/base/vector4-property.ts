@@ -13,6 +13,7 @@ export interface SerializedVector4KeyframeValue extends ISerializedKeyframeValue
   w: number;
 }
 
+@Postable
 export class Vector4KeyframeValue extends WithVector4KeyframeValueBase(KeyframeValue) {
   static readonly TYPE = 'olive.property.keyframe.value.Vector4'
 
@@ -47,6 +48,7 @@ class Vector4KeyframeValueFactory implements IKeyframeValueFactory {
 Registry.as<KeyframeValueFactoryRegistry>(KeyframeValueFactoryRegistry.ID).registerFactory(Vector4KeyframeValue.TYPE, Vector4KeyframeValueFactory);
 
 
+@Postable
 class _Vector4Property extends Property<Vector4KeyframeValue> {
   createValue(x: number, y: number, z: number, w : number): Vector4KeyframeValue {
     return new Vector4KeyframeValue(x, y, z, w);

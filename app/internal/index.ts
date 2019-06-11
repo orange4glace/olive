@@ -93,7 +93,7 @@ async function initializeApp(): Promise<void> {
   // const decoderServer = new DecoderServer(rendererWorkerPoster, app.decoder);
 
   let offscreen = (app.canvas as any).transferControlToOffscreen();
-  // videoRendererNode.initialize(offscreen);
+  videoRendererNode.initialize(offscreen);
   // audioRendererNode.initialize({
   //   option: audioRendererOption,
   //   buffers: createAudioRendererBuffers(audioRendererOption)

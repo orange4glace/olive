@@ -26,11 +26,11 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
 
   private readonly onTrackItemAdded_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
   readonly onTrackItemAdded: Event<TrackTrackItemEvent> = this.onTrackItemAdded_.event;
-  protected readonly POSTABLE_onDidAddTrackItem: PostableEvent<TrackItem> = new PostableEvent();
+  protected readonly POSTABLE_onDidAddTrackItem: PostableEvent<TrackItem>;
 
   private readonly onTrackItemWillRemove_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
   readonly onTrackItemWillRemove: Event<TrackTrackItemEvent> = this.onTrackItemWillRemove_.event;
-  protected readonly POSTABLE_onWillRemoveTrackItem: PostableEvent<TrackItem> = new PostableEvent();
+  protected readonly POSTABLE_onWillRemoveTrackItem: PostableEvent<TrackItem>;
 
   private readonly onTrackItemRemoved_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
   readonly onTrackItemRemoved: Event<TrackTrackItemEvent> = this.onTrackItemRemoved_.event;
@@ -50,6 +50,8 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
   constructor() {
     super();
     this.name = 'unnamed track';
+    this.POSTABLE_onDidAddTrackItem = new PostableEvent();
+    this.POSTABLE_onWillRemoveTrackItem = new PostableEvent();
     // Initialize objects
     this.trackItems_ = new Map();
     this.trackItemTreeMap_ = new TreeMap<TrackItemTime, TrackItem>();

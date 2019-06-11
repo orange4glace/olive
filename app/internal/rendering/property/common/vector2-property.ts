@@ -6,6 +6,7 @@ export function WithVector2KeyframeValueBase<TBase extends KeyframeValueBaseCons
   @Postabled
   class Vector2KeyframeValueBase extends Base {
     static readonly TYPE = 'olive.property.keyframe.value.Vector2'
+    static readonly POSTABLE_TYPE = Vector2KeyframeValueBase.TYPE;
     @postable protected x_: number;
     public get x() { return this.x_; }
     @postable protected y_: number;
@@ -19,6 +20,8 @@ export class Vector2KeyframeValueBase extends WithVector2KeyframeValueBase(Keyfr
 export function WithVector2PropertyBase<TBase extends PropertyBaseConstructor>(Base: TBase) { 
   @Postabled
   class Vector2PropertyBase extends Base {
+    static readonly TYPE = 'olive.property.Vector2'
+    static readonly POSTABLE_TYPE = Vector2PropertyBase.TYPE;
     // interpolate(lhs: Vector2KeyframeValueBase, rhs: Vector2KeyframeValueBase, t: number): Vector2KeyframeValueBase {
     //   return new Vector2KeyframeValueBase(lhs.value + (rhs.value - lhs.value) * t);
     // }

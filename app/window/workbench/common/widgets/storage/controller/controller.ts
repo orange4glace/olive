@@ -33,7 +33,6 @@ export class StorageWidgetController extends Disposable implements IStorageWidge
   }
 
   dropOverHandler(e: React.DragEvent) {
-    console.log(e);
     e.preventDefault();
     if (StaticDND.CurrentDragAndDropData) // Non-desktop DND data
       return;
@@ -44,12 +43,10 @@ export class StorageWidgetController extends Disposable implements IStorageWidge
   }
 
   dropHandler(e: React.DragEvent) {
-    console.log(e);
     if (StaticDND.CurrentDragAndDropData) return;
     const dragData = this.currentDNDData;
     if (!dragData || !e.dataTransfer) return;
     dragData.update(e.dataTransfer);
-    console.log(dragData.getData());
 
     dragData.getData().files.forEach((file: File) => {
       console.log('Add resource', file.path);

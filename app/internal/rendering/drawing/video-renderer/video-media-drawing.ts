@@ -1,15 +1,18 @@
 import { WithVideoMediaDrawingBase } from "internal/rendering/drawing/common/video-media-drawing";
 import { VideoDrawingVideoRenderer } from "internal/rendering/drawing/video-renderer/video-drawing";
 import { RenderingContext } from "internal/rendering/drawing/video-renderer/context";
-import NVG, { NVGType } from "../../../../../nanovg-webgl";
+import { NVGType } from "../../../../../nanovg-webgl";
+import { VideoRendererGlobal } from "internal/renderer/video-renderer/global";
+import { Posted } from "worker-postable";
 
+@Posted
 export class VideoMediaDrawingVideoRenderer extends WithVideoMediaDrawingBase(VideoDrawingVideoRenderer) {
 
   image: NVGType.image_t;
   paint: NVGType.paint_t;
 
   draw(context: RenderingContext) {
-    const vg = context.nvg;
+    const vg = VideoRendererGlobal.nvg;
     const timeOffset = context.timeOffset;
 
     const transformEffect = this.transformEffect;
@@ -37,9 +40,10 @@ export class VideoMediaDrawingVideoRenderer extends WithVideoMediaDrawingBase(Vi
     vg.restore();
   }
 
-  afterDraw(context: RenderingContext) {
-    context.nvg.freePaint(this.paint);
-    context.nvg.deleteImage(this.image);
+  afterDraw() {
+    const vg = VideoRendererGlobal.nvg;
+    vg.freePaint(this.paint);
+    vg.deleteImage(this.image);
   }
 
 }

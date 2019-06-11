@@ -18,7 +18,8 @@ export class ScalarKeyframeValueBase extends WithScalarKeyframeValueBase(Keyfram
 export function WithScalarPropertyBase<TBase extends PropertyBaseConstructor>(Base: TBase) { 
   @Postabled
   class ScalarPropertyBase extends Base {
-    static readonly POSTABLE_TYPE = 'olive.property.Scalar'
+    static readonly TYPE = 'olive.property.Scalar'
+    static readonly POSTABLE_TYPE = ScalarPropertyBase.TYPE;
     // interpolate(lhs: ScalarKeyframeValueBase, rhs: ScalarKeyframeValueBase, t: number): ScalarKeyframeValueBase {
     //   return new ScalarKeyframeValueBase(lhs.value + (rhs.value - lhs.value) * t);
     // }

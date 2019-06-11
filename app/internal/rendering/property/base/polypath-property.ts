@@ -10,6 +10,7 @@ export interface SerializedPolypathKeyframeValue extends ISerializedKeyframeValu
   points: PolypathPoint[];
 }
 
+@Postable
 export class PolypathKeyframeValue extends WithPolypathKeyframeValueBase(KeyframeValue) {
 
   constructor(points?: PolypathPoint[]) {
@@ -51,6 +52,7 @@ class PolypathKeyframeValueFactory implements IKeyframeValueFactory {
 Registry.as<KeyframeValueFactoryRegistry>(KeyframeValueFactoryRegistry.ID).registerFactory(PolypathKeyframeValue.TYPE, PolypathKeyframeValueFactory);
 
 
+@Postable
 class _PolypathProperty extends Property<PolypathKeyframeValue> {
   createValue(path: [{x: number, y: number}]): PolypathKeyframeValue {
     let res: PolypathPoint[] = [];

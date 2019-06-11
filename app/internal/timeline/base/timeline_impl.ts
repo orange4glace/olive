@@ -69,6 +69,7 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
 
   constructor(id: TimelineIdentifier, videoSetting: VideoSetting, audioSetting: AudioSetting) {
     super();
+    console.log(this);
     this.id_ = id || uuid();
 
     this.videoSetting_ = videoSetting;

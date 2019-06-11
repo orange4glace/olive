@@ -8,6 +8,6 @@ export class DrawingVideoRenderer extends WithDrawingBase(MixinBase) {
   draw(context: RenderingContext): void {
     throw new Exception('NotImplementedException');
   }
-  afterDraw(context: RenderingContext): void {}
+  afterDraw(): void {}
 
 }

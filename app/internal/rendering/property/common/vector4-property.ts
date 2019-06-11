@@ -6,6 +6,7 @@ export function WithVector4KeyframeValueBase<TBase extends KeyframeValueBaseCons
   @Postabled
   class Vector4KeyframeValueBase extends Base {
     static readonly TYPE = 'olive.property.keyframe.value.Vector4'
+    static readonly POSTABLE_TYPE = Vector4KeyframeValueBase.TYPE;
     @postable protected x_: number;
     public get x() { return this.x_; }
     @postable protected y_: number;
@@ -23,6 +24,8 @@ export class Vector4KeyframeValueBase extends WithVector4KeyframeValueBase(Keyfr
 export function WithVector4PropertyBase<TBase extends PropertyBaseConstructor>(Base: TBase) { 
   @Postabled
   class Vector4PropertyBase extends Base {
+    static readonly TYPE = 'olive.property.Vector4'
+    static readonly POSTABLE_TYPE = Vector4PropertyBase.TYPE;
     // interpolate(lhs: Vector4KeyframeValueBase, rhs: Vector4KeyframeValueBase, t: number): Vector4KeyframeValueBase {
     //   return new Vector4KeyframeValueBase(lhs.value + (rhs.value - lhs.value) * t);
     // }

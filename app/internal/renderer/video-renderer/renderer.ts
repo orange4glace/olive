@@ -1,22 +1,11 @@
 import './posted.all'
+import { VideoRendererGlobal } from 'internal/renderer/video-renderer/global';
 
 import { ObjectStore, postableMessageHandler } from 'worker-postable';
-import IDecoder from 'internal/decoder/decoder';
 import { VideoRendererMessageEventType, VideoRendererRenderMessageEvent } from 'internal/renderer/video-renderer/message';
-import { getCurrentSystemTime } from 'base/olive/time';
+import { TimelineVideoRenderer } from 'internal/timeline/video-renderer/timeline';
 
 console.log(ObjectStore);
-
-function initializeDecoderModule() {
-  // const basepath = electron.remote.app.getAppPath();
-  // console.log(`[Internal] Initilaize Decoder module. basepath=${basepath}`);
-  (self as any).requestVideoRender = ()=>{}
-  const module_initializer = require(`../../../../decoder/build/Release/module.node`);
-  const module = module_initializer.initialize(console.log);
-
-  console.log(module);
-  return module;
-}
 
 interface RenderRequest {
   // timeline: TimelineVideoRenderer;
@@ -32,17 +21,11 @@ export class Renderer {
   private dirty_: boolean = false;
   private renderReqest_: RenderRequest = null;
 
-  decoder: IDecoder;
-  vg: any;
-  converter: any;
-
   constructor() {
     this.loop_ = this.loop_.bind(this);
-    this.decoder = initializeDecoderModule();
 
-    this.initNanovg = this.initNanovg.bind(this);
-
-    this.initConverter();
+    VideoRendererGlobal.initConverter();
+    VideoRendererGlobal.initializeDecoderModule();
     
     self.onmessage = this.messageHandler.bind(this);
 
@@ -57,7 +40,7 @@ export class Renderer {
         this.handlePostableMessage(msg);
         break;
       case 'INIT':
-        this.initNanovg(msg.data.canvas);
+        VideoRendererGlobal.initNanovg(msg.data.canvas);
         break;
       // case VideoRendererMessageEventType.PLAY_RENDER:
       //   this.onPlayRender(msg);
@@ -65,9 +48,9 @@ export class Renderer {
       // case VideoRendererMessageEventType.PAUSE_RENDER:
       //   this.onPauseRender(msg);
       //   break;
-      // case VideoRendererMessageEventType.RENDER:
-      //   this.onRender(msg);
-      //   break;
+      case VideoRendererMessageEventType.RENDER:
+        this.onRender(msg);
+        break;
     }
   }
 
@@ -86,10 +69,10 @@ export class Renderer {
   //   });
   // }
 
-  // private onRender(e: VideoRendererRenderMessageEvent) {
-  //   const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;;
-  //   this.seekTimeline(timeline, e.currentTime); 
-  // }
+  private onRender(e: VideoRendererRenderMessageEvent) {
+    const timeline = ObjectStore.get(e.timelineID) as TimelineVideoRenderer;
+    this.seekTimeline(timeline, e.currentTime); 
+  }
 
   // private startTimelineRenderCallback(timeline: TimelineVideoRenderer, time: number, startSystemTime: number) {
   //   this.playing_ = true;
@@ -101,14 +84,14 @@ export class Renderer {
   //   };
   // }
 
-  // private async seekTimeline(timeline: TimelineVideoRenderer, time: number) {
-  //   this.dirty_ = true;
-  //   this.renderReqest_ = {
-  //     timeline: timeline,
-  //     time: time,
-  //     systemTime: 0
-  //   }
-  // }
+  private async seekTimeline(timeline: TimelineVideoRenderer, time: number) {
+    this.dirty_ = true;
+    this.renderReqest_ = {
+      timeline: timeline,
+      time: time,
+      systemTime: 0
+    }
+  }
 
   // private stopTimelineRender(onStopCallback: () => void) {
   //   this.playing_ = false;
@@ -121,41 +104,23 @@ export class Renderer {
   //   await this.renderTimeline(this.playingRequest_.timeline, currentTime);
   // }
 
-  // private async dirtyCallback_() {
-  //   const currentTime = this.renderReqest_.time;
-  //   await this.renderTimeline(this.renderReqest_.timeline, currentTime);
-  //   this.dirty_ = false;
-  // }
+  private async dirtyCallback_() {
+    const currentTime = this.renderReqest_.time;
+    await this.renderTimeline(this.renderReqest_.timeline, currentTime);
+    this.dirty_ = false;
+  }
 
-  // private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {
-  //   console.log(timeline);
-  //   timeline.decode(time);
-  //   await timeline.render(time, this.vg);
-  // }
+  private async renderTimeline(timeline: TimelineVideoRenderer, time: number) {
+    console.log(timeline);
+    await timeline.render(time);
+  }
 
   private async loop_() {
-    // if (this.playing_)
-    //   await this.playingCallback_();
-    // else if (this.dirty_)
-    //   await this.dirtyCallback_();
+    if (this.playing_) {}
+      // await this.playingCallback_();
+    else if (this.dirty_)
+      await this.dirtyCallback_();
     requestAnimationFrame(this.loop_);
-  }
-
-  private initNanovg(canvas: HTMLCanvasElement) {
-    console.log(canvas)
-    const nanovg = require(`../../../../nanovg-webgl/build/Release/nanovg_node_webgl.node`);
-    let gl: WebGLRenderingContext = canvas.getContext('webgl2', {
-      alpha: true,
-      premultipliedAlpha: false,
-      stencil: true
-    }) as WebGLRenderingContext;
-    (self as any).gl = gl;
-    this.vg = nanovg.initNanoVG(gl);
-  }
-
-  private initConverter() {
-    const converter = require(`../../../../renderer/build/Release/olive_renderer_module.node`);
-    this.converter = converter;
   }
 
 }

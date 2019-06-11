@@ -14,10 +14,11 @@ export class TrackVideoRenderer extends WithTrackBase(MixinBase) implements Post
   public get trackItem() { return this.trackItems_; }
   protected trackItemTreeMap_: TreeMap<TrackItemTimeBase, TrackItemVideoRenderer> = new TreeMap();
   
-  protected POSTABLE_onDidAddTrackItem: PostedEvent<number> = new PostedEvent();
-  protected POSTABLE_onWillRemoveTrackItem: PostedEvent<TrackItemVideoRenderer> = new PostedEvent();
+  protected POSTABLE_onDidAddTrackItem: PostedEvent<number>;
+  protected POSTABLE_onWillRemoveTrackItem: PostedEvent<TrackItemVideoRenderer>;
 
   onPostableInstanceCreated() {
+    console.log(this);
     this.POSTABLE_onDidAddTrackItem.on = trackItemID => {
       const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
       console.warn('POSTABLE_onDidAddTrackItem', trackItem);
@@ -28,18 +29,25 @@ export class TrackVideoRenderer extends WithTrackBase(MixinBase) implements Post
     }
   }
 
-  async draw(nvg: NVG, timecode: number) {
-    const trackItem = this.getTrackItemAt(timecode) as TrackItemVideoRenderer;
-    if (trackItem == null) return;
-    if (trackItem.type == VideoMediaTrackItem.TYPE)
-      await trackItem.draw(nvg, timecode - trackItem.time.start + trackItem.time.base);
-  }
-
-  async afterDraw(nvg: NVG, timecode: number) {
+  async beforeDraw(timecode: number) {
     let trackItem = this.getTrackItemAt(timecode) as TrackItemVideoRenderer;
     if (trackItem == null) return;
     if (trackItem.type == VideoMediaTrackItem.TYPE)
-      await trackItem.afterDraw(nvg, timecode - trackItem.time.start + trackItem.time.base);
+      await trackItem.beforeDraw(timecode);
+  }
+
+  async draw(timecode: number) {
+    const trackItem = this.getTrackItemAt(timecode) as TrackItemVideoRenderer;
+    if (trackItem == null) return;
+    if (trackItem.type == VideoMediaTrackItem.TYPE)
+      await trackItem.draw(timecode - trackItem.time.start + trackItem.time.base);
+  }
+
+  async afterDraw(timecode: number) {
+    let trackItem = this.getTrackItemAt(timecode) as TrackItemVideoRenderer;
+    if (trackItem == null) return;
+    if (trackItem.type == VideoMediaTrackItem.TYPE)
+      await trackItem.afterDraw();
   }
 
   // decode(timecode: number) {

@@ -11,6 +11,7 @@ export interface SerializedScalarKeyframeValue extends ISerializedKeyframeValue 
   value: number;
 }
 
+@Postable
 export class ScalarKeyframeValue extends WithScalarKeyframeValueBase(KeyframeValue) {
 
   constructor(value: number) {
@@ -41,6 +42,7 @@ Registry.as<KeyframeValueFactoryRegistry>(KeyframeValueFactoryRegistry.ID).regis
 
 
 
+@Postable
 class _ScalarProperty extends Property<ScalarKeyframeValue> {
   createValue(val: number): ScalarKeyframeValue {
     return new ScalarKeyframeValue(val);

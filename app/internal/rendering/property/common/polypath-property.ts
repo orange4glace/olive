@@ -11,6 +11,7 @@ export function WithPolypathKeyframeValueBase<TBase extends KeyframeValueBaseCon
   @Postabled
   class PolypathKeyframeValueBase extends Base {
     static readonly TYPE = 'olive.property.keyframe.value.Polypath'
+    static readonly POSTABLE_TYPE = PolypathKeyframeValueBase.TYPE;
     @postable protected points_: PolypathPoint[];
     public get points() { return this.points_; }
   }
@@ -22,6 +23,8 @@ export class PolypathKeyframeValueBase extends WithPolypathKeyframeValueBase(Key
 export function WithPolypathPropertyBase<TBase extends PropertyBaseConstructor>(Base: TBase) { 
   @Postabled
   class PolypathPropertyBase extends Base {
+    static readonly TYPE = 'olive.property.Polypath'
+    static readonly POSTABLE_TYPE = PolypathPropertyBase.TYPE;
     // interpolate(lhs: PolypathKeyframeValueBase, rhs: PolypathKeyframeValueBase, t: number): PolypathKeyframeValueBase {
     //   return new PolypathKeyframeValueBase(lhs.value + (rhs.value - lhs.value) * t);
     // }

@@ -6,7 +6,8 @@ import { Posted } from "worker-postable";
 @Posted
 export class TrackItemVideoRenderer extends WithTrackItemBase(MixinBase) {
 
-  async draw(nvg: NVG, timecode: number): Promise<void> {}
-  afterDraw(nvg: NVG, timecode: number): void {}
+  async beforeDraw(timecode: number): Promise<void> {}
+  async draw(timecode: number): Promise<void> {}
+  afterDraw(): void {}
 
 }
