@@ -1,0 +1,56 @@
+.component {
+  display: flex;
+  flex: 1 1;
+
+  > .side {
+    overflow: hidden;
+    flex-basis: 300px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-right: 1px solid var(--surfaceBrightColor);
+
+    > .header {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      height: 30px;
+      box-sizing: border-box;
+      border-bottom: 1px solid var(--surfaceBrightColor);
+      padding-left: 5px;
+
+      > .add-track {
+        width: 15px;
+        height: 15px;
+        background: var(--surfaceTextColor);
+        mask-image: url('./../css/plus.svg');
+        transition: .2s;
+
+        &:hover {
+          background: var(--primaryColor);
+        }
+      }
+    }
+  }
+
+  > .timeline {
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    flex-grow: 1;
+
+    .tracks-wrapper {
+      position: relative;
+
+      .indicator {
+        position: absolute;
+        z-index: 555;
+        top: -2px;
+        width: 1px;
+        bottom: 0px;
+        background: var(--primaryColor);
+      }
+    }
+  }
+}

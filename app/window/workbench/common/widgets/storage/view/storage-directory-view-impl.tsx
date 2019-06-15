@@ -83,11 +83,13 @@ class StorageWidgetStorageDirectoryViewComponent extends React.Component<Props> 
   render() {
     const view = this.props.view;
     return(
-      <div
+      <div className='directory'
         onDragOver={this.dragOverHandler}
         onDrop={this.dropHandler}>
-        <div className='label'>Folder {view.name}</div>
-        <div>
+        <div className='header'>
+          <div className='label'>Folder {view.name}</div>
+        </div>
+        <div className='content'>
           {view.storageItemViews.map(view => view.render())}
         </div>
       </div>);

@@ -1,16 +1,12 @@
 import * as React from 'react'
 
-import { TimelineWidgetTimelineViewModelImpl } from 'window/workbench/common/widgets/timeline/model/timeline-view-model-impl';
 import { ITimelineWidgetService } from 'window/workbench/common/widgets/timeline/widget-service';
 import { Event, Emitter } from 'base/common/event';
-import { IDisposable, dispose } from 'base/common/lifecycle';
-import TimelineWidgetView, { TimelineWidgetViewProps } from 'window/workbench/common/widgets/timeline/widget-view';
+import { IDisposable, dispose } from 'base/common/lifecycle'
 import { TimelineWidgetTrackItemUIEvent, TimelineWidgetTrackUIEvent, TimelineWidgetTrackItemEvent, TimelineWidgetTrackItemThumbUIEvent, TimelineWidgetTimelineUIEvent } from 'window/workbench/common/widgets/timeline/event';
-import { ITimelineWidget } from 'window/workbench/common/widgets/timeline/widget';
 import { TimelineWidgetViewOutgoingEvents } from 'window/workbench/common/widgets/timeline/view-outgoing-events';
 import { TimelineWidgetCoreControllerImpl } from 'window/workbench/common/widgets/timeline/controller/core-controller_impl';
 import { TimelineWidgetManipulatorControllerImpl } from 'window/workbench/common/widgets/timeline/controller/manipulator_impl';
-import { TimelineWidgetTimelineViewModel } from 'window/workbench/common/widgets/timeline/model/timeline-view-model';
 import { ITimelineWidgetRangeSelector, TimelineWidgetRangeSelector } from 'window/workbench/common/widgets/timeline/model/range-selector';
 import { TimelineWidgetRangeSelectorController } from 'window/workbench/common/widgets/timeline/controller/range-selector-controller';
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
@@ -30,13 +26,15 @@ import { IWidgetFactory, WidgetFactoryRegistry } from 'window/workbench/common/e
 import { TimelineIdentifier, ITimeline } from 'internal/timeline/base/timeline';
 import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
 import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
+import { TimelineWidgetTimelineView } from 'window/workbench/common/widgets/timeline/model/timeline-view-model-impl';
+import { TimelineWidgetView } from 'window/workbench/common/widgets/timeline/model/widget-view';
 
 interface ISerializedTimelineWidget extends ISerializedWidget {
   projectID: string;
   timelineID: TimelineIdentifier;
 }
 
-export class TimelineWidget extends Widget implements ITimelineWidget {
+export class TimelineWidget extends Widget {
 
   static readonly TYPE = 'olive.workbench.widget.Timeline';
 
@@ -76,8 +74,8 @@ export class TimelineWidget extends Widget implements ITimelineWidget {
   private timelineDisposables_: IDisposable[] = [];
   private toDispose_: IDisposable[] = [];
 
-  private model_: IObservableValue<TimelineWidgetTimelineViewModel> = observable.box(null);
-  public get model(): TimelineWidgetTimelineViewModel { return this.model_.get(); }
+  private view_: TimelineWidgetView;
+  public get view() { return this.view_; }
 
   private timeline_: ITimeline;
   public get timeline() { return this.timeline_; }
@@ -104,36 +102,43 @@ export class TimelineWidget extends Widget implements ITimelineWidget {
     this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
     this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
 
-    this.setTimeline(project, timeline);
+    const outgoingEvents = new TimelineWidgetViewOutgoingEvents();
+    this.registerViewOutgoingEvents(outgoingEvents);
+    this.view_ = new TimelineWidgetView(project, timeline, outgoingEvents);
+    this.toDispose_.push()
+
     timelineWidgetService_.addWidget(this);
 
     this.toDispose_.push(this.onDidFocus(() => {
       globalTimelineService.setTargetTimeline(this.timeline)
     }))
+
+    this.setTimeline(project, timeline);
   }
 
   setTimeline(project: IProject, timeline: ITimeline): void {
     this.timelineDisposables_ = dispose(this.timelineDisposables_);
     this.timeline_ = timeline;
-    if (timeline == null) {
-      this.model_.set(null);
-      return;
-    }
-    this.model_.set(new TimelineWidgetTimelineViewModelImpl(timeline));
-    this.timelineDisposables_.push(this.model.onTrackItemFocused(e => {
-      this.onTrackItemFocused_.fire({
-        timeline: this.timeline,
-        track: e.trackViewModel.track,
-        trackItem: e.trackItemViewModel.trackItem
-      })
-    }))
-    this.timelineDisposables_.push(this.model.onTrackItemBlured(e => {
-      this.onTrackItemBlured_.fire({
-        timeline: this.timeline,
-        track: e.trackViewModel.track,
-        trackItem: e.trackItemViewModel.trackItem
-      })
-    }))
+    this.view_.setTimeline(project, timeline);
+    // if (timeline == null) {
+    //   this.model_.set(null);
+    //   return;
+    // }
+    // this.model_.set(new TimelineWidgetTimelineViewModelImpl(project, timeline));
+    // this.timelineDisposables_.push(this.model.onTrackItemFocused(e => {
+    //   this.onTrackItemFocused_.fire({
+    //     timeline: this.timeline,
+    //     track: e.trackViewModel.track,
+    //     trackItem: e.trackItemViewModel.trackItem
+    //   })
+    // }))
+    // this.timelineDisposables_.push(this.model.onTrackItemBlured(e => {
+    //   this.onTrackItemBlured_.fire({
+    //     timeline: this.timeline,
+    //     track: e.trackViewModel.track,
+    //     trackItem: e.trackItemViewModel.trackItem
+    //   })
+    // }))
     this.onTimelineChanged_.fire();
   }
 
@@ -151,9 +156,9 @@ export class TimelineWidget extends Widget implements ITimelineWidget {
     outgoingEvents.onTimelineMouseDown = e => this.onTimelineMouseDown_.fire(e);
   }
 
-  getFocusedTrackItems(): ReadonlySet<ITrackItem> {
-    return this.model.getFocusedTrackItems();
-  }
+  // getFocusedTrackItems(): ReadonlySet<ITrackItem> {
+  //   return this.model.getFocusedTrackItems();
+  // }
 
   focus() {
     this.onFocused_.fire();
@@ -167,11 +172,8 @@ export class TimelineWidget extends Widget implements ITimelineWidget {
     this.active_ = value;
   }
 
-  render(): JSX.Element {
-    const props: TimelineWidgetViewProps = {
-      widget: this
-    }
-    return React.createElement(TimelineWidgetView, props);
+  render(): React.ReactNode {
+    return this.view_.render();
   }
 
   serialize(): ISerializedTimelineWidget {

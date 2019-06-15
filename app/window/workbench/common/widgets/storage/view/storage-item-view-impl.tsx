@@ -46,7 +46,8 @@ class StorageWidgetStorageItemViewComponent extends React.Component<Props> {
       <div className='storage-item' draggable
           onDragStart={this.dragStartHandler}
           onDragEnd={this.dragEndHandler}>
-        {storageItem.name}
+        <div className='content'></div>
+        <div className='label'>{storageItem.name}</div>
       </div>
     );
   }

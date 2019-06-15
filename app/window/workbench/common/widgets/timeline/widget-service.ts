@@ -1,6 +1,6 @@
 import { Event } from "base/common/event";
-import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { createDecorator } from "platform/instantiation/common/instantiation";
+import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget-impl";
 
 export const ITimelineWidgetService = createDecorator<ITimelineWidgetService>('olive.TimelineWidgetService');
 
@@ -8,17 +8,17 @@ export interface ITimelineWidgetService {
 
   _serviceBrand: any;
 
-  readonly onWidgetAdded: Event<ITimelineWidget>;
+  readonly onWidgetAdded: Event<TimelineWidget>;
 
-  readonly onWidgetWillRemove: Event<ITimelineWidget>;
+  readonly onWidgetWillRemove: Event<TimelineWidget>;
 
-  readonly onActiveWidgetChanged: Event<ITimelineWidget>;
+  readonly onActiveWidgetChanged: Event<TimelineWidget>;
 
-  readonly activeWidget: ITimelineWidget;
+  readonly activeWidget: TimelineWidget;
 
-  addWidget(widget: ITimelineWidget): void;
-  removeWidget(widget: ITimelineWidget): void;
+  addWidget(widget: TimelineWidget): void;
+  removeWidget(widget: TimelineWidget): void;
 
-  activateWidget(widget: ITimelineWidget): void;
+  activateWidget(widget: TimelineWidget): void;
 
 }

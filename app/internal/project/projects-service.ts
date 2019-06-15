@@ -4,6 +4,10 @@ import { Event } from "base/common/event";
 
 export const IProjectsService = createDecorator<IProjectsService>('olive.project.ProjectsService');
 
+export interface ProjectCreationData {
+  name: string;
+}
+
 export interface IProjectsService {
 
   _serviceBrand: any;
@@ -15,7 +19,7 @@ export interface IProjectsService {
 
   getCurrentProject(): IProject;
   setCurrentProject(project: IProject): void;
-  createProject(): IProject;
+  createProject(data: ProjectCreationData): IProject;
   addProject(project: IProject): void;
   getProject(id: string): IProject | null;
   deserialize(instantiationService: IInstantiationService, serial: SerializedProject): IProject | null;

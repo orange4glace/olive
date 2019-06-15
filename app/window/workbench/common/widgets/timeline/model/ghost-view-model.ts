@@ -1,39 +1,39 @@
-import { ViewModel } from "window/view/view-model";
+// import { ViewModel } from "window/view/view-model";
 
-export interface TimelineWidgetGhostTrackItemViewModel extends ViewModel {
-  /*@observable*/ readonly startTime: number;
-  /*@observable*/ readonly endTime: number;
-}
+// export interface TimelineGhostTrackItemView extends ViewModel {
+//   /*@observable*/ readonly startTime: number;
+//   /*@observable*/ readonly endTime: number;
+// }
 
-export interface TimelineWidgetGhostContainerViewModel extends ViewModel {
+// export interface TimelineGhostContainerView extends ViewModel {
 
-  /*@observable*/ readonly trackOffset: number;
-  /*@observable*/ readonly maxTrackOffset: number;
-  /*@observable*/ readonly minTrackOffset: number;
-  /*@observable*/ readonly leftExtend: number;
-  /*@observable*/ readonly rightExtend: number;
+//   /*@observable*/ readonly trackOffset: number;
+//   /*@observable*/ readonly maxTrackOffset: number;
+//   /*@observable*/ readonly minTrackOffset: number;
+//   /*@observable*/ readonly leftExtend: number;
+//   /*@observable*/ readonly rightExtend: number;
 
-  /*@observable*/ readonly magnetTime: number;
-  /*@observable*/ readonly magnetTimePx: number;
-  /*@observable*/ readonly trackMagnetFlag: ReadonlyArray<boolean>;
-  /*@observable*/ readonly indicatorMagnetFlag: boolean;
+//   /*@observable*/ readonly magnetTime: number;
+//   /*@observable*/ readonly magnetTimePx: number;
+//   /*@observable*/ readonly trackMagnetFlag: ReadonlyArray<boolean>;
+//   /*@observable*/ readonly indicatorMagnetFlag: boolean;
 
-  addGhostTrackItem(index: number, startTime: number, endTime: number): void;
-  getGhostTrackItems(index: number): TimelineWidgetGhostTrackItemViewModel[];
-  setTrackOffset(offset: number): void;
-  setMaxTrackOffset(offset: number): void;
-  setMinTrackOffset(offset: number): void;
-  extendLeft(value: number): void;
-  extendRight(value: number): void;
-  translate(value: number): void;
+//   addGhostTrackItem(index: number, startTime: number, endTime: number): void;
+//   getGhostTrackItems(index: number): TimelineGhostTrackItemView[];
+//   setTrackOffset(offset: number): void;
+//   setMaxTrackOffset(offset: number): void;
+//   setMinTrackOffset(offset: number): void;
+//   extendLeft(value: number): void;
+//   extendRight(value: number): void;
+//   translate(value: number): void;
 
-}
+// }
 
-export interface TimelineWidgetGhostViewModel {
+// export interface TimelineWidgetGhostViewModel {
   
-  /*@observable*/ readonly currentContainer: TimelineWidgetGhostContainerViewModel | null;
+//   /*@observable*/ readonly currentContainer: TimelineWidgetGhostContainerViewModel | null;
 
-  createGhostContainer(): TimelineWidgetGhostContainerViewModel;
-  setCurrentContainer(container: TimelineWidgetGhostContainerViewModel): void;
+//   createGhostContainer(): TimelineWidgetGhostContainerViewModel;
+//   setCurrentContainer(container: TimelineWidgetGhostContainerViewModel): void;
 
-}
+// }

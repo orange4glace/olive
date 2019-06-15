@@ -8,7 +8,7 @@ import { IWidgetOpenCloseEvent } from "window/workbench/common/editor";
 import { observable, observer } from 'window/app-mobx';
 import { Emitter, Event } from 'base/common/event';
 import { StaticDND, DragAndDropData } from 'base/browser/dnd';
-import { DraggedWidgetGroupIdentifier, DraggedWidgetIdentifier } from 'window/workbench/browser/dnd';
+import { DraggedWidgetIdentifier } from 'window/workbench/browser/dnd';
 
 export class WidgetTabView extends Disposable {
 
@@ -58,6 +58,9 @@ export class WidgetTabView extends Disposable {
       StaticDND.CurrentDragAndDropData = new DragAndDropData<DraggedWidgetIdentifier>(
         new DraggedWidgetIdentifier({ widget, groupId: this.widgetGroup_.id }));
     }));
+    disposables.push(itemView.onClick(e => {
+      this.widgetGroup_.setActiveWidget(widget);
+    }))
     this.widgetTabItemViewDisposables_.set(widget, disposables);
   }
 
@@ -110,9 +113,12 @@ class WidgetTabViewComponent extends React.Component<{view: WidgetTabView}> {
 
 export class WidgetTabItemView {
 
+  private readonly onClick_: Emitter<void> = new Emitter();
+  readonly onClick = this.onClick_.event;
+  fireClick() { this.onClick_.fire(); }
+
   private readonly onDragStart_: Emitter<React.DragEvent> = new Emitter();
   readonly onDragStart: Event<React.DragEvent> = this.onDragStart_.event;
-
   fireDragStart(e: React.DragEvent) { this.onDragStart_.fire(e); }
 
   readonly id: string;
@@ -140,13 +146,11 @@ export class WidgetTabItemView {
 @observer
 class WidgetTabItemViewComponent extends React.Component<{view: WidgetTabItemView}> {
 
-  constructor(props: any) {
-    super(props);
-
-    this.dragStartHandler = this.dragStartHandler.bind(this);
+  clickHandler = () => {
+    this.props.view.fireClick();
   }
 
-  dragStartHandler(e: React.DragEvent) {
+  dragStartHandler = (e: React.DragEvent) => {
     this.props.view.fireDragStart(e);
   }
 
@@ -154,6 +158,7 @@ class WidgetTabItemViewComponent extends React.Component<{view: WidgetTabItemVie
     const view = this.props.view;
     return (
       <div draggable className={`tab ${view.active ? 'active' : ''}`}
+        onClick={this.clickHandler}
         onDragStart={this.dragStartHandler}>
         <div className='label'>{view.name}</div>
       </div>

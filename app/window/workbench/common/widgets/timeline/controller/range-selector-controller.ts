@@ -1,10 +1,10 @@
-import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { TimelineWidgetTimelineUIEvent } from "window/workbench/common/widgets/timeline/event";
 import { Disposable } from "base/common/lifecycle";
 import { InterruptableMouseMoveMonitor } from "window/view/common/interruptable-mouse-move-monitor";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { Vector2 } from "oliveutil/vector2";
 import { clone } from "base/olive/cloneable";
+import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget-impl";
 
 export interface ITimelineWidgetRangeSelectorController {
 
@@ -21,7 +21,7 @@ export class TimelineWidgetRangeSelectorController extends Disposable
   private selectTowardPositive_: boolean;
   private moveStart_: boolean;
 
-  constructor(private readonly widget_: ITimelineWidget) {
+  constructor(private readonly widget_: TimelineWidget) {
     super();
     this.mouseMoveMonitor_ = new InterruptableMouseMoveMonitor();
     this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
@@ -31,8 +31,8 @@ export class TimelineWidgetRangeSelectorController extends Disposable
   }
 
   private timelineMouseDownHandler(e: TimelineWidgetTimelineUIEvent) {
-    const pos = this.widget_.model.getMousePostionRelativeToTimeline(e.e);
-    const time = this.widget_.model.getTimeRelativeToTimeline(pos.x);
+    const pos = this.widget_.view.timelineView.scrollViewModel.getMousePostionRelativeToTimeline(e.e);
+    const time = this.widget_.view.timelineView.scrollViewModel.getTimeRelativeToTimeline(pos.x);
     this.moveStart_ = false;
     this.startPos_ = new Vector2(time, pos.y);
     this.endPos_ = new Vector2(time, pos.y);
@@ -41,47 +41,47 @@ export class TimelineWidgetRangeSelectorController extends Disposable
   }
 
   private mouseMoveHandler(e: StandardMouseEvent) {
-    const timelineVM = this.widget_.model;
+    const timelineView = this.widget_.view.timelineView;
     const rangeSelector = this.widget_.rangeSelector;
-    const pos = this.widget_.model.getMousePostionRelativeToTimeline(e);
-    const time = this.widget_.model.getTimeRelativeToTimeline(pos.x);
+    const pos = this.widget_.view.timelineView.scrollViewModel.getMousePostionRelativeToTimeline(e);
+    const time = this.widget_.view.timelineView.scrollViewModel.getTimeRelativeToTimeline(pos.x);
     const endPos = new Vector2(time, pos.y);
 
     this.updateViewModel(this.startPos_, endPos);
 
     if (this.moveStart_ == false) {
-      timelineVM.blurAllTrackItems();
+      timelineView.blurAllTrackItems();
       this.moveStart_ = true;
       rangeSelector.setActive(true);
     }
 
     if (this.selectTowardPositive_) {
       if (this.endPos_.x < this.startPos_.x) {
-        timelineVM.blurAllTrackItems();
+        timelineView.blurAllTrackItems();
         this.selectTowardPositive_ = false;
         this.endPos_ = clone(this.startPos_);
         this.mouseMoveHandler(e);
       }
       else if (this.endPos_.x <= endPos.x) {
         // Extend
-        timelineVM.trackViewModels.forEach(trackVM => {
-          const track = trackVM.track;
+        timelineView.trackViews.forEach(trackView => {
+          const track = trackView.track;
           const trackItems = track.getTrackItemsBetween(this.endPos_.x, endPos.x);
           trackItems.forEach(trackItem => {
-            const trackItemVM = trackVM.getTrackItemViewModel(trackItem);
-            trackItemVM.focus();
+            const trackItemView = trackView.trackTimelineView.getTrackItemView(trackItem);
+            trackItemView.focus();
           })
         })
       }
       else {
         // Reduce
-        timelineVM.trackViewModels.forEach(trackVM => {
-          const track = trackVM.track;
+        timelineView.trackViews.forEach(trackView => {
+          const track = trackView.track;
           const trackItems = track.getTrackItemsBetween(endPos.x, this.endPos_.x);
           trackItems.forEach(trackItem => {
             if (endPos.x < trackItem.time.start) {
-              const trackItemVM = trackVM.getTrackItemViewModel(trackItem);
-              trackItemVM.blur();
+              const trackItemView = trackView.trackTimelineView.getTrackItemView(trackItem);
+              trackItemView.blur();
             }
           })
         })
@@ -89,31 +89,31 @@ export class TimelineWidgetRangeSelectorController extends Disposable
     }
     else {
       if (this.endPos_.x > this.startPos_.x) {
-        timelineVM.blurAllTrackItems();
+        timelineView.blurAllTrackItems();
         this.selectTowardPositive_ = true;
         this.endPos_ = clone(this.startPos_);
         this.mouseMoveHandler(e);
       }
       else if (this.endPos_.x >= endPos.x) {
         // Extend
-        timelineVM.trackViewModels.forEach(trackVM => {
-          const track = trackVM.track;
+        timelineView.trackViews.forEach(trackView => {
+          const track = trackView.track;
           const trackItems = track.getTrackItemsBetween(endPos.x, this.endPos_.x);
           trackItems.forEach(trackItem => {
-            const trackItemVM = trackVM.getTrackItemViewModel(trackItem);
-            trackItemVM.focus();
+            const trackItemView = trackView.trackTimelineView.getTrackItemView(trackItem);
+            trackItemView.focus();
           })
         })
       }
       else {
         // Reduce
-        timelineVM.trackViewModels.forEach(trackVM => {
-          const track = trackVM.track;
+        timelineView.trackViews.forEach(trackView => {
+          const track = trackView.track;
           const trackItems = track.getTrackItemsBetween(this.endPos_.x, endPos.x);
           trackItems.forEach(trackItem => {
             if (trackItem.time.end < endPos.x) {
-              const trackItemVM = trackVM.getTrackItemViewModel(trackItem);
-              trackItemVM.blur();
+              const trackItemView = trackView.trackTimelineView.getTrackItemView(trackItem);
+              trackItemView.blur();
             }
           })
         })
@@ -123,12 +123,12 @@ export class TimelineWidgetRangeSelectorController extends Disposable
   }
 
   private updateViewModel(start: Vector2, end: Vector2) {
-    const timelineVM = this.widget_.model;
+    const timelineView = this.widget_.view.timelineView;
     const rangeSelectorVM = this.widget_.rangeSelector;
     const top = Math.min(start.y, end.y);
     const bottom = Math.max(start.y, end.y);
-    const left = timelineVM.getPositionRelativeToTimeline(Math.min(start.x, end.x));
-    const right = timelineVM.getPositionRelativeToTimeline(Math.max(start.x, end.x));
+    const left = timelineView.scrollViewModel.getPositionRelativeToTimeline(Math.min(start.x, end.x));
+    const right = timelineView.scrollViewModel.getPositionRelativeToTimeline(Math.max(start.x, end.x));
     rangeSelectorVM.setSize(top, left, right - left, bottom - top);
   }
 

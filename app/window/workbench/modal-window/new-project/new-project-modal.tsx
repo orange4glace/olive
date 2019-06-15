@@ -1,3 +1,4 @@
+import * as style from './style.scss'
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { IProjectsService } from "internal/project/projects-service";
@@ -8,6 +9,10 @@ import { NewProjectModalWindowStarter } from "window/workbench/modal-window/new-
 import { Registry } from "platform/registry/common/platform";
 import { IWorkbenchActionRegistry, Extensions } from "window/workbench/common/actions";
 import { IModalWindow } from 'window/workbench/modal-window/modal-window';
+import { InputBox } from 'window/base/ui/input-box/input-box';
+import { observable } from 'mobx';
+import { observer } from 'mobx-react';
+import { Button } from 'window/base/ui/button/button';
 
 export interface INewProjectModal {
 
@@ -17,6 +22,8 @@ export interface INewProjectModal {
 
 export class NewProjectModal implements INewProjectModal {
 
+  @observable name: string;
+
   constructor(
     private readonly modalWindow_: IModalWindow,
     @IProjectsService private readonly projectsService_: IProjectsService) {
@@ -24,18 +31,39 @@ export class NewProjectModal implements INewProjectModal {
       modalWindow_.appWindow.nativeWindow.document.getElementById('app'));
   }
 
-  done() {
-    this.projectsService_.createProject();
+  confirm() {
+    this.projectsService_.createProject({
+      name: this.name
+    });
     this.modalWindow_.close();
   }
 
 }
 
+@observer
 class NewProjectModalView extends React.Component<{modal: NewProjectModal}> {
 
+  nameValueChangeHandler = (name: string) => {
+    this.props.modal.name = name;
+  }
+
+  confirmClickHandler = () => {
+    const modal = this.props.modal;
+    modal.confirm();
+  }
+
   render() {
+    const modal = this.props.modal;
     return (
-      <div onClick={e => this.props.modal.done()}>DONE</div>
+      <div className={style.component}>
+        <div className='area'>
+          <div className='title'>Project name</div>
+          <InputBox value={modal.name} onValueChange={this.nameValueChangeHandler}/>
+        </div>
+        <div className='right-align'>
+          <Button label={'Confirm'} onClick={this.confirmClickHandler}/>
+        </div>
+      </div>
     )
   }
 

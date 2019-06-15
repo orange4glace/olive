@@ -1,0 +1,14 @@
+.component {
+  box-sizing: border-box;
+  font-size: 12px;
+  color: var(--primaryColor);
+  border-bottom: 1px solid var(--surfaceBrightColor);
+
+  > .name {
+    box-sizing: border-box;
+    padding: 0 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}

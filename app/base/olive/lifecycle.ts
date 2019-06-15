@@ -1,5 +1,5 @@
 import { Constructor } from "base/olive/mixin";
-import { IDisposable, dispose } from "base/common/lifecycle";
+import { IDisposable, dispose, isDisposable, toDisposable } from "base/common/lifecycle";
 import { Postabled } from "worker-postable";
 
 export function WithDisposable<TBase extends Constructor>(Base: TBase) { 
@@ -29,4 +29,13 @@ export function WithDisposable<TBase extends Constructor>(Base: TBase) {
     }
   };
   return WithDisposable;
+}
+
+export type DisposableMap<T, V extends IDisposable | IDisposable[]> = Map<T, V> & IDisposable;
+
+export function newDisposableMap<T, V extends IDisposable>(): DisposableMap<T, V>
+export function newDisposableMap<T, V extends IDisposable[]>(): DisposableMap<T, V> {
+  const map = new Map() as DisposableMap<T, V>;
+  map.dispose = function() { map.forEach((disposables, _) => dispose(disposables)); }
+  return map;
 }

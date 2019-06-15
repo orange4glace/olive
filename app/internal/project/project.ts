@@ -14,6 +14,7 @@ import { ITimelinesService } from "internal/timeline/base/timelines-service";
 import { VideoSetting } from "internal/timeline/base/video-setting";
 import { FrameRate } from "internal/timeline/base/frame_rate";
 import { TimelineStorageFile } from "internal/timeline/base/timeline-storage-file";
+import { IHistory, History } from "internal/history/history";
 
 export interface SerializedProject {
   id: string;
@@ -31,7 +32,7 @@ export interface IProject extends ProjectBase {
 
   readonly timelineManager: ITimelineManager;
   readonly storage: IStorageDirectory;
-  
+  readonly history: IHistory;
 
   importResource(path: string, directory: IStorageDirectory): Promise<IStorageFile>;
   createTimeline(directory: IStorageDirectory): ITimeline;
@@ -53,6 +54,8 @@ export class Project implements IProject, ProjectBase, Serializable {
   public get resourceManager() { return this.resourceManager_; }
   private storage_: IStorageDirectory;
   public get storage() { return this.storage_; }
+  private history_: IHistory;
+  public get history() { return this.history_; }
 
   constructor(id: string,
     @IInstantiationService instantiationService: IInstantiationService) {
@@ -61,6 +64,7 @@ export class Project implements IProject, ProjectBase, Serializable {
     this.timelineManager_ = new TimelineManagerImpl();
     this.resourceManager_ = new ResourceManager();
     this.storage_ = new StorageDirectory('');
+    this.history_ = new History();
 
     const projectServices = new ServiceCollection();
     projectServices.set(ITimelinesService, this.timelineManager);

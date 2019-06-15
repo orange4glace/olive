@@ -131,7 +131,7 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
     this.onTrackItemWillRemove_.fire({
       trackItem: trackItem
     })
-    this.POSTABLE_onWillRemoveTrackItem.emit(trackItem);
+    this.POSTABLE_onWillRemoveTrackItem.emit(getPostableID(trackItem));
     this.trackItems_.delete(trackItem);
     this.trackItemTreeMap_.erase(trackItem.time);
   }
@@ -142,6 +142,11 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
     console.assert(this.trackItems_.has(trackItem));
     console.assert(!this.trackItemTreeMap_.has(time));
     let lastTime = trackItem.time;
+
+    if (time.start >= time.end) {
+      this.doRemoveTrackItem(trackItem);
+      return;
+    }
 
     this.trackItemTreeMap_.erase(trackItem.time);
     trackItem.__setTime(time);

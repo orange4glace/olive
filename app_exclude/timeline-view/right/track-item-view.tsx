@@ -3,7 +3,7 @@ import { TimelineTrackViewProps } from './track-view';
 import { observer } from 'window/app-mobx';
 import ADiv from 'window/view/advanced-div';
 import { EventUtil } from 'orangeutil';
-import { TimelineWidgetTrackItemViewModel } from 'window/workbench/common/widgets/timeline/model/track-item-view-model';
+import { TimelineWidgetTrackItemViewModel } from 'window/workbench/common/widgets/timeline/model/track/track-item-view';
 import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { createStandardMouseEvent } from 'base/olive/mouse-event';
 

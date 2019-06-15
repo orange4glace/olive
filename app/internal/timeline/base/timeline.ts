@@ -20,6 +20,7 @@ export interface ITimeline {
   readonly onPlay: Event<void>;
   readonly onPause: Event<void>;
   readonly onSeek: Event<void>;
+  readonly onDidChangeCurrentTime: Event<void>;
   readonly onTrackAdded: Event<TimelineTrackEvent>;
   readonly onTrackWillRemove: Event<TimelineTrackEvent>;
 
@@ -40,6 +41,7 @@ export interface ITimeline {
   seekTo(time: number): void;
   
   addTrack(): ITrack;
+  removeTrack(track: ITrack): boolean;
   getTrackAt(index: number): ITrack;
   getTrackIndex(track: ITrack): number;
 

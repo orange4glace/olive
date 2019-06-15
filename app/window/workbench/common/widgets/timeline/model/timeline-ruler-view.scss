@@ -1,0 +1,18 @@
+.component {
+  position: relative;
+  height: 30px;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--surfaceBrightColor);
+
+  > .indicator {
+    position: absolute;
+    bottom: 0px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 15px 7.5px 0 7.5px;
+    border-color: var(--primaryColor) transparent transparent transparent;
+
+    transform: translateX(-7px);
+  }
+}

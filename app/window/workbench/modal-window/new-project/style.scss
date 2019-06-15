@@ -1,0 +1,13 @@
+.component {
+  background: var(--surfaceColor);
+
+  .area {
+    padding: 15px;
+  }
+
+  .title {
+    font-size: 12px;
+    color: var(--surfaceTextColor);
+    margin-bottom: 10px;
+  }
+}

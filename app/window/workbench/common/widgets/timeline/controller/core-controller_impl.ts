@@ -1,9 +1,6 @@
 import { StaticDND, IDragAndDropData } from "base/browser/dnd";
 import { TimelineWidgetCoreController } from "window/workbench/common/widgets/timeline/controller/core-controller";
-import { TimelineWidgetGhostContainerViewModel } from "window/workbench/common/widgets/timeline/model/ghost-view-model";
-import { TimelineWidgetTrackViewModel } from "window/workbench/common/widgets/timeline/model/track-view-model";
 import { IDisposable, dispose } from "base/common/lifecycle";
-import { ITimelineWidget } from "window/workbench/common/widgets/timeline/widget";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";
@@ -11,6 +8,9 @@ import { StorageItemDragAndDropData } from "window/view/dnd/dnd";
 import { ResourceStorageFile, MediaResourceStorageFile } from "internal/resource/base/resource-storage-file";
 import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 import { TimelineStorageFile } from "internal/timeline/base/timeline-storage-file";
+import { ITrack } from "internal/timeline/base/track/track";
+import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget-impl";
+import { GhostTrackItemView } from "window/workbench/common/widgets/timeline/model/track/ghost-track-item-view";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
@@ -18,17 +18,21 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
 
   private lastDragData_: IDragAndDropData = null;
   private dragTrackItem_: ITrackItem = null;
-  private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
+  // private dragGhostContainer_: TimelineWidgetGhostContainerViewModel = null;
 
-  constructor(private readonly widget_: ITimelineWidget,
+  private ghostTrackItemViews_: GhostTrackItemView[] = [];
+
+  private lastDragOverTrack_: ITrack;
+
+  constructor(private readonly widget_: TimelineWidget,
     @IHistoryService private readonly historyService_: IHistoryService) {
     super();
 
     this.toDispose_.push(widget_.onWidgetDragOver(e => this.widgetDragOverHandler(e), this));
     this.toDispose_.push(widget_.onWidgetDrop(e => this.widgetDropHandler(e), this));
-    this.toDispose_.push(widget_.onTrackDragOver(e => this.trackDragOverHandler(e.trackViewModel, e.e), this));
-    this.toDispose_.push(widget_.onTrackDragLeave(e => this.trackDragLeaveHandler(e.trackViewModel, e.e), this));
-    this.toDispose_.push(widget_.onTrackDrop(e => this.trackDropHandler(e.trackViewModel, e.e), this));
+    this.toDispose_.push(widget_.onTrackDragOver(e => this.trackDragOverHandler(e.track, e.e), this));
+    this.toDispose_.push(widget_.onTrackDragLeave(e => this.trackDragLeaveHandler(e.track, e.e), this));
+    this.toDispose_.push(widget_.onTrackDrop(e => this.trackDropHandler(e.track, e.e), this));
   }
 
   widgetDragOverHandler(e: React.MouseEvent) {
@@ -59,44 +63,50 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
     }
   }
 
-  trackDragOverHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent) {
+  private createGhostTrackItemViews(track: ITrack, trackItem: ITrackItem) {
+    this.ghostTrackItemViews_ = dispose(this.ghostTrackItemViews_);
+    const view = this.widget_.view.timelineView.getTrackView(track).trackTimelineView.addGhostTrackItem(0, trackItem.duration);
+    this.ghostTrackItemViews_.push(view);
+  }
+
+  trackDragOverHandler(track: ITrack, e: StandardMouseEvent) {
     e.preventDefault();
     e.stopPropagation();
     const dragData = StaticDND.CurrentDragAndDropData;
     if (dragData instanceof StorageItemDragAndDropData) {
-      if (this.lastDragData_ != dragData || this.dragGhostContainer_ == null) {
+      if (this.lastDragData_ != dragData || this.dragTrackItem_ == null) {
         this.lastDragData_ = dragData;
         const storageDNDData = dragData as StorageItemDragAndDropData;
         this.dragTrackItem_ = storageDNDData.storageItem.trackItemize();
         // this.dragTrackItem_ = this.resourceService_.trackItemize(storageDNDData.getData());
-        this.dragGhostContainer_ = this.widget_.model.ghostViewModel.createGhostContainer();
-        this.widget_.model.ghostViewModel.setCurrentContainer(this.dragGhostContainer_);
-        this.dragGhostContainer_.addGhostTrackItem(0, 0, this.dragTrackItem_.duration);
       }
-      const trackOffset = this.widget_.model.getTrackViewModelIndex(trackVM);
-      this.dragGhostContainer_.translate(this.widget_.model.getTimeRelativeToTimeline(this.widget_.model.getMousePostionRelativeToTimeline(e).x));
-      this.dragGhostContainer_.setTrackOffset(trackOffset);
+      if (this.lastDragOverTrack_ != track) {
+        this.createGhostTrackItemViews(track, this.dragTrackItem_);
+        this.lastDragOverTrack_ = track;
+      }
+      this.widget_.view.timelineView.ghostTimelineState.translation = 
+          this.widget_.view.timelineView.scrollViewModel.getTimeRelativeToTimeline(
+              this.widget_.view.timelineView.scrollViewModel.getMousePostionRelativeToTimeline(e).x);
     }
   }
 
-  trackDragLeaveHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent) {
-    this.widget_.model.ghostViewModel.setCurrentContainer(null);
+  trackDragLeaveHandler(track: ITrack, e: StandardMouseEvent) {
     this.dragTrackItem_ = null;
-    this.dragGhostContainer_ = null;
+    this.ghostTrackItemViews_ = dispose(this.ghostTrackItemViews_);
+    this.lastDragOverTrack_ = null;
   }
 
-  trackDropHandler(trackVM: TimelineWidgetTrackViewModel, e: StandardMouseEvent) {
+  trackDropHandler(track: ITrack, e: StandardMouseEvent) {
     if (this.dragTrackItem_) {
-      const container = this.dragGhostContainer_;
-      const targetTrackVM = this.widget_.model.trackViewModels[this.dragGhostContainer_.trackOffset];
+      const ghostTimelineState = this.widget_.view.timelineView.ghostTimelineState;
       const targetTrackItem = this.dragTrackItem_;
-      const start = container.leftExtend;
-      const end = targetTrackItem.duration + container.rightExtend;
-      this.historyService_.execute(new AddTrackItemCommand(targetTrackVM.track, targetTrackItem, start, end, 0));
+      const start = ghostTimelineState.translation;
+      const end = targetTrackItem.duration + ghostTimelineState.translation;
+      this.historyService_.execute(new AddTrackItemCommand(track, targetTrackItem, start, end, 0));
       this.historyService_.close();
-      this.widget_.model.ghostViewModel.setCurrentContainer(null);
       this.dragTrackItem_ = null;
-      this.dragGhostContainer_ = null;
+      this.ghostTrackItemViews_ = dispose(this.ghostTrackItemViews_);
+      this.lastDragOverTrack_ = null;
     }
   }
 

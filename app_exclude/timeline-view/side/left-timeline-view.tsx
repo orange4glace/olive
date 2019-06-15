@@ -23,9 +23,15 @@ export class TimelineWidgetSideView extends React.Component<TimelineWidgetViewPr
 }
 
 class Header extends React.Component<TimelineWidgetViewProps, {}> {
+
+  addTrackHandler = () => {
+    this.props.widget.model.addTrack();
+  }
+  
   render() {
     return (
     <div className='header'>
+      <div className='add-track' onClick={this.addTrackHandler}/>
     </div>);
   }
 }

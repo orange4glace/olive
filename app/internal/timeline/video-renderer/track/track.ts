@@ -15,16 +15,17 @@ export class TrackVideoRenderer extends WithTrackBase(MixinBase) implements Post
   protected trackItemTreeMap_: TreeMap<TrackItemTimeBase, TrackItemVideoRenderer> = new TreeMap();
   
   protected POSTABLE_onDidAddTrackItem: PostedEvent<number>;
-  protected POSTABLE_onWillRemoveTrackItem: PostedEvent<TrackItemVideoRenderer>;
+  protected POSTABLE_onWillRemoveTrackItem: PostedEvent<number>;
 
   onPostableInstanceCreated() {
-    console.log(this);
     this.POSTABLE_onDidAddTrackItem.on = trackItemID => {
       const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
       console.warn('POSTABLE_onDidAddTrackItem', trackItem);
       this.trackItemTreeMap_.insert(make_pair(trackItem.time, trackItem));
     }
-    this.POSTABLE_onWillRemoveTrackItem.on = trackItem => {
+    this.POSTABLE_onWillRemoveTrackItem.on = trackItemID => {
+      const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
+      console.warn('POSTABLE_onWillRemoveTrackItem', trackItem);
       this.trackItemTreeMap_.erase(trackItem.time);
     }
   }

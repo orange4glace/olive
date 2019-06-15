@@ -22,6 +22,8 @@ export interface IHistoryService {
 
 }
 
+export interface IHistory extends IHistoryService {}
+
 interface IHistoryStackElement {
 
   /*@observable*/ readonly isEmpty: boolean;
@@ -130,3 +132,5 @@ export class HistoryService implements IHistoryService {
   }
 
 }
+
+export class History extends HistoryService {}

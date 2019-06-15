@@ -33,7 +33,16 @@ module.exports = [{
         // https://velopert.com/3447
         test: /\.scss$/,
         use: [
-          require.resolve('style-loader'),
+          {
+            loader: require.resolve('style-loader'),
+            options: {
+              singleton: true,
+              sourceMap: true,
+              attrs: {
+                id: 'olive-style'
+              }
+            }
+          },
           {
             loader: require.resolve('css-loader'),
             options: {
@@ -76,7 +85,7 @@ module.exports = [{
         ]
       },
       {
-        test: /\.(woff(2)?|ttf|eot|jpg|png)(\?v=\d+\.\d+\.\d+)?$/,
+        test: /\.(woff(2)?|ttf|eot|jpg|png|svg)(\?v=\d+\.\d+\.\d+)?$/,
         exclude: /node_modules/,
         use: [{
           loader: 'file-loader',
@@ -86,10 +95,17 @@ module.exports = [{
           }
         }]
       },
-      {
-        test: /\.svg$/,
-        loader: 'svg-inline-loader?classPrefix'
-      },
+      // {
+      //   test: /\.svg$/,
+      //   loader: 'svg-inline-loader?classPrefix'
+      // },
+      // {
+      //   test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/,
+      //   loader: 'url-loader',
+      //   options: {
+      //     limit: 8192,
+      //   },
+      // },
       {
         test: /\.node$/,
         use: 'node-loader'

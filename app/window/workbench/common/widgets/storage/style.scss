@@ -1,11 +1,51 @@
+
+$directoryHeaderHeight: 30px;
+
 .component {
   position: absolute;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 
-  .storage-item {
-    font-size: 12px;
-    color: var(--surfaceTextColor);
+  .directory {
+    > .header {
+      height: $directoryHeaderHeight;
+
+      > .label {
+        line-height: $directoryHeaderHeight;
+        color: var(--surfaceTextColor);
+        padding-left: 10px;
+      }
+
+      border-bottom: 1px solid var(--surfaceDarkColor);
+    }
+
+    > .content {
+      padding: 10px;
+      margin-left: -20px;
+
+      .storage-item {
+        display: inline-block;
+        padding-left: 20px;
+        font-size: 12px;
+        color: var(--surfaceTextColor);
+        width: 100px;
+        height: 100px;
+
+        > .content {
+          box-sizing: border-box;
+          height: calc(100% - 20px);
+          border: 1px solid var(--surfaceBrightColor);
+        }
+
+        > .label {
+          height: 20px;
+          line-height: 20px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
   }
 
 }

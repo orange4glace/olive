@@ -2,7 +2,6 @@ import * as React from 'react'
 import { observer, observable } from 'window/app-mobx';
 import { TimelineTracksViewProps } from './tracks-view';
 import { TrackItemView } from './track-item-view';
-import { TimelineWidgetTrackViewModel } from 'window/workbench/common/widgets/timeline/model/track-view-model';
 import { TimelineWidgetGhostContainerViewModel, TimelineWidgetGhostTrackItemViewModel } from 'window/workbench/common/widgets/timeline/model/ghost-view-model';
 import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { createStandardMouseEvent } from 'base/olive/mouse-event';

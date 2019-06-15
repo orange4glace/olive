@@ -1,0 +1,121 @@
+.component {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  border-bottom: 1px solid var(--surfaceBrightColor);
+
+  > .track-item {
+    position: absolute;
+    height: 30px;
+    box-sizing: border-box;
+    border-right: 1px solid var(--primaryColor);
+
+    > .bar {
+      width: 100%;
+      height: 100%;
+      background: rgb(216, 119, 119);
+        
+      > .thumb {
+        position: absolute;
+        top: 0;
+        width: 10%;
+        max-width: 20px;
+        min-width: 1px;
+        height: 100%;
+
+        &.left-inner {
+          z-index: 5;
+          left: 0px;
+          cursor: url(window/images/resize-e.png) 5 15, e-resize;
+        }
+        &.left-outer {
+          z-index: 4;
+          left: 0px;
+          transform: translateX(-100%);
+          cursor: url(window/images/resize-w.png) 5 15, w-resize;
+        }
+        &.right-inner {
+          z-index: 5;
+          right: 0px;
+          cursor: url(window/images/resize-w.png) 15 15, w-resize;
+        }
+        &.right-outer {
+          z-index: 4;
+          right: 0px;
+          transform: translateX(100%);
+          cursor: url(window/images/resize-e.png) 5 15, e-resize;
+        }
+      }
+    }
+
+    &.focused {
+      > .bar {
+        background: #ccc;
+      }
+    }
+  }
+
+  > .ghost-track-magnet-guide {
+    position: absolute;
+    z-index: 55;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 7px 0 7px;
+    border-color: var(--secondaryColor) transparent transparent transparent;
+    top: 0;
+    margin-left: -7px;
+  }
+
+  > .ghost-track-item {
+    position: absolute;
+    z-index: 56;
+    opacity: .5;
+    height: 30px;
+    box-sizing: border-box;
+    border-right: 1px solid var(--primaryColor);
+    background: rgb(216, 119, 119);
+    pointer-events: none;
+  }
+
+  &.active {
+    z-index: 3;
+
+    > .track-item {
+      border-left: 1px solid var(--primaryColor);
+
+      > .bar {
+        background: rgb(99, 99, 245);
+        opacity: .3;
+      }
+
+      &.snap-left {
+        &::before {
+          content: '';
+          position: absolute;
+          left: -15px;
+          top: 0;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 0 15px 15px 0;
+          border-color: transparent var(--surfaceBrightColor) transparent transparent;                
+        }
+      }
+
+      &.snap-right {
+        &::before {
+          content: '';
+          position: absolute;
+          right: -15px;
+          top: 0;
+          width: 0;
+          height: 0;
+          border-style: solid;
+          border-width: 15px 15px 0 0;
+          border-color: var(--surfaceBrightColor) transparent transparent transparent;                
+        }
+      }
+    }
+  }
+}

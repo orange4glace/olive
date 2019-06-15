@@ -58,6 +58,7 @@ export interface IWidgetGroup extends ISerializableView, IDisposable {
 
   closeWidget(widget: IWidget, openNext: boolean): number | undefined;
 
+  setActiveWidget(widget: IWidget): void;
   setActive(value: boolean): void;
 
   isEmpty(): boolean;
@@ -344,6 +345,7 @@ export class WidgetGroup extends Disposable implements IWidgetGroup {
     this.id_ = serial.id;
     let index = 0;
     serial.widgets.forEach(s => {
+      console.log(s);
       const factory = registry.getWidgetFactory(s.serializedWidgetType);
       const widget = factory.deserialize(this.instantiationService, s);
       console.log(s.serializedWidgetType, factory, widget);

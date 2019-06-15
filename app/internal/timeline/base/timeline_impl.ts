@@ -31,16 +31,14 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
 
   private readonly onPlay_: Emitter<void> = this._register(new Emitter<void>());
   readonly onPlay: Event<void> = this.onPlay_.event;
-
   private readonly onPause_: Emitter<void> = this._register(new Emitter<void>());
   readonly onPause: Event<void> = this.onPause_.event;
-
   private readonly onSeek_: Emitter<void> = this._register(new Emitter<void>());
   readonly onSeek: Event<void> = this.onSeek_.event;
-
+  private readonly onDidChangeCurrentTime_: Emitter<void> = this._register(new Emitter<void>());
+  public readonly onDidChangeCurrentTime = this.onDidChangeCurrentTime_.event;
   private readonly onTrackAdded_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
   readonly onTrackAdded: Event<TimelineTrackEvent> = this.onTrackAdded_.event;
-
   private readonly onTrackWillRemove_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
   readonly onTrackWillRemove: Event<TimelineTrackEvent> = this.onTrackWillRemove_.event;
 
@@ -55,16 +53,15 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
   protected audioSetting_: AudioSetting;
   public get audioSetting() { return this.audioSetting_; }
 
-  @observable currentTimePausing: number;
-  @observable currentTimePlaying: number;
+  private resumedTime_: number;
+  private currentTime_: number;
   private playingInterval_: number;
   private lastPlaySystemTime: number;
 
   @observable paused: boolean = true;
 
   get currentTime() {
-    if (this.paused) return this.currentTimePausing;
-    else return this.currentTimePlaying;
+    return this.currentTime_;
   }
 
   constructor(id: TimelineIdentifier, videoSetting: VideoSetting, audioSetting: AudioSetting) {
@@ -91,7 +88,8 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
     if (!this.paused) return;
     this.paused = false;
     const now = Date.now();
-    this.currentTimePlaying = this.currentTimePausing;
+    // this.currentTimePlaying = this.currentTimePausing;
+    this.resumedTime_ = this.currentTime;
     this.lastPlaySystemTime = getCurrentSystemTime();
     this.playingInterval_ = requestAnimationFrame(this.playingCallback_);
     this.onPlay_.fire();
@@ -100,9 +98,14 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
   pause() {
     if (this.paused) return;
     this.paused = true;
-    this.currentTimePausing = this.currentTimePlaying;
+    // this.currentTimePausing = this.currentTimePlaying;
     cancelAnimationFrame(this.playingInterval_);
     this.onPause_.fire();
+  }
+
+  private setCurrentTime(time: number) {
+    this.currentTime_ = time;
+    this.onDidChangeCurrentTime_.fire();
   }
 
   getCurrentTime() {
@@ -112,21 +115,21 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
   private playingCallback_() {
     const now = getCurrentSystemTime();
     const dt = now - this.lastPlaySystemTime;
-    this.setCurrentTimePlaying(this.currentTimePausing + this.videoSetting.frameRate.systemTimeToTime(dt));
+    this.setCurrentTime(this.resumedTime_ + this.videoSetting.frameRate.systemTimeToTime(dt));
     this.playingInterval_ = requestAnimationFrame(this.playingCallback_);
   }
 
-  private setCurrentTimePausing(time: number) {
-    this.currentTimePausing = time;
-  }
+  // private setCurrentTimePausing(time: number) {
+  //   this.currentTimePausing = time;
+  // }
 
-  private setCurrentTimePlaying(time: number) {
-    this.currentTimePlaying = time;
-  }
+  // private setCurrentTimePlaying(time: number) {
+  //   this.currentTimePlaying = time;
+  // }
 
   seekTo(time: number) {
     this.pause();
-    this.setCurrentTimePausing(time);
+    this.setCurrentTime(time);
     this.onSeek_.fire();
   }
 
@@ -144,6 +147,20 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
       index: this.tracks.length - 1
     })
     return track;
+  }
+
+  removeTrack(track: Track): boolean {
+    return this.doRemoveTrack(track);
+  }
+
+  private doRemoveTrack(track: Track): boolean {
+    const trackIndex = this.getTrackIndex(track);
+    if (trackIndex == -1) {
+      console.warn('Track not found! ' + track.id);
+      return false;
+    }
+    this.tracks_.splice(trackIndex, 1);
+    return true;
   }
 
   getTrackAt(index: number): Track {
@@ -177,7 +194,7 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
       obj.id,
       VideoSetting.deserialize(obj.videoSetting),
       AudioSetting.deserialize(obj.audioSetting));
-    timeline.setCurrentTimePausing(obj.currentTime);
+    timeline.setCurrentTime(obj.currentTime);
     timeline.totalTime_ = obj.totalTime;
     obj.tracks.forEach(trackSerial => {
       const track = Track.deserialize(instantiationService, trackSerial);

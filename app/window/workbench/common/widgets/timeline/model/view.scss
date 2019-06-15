@@ -1,0 +1,31 @@
+@import 'window/theme.scss';
+
+.component {
+  display: flex;
+  flex-direction: column;
+
+  > .header {
+    display: flex;
+    flex-direction: row;
+    flex: 0 0 20px;
+    line-height: 20px;
+
+    > .left {
+      > .current-frame-time {
+        box-sizing: border-box;
+        padding-left: 5px;
+        font-size: 15px;
+        font-weight: bold;
+        color: $highlight-text;
+      }
+
+    }
+
+    > .right {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+  }
+}
