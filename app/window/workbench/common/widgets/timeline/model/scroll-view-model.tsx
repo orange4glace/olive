@@ -1,11 +1,14 @@
+import * as style from './timeline-scroll-view.scss'
 import * as React from 'react'
-import { observable, autorun, action } from "window/app-mobx";
-import { IReactionDisposer } from "mobx";
+import { IReactionDisposer, observable, action } from "mobx";
 import { ITimeline } from "internal/timeline/base/timeline";
 import { MouseUtil } from "orangeutil";
 import { StandardMouseEvent } from "base/browser/mouseEvent";
 import ZoomableScrollView, { ZoomableScrollViewController } from "window/view/zoomable-scroll-view";
 import { Emitter } from 'base/common/event';
+import { Disposable } from 'base/common/lifecycle';
+import { TimelineRulerView } from 'window/workbench/common/widgets/timeline/model/timeline-ruler-view';
+import { observer } from 'mobx-react';
 
 // export interface TimelineScrollView {
 //   /*observable*/ startTime: number;
@@ -24,7 +27,7 @@ import { Emitter } from 'base/common/event';
 //   getMousePostionRelativeToTimeline(e: MouseEvent | React.MouseEvent | StandardMouseEvent): {x: number, y: number};
 // }
 
-export class TimelineScrollView implements TimelineScrollView {
+export class TimelineScrollView extends Disposable implements TimelineScrollView {
 
   readonly zoomableScrollViewCtrl: ZoomableScrollViewController;
 
@@ -45,6 +48,12 @@ export class TimelineScrollView implements TimelineScrollView {
   private timeline_: ITimeline;
   private autorunDisposer: IReactionDisposer;
 
+  private rulerView_: TimelineRulerView;
+  public get rulerView() { return this.rulerView_; }
+
+  @observable private indicatorPosition_: number;
+  public get indicatorPosition() { return this.indicatorPosition_; }
+
   get element(): HTMLDivElement { return this.zoomableScrollViewCtrl.elementRef.current; }
   get startTime() { return this.startTime_; }
   get endTime() { return this.endTime_; }
@@ -54,18 +63,28 @@ export class TimelineScrollView implements TimelineScrollView {
   get unitWidth() { return this.unitWidth_; }
 
   constructor(timeline: ITimeline) {
+    super();
     this.timeline_ = timeline;
 
     this.zoomableScrollViewCtrl = new ZoomableScrollViewController();
     this.zoomableScrollViewCtrl.ee.on('update', this.scrollViewUpdateHandler.bind(this));
 
     this.update_ = this.update_.bind(this);
-    this.autorunDisposer = autorun(this.update_);
+
+    this.rulerView_ = this._register(new TimelineRulerView(timeline, this));
+
+    this._register(timeline.onDidChangeCurrentTime(this.update_, this));
+    this._register(timeline.onDidChangeDuration(this.update_, this));
+
+    // Update indicator position
+    this._register(timeline.onDidChangeCurrentTime(this.updateIndicatorPosition, this));
+    this._register(this.onUpdate(this.updateIndicatorPosition, this));
   }
 
   private scrollViewUpdateHandler() {
     const controller = this.zoomableScrollViewCtrl;
     this.update(controller.scrollWidth, controller.start, controller.end);
+    this.update_();
   }
 
   private update_() {
@@ -107,6 +126,10 @@ export class TimelineScrollView implements TimelineScrollView {
     this.unitWidth_ = unitWidth;
 
     this.onUpdate_.fire();
+  }
+
+  private updateIndicatorPosition() {
+    this.indicatorPosition_ = this.getPositionRelativeToTimeline(this.timeline_.currentTime)
   }
 
   setElement(el: HTMLDivElement) {
@@ -180,13 +203,20 @@ export class TimelineScrollView implements TimelineScrollView {
   }
 }
 
+@observer
 class ScrollViewComponent extends React.Component<{view: TimelineScrollView}> {
 
   render() {
     const view = this.props.view;
     return (
       <ZoomableScrollView controller={view.zoomableScrollViewCtrl}>
-        {this.props.children}
+        <div className={`timeline-scroll-view ${style.component}`}>
+          {view.rulerView.render()}
+          <div className='indicator' style={{left: view.indicatorPosition + 'px'}}/>
+          <div className='content'>
+            {this.props.children}
+          </div>
+        </div>
       </ZoomableScrollView>
     )
   }

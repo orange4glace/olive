@@ -9,6 +9,8 @@ import { TimelineTrackSideView } from 'window/workbench/common/widgets/timeline/
 import { TimelineTrackTimelineView } from 'window/workbench/common/widgets/timeline/model/track/track-timeline-view';
 import { IProject } from 'internal/project/project';
 import { GhostTrackItemView } from 'window/workbench/common/widgets/timeline/model/track/ghost-track-item-view';
+import { TimelineWidgetTrackItemEvent } from 'window/workbench/common/widgets/timeline/event';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
 
 // export interface TimelineWidgetTrackViewModel extends ViewModel {
 
@@ -30,14 +32,19 @@ import { GhostTrackItemView } from 'window/workbench/common/widgets/timeline/mod
 // }
 
 
+interface TrackItemFocusEvent {
+  track: ITrack;
+  trackItem: ITrackItem;
+}
+
 export class TimelineTrackView extends Disposable {
 
   readonly track: ITrack;
 
-  private readonly onTrackItemFocused_: Emitter<TimelineWidgetTrackItemViewModel> = new Emitter();
-  readonly onTrackItemFocused: Event<TimelineWidgetTrackItemViewModel> = this.onTrackItemFocused_.event;
-  private readonly onTrackItemBlured_: Emitter<TimelineWidgetTrackItemViewModel> = new Emitter();
-  readonly onTrackItemBlured: Event<TimelineWidgetTrackItemViewModel> = this.onTrackItemBlured_.event;
+  private readonly onDidFocusTrackItem_: Emitter<TrackItemFocusEvent> = new Emitter();
+  readonly onDidFocusTrackItem: Event<TrackItemFocusEvent> = this.onDidFocusTrackItem_.event;
+  private readonly onDidBlurTrackItem_: Emitter<TrackItemFocusEvent> = new Emitter();
+  readonly onDidBlurTrackItem: Event<TrackItemFocusEvent> = this.onDidBlurTrackItem_.event;
   private readonly onTrackItemAdded_: Emitter<TimelineWidgetTrackItemViewModel> = new Emitter();
   readonly onTrackItemAdded: Event<TimelineWidgetTrackItemViewModel> = this.onTrackItemAdded_.event;
   private readonly onTrackItemWillRemove_: Emitter<TimelineWidgetTrackItemViewModel> = new Emitter();
@@ -64,6 +71,8 @@ export class TimelineTrackView extends Disposable {
     this.trackTimelineView_ = new TimelineTrackTimelineView(project, track, timelineScrollView, outgoingEvents);
 
     this._register(this.trackTimelineView_.onDidAddGhostTrackItemView(view => this.onDidAddGhostTrackItemView_.fire(view)));
+    this._register(this.trackTimelineView_.onDidFocusTrackItem(e => this.onDidFocusTrackItem_.fire(e)));
+    this._register(this.trackTimelineView_.onDidBlurTrackItem(e => this.onDidBlurTrackItem_.fire(e)));
   }
 
   render() {

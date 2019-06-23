@@ -20,6 +20,7 @@ export interface ITimeline {
   readonly onPlay: Event<void>;
   readonly onPause: Event<void>;
   readonly onSeek: Event<void>;
+  readonly onDidChangeDuration: Event<void>;
   readonly onDidChangeCurrentTime: Event<void>;
   readonly onTrackAdded: Event<TimelineTrackEvent>;
   readonly onTrackWillRemove: Event<TimelineTrackEvent>;

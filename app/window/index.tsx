@@ -48,6 +48,7 @@ import "window/workbench/common/widgets/timeline/widget-impl"
 import "window/workbench/common/widgets/timeline/widget-service-impl"
 import "window/workbench/common/widgets/storage/services/widget-service-impl"
 import "window/workbench/common/widgets/monitor/widget"
+import "window/workbench/common/widgets/effect-control/widget"
 
 //#endregion
 

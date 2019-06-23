@@ -6,6 +6,7 @@ import { IInstantiationService } from "platform/instantiation/common/instantiati
 import { MixinBase } from "base/olive/mixin";
 import { IKeyframeValue, KeyframeValue, ISerializedKeyframeValue } from "internal/rendering/property/base/keyframe-value";
 import { WithKeyframeBase, InterpolationType } from "internal/rendering/property/common/keyframe";
+import { Emitter } from "base/common/event";
 
 
 //#region Keyframe
@@ -20,6 +21,9 @@ export interface SerializedKeyframe {
 @Postable
 export class Keyframe<T extends IKeyframeValue> extends WithKeyframeBase(MixinBase) implements Cloneable {
 
+  private readonly onDidChangeValue_: Emitter<void> = new Emitter();
+  public readonly onDidChangeValue = this.onDidChangeValue_.event;
+
   protected value_: T;
 
   constructor(timecode: number, value: T, interpolationType = InterpolationType.LINEAR) {
@@ -31,6 +35,7 @@ export class Keyframe<T extends IKeyframeValue> extends WithKeyframeBase(MixinBa
 
   setValue(value: T) {
     this.value_ = value;
+    this.onDidChangeValue_.fire();
   }
 
   clone(object: Keyframe<T>): Object {

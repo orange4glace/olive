@@ -1,19 +1,22 @@
-import { Postable, postable, PostableEvent } from 'worker-postable';
-import { action, observable, computed } from 'mobx'
+import { Postable } from 'worker-postable';
+import { action, observable } from 'mobx'
 
 import { Event, Emitter } from 'base/common/event';
-import { Disposable } from 'base/common/lifecycle';
+import { IDisposable, dispose } from 'base/common/lifecycle';
 import { assert } from 'base/olive/assert';
 import { getCurrentSystemTime } from 'base/olive/time';
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
 import uuid from 'uuid';
 import { SerializedTrack, Track } from 'internal/timeline/base/track/track-impl';
 import { SerializedVideoSetting, VideoSetting } from 'internal/timeline/base/video-setting';
-import { TimelineIdentifier, TimelineTrackEvent } from 'internal/timeline/base/timeline';
-import { WithDisposable } from 'base/olive/lifecycle';
+import { TimelineIdentifier, TimelineTrackEvent, ITimeline } from 'internal/timeline/base/timeline';
+import { WithDisposable, DisposableMap, newDisposableMap } from 'base/olive/lifecycle';
 import { MixinBase } from 'base/olive/mixin';
 import { WithTimelineBase } from 'internal/timeline/common/timeline';
 import { SerializedAudioSetting, AudioSetting } from 'internal/timeline/base/audio-setting';
+import { Timebase } from 'internal/timeline/base/timebase';
+import { TrackItem } from 'internal/timeline/base/track-item/track-item-impl';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
 
 export interface SerializedTimeline {
   id: TimelineIdentifier;
@@ -25,7 +28,7 @@ export interface SerializedTimeline {
 }
 
 @Postable
-export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)) {
+export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)) implements ITimeline {
 
   private static __next_id = 0;
 
@@ -35,6 +38,8 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
   readonly onPause: Event<void> = this.onPause_.event;
   private readonly onSeek_: Emitter<void> = this._register(new Emitter<void>());
   readonly onSeek: Event<void> = this.onSeek_.event;
+  private readonly onDidChangeDuration_: Emitter<void> = this._register(new Emitter<void>());
+  public readonly onDidChangeDuration = this.onDidChangeDuration_.event;
   private readonly onDidChangeCurrentTime_: Emitter<void> = this._register(new Emitter<void>());
   public readonly onDidChangeCurrentTime = this.onDidChangeCurrentTime_.event;
   private readonly onTrackAdded_: Emitter<TimelineTrackEvent> = this._register(new Emitter<TimelineTrackEvent>());
@@ -47,6 +52,8 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
   
   protected tracks_: Track[];
   public get tracks() { return this.tracks_; }
+
+  private trackDisposables_: DisposableMap<Track, IDisposable[]>;
 
   protected videoSetting_: VideoSetting;
   public get videoSetting() { return this.videoSetting_; }
@@ -66,8 +73,9 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
 
   constructor(id: TimelineIdentifier, videoSetting: VideoSetting, audioSetting: AudioSetting) {
     super();
-    console.log(this);
     this.id_ = id || uuid();
+
+    this.trackDisposables_ = this._register(newDisposableMap<any, any>());
 
     this.videoSetting_ = videoSetting;
     this.audioSetting_ = audioSetting;
@@ -135,13 +143,14 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
 
   @action
   addTrack(): Track {
-    let track = new Track();
+    let track = new Track(new Timebase(this.videoSetting.frameRate.num, this.videoSetting.frameRate.den));
     return this.doAddTrack(track);
   }
 
   @action
   private doAddTrack(track: Track): Track {
     this.tracks.push(track);
+    this.registerTrackListeners(track);
     this.onTrackAdded_.fire({
       track: track,
       index: this.tracks.length - 1
@@ -159,8 +168,28 @@ export default class Timeline extends WithDisposable(WithTimelineBase(MixinBase)
       console.warn('Track not found! ' + track.id);
       return false;
     }
+    const disposables = this.trackDisposables_.get(track);
+    this.trackDisposables_.delete(track);
+    dispose(disposables);
     this.tracks_.splice(trackIndex, 1);
     return true;
+  }
+
+  private registerTrackListeners(track: Track) {
+    const disposables: IDisposable[] = [];
+    disposables.push(track.onTrackItemTimeChanged(e => this.updateDuration(e.trackItem)));
+    disposables.push(track.onTrackItemAdded(e => this.updateDuration(e.trackItem)));
+  }
+
+  private updateDuration(trackItem: ITrackItem) {
+    if (this.totalTime_ < trackItem.time.end) {
+      this.setDuration(trackItem.time.end + 300);
+    }
+  }
+
+  setDuration(duration: number) {
+    this.totalTime_ = duration;
+    this.onDidChangeDuration_.fire();
   }
 
   getTrackAt(index: number): Track {

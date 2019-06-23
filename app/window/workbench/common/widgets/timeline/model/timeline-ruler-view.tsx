@@ -132,7 +132,7 @@ class TimelineRulerViewComponent extends React.Component<{view: TimelineRulerVie
     const view = this.props.view;
     return (
       <div className={`ruler ${style.component}`} onMouseDown={this.mouseDownHandler}>
-        <div className='indicator' style={{left: view.indicatorPosition + 'px'}}/>
+        <div className='tip' style={{left: view.indicatorPosition + 'px'}}/>
         <canvas ref={this.setCanvas}></canvas>
       </div>
     )

@@ -12,7 +12,8 @@ export class TimelineVideoRenderer extends WithTimelineBase(MixinBase) {
   public get tracks() { return this.tracks_; }
 
   async render(time: number) {
-    VideoRendererGlobal.nvg.beginFrame(1080, 720, 1);
+    const videoSetting = this.videoSetting;
+    VideoRendererGlobal.nvg.beginFrame(videoSetting.screenWidth, videoSetting.screenHeight, 1);
     for (const track of this.tracks)
       track.beforeDraw(time);
     for (const track of this.tracks)

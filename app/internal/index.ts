@@ -28,6 +28,7 @@ import { MainAppWindowStarter } from 'window/main-app-window-starter';
 import { AppWindowService } from 'internal/app-window/app-window-service-impl';
 import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
 import { GlobalTimelineService } from 'internal/timeline/base/global-timeline-service-impl';
+import { TrackItemizerService, ITrackItemzierService } from 'internal/services/track-itemizer/track-itemizer-service';
 
 if ((module as any).hot) (module as any).hot.accept();
 
@@ -42,11 +43,13 @@ async function initializeApp(): Promise<void> {
   
   const appWindowService = new AppWindowService(ipcRenderer);
   const globalTimelineService = new GlobalTimelineService();
+  const trackItemizerService = new TrackItemizerService();
 
   const serviceCollection = new ServiceCollection(
     [IAppWindowService, appWindowService],
     [IHistoryService, new HistoryService()],
-    [IGlobalTimelineService, globalTimelineService]
+    [IGlobalTimelineService, globalTimelineService],
+    [ITrackItemzierService, trackItemizerService],
   );
   const instantiationService = new InstantiationService(serviceCollection);
 

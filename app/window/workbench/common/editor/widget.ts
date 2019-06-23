@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { IStorageService } from "platform/storage/common/storage";
 import { Event, Emitter } from "base/common/event";
+import { Disposable } from 'base/common/lifecycle';
 
 export function isSerializedWidget(widget: any): widget is ISerializedWidget {
   if (widget.serializedWidgetType) return true;
@@ -25,6 +26,8 @@ export interface IWidget {
   readonly type: string;
   readonly name: string;
 
+  focus(): void;
+
   matches(obj: unknown): boolean;
 	render(): React.ReactNode;
   
@@ -32,7 +35,7 @@ export interface IWidget {
 
 }
 
-export abstract class Widget implements IWidget {
+export abstract class Widget extends Disposable implements IWidget {
 
   private readonly onDragEnter_: Emitter<React.DragEvent> = new Emitter();
   public readonly onDragEnter: Event<React.DragEvent> = this.onDragEnter_.event;
@@ -41,7 +44,6 @@ export abstract class Widget implements IWidget {
 
   private readonly onDidFocus_: Emitter<void> = new Emitter();
   public readonly onDidFocus: Event<void> = this.onDidFocus_.event;
-  public emitDidFocus() { this.onDidFocus_.fire(); }
 
   readonly id: string;
   readonly type: string;
@@ -51,8 +53,13 @@ export abstract class Widget implements IWidget {
     type: string,
     id: string,
     @IStorageService protected readonly storageService: IStorageService) {
+    super();
     this.id = id;
     this.type = type;
+  }
+
+  public focus() {
+    this.onDidFocus_.fire();
   }
 
   abstract matches(obj: unknown): boolean;

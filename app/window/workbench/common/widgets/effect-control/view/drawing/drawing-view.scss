@@ -1,0 +1,22 @@
+.component {
+
+  &.drawing-form {
+
+    > .label {
+      height: 25px;
+      line-height: 25px;
+      font-size: 12px;
+      color: var(--surfaceTextColor);
+      box-sizing: border-box;
+      border-bottom: 1px solid var(--surfaceBrightColor);
+    }
+  }
+
+  &.drawing-timeline {
+
+    > .blank {
+      height: 25px;
+    }
+  }
+
+}

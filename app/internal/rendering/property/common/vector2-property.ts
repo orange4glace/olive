@@ -1,6 +1,7 @@
 import { KeyframeValueBaseConstructor, KeyframeValueBase } from "internal/rendering/property/common/keyframe-value";
 import { postable, Postabled } from "worker-postable";
 import { PropertyBaseConstructor, PropertyBase } from "internal/rendering/property/common/property";
+import { interpolate } from "base/olive/interpolate";
 
 export function WithVector2KeyframeValueBase<TBase extends KeyframeValueBaseConstructor>(Base: TBase) {
   @Postabled
@@ -15,7 +16,16 @@ export function WithVector2KeyframeValueBase<TBase extends KeyframeValueBaseCons
   return Vector2KeyframeValueBase;
 }
 @Postabled
-export class Vector2KeyframeValueBase extends WithVector2KeyframeValueBase(KeyframeValueBase) {}
+export class Vector2KeyframeValueBase extends WithVector2KeyframeValueBase(KeyframeValueBase) {
+  interpolate(lhs: Vector2KeyframeValueBase, rhs: Vector2KeyframeValueBase, t: number): Vector2KeyframeValueBase {
+    const x = interpolate(lhs.x, lhs.y, t);
+    const y = interpolate(lhs.x, lhs.y, t);
+    const value = new Vector2KeyframeValueBase(Vector2KeyframeValueBase.TYPE);
+    value.x_ = x;
+    value.y_ = y;
+    return value;
+  }
+}
 
 export function WithVector2PropertyBase<TBase extends PropertyBaseConstructor>(Base: TBase) { 
   @Postabled

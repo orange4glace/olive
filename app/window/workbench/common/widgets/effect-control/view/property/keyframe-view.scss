@@ -1,0 +1,16 @@
+.component {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: 11px;
+  margin-left: -1px;
+  box-sizing: border-box;
+
+  transform: rotate(45deg) translateX(-50%);
+  background: var(--surfaceBrightColor);
+  // border: 1px solid var(--surfaceDarkColor);
+
+  &.focused {
+    background: var(--primaryColor);
+  }
+}

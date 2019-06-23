@@ -32,8 +32,6 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
     this.endResizeRight_ = this.endResizeRight_.bind(this);
 
     this._register(widget_.onTrackItemMouseMoveStart(e => {
-      const trackOffset = this.widget_.view.timelineView.getTrackViewIndex(
-        this.widget_.view.timelineView.getTrackView(e.track));
       this.startMove(e.track, e.e);
     }));
     this._register(widget_.onTrackItemMouseDown(e => {
@@ -188,7 +186,6 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
     const dt = time - this.baseTime_;
     this.widget_.view.timelineView.ghostTimelineState.translation = dt;
     const magnet = this.widget_.view.timelineView.ghostTimelineState.currentMagnettedTime;
-    console.log('handle ', this.widget_.view.timelineView.ghostTimelineState.translation, magnet);
   }
 
   private endMove_() {
@@ -208,47 +205,14 @@ export class TimelineWidgetManipulatorControllerImpl extends Disposable
         const nextStart = trackItem.time.start + dt + magnet;
         const nextEnd = trackItem.time.end + dt + magnet;
         srcTrack.removeTrackItem(trackItem);
-        dstTrack.addTrackItem(trackItem, nextStart, nextEnd, trackItem.time.base);
+        trackItem.setTime(nextStart, nextEnd, trackItem.time.base);
+        dstTrack.addTrackItem(trackItem);
         focusList.push(dstTrackView.trackTimelineView.getTrackItemView(trackItem));
       })
     }
     focusList.forEach(f => f.focus());
     this.moveDisposables_ = dispose(this.moveDisposables_);
     this.cleanState_();
-    // const ghostContainer = this.ghostContainer_;
-    // let trackTrackItems: Array<Array<ITrackItem>> = [];
-
-    // for (let i = 0; i < this.widget_.model.trackViewModels.length; i ++) {
-    //   let trackItems: Array<ITrackItem> = [];
-    //   trackTrackItems.push(trackItems);
-    //   const trackVM = this.widget_.model.trackViewModels[i];
-    //   const track = trackVM.track;
-    //   const focusedTrackItemVMs = trackVM.getFocusedTrackItemViewModels();
-    //   focusedTrackItemVMs.forEach(trackItemVM => {
-    //     const trackItem = trackItemVM.trackItem;
-    //     track.removeTrackItem(trackItem);
-    //     trackItems.push(trackItem);
-    //     // const nextStart = trackItem.time.start + this.ghostContainer_.leftExtend;
-    //     // const nextEnd = trackItem.time.end + this.ghostContainer_.rightExtend;
-    //     // track.setTrackItemTime(trackItem, nextStart, nextEnd, trackItem.time.base);
-    //   })
-    // }
-
-    // const trackDeltaOffset = ghostContainer.trackOffset - state.trackOffset;
-    // for (let i = 0; i < this.widget_.model.trackViewModels.length; i ++) {
-    //   let j = i + trackDeltaOffset;
-    //   if (j < 0 || j >= this.widget_.model.trackViewModels.length) continue;
-    //   const track = this.widget_.model.trackViewModels[j].track;
-    //   trackTrackItems[i].forEach(trackItem => {
-    //     track.addTrackItem(trackItem, trackItem.time.start + ghostContainer.leftExtend, trackItem.time.end + ghostContainer.rightExtend, trackItem.time.base)
-    //     // Refocus track item
-    //     const trackVM = this.widget_.model.trackViewModels[j];
-    //     trackVM.getTrackItemViewModel(trackItem).focus();
-    //   });
-    // }
-
-    // this.cleanState_();
-    // state.dispose();
   }
 
   private cleanState_() {

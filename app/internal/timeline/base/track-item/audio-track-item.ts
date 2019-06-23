@@ -19,7 +19,7 @@ export class AudioTrackItem extends WithAudioTrackItemBase(TrackItem) {
   // @postable drawing: AudioDrawing;
 
   constructor(resource: AudioResource) {
-    super(AudioTrackItem.TYPE);
+    super(AudioTrackItem.TYPE, null);
     this.resource_ = resource;
   }
 

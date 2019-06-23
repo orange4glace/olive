@@ -12,11 +12,21 @@ import { ConstTrackItemTime } from 'internal/timeline/base/track-item/track-item
 import { StandardMouseEvent } from 'base/browser/mouseEvent';
 import { createStandardMouseEvent } from 'base/olive/mouse-event';
 import { GhostTrackItemView } from 'window/workbench/common/widgets/timeline/model/track/ghost-track-item-view';
-import { Emitter } from 'base/common/event';
+import { Emitter, Event } from 'base/common/event';
 import { observable } from 'mobx';
 import { observer } from 'mobx-react';
 
+interface TrackItemFocusEvent {
+  track: ITrack;
+  trackItem: ITrackItem;
+}
+
 export class TimelineTrackTimelineView extends Disposable {
+
+  private readonly onDidFocusTrackItem_: Emitter<TrackItemFocusEvent> = new Emitter();
+  readonly onDidFocusTrackItem: Event<TrackItemFocusEvent> = this.onDidFocusTrackItem_.event;
+  private readonly onDidBlurTrackItem_: Emitter<TrackItemFocusEvent> = new Emitter();
+  readonly onDidBlurTrackItem: Event<TrackItemFocusEvent> = this.onDidBlurTrackItem_.event;
 
   private readonly onDidAddGhostTrackItemView_: Emitter<GhostTrackItemView> = new Emitter();
   public get onDidAddGhostTrackItemView() { return this.onDidAddGhostTrackItemView_.event; }
@@ -195,12 +205,18 @@ export class TimelineTrackTimelineView extends Disposable {
 
   private trackItemFocusedHandler(tiv: TimelineTrackItemView) {
     this.focusedTrackItemViews_.add(tiv);
-    // this.onTrackItemFocused_.fire(trackItemVM);
+    this.onDidFocusTrackItem_.fire({
+      track: this.track,
+      trackItem: tiv.trackItem
+    });
   }
 
   private trackItemBluredHandler(tiv: TimelineTrackItemView) {
     this.focusedTrackItemViews_.delete(tiv);
-    // this.onTrackItemBlured_.fire(trackItemVM);
+    this.onDidBlurTrackItem_.fire({
+      track: this.track,
+      trackItem: tiv.trackItem
+    });
   }
 
   render(): React.ReactNode {

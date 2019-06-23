@@ -28,7 +28,6 @@ export interface IResourceManager extends IResourcesService {
     video: IVideoResource,
     audio: IAudioResource
   }>;
-  trackItemize(resource: IResource): ITrackItem;
 
 }
 
@@ -60,7 +59,7 @@ export class ResourceManager implements IResourceManager {
         switch (result.type) {
           case VideoResource.TYPE:
             const videoResult = result as VideoProbeResult;
-            videoResource = new VideoResource(null, path, videoResult.width, videoResult.height, videoResult.duration);
+            videoResource = new VideoResource(null, path, videoResult.width, videoResult.height, videoResult.timebase, videoResult.duration);
             this.doAddResource(videoResource);
             break;
           case AudioResource.TYPE:
@@ -88,21 +87,6 @@ export class ResourceManager implements IResourceManager {
 
   getResource(id: ResourceIdentifier): IResource | null {
     return this.resources.get(id);
-  }
-  
-  trackItemize(resource: IResource) {
-    let trackItem;
-    if (resource.type == VideoResource.TYPE) {
-      const videoResource = resource as VideoResource;
-      trackItem = new VideoMediaTrackItem(resource as VideoResource);
-      trackItem.__setTime(new TrackItemTime(0, videoResource.duration, 0));
-    }
-    if (resource.type == AudioResource.TYPE) {
-      const audioResource = resource as AudioResource;
-      trackItem = new AudioTrackItem(resource as AudioResource);
-      trackItem.__setTime(new TrackItemTime(0, audioResource.duration, 0));
-    }
-    return trackItem;
   }
 
   serialize(): SerializedResourceManager {

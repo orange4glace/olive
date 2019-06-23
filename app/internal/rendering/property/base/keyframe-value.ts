@@ -8,6 +8,7 @@ export interface ISerializedKeyframeValue {
 
 export interface IKeyframeValue {
   readonly type: string;
+  interpolate(lhs: IKeyframeValue, rhs: IKeyframeValue, t: number): IKeyframeValue;
   serialize(): object;
 }
 
@@ -16,6 +17,10 @@ export class KeyframeValue extends WithKeyframeValueBase(MixinBase) implements I
   constructor(type: string) {
     super();
     this.type_ = type;
+  }
+  
+  interpolate(lhs: KeyframeValue, rhs: KeyframeValue, t: number): KeyframeValue {
+    throw new Error('NotImplementedException');
   }
   serialize(): object { throw new Error('NotImplementedException') }
 }

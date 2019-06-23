@@ -8,7 +8,7 @@ export function WithFrameRateBase<TBase extends Constructor>(Base: TBase) {
     @postable protected num_: number;
     public get num() { return this.num_; }
     @postable protected den_: number;
-    public get den() { return this.num_; }
+    public get den() { return this.den_; }
   };
   return FrameRateBase;
 }

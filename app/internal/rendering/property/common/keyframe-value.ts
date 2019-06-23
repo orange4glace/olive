@@ -9,7 +9,7 @@ export function WithKeyframeValueBase<TBase extends Constructor>(Base: TBase) {
     @postable protected type_: string;
     public get type() { return this.type_; }
 
-    static interpolate(lhs: KeyframeValueBase, rhs: KeyframeValueBase, t: number): KeyframeValueBase {
+    interpolate(lhs: KeyframeValueBase, rhs: KeyframeValueBase, t: number): KeyframeValueBase {
       throw new Error('NotImplemenetedException');
     }
   };

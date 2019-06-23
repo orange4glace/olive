@@ -9,7 +9,9 @@ import { TrackItemTimeBase } from "internal/timeline/common/track-item/track-ite
 import { AudioTrackItemBase } from "internal/timeline/common/track-item/audio-track-item";
 import { TrackBase } from "internal/timeline/common/track/track";
 import { TimelineBase } from "internal/timeline/common/timeline";
+import { TimebaseBase } from "internal/timeline/common/timebase";
 
+Posted(TimebaseBase);
 Posted(FrameRateBase);
 Posted(VideoSettingBase);
 Posted(AudioSettingBase);

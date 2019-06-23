@@ -6,15 +6,12 @@ export class AddTrackItemCommand implements IHistoryCommand {
 
   constructor(
     private readonly track: ITrack,
-    private readonly trackItem: ITrackItem,
-    private readonly startTime: number,
-    private readonly endTime: number,
-    private readonly baseTime: number) {
+    private readonly trackItem: ITrackItem) {
 
   }
 
   execute() {
-    this.track.addTrackItem(this.trackItem, this.startTime, this.endTime, this.baseTime);
+    this.track.addTrackItem(this.trackItem);
   }
 
   undo() {
@@ -71,8 +68,7 @@ export class RemoveTrackItemCommand implements IHistoryCommand {
   }
 
   undo() {
-    const time = this.trackItem.time;
-    this.track.addTrackItem(this.trackItem, time.start, time.end, time.base);
+    this.track.addTrackItem(this.trackItem);
   }
 
   redo() {

@@ -42,15 +42,6 @@
 
     .tracks-wrapper {
       position: relative;
-
-      .indicator {
-        position: absolute;
-        z-index: 555;
-        top: -2px;
-        width: 1px;
-        bottom: 0px;
-        background: var(--primaryColor);
-      }
     }
   }
 }

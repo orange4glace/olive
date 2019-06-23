@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { observable, computed, observer } from "window/app-mobx";
 import { ViewModel } from "window/view/view-model";
 import { Event, Emitter } from "base/common/event";
 import { ITrackItem } from "internal/timeline/base/track-item/track-item";
@@ -10,6 +9,9 @@ import { createStandardMouseEvent } from 'base/olive/mouse-event';
 import ADiv from 'window/view/advanced-div';
 import { EventUtil } from 'orangeutil';
 import { TimelineScrollView } from 'window/workbench/common/widgets/timeline/model/scroll-view-model';
+import { observable, computed } from 'mobx';
+import { observer } from 'mobx-react';
+import { Disposable } from 'base/common/lifecycle';
 
 export interface TimelineWidgetTrackItemViewModel extends ViewModel {
 
@@ -26,7 +28,7 @@ export interface TimelineWidgetTrackItemViewModel extends ViewModel {
 
 }
 
-export class TimelineTrackItemView {
+export class TimelineTrackItemView extends Disposable {
 
   private readonly onFocused_: Emitter<void> = new Emitter();
   readonly onFocused: Event<void> = this.onFocused_.event;
@@ -37,19 +39,27 @@ export class TimelineTrackItemView {
   @observable private focused_: boolean;
   public get focused() { return this.focused_; }
 
-  @computed get left(): number {
-    return this.timelineScrollView.getPositionRelativeToTimeline(this.trackItem.time.start);
-  }
-  @computed get right(): number {
-    return this.timelineScrollView.getPositionRelativeToTimeline(this.trackItem.time.end);
-  }
+  @observable private left_: number;
+  public get left() { return this.left_; }
+  @observable private right_: number;
+  public get right() { return this.right_; }
 
   constructor(
     readonly track: ITrack,
     readonly trackItem: ITrackItem,
     readonly timelineScrollView: TimelineScrollView,
     readonly outgoingEvents: TimelineWidgetViewOutgoingEvents) {
+    super();
     this.trackItem = trackItem;
+
+    this._register(timelineScrollView.onUpdate(() => this.update()));
+    this._register(trackItem.onDidChangeTime(() => this.update()));
+    this.update();
+  }
+
+  private update(): void {
+    this.left_ = this.timelineScrollView.getPositionRelativeToTimeline(this.trackItem.time.start);
+    this.right_ =  this.timelineScrollView.getPositionRelativeToTimeline(this.trackItem.time.end);
   }
 
   emitTrackItemMouseDown(e: StandardMouseEvent) {
@@ -92,8 +102,6 @@ export class TimelineTrackItemView {
   render(): React.ReactNode {
     return <TrackItemViewComponent view={this}/>
   }
-
-  dispose(): void {}
 
 }
 

@@ -35,7 +35,7 @@ export class TimelineWidgetService implements ITimelineWidgetService {
     if (this.widgets_.has(widget)) return;
     this.widgets_.add(widget);
     let disposables: IDisposable[] = [];
-    widget.onFocused(() => this.activateWidget(widget), this, disposables);
+    widget.onDidFocus(() => this.activateWidget(widget), this, disposables);
     this.widgetDisposables_.set(widget, disposables);
     this.onWidgetAdded_.fire(widget);
 
@@ -51,6 +51,7 @@ export class TimelineWidgetService implements ITimelineWidgetService {
   }
 
   activateWidget(widget: TimelineWidget) {
+    console.log('act',widget);
     if (this.activeWidget_ == widget) return;
     this.activateWidgetDisposables_ = dispose(this.activateWidgetDisposables_);
     const prevActiveWidget = this.activeWidget_;

@@ -1,12 +1,12 @@
 import * as React from 'react'
-import { observable, action } from 'window/app-mobx';
-import { observer } from 'window/app-mobx';
 import { EventEmitter2 } from 'eventemitter2'
 
 import hotkeys from 'hotkeys-js';
 import { MouseUtil } from 'orangeutil'
 
 import * as style from './zoomable-scroll-view.scss'
+import { observable, action } from 'mobx';
+import { observer } from 'mobx-react';
 
 
 const ZOOM_THRESHOLD = 0.03;

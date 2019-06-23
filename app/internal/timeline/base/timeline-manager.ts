@@ -1,6 +1,5 @@
 import { assert } from "base/olive/assert";
 import { Postable, postable, ref } from "worker-postable";
-import { Event, Emitter } from "base/common/event";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import { ITimelinesService } from "internal/timeline/base/timelines-service";
 import { ITimeline, TimelineIdentifier } from "internal/timeline/base/timeline";

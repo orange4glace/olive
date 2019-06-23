@@ -5,6 +5,7 @@ import { Registry } from "platform/registry/common/platform";
 import { IInstantiationService } from "platform/instantiation/common/instantiation";
 import { ISerializedKeyframeValue, KeyframeValue } from "internal/rendering/property/base/keyframe-value";
 import { WithVector2PropertyBase, WithVector2KeyframeValueBase } from "internal/rendering/property/common/vector2-property";
+import { interpolate } from "base/olive/interpolate";
 
 export interface SerializedVector2KeyframeValue extends ISerializedKeyframeValue {
   x: number;
@@ -19,6 +20,12 @@ export class Vector2KeyframeValue extends WithVector2KeyframeValueBase(KeyframeV
     super(Vector2KeyframeValue.TYPE);
     this.x_ = x;
     this.y_ = y;
+  }
+
+  interpolate(lhs: Vector2KeyframeValue, rhs: Vector2KeyframeValue, t: number): Vector2KeyframeValue {
+    const x = interpolate(lhs.x, rhs.x, t);
+    const y = interpolate(lhs.y, rhs.y, t);
+    return new Vector2KeyframeValue(x, y);
   }
 
   serialize(): SerializedVector2KeyframeValue {

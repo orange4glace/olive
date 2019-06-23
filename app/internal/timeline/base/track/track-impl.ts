@@ -1,6 +1,6 @@
 import { Postable, postable, PostableEvent, getPostableID } from 'worker-postable';
 
-import { TreeMap, Pair, } from 'tstl';
+import { TreeMap, TreeMultiMap, Pair } from 'tstl';
 import { MapIterator } from 'tstl/base';
 import { EventEmitter2 } from 'eventemitter2';
 import { observable } from 'mobx';
@@ -9,20 +9,43 @@ import { SerializedTrackItem, TrackItem } from 'internal/timeline/base/track-ite
 import { ITrack, TrackTrackItemEvent, TrackItemTimeChangedEvent } from 'internal/timeline/base/track/track';
 import { WithTrackBase } from 'internal/timeline/common/track/track';
 import { MixinBase } from 'base/olive/mixin';
-import { TrackItemTime } from 'internal/timeline/base/track-item/track-item-time';
+import { TrackItemTime, ConstTrackItemTime } from 'internal/timeline/base/track-item/track-item-time';
 import { clone } from 'base/olive/cloneable';
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
-import { WithDisposable } from 'base/olive/lifecycle';
+import { WithDisposable, DisposableMap, newDisposableMap } from 'base/olive/lifecycle';
+import { Timebase, SerializedTimebase, ReadonlyTimebase } from 'internal/timeline/base/timebase';
+import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
+import { IDisposable, dispose } from 'base/common/lifecycle';
 
 let _nextTrackID = 0;
 
 export interface SerializedTrack {
   name: string;
+  timebase: SerializedTimebase;
   trackItems_: SerializedTrackItem[];
 }
 
 @Postable
 export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements ITrack {
+
+  /*#region TrackBase*/
+  protected trackItemStartTimeMap_: TreeMultiMap<number, TrackItem>;
+  protected trackItemEndTimeMap_: TreeMultiMap<number, TrackItem>;
+  protected trackItemTimeMap_: Map<TrackItem, Pair<number, number>>;
+
+  @postable protected POSTABLE_onDidUpsertTrackItemTime: PostableEvent<number>;
+  @postable protected POSTABLE_onDidRemoveTrackItemTime: PostableEvent<number>;
+
+  protected doUpsertTrackItemTime(trackItem: TrackItem) {
+    super.doUpsertTrackItemTime(trackItem);
+    this.POSTABLE_onDidUpsertTrackItemTime.emit(getPostableID(trackItem));
+  }
+
+  protected doRemoveTrackItemTime(trackItem: TrackItem) {
+    super.doRemoveTrackItemTime(trackItem);
+    this.POSTABLE_onDidRemoveTrackItemTime.emit(getPostableID(trackItem));
+  }
+  /*#endregion*/
 
   private readonly onTrackItemAdded_: Emitter<TrackTrackItemEvent> = this._register(new Emitter<TrackTrackItemEvent>());
   readonly onTrackItemAdded: Event<TrackTrackItemEvent> = this.onTrackItemAdded_.event;
@@ -41,28 +64,38 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
   readonly id: number;
   @observable name: string;
 
-  protected trackItems_: Map<TrackItem, TrackItemTime>;
+  protected timebase_: Timebase;
+  public get timebase(): ReadonlyTimebase { return this.timebase_; }
+
+  protected trackItems_: Set<TrackItem>;
   public get trackItems() { return this.trackItems_; }
-  protected trackItemTreeMap_: TreeMap<TrackItemTime, TrackItem>;
+
+  private trackItemDisposables_: DisposableMap<ITrackItem, IDisposable[]>;
 
   private ee: EventEmitter2;
 
-  constructor() {
+  constructor(timebase: Timebase) {
     super();
     this.name = 'unnamed track';
     this.POSTABLE_onDidAddTrackItem = new PostableEvent();
     this.POSTABLE_onWillRemoveTrackItem = new PostableEvent();
+    this.POSTABLE_onDidUpsertTrackItemTime = new PostableEvent();
+    this.POSTABLE_onDidRemoveTrackItemTime = new PostableEvent();
     // Initialize objects
-    this.trackItems_ = new Map();
-    this.trackItemTreeMap_ = new TreeMap<TrackItemTime, TrackItem>();
+    this.timebase_ = clone(timebase);
+    this.trackItems_ = new Set();
+
+    this.trackItemDisposables_ = this._register(newDisposableMap<ITrackItem, any>());
 
     this.ee = new EventEmitter2();
 
     this.id = _nextTrackID++;
   }
 
-  addTrackItem(trackItem: TrackItem, start: number, end: number, baseTime: number): void {
-    trackItem.__setTime(new TrackItemTime(start, end, baseTime));
+  addTrackItem(trackItem: TrackItem): void;
+  addTrackItem(trackItem: TrackItem, startTime: number, endTime: number, baseTime: number): void;
+  addTrackItem(trackItem: TrackItem, startTime?: number, endTime?: number, baseTime?: number): void {
+    if (typeof startTime === 'number') trackItem.setTime(startTime, endTime, baseTime);
     this.doClearTime(trackItem.time.start, trackItem.time.end);
     this.doAddTrackItem(trackItem);
   }
@@ -71,43 +104,6 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
     this.doRemoveTrackItem(trackItem);
   }
 
-  getTrackItemAt(time: number): TrackItem {
-    let q = new TrackItemTime(time, time, 0);
-    let it = this.trackItemTreeMap_.lower_bound(q);
-    if (it.equals(this.trackItemTreeMap_.end()) || time < it.value.first.start)
-      if (it.equals(this.trackItemTreeMap_.begin())) return null;
-      else it = it.prev();
-    if (time < it.value.first.end) return it.value.second;
-    return null;
-  }
-
-  getTrackItemBefore(trackItem: TrackItem) {
-    console.assert(this.trackItems_.has(trackItem));
-    let it = this.trackItemTreeMap_.find(trackItem.time);
-    if (it.equals(this.trackItemTreeMap_.begin())) return null;
-    return it.prev().value.second;
-  }
-
-  getTrackItemAfter(trackItem: TrackItem) {
-    console.assert(this.trackItems_.has(trackItem));
-    let it = this.trackItemTreeMap_.find(trackItem.time).next();
-    if (it.equals(this.trackItemTreeMap_.end())) return null;
-    return it.value.second;
-  }
-
-  getTrackItemsBetween(startTime: number, endTime: number): TrackItem[] {
-    const result: TrackItem[] = [];
-    const first = this.getTrackItemAt(startTime);
-    if (first) result.push(first);
-    let q = new TrackItemTime(startTime + 1, startTime + 1, 0);
-    let it = this.trackItemTreeMap_.lower_bound(q);
-    while (!it.equals(this.trackItemTreeMap_.end())) {
-      if (it.second.time.start <= endTime) result.push(it.second);
-      else break;
-      it = it.next();
-    }
-    return result;
-  }
   setTrackItemTime(trackItem: TrackItem, startTime: number, endTime: number, baseTime: number): void {
     this.doSetTrackItemTime(trackItem, new TrackItemTime(startTime, endTime, baseTime));
   }
@@ -116,9 +112,35 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
     this.doClearTime(startTime, endTime);
   }
 
+  hasTrackItem(trackItem: TrackItem): boolean {
+    return this.trackItems_.has(trackItem);
+  }
+
+  getTrackItemAt(time: number): TrackItem | null {
+    return super.getTrackItemAt(time) as TrackItem;
+  }
+
+  getTrackItemBefore(time: number): TrackItem | null {
+    return super.getTrackItemBefore(time) as TrackItem;
+  }
+
+  getTrackItemAfter(time: number): TrackItem | null {
+    return super.getTrackItemAfter(time) as TrackItem;
+  }
+
+  getTrackItemsBetween(startTime: number, endTime: number): TrackItem[] {
+    return super.getTrackItemsBetween(startTime, endTime) as TrackItem[];
+  }
+
   private doAddTrackItem(trackItem: TrackItem) {
-    this.trackItems_.set(trackItem, trackItem.time);
-    this.trackItemTreeMap_.insert(new Pair(trackItem.time, trackItem));
+    if (this.hasTrackItem(trackItem)) return;
+    const disposables: IDisposable[] = [];
+    this.trackItems_.add(trackItem);
+
+    this.doUpsertTrackItemTime(trackItem);
+
+    disposables.push(trackItem.onDidChangeTime(e => { this.trackItemDidChangeTimeHandler(trackItem, e.old);}));
+    this.trackItemDisposables_.set(trackItem, disposables);
     this.onTrackItemAdded_.fire({
       trackItem: trackItem
     })
@@ -126,73 +148,64 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
   }
 
   private doRemoveTrackItem(trackItem: TrackItem) {
-    console.assert(this.trackItems_.has(trackItem));
-    console.assert(this.trackItemTreeMap_.count(trackItem.time));
-    this.onTrackItemWillRemove_.fire({
-      trackItem: trackItem
-    })
+    if (!this.hasTrackItem(trackItem)) return;
+    this.onTrackItemWillRemove_.fire({trackItem: trackItem})
     this.POSTABLE_onWillRemoveTrackItem.emit(getPostableID(trackItem));
+    const disposables = this.trackItemDisposables_.get(trackItem);
+    this.trackItemDisposables_.delete(trackItem);
+    dispose(disposables);
+    this.doRemoveTrackItemTime(trackItem);
     this.trackItems_.delete(trackItem);
-    this.trackItemTreeMap_.erase(trackItem.time);
+  }
+
+  private trackItemDidChangeTimeHandler(trackItem: TrackItem, oldTime: ConstTrackItemTime) {
+    this.onTrackItemTimeChanged_.fire({
+      trackItem: trackItem,
+      old: oldTime,
+      new: trackItem.time
+    })
+    this.doUpsertTrackItemTime(trackItem)
   }
 
   private doSetTrackItemTime(trackItem: TrackItem, time: TrackItemTime): void {
-    // assert check
-    console.assert(this.trackItemTreeMap_.count(trackItem.time));
-    console.assert(this.trackItems_.has(trackItem));
-    console.assert(!this.trackItemTreeMap_.has(time));
-    let lastTime = trackItem.time;
-
+    if (!this.hasTrackItem(trackItem)) return;
     if (time.start >= time.end) {
       this.doRemoveTrackItem(trackItem);
       return;
     }
-
-    this.trackItemTreeMap_.erase(trackItem.time);
-    trackItem.__setTime(time);
-    time = new TrackItemTime(trackItem.time.start, trackItem.time.end, trackItem.time.base);
-    this.doClearTime(time.start, time.end);
-
-    this.trackItems_.set(trackItem, time);
-    this.trackItemTreeMap_.insert(new Pair(time, trackItem));
-    
-    this.onTrackItemTimeChanged_.fire({
-      trackItem: trackItem,
-      old: clone(lastTime),
-      new: clone(time)
-    })
+    const scaledTime = time.rescale(this.timebase, trackItem.timebase);
+    trackItem.setTime(scaledTime.start, scaledTime.end, scaledTime.base);
   }
 
   private doClearTime(startTime: number, endTime: number) {
     let additions: TrackItem[] = [];
-    let removals = [];
-    let it = this.accessAfter(startTime);
-    while (!it.equals(this.trackItemTreeMap_.end())) {
-      let timePair = it.value.first;
+    let removals: TrackItem[] = [];
+    let it = this.trackItemEndTimeMap_.lower_bound(startTime);
+    while (!it.equals(this.trackItemEndTimeMap_.end())) {
       let current = it.value.second;
-      if (timePair.start >= endTime || timePair.end < startTime) break;
-      if (startTime <= timePair.start) {
-        if (timePair.end <= endTime) {
+      if (current.time.start >= endTime || current.time.end < startTime) break;
+      if (startTime <= current.time.start) {
+        if (current.time.end <= endTime) {
           // Completely inside of clear box
           removals.push(current);
         }
         else {
-          this.doSetTrackItemTime(current, new TrackItemTime(endTime, timePair.end, current.time.base + (endTime - current.time.start)));
+          this.doSetTrackItemTime(current, new TrackItemTime(endTime, current.time.end, current.time.base + (endTime - current.time.start)));
         }
       }
       else {
-        if (endTime <= timePair.end) {
+        if (endTime <= current.time.end) {
           // Complete inside of current box
           const currentLeft = clone(current);
           const currentRight = clone(current);
-          currentLeft.__setTime(new TrackItemTime(current.time.start, startTime, current.time.base));
-          currentRight.__setTime(new TrackItemTime(endTime, current.time.end, current.time.base + (endTime - current.time.start)));
+          currentLeft.setTime(current.time.start, startTime, current.time.base);
+          currentRight.setTime(endTime, current.time.end, current.time.base + (endTime - current.time.start));
           additions.push(currentLeft);
           additions.push(currentRight);
           removals.push(current);
         }
         else {
-          this.doSetTrackItemTime(current, new TrackItemTime(timePair.start, startTime, current.time.base));
+          this.doSetTrackItemTime(current, new TrackItemTime(current.time.start, startTime, current.time.base));
         }
       }
       it = it.next();
@@ -203,17 +216,6 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
     additions.forEach(addition => {
       this.doRemoveTrackItem(addition);
     })
-  }
-
-  private accessAfter(query: number): MapIterator<TrackItemTime, TrackItem, true, TreeMap<TrackItemTime, TrackItem>> {
-    if (this.trackItemTreeMap_.size() == 0) return this.trackItemTreeMap_.end();
-    let q = new TrackItemTime(query, query, 0);
-    let it = this.trackItemTreeMap_.lower_bound(q);
-    if (it.equals(this.trackItemTreeMap_.begin())) return it;
-    let prev = it.prev();
-    let timePair = prev.value.first;
-    if (timePair.start <= query && query < timePair.end) return prev;
-    return it;
   }
 
   clone(obj: Track): Object {
@@ -227,12 +229,13 @@ export class Track extends WithDisposable(WithTrackBase(MixinBase)) implements I
     })
     return {
       name: this.name,
+      timebase: this.timebase.serialize(),
       trackItems_: trackItems_
     }
   }
 
   static deserialize(instantiationService: IInstantiationService, serial: SerializedTrack): Track {
-    const track = new Track();
+    const track = new Track(Timebase.deserialize(serial.timebase));
     serial.trackItems_.forEach(ti => {
       const trackItem = TrackItem.deserialize(instantiationService, ti);
       if (!trackItem) {

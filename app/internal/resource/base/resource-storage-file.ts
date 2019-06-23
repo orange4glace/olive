@@ -11,6 +11,8 @@ import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 import { VideoMediaTrackItem } from "internal/timeline/base/track-item/video-media-track-item";
 import { TrackItemTime } from "internal/timeline/base/track-item/track-item-time";
 import { AudioTrackItem } from "internal/timeline/base/track-item/audio-track-item";
+import { ITimeline } from "internal/timeline/base/timeline";
+import { IStorageItemTrackItemizer, StorageItemTrackItemizerRegistry } from "internal/services/track-itemizer/storage-item-track-itemizer-registry";
 
 export interface IResourceStorageFile extends IStorageFile {
 
@@ -33,12 +35,6 @@ export class MediaResourceStorageFile extends ResourceStorageFile {
     readonly videoResource: VideoResource,
     readonly audioResource: AudioResource) {
     super(MediaResourceStorageFile.TYPE, name);
-  }
-
-  trackItemize(): ITrackItem {
-    const trackItem = new VideoMediaTrackItem(this.videoResource);
-    trackItem.__setTime(new TrackItemTime(0, this.videoResource.duration, 0));
-    return trackItem;
   }
 
   serialize() {
@@ -89,6 +85,19 @@ class MediaResourceStorageFileFactory implements IStorageItemFactory<MediaResour
 }
 
 Registry.as<StorageItemFactoryRegistry>(StorageItemFactoryRegistry.ID).registerFactory(MediaResourceStorageFile.TYPE, MediaResourceStorageFileFactory);
+
+class MediaResourceStorageFileTrackItemizer implements IStorageItemTrackItemizer {
+  trackItemize(timeline: ITimeline, storageItem: MediaResourceStorageFile): ITrackItem {
+    const videoResource = storageItem.videoResource;
+    const timelineFrameRate = timeline.videoSetting.frameRate;
+    const timelineBaseDuration = Math.floor((timelineFrameRate.num * videoResource.duration) / (timelineFrameRate.den));
+    const videoTrackItem = new VideoMediaTrackItem(videoResource);
+    videoTrackItem.setMediaTime(0, timelineBaseDuration, 0);
+    return videoTrackItem;
+  }
+}
+
+StorageItemTrackItemizerRegistry.register(MediaResourceStorageFile.TYPE, new MediaResourceStorageFileTrackItemizer());
 
 
 

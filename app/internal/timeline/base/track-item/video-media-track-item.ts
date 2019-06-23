@@ -10,6 +10,8 @@ import { SerializedVideoTrackItem, VideoTrackItem } from "internal/timeline/base
 import { WithVideoMediaTrackItemBase } from "internal/timeline/common/track-item/video-media-track-item";
 import { TrackItemTime } from "internal/timeline/base/track-item/track-item-time";
 import { TrackItemFactoryRegistry, ITrackItemFactory } from "internal/timeline/base/track-item/track-item-impl";
+import { Emitter, Event } from "base/common/event";
+import { Timebase } from "internal/timeline/base/timebase";
 
 export interface SerializedVideoMediaTrackItem extends SerializedVideoTrackItem {
   resourceID: ResourceIdentifier;
@@ -22,22 +24,47 @@ export class VideoMediaTrackItem extends WithVideoMediaTrackItemBase(VideoTrackI
   public get resource() { return this.resource_; }
 
   constructor(resource: VideoResource) {
-    super(VideoMediaTrackItem.TYPE);
+    super(VideoMediaTrackItem.TYPE, new Timebase(resource.timebase.num, resource.timebase.den));
     this.resource_ = resource;
     this.drawing_ = new VideoMediaDrawing(resource);
+
+    this.onWillChangeTime(this.willChangeTimeHandler, this);
   }
 
-  __setTime(time: TrackItemTime) {
-    time = clone(time);
-    if (time.base < 0) {
-      time.start -= time.base;
-      time.base = 0;
+  private willChangeTimeHandler(time: TrackItemTime) {
+    
+  }
+
+  setTime(startTime: number, endTime: number, baseTime: number): void {
+    this.doSetTime(startTime, endTime, baseTime);
+  }
+
+  setMediaTime(startTime: number, endTime: number, baseTime: number) {
+    const time = new TrackItemTime(startTime, endTime, baseTime);
+    const trackItemTime = time.rescale(this.resource.timebase, this.timebase);
+    this.doSetTime(trackItemTime.start, trackItemTime.end, trackItemTime.base);
+  }
+
+  private doSetTime(startTime: number, endTime: number, baseTime: number) {
+    console.log('do Set Time', startTime, endTime, baseTime);
+    const old = this.time_;
+    const time = new TrackItemTime(startTime, endTime, baseTime);
+    const mediaTime = time.rescale(this.timebase, this.resource.timebase);
+    console.log('Media time = ', mediaTime.start, mediaTime.end, mediaTime.base, this.resource.duration);
+    if (mediaTime.base < 0) {
+      mediaTime.start -= mediaTime.base;
+      mediaTime.base = 0;
     }
-    let dur = time.end - time.start;
-    if (dur > this.resource.duration)
-      time.end -= dur - this.resource.duration;
-    this.time_ = time;
-    this.onTimeChanged_.fire();
+    const d = (mediaTime.end - mediaTime.start + mediaTime.base) - this.resource.duration;
+    if (d > 0) {
+      mediaTime.end -= d;
+    }
+    if (mediaTime.start >= mediaTime.end) mediaTime.end = mediaTime.start;
+    const final = mediaTime.rescale(this.resource.timebase, this.timebase);
+    this.time_ = final;
+    this.onDidChangeTime_.fire({
+      old: old
+    });
   }
 
   clone(obj: VideoMediaTrackItem): Object {
@@ -81,7 +108,7 @@ class VideoMediaTrackItemFactory implements ITrackItemFactory<VideoMediaTrackIte
         console.warn('Failed to deserialize TrackItemTime. ' + JSON.stringify(serial));
         return null;
       }
-      trackItem.__setTime(trackItemTime);
+      trackItem.setTime(trackItemTime.start, trackItemTime.end, trackItemTime.base);
       return trackItem;
     })
 

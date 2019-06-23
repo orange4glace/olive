@@ -5,6 +5,7 @@ import { SerializedVideoDrawing, VideoDrawing } from 'internal/rendering/drawing
 import { SerializedTrackItem, TrackItem } from 'internal/timeline/base/track-item/track-item-impl';
 import { WithVideoTrackItemBase } from 'internal/timeline/common/track-item/video-track-item';
 import { TrackItemTime } from 'internal/timeline/base/track-item/track-item-time';
+import { Timebase } from 'internal/timeline/base/timebase';
 
 export interface SerializedVideoTrackItem extends SerializedTrackItem {
   drawing: SerializedVideoDrawing;
@@ -16,8 +17,8 @@ export class VideoTrackItem extends WithVideoTrackItemBase(TrackItem) {
   protected drawing_: VideoDrawing;
   public get drawing() { return this.drawing_; }
 
-  constructor(type: string) {
-    super(type);
+  constructor(type: string, timebase: Timebase) {
+    super(type, timebase);
   }
 
   clone(obj: VideoTrackItem): Object {

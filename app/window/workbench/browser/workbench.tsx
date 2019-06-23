@@ -14,8 +14,9 @@ import { IWidgetGroupsService } from 'window/workbench/services/editor/common/wi
 import { Registry } from 'platform/registry/common/platform';
 import { IWorkbenchContributionsRegistry, Extensions } from 'window/workbench/common/contributions';
 import { IWidgetFactoryRegistry, WidgetFactoryRegistry } from 'window/workbench/common/editor/widget-registry';
+import { Disposable } from 'base/common/lifecycle';
 
-export class Workbench {
+export class Workbench extends Disposable {
 
   readonly titlebarPart: TitlebarPart;
   readonly editorPart: EditorPart;
@@ -23,6 +24,7 @@ export class Workbench {
   constructor(
     serviceCollection: ServiceCollection
   ) {
+    super();
     const [instantiationService, workbenchServiceCollection] = this.initServices(serviceCollection);
     instantiationService.invokeFunction(accessor => {
       this.startRegistries(accessor);

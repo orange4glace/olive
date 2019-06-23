@@ -23,16 +23,18 @@ export interface ITrack extends Cloneable {
   readonly id: number;
   /*@observable*/ readonly name: string;
 
-  /*@postable*/ readonly trackItems: Map<ITrackItem, TrackItemTime>;
+  /*@postable*/ readonly trackItems: ReadonlySet<ITrackItem>;
 
-  addTrackItem(trackItem: ITrackItem, start: number, end: number, base: number): void;
+  hasTrackItem(trackItem: ITrackItem): boolean;
+  addTrackItem(trackItem: ITrackItem): void;
+  addTrackItem(trackItem: ITrackItem, startTime: number, endTime: number, baseTime: number): void;
   removeTrackItem(trackItem: ITrackItem): void;
-  setTrackItemTime(trackIte: ITrackItem, startTime: number, endTime: number, baseTime: number): void;
+  setTrackItemTime(trackItem: ITrackItem, startTime: number, endTime: number, baseTime: number): void;
   clearTime(startTime: number, endTime: number): void;
 
   getTrackItemAt(time: number): ITrackItem;
-  getTrackItemBefore(trackItem: ITrackItem): ITrackItem;
-  getTrackItemAfter(trackItem: ITrackItem): ITrackItem;
+  getTrackItemBefore(time: number): ITrackItem;
+  getTrackItemAfter(time: number): ITrackItem;
   getTrackItemsBetween(startTime: number, endTime: number): ITrackItem[];
 
   serialize(): object;

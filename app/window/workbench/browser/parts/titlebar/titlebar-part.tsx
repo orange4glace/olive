@@ -2,8 +2,9 @@ import "./style.scss";
 import * as React from 'react'
 import { MenubarControl } from 'window/workbench/browser/parts/titlebar/menubar-control';
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
+import { Disposable } from "base/common/lifecycle";
 
-export class TitlebarPart {
+export class TitlebarPart extends Disposable {
 
 	//#endregion
 
@@ -12,14 +13,14 @@ export class TitlebarPart {
   constructor(
     @IInstantiationService private readonly instantiationService: IInstantiationService
   ) {
-
+    super();
     // this._register(this.menubarPart.onVisibilityChange(e => this.onMenubarVisibilityChange(e)));
     // this._register(this.menubarPart.onFocusStateChange(e => this.onMenubarFocusChange(e)));
 
   }
 
   renderMenubar(el: HTMLElement) {
-    this.menubarPart = this.instantiationService.createInstance(MenubarControl);
+    this.menubarPart = this._register(this.instantiationService.createInstance(MenubarControl));
     this.menubarPart.create(el);
   }
 

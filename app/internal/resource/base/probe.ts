@@ -2,7 +2,7 @@ const ffprobe = require('ffprobe');
 import { logger } from 'internal/logger';
 import { VideoResource } from 'internal/resource/base/video-resource';
 import { AudioResource } from 'internal/resource/base/audio-resource';
-import { FrameRate } from 'internal/timeline/base/frame_rate';
+import { Timebase } from 'internal/timeline/base/timebase';
 
 export interface ProbeResult {
   type: string;
@@ -11,7 +11,7 @@ export interface ProbeResult {
 export interface VideoProbeResult extends ProbeResult {
   width: number;
   height: number;
-  frameRate: FrameRate;
+  timebase: Timebase;
   duration: number;
 }
 
@@ -49,18 +49,20 @@ export class Probe {
         })
         if (videoStream != null) {
           (() => {
-            const frameRate = FrameRate.fromString(videoStream.r_frame_rate);
-            // Frame rate not found
-            if (!frameRate) {
+            const timebaseMatch = videoStream.r_frame_rate.match(/^(\d+)\/(\d+)$/);
+            if (!timebaseMatch) {
               logger.error('Probe UNKNOWN ERROR with FrameRate not found. path = ', path, 'info = ', info, 'error = ', err);
               return;
             }
+            const num = +timebaseMatch[1];
+            const den = +timebaseMatch[2];
+            const timebase = new Timebase(num, den);
             let result: VideoProbeResult = {
               type: VideoResource.TYPE,
               width: videoStream.width,
               height: videoStream.height,
-              frameRate: frameRate,
-              duration: +videoStream.duration
+              timebase: timebase,
+              duration: +videoStream.nb_frames
             }
             results.push(result);
           })();

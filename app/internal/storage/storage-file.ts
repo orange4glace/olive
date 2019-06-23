@@ -16,8 +16,6 @@ export abstract class StorageFile extends StorageItem implements IStorageFile {
     super(type, name, uuid);
   }
 
-  abstract trackItemize(): ITrackItem;
-
   navigate(path: string): IStorageItem {
     if (path[0] == '/') {
       if (this.parent) return this.parent.navigate(path);

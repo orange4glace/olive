@@ -1,0 +1,62 @@
+.component {
+
+  &.property-form {
+    display: flex;
+    box-sizing: border-box;
+    margin-left: 20px;
+    height: 25px;
+    border-bottom: 1px solid var(--surfaceBrightColor);
+
+    > .key {
+      display: flex;
+      align-items: center;
+      
+      > .label {
+        color: var(--surfaceTextColor);
+        font-size: 12px;
+      }
+    }
+
+    > .value {
+      display: flex;
+      flex-basis: 500px;
+      flex-basis: 300px;
+      align-items: center;
+
+      > * {
+        
+      }
+    }
+
+  }
+
+  &.property-timeline {
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--surfaceBrightColor);
+    height: 25px;
+  }
+
+}
+
+.property-animated-button {
+  min-width: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--surfaceContrastColor);
+  margin-right: 5px;
+
+  &.true {
+    background: var(--surfaceContrastColor);
+  }
+
+  &.false {
+
+  }
+}
+
+.kf-timeline-content {
+  position: relative;
+  height: 100%;
+}

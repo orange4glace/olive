@@ -12,8 +12,6 @@ import { TimelineWidgetRangeSelectorController } from 'window/workbench/common/w
 import { IInstantiationService } from 'platform/instantiation/common/instantiation';
 import { IHistoryService } from 'internal/history/history';
 import { IProjectsService } from 'internal/project/projects-service';
-import { IObservableValue } from 'mobx';
-import { observable } from 'window/app-mobx';
 import { IProject } from 'internal/project/project';
 import { Widget, ISerializedWidget } from 'window/workbench/common/editor/widget';
 import { IStorageService } from 'platform/storage/common/storage';
@@ -25,8 +23,6 @@ import { SyncActionDescriptor, MenuRegistry, MenuId } from 'platform/actions/com
 import { IWidgetFactory, WidgetFactoryRegistry } from 'window/workbench/common/editor/widget-registry';
 import { TimelineIdentifier, ITimeline } from 'internal/timeline/base/timeline';
 import { IGlobalTimelineService } from 'internal/timeline/base/global-timeline-service';
-import { ITrackItem } from 'internal/timeline/base/track-item/track-item';
-import { TimelineWidgetTimelineView } from 'window/workbench/common/widgets/timeline/model/timeline-view-model-impl';
 import { TimelineWidgetView } from 'window/workbench/common/widgets/timeline/model/widget-view';
 
 interface ISerializedTimelineWidget extends ISerializedWidget {
@@ -68,8 +64,6 @@ export class TimelineWidget extends Widget {
 
   private readonly onTimelineChanged_: Emitter<void> = new Emitter();
   readonly onTimelineChanged: Event<void> = this.onTimelineChanged_.event;
-  private readonly onFocused_: Emitter<void> = new Emitter();
-  readonly onFocused: Event<void> = this.onFocused_.event;
 
   private timelineDisposables_: IDisposable[] = [];
   private toDispose_: IDisposable[] = [];
@@ -89,6 +83,7 @@ export class TimelineWidget extends Widget {
   constructor(
     public readonly project: IProject,
     timeline: ITimeline,
+    @IInstantiationService readonly instantiationService: IInstantiationService,
     @IStorageService readonly storageService: IStorageService,
     @IHistoryService private readonly historyService_: IHistoryService,
     @ITimelineWidgetService private readonly timelineWidgetService_: ITimelineWidgetService,
@@ -98,7 +93,7 @@ export class TimelineWidget extends Widget {
     this.active_ = false;
 
     this.rangeSelector = new TimelineWidgetRangeSelector();
-    this.toDispose_.push(new TimelineWidgetCoreControllerImpl(this, historyService_));
+    this.toDispose_.push(instantiationService.createInstance(TimelineWidgetCoreControllerImpl, this));
     this.toDispose_.push(new TimelineWidgetManipulatorControllerImpl(this));
     this.toDispose_.push(new TimelineWidgetRangeSelectorController(this));
 
@@ -159,10 +154,6 @@ export class TimelineWidget extends Widget {
   // getFocusedTrackItems(): ReadonlySet<ITrackItem> {
   //   return this.model.getFocusedTrackItems();
   // }
-
-  focus() {
-    this.onFocused_.fire();
-  }
 
   blur() {
 

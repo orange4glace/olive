@@ -209,10 +209,10 @@ export class WidgetGroup extends Disposable implements IWidgetGroup {
         else
           newActive = this.widgets[index + 1];
           
-        this.setActiveWidget(newActive);
+        this.doSetActiveWidget(newActive);
       }
       else // One Editor
-        this.activeWidget_.set(null);
+        this.doSetActiveWidget(null);
     }
 
     this.splice(index, true);
@@ -227,8 +227,12 @@ export class WidgetGroup extends Disposable implements IWidgetGroup {
   }
 
   setActiveWidget(widget: IWidget): void {
+    this.doSetActiveWidget(widget);
+  }
+
+  private doSetActiveWidget(widget: IWidget): void {
     const index = this.indexOf(widget);
-    if (index === -1) return; // Not found
+    if (widget && index === -1) return; // Not found
 
     if (this.matches(this.activeWidget, widget)) return; // Already active
 
@@ -236,6 +240,9 @@ export class WidgetGroup extends Disposable implements IWidgetGroup {
 
     this.setMostRecentlyUsed(widget);
 
+    if (this.widgetGroupsService_.activeGroup === this) {
+      widget.focus();
+    }
     this.onDidWidgetActivate_.fire(widget);
   }
 
@@ -318,6 +325,9 @@ export class WidgetGroup extends Disposable implements IWidgetGroup {
 
   setActive(value: boolean) {
     this.active_ = value;
+    if (value) {
+      if (this.activeWidget) this.activeWidget.focus();
+    }
   }
 
   isEmpty() {

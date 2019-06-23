@@ -17,6 +17,11 @@ export function WithPropertyBase<TBase extends Constructor>(Base: TBase) {
 
     protected keyframeTreeMap_: TreeMap<number, KeyframeBase>;
 
+    constructor(...args: any[]) {
+      super(args);
+      this.keyframeTreeMap_ = new TreeMap();
+    }
+
     getInterpolatedPropertyValue(timeoffset: number): any {
       if (!this.animated) return this.defaultKeyframe.value;
       // touch getter to observe change
@@ -27,8 +32,9 @@ export function WithPropertyBase<TBase extends Constructor>(Base: TBase) {
           return this.defaultKeyframe.value;
         return next.prev().value.second.value;
       }
-      if (next.equals(this.keyframeTreeMap_.begin()))
+      if (next.equals(this.keyframeTreeMap_.begin())) {
         return next.value.second.value;
+      }
       let prevKeyframe = next.prev().value.second;
       let nextKeyframe = next.value.second;
       let t = (timeoffset - prevKeyframe.timecode) / (nextKeyframe.timecode - prevKeyframe.timecode);

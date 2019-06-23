@@ -10,31 +10,45 @@ import { VideoMediaTrackItem } from "internal/timeline/base/track-item/video-med
 @Posted
 export class TrackVideoRenderer extends WithTrackBase(MixinBase) implements PostedEventListener {
 
-  protected trackItems_: Map<TrackItemVideoRenderer, TrackItemTimeBase>;
+  protected trackItems_: Set<TrackItemVideoRenderer>;
   public get trackItem() { return this.trackItems_; }
   protected trackItemTreeMap_: TreeMap<TrackItemTimeBase, TrackItemVideoRenderer> = new TreeMap();
   
   protected POSTABLE_onDidAddTrackItem: PostedEvent<number>;
   protected POSTABLE_onWillRemoveTrackItem: PostedEvent<number>;
 
+  protected POSTABLE_onDidUpsertTrackItemTime: PostedEvent<number>;
+  protected POSTABLE_onDidRemoveTrackItemTime: PostedEvent<number>;
+
   onPostableInstanceCreated() {
-    this.POSTABLE_onDidAddTrackItem.on = trackItemID => {
+    // this.POSTABLE_onDidAddTrackItem.on = trackItemID => {
+    //   const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
+    //   console.warn('POSTABLE_onDidAddTrackItem', trackItem);
+    //   this.trackItemTreeMap_.insert(make_pair(trackItem.time, trackItem));
+    // }
+    // this.POSTABLE_onWillRemoveTrackItem.on = trackItemID => {
+    //   const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
+    //   console.warn('POSTABLE_onWillRemoveTrackItem', trackItem);
+    //   this.trackItemTreeMap_.erase(trackItem.time);
+    // }
+    this.POSTABLE_onDidUpsertTrackItemTime.on = trackItemID => {
       const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
-      console.warn('POSTABLE_onDidAddTrackItem', trackItem);
-      this.trackItemTreeMap_.insert(make_pair(trackItem.time, trackItem));
+      console.log('POSTABLE_onDidUpsertTrackItemTime')
+      this.doUpsertTrackItemTime(trackItem);
     }
-    this.POSTABLE_onWillRemoveTrackItem.on = trackItemID => {
+    this.POSTABLE_onDidRemoveTrackItemTime.on = trackItemID => {
       const trackItem: TrackItemVideoRenderer = ObjectStore.get(trackItemID);
-      console.warn('POSTABLE_onWillRemoveTrackItem', trackItem);
-      this.trackItemTreeMap_.erase(trackItem.time);
+      console.log('POSTABLE_onDidRemoveTrackItemTime')
+      this.doRemoveTrackItemTime(trackItem);
     }
   }
 
   async beforeDraw(timecode: number) {
     let trackItem = this.getTrackItemAt(timecode) as TrackItemVideoRenderer;
     if (trackItem == null) return;
+    console.log(timecode, trackItem.time.start, trackItem.time.base);
     if (trackItem.type == VideoMediaTrackItem.TYPE)
-      await trackItem.beforeDraw(timecode);
+      await trackItem.beforeDraw(timecode - trackItem.time.start + trackItem.time.base);
   }
 
   async draw(timecode: number) {

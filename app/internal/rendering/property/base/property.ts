@@ -10,6 +10,8 @@ import { Registry } from 'platform/registry/common/platform';
 import { Constructor, MixinBase } from 'base/olive/mixin';
 import { IKeyframeValue, KeyframeValue } from 'internal/rendering/property/base/keyframe-value';
 import { WithPropertyBase } from 'internal/rendering/property/common/property';
+import { WithDisposable, DisposableMap, newDisposableMap } from 'base/olive/lifecycle';
+import { IDisposable, dispose } from 'base/common/lifecycle';
 
 export enum PropertyEvent {
   KEYFRAME_ADDED = 'KEYFRAME_ADDED',
@@ -28,15 +30,22 @@ export interface SerializedProperty {
 }
 
 @Postable
-export abstract class Property<T extends IKeyframeValue> extends WithPropertyBase(MixinBase) implements Cloneable {
+export abstract class Property<T extends IKeyframeValue> extends WithDisposable(WithPropertyBase(MixinBase)) implements Cloneable {
   
   readonly id: number;
   readonly type: string;
 
-  onKeyframeAdded_: Emitter<Keyframe<T>> = new Emitter();
-  onKeyframeAdded: Event<Keyframe<T>> = this.onKeyframeAdded_.event;
-  onKeyframeWillRemove_: Emitter<Keyframe<T>> = new Emitter();
-  onKeyframeWillRemove: Event<Keyframe<T>> = this.onKeyframeWillRemove_.event;
+  private readonly onKeyframeAdded_: Emitter<Keyframe<T>> = new Emitter();
+  public readonly onKeyframeAdded: Event<Keyframe<T>> = this.onKeyframeAdded_.event;
+  private readonly onKeyframeWillRemove_: Emitter<Keyframe<T>> = new Emitter();
+  public readonly onKeyframeWillRemove: Event<Keyframe<T>> = this.onKeyframeWillRemove_.event;
+  private readonly onDidRemoveKeyframe_: Emitter<Keyframe<T>> = new Emitter();
+  public readonly onDidRemoveKeyframe: Event<Keyframe<T>> = this.onDidRemoveKeyframe_.event;
+  private readonly onDidChangeKeyframeValue_: Emitter<Keyframe<T>> = new Emitter();
+  public readonly onDidChangeKeyframeValue = this.onDidChangeKeyframeValue_.event;
+
+  private readonly onDidChangeAnimated_: Emitter<boolean> = new Emitter();
+  public readonly onDidChangeAnimated: Event<boolean> = this.onDidChangeAnimated_.event;
 
   //#region PropertyBase
 
@@ -45,6 +54,7 @@ export abstract class Property<T extends IKeyframeValue> extends WithPropertyBas
   protected defaultKeyframe_: Keyframe<T>;
   public get defaultKeyframe() { return this.defaultKeyframe_; }
   protected keyframeTreeMap_: TreeMap<number, Keyframe<T>>;
+  private keyframeDisposables_: DisposableMap<Keyframe<T>, IDisposable[]>;
 
   //#endregion
 
@@ -58,7 +68,17 @@ export abstract class Property<T extends IKeyframeValue> extends WithPropertyBas
     this.animated_ = false;
     this.keyframes_ = new Set<Keyframe<T>>();
     // this.keyframeTreeMap = new TreeMap<number, Keyframe<T>>();
+
     this.defaultKeyframe_ = new Keyframe<T>(0, defaultValue);
+    this._register(this.defaultKeyframe_.onDidChangeValue(() => {
+      this.onDidChangeKeyframeValue_.fire(this.defaultKeyframe_);
+    }));
+
+    this.keyframeDisposables_ = this._register(newDisposableMap<any, any>());
+  }
+
+  public getInterpolatedPropertyValue(timeoffset: number): T {
+    return super.getInterpolatedPropertyValue(timeoffset);
   }
 
   @action
@@ -69,7 +89,7 @@ export abstract class Property<T extends IKeyframeValue> extends WithPropertyBas
     }
     let lagacy = this.keyframeTreeMap_.find(timeoffset);
     if (!lagacy.equals(this.keyframeTreeMap_.end())) {
-      lagacy.value.second.value.setValue(value);
+      lagacy.value.second.setValue(value);
       return lagacy.value.second;
     }
     let keyframe = new Keyframe<T>(timeoffset, value);
@@ -78,29 +98,48 @@ export abstract class Property<T extends IKeyframeValue> extends WithPropertyBas
   }
 
   protected doAddKeyframe(keyframe: Keyframe<T>): Keyframe<T> {
+    if (this.keyframes.has(keyframe)) return;
     this.keyframeTreeMap_.insert(new Pair(keyframe.timecode, keyframe));
     this.keyframes_.add(keyframe);
+    this.registerKeyframeListeners(keyframe);
     this.onKeyframeAdded_.fire(keyframe);
     return keyframe;
   }
 
+  private registerKeyframeListeners(keyframe: Keyframe<T>) {
+    const disposables: IDisposable[] = [];
+    disposables.push(keyframe.onDidChangeValue(() => {
+      this.onDidChangeKeyframeValue_.fire(keyframe);
+    }));
+    this.keyframeDisposables_.set(keyframe, disposables);
+  }
+
   @action
   removeKeyframe(keyframe: Keyframe<T>) {
-    console.assert(this.keyframes.has(keyframe), '[property] no such keyframe', keyframe);
+    this.doRemoveKeyframe(keyframe);
+  }
+
+  private doRemoveKeyframe(keyframe: Keyframe<T>) {
+    if (!this.keyframes.has(keyframe)) return;
     this.onKeyframeWillRemove_.fire(keyframe);
     this.keyframeTreeMap_.erase(keyframe.timecode);
+    const disposables = this.keyframeDisposables_.get(keyframe);
+    this.keyframeDisposables_.delete(keyframe);
+    dispose(disposables);
     this.keyframes_.delete(keyframe);
+    this.onDidRemoveKeyframe_.fire(keyframe);
   }
 
   @action
   setAnimated(value: boolean) {
     this.animated_ = value;
+    this.onDidChangeAnimated_.fire(value);
   }
 
   abstract createValue(...args: any): T;
   abstract cloneValue(value: T): T;
   interpolate(lhs: T, rhs: T, t: number): T {
-    throw new Error('Not implemented exception');
+    return lhs.interpolate(lhs, rhs, t) as T;
   }
 
   clone(obj: Property<T>): Object {

@@ -5,12 +5,13 @@ import { StandardMouseEvent } from "base/browser/mouseEvent";
 import { IHistoryService } from "internal/history/history";
 import { AddTrackItemCommand } from "internal/history/timeline/commands";
 import { StorageItemDragAndDropData } from "window/view/dnd/dnd";
-import { ResourceStorageFile, MediaResourceStorageFile } from "internal/resource/base/resource-storage-file";
+import { MediaResourceStorageFile } from "internal/resource/base/resource-storage-file";
 import { ITrackItem } from "internal/timeline/base/track-item/track-item";
 import { TimelineStorageFile } from "internal/timeline/base/timeline-storage-file";
 import { ITrack } from "internal/timeline/base/track/track";
 import { TimelineWidget } from "window/workbench/common/widgets/timeline/widget-impl";
 import { GhostTrackItemView } from "window/workbench/common/widgets/timeline/model/track/ghost-track-item-view";
+import { ITrackItemzierService } from "internal/services/track-itemizer/track-itemizer-service";
 
 export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreController {
 
@@ -25,7 +26,8 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
   private lastDragOverTrack_: ITrack;
 
   constructor(private readonly widget_: TimelineWidget,
-    @IHistoryService private readonly historyService_: IHistoryService) {
+    @IHistoryService private readonly historyService_: IHistoryService,
+    @ITrackItemzierService private readonly trackItemizerService_: ITrackItemzierService) {
     super();
 
     this.toDispose_.push(widget_.onWidgetDragOver(e => this.widgetDragOverHandler(e), this));
@@ -77,7 +79,8 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
       if (this.lastDragData_ != dragData || this.dragTrackItem_ == null) {
         this.lastDragData_ = dragData;
         const storageDNDData = dragData as StorageItemDragAndDropData;
-        this.dragTrackItem_ = storageDNDData.storageItem.trackItemize();
+        this.dragTrackItem_ = this.trackItemizerService_.trackItemizeStorageItem(this.widget_.timeline, storageDNDData.storageItem);
+        if (this.dragTrackItem_ == null) return;
         // this.dragTrackItem_ = this.resourceService_.trackItemize(storageDNDData.getData());
       }
       if (this.lastDragOverTrack_ != track) {
@@ -102,8 +105,7 @@ export class TimelineWidgetCoreControllerImpl extends TimelineWidgetCoreControll
       const targetTrackItem = this.dragTrackItem_;
       const start = ghostTimelineState.translation;
       const end = targetTrackItem.duration + ghostTimelineState.translation;
-      this.historyService_.execute(new AddTrackItemCommand(track, targetTrackItem, start, end, 0));
-      this.historyService_.close();
+      track.addTrackItem(targetTrackItem, start, end, 0);
       this.dragTrackItem_ = null;
       this.ghostTrackItemViews_ = dispose(this.ghostTrackItemViews_);
       this.lastDragOverTrack_ = null;

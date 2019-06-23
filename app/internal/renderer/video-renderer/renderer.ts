@@ -36,7 +36,7 @@ export class Renderer {
     const msg = e.data;
     switch (msg.type) {
       case 'POST':
-        console.log(msg);
+        // console.log(msg);
         this.handlePostableMessage(msg);
         break;
       case 'INIT':

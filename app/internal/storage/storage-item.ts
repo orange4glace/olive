@@ -15,7 +15,6 @@ export interface IStorageItem extends Serializable {
   readonly type: string;
   readonly isDirectory: boolean;
 
-  trackItemize(): ITrackItem;
   setParent(item: IStorageItem): void;
   getAbsolutePath(): string;
   navigate(path: string): IStorageItem;
@@ -45,8 +44,6 @@ export abstract class StorageItem implements IStorageItem {
     this.name = name;
     this.uuid_ = uuid_ || uuid();
   }
-
-  abstract trackItemize(): ITrackItem;
 
   setParent(item: IStorageItem): void {
     this.parent = item;

@@ -1,0 +1,12 @@
+.component {
+
+  .indicator {
+    position: absolute;
+    z-index: 555;
+    top: 15px;
+    width: 1px;
+    bottom: 0px;
+    background: var(--primaryColor);
+  }
+
+}
